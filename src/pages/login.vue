@@ -139,6 +139,8 @@ const onFinish = (values) => {
     width: 100%;
     .bg {
       width: 70%;
+      display: block;
+      margin: 0 auto;
     }
 
     .toggleLang {

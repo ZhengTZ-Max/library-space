@@ -2,7 +2,6 @@ import { fileURLToPath, URL } from "url";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Pages from "vite-plugin-pages";
-import Layouts from "vite-plugin-vue-layouts";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,7 +10,7 @@ export default defineConfig({
     Pages({
       dirs: [
         { dir: "src/pages", baseRoute: "/" },
-        { dir: "src/mobile", baseRoute: "/m" },
+        { dir: "src/mobile", baseRoute: "/mo" },
       ],
       extendRoute(route) {
         // 默认重定向
@@ -28,7 +27,13 @@ export default defineConfig({
           newRoute = {
             ...route,
             redirect: "/home",
-            meta: { layout: "default" }, // 使用布局
+          };
+        }
+
+        if (route.path === "/mo") {
+          newRoute = {
+            ...route,
+            redirect: "/mo/home",
           };
         }
 
