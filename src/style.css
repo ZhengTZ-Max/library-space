@@ -1,0 +1,88 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
+}
+html {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+  scrollbar-width: inherit;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: hsl(214, 13%, 75%);
+  border-radius: 4px;
+}
+
+* {
+  transition: 0.15s;
+}
+p,
+h1 {
+  margin: 0;
+}
+div {
+  box-sizing: border-box;
+}
+.activeBtn {
+  user-select: none;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.activeBtn:active {
+  opacity: 0.7;
+  transform: scale(0.9);
+}
+.ant-spin-nested-loading {
+  height: 100%;
+}
+.ant-spin {
+  max-height: 95% !important;
+}
+
+.clickBox {
+  user-select: none;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.clickBox:active {
+  opacity: 0.8;
+  transform: scale(0.99);
+}
