@@ -37,6 +37,7 @@ const state = reactive({
   ],
   tiemValue: "15:00~19:00",
 });
+
 const onShowModal = (record) => {
   state.isModalVisible = true;
   state.selectLocationName = record.location;
@@ -143,7 +144,7 @@ const data = [
 
 <style scoped lang="less">
 .table {
-  margin-left: 30px;
+  padding-left: 30px;
 }
 
 :deep(.ant-table-thead > tr > th) {
