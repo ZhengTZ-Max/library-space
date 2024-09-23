@@ -1,6 +1,9 @@
 <template>
     <div class="about">
-      <h1>我是常用预约页面</h1>
+      <Content></Content>
     </div>
   </template>
+  <script setup>
+  import Content from "@/components/c-appointments-content.vue";
+  </script>
   
