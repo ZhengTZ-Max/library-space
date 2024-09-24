@@ -8,6 +8,7 @@ const state = reactive({
   rightNavs: [
     { label: "常用预约", link: "c-appointments" },
     { label: "座位预约记录", link: "seat-record" },
+    { label: "空间预约记录", link: "area-record" },
   ],
   isShowDrawer: false,
 });

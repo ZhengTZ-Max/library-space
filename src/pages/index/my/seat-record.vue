@@ -20,7 +20,7 @@ const state = reactive({
     },
   },
 
-  room: [
+  room: [ 
     {
       label: "图书馆",
       value: "图书馆",
@@ -425,19 +425,7 @@ const onQuery = () => {
 .red {
   color: red;
 }
-.segmented {
-  width: 386px;
-  height: 36px;
-}
-.ant-segmented {
-  border-radius: 21px;
-}
-.ant-segmented {
-  background-color: #f3f4f8;
-}
-:root {
-  --antd-segmented-selected-color: #ffffff;
-}
+
 .custom-tag {
   border-radius: 12px;
 }
