@@ -102,12 +102,13 @@ const data = [
   <a-modal
     v-model:open="state.isModalVisible"
     title="快速预约"
+    :footer="null"
     @ok="onHideModal"
   >
-    <template #footer>
+    <!-- <template #footer>
       <a-button key="cancel" @click="onHideModal">取消</a-button>
       <a-button key="submit" type="primary" @click="onHideModal">确认</a-button>
-    </template>
+    </template> -->
     <a-divider />
     <div>
       <div class="dialog-title">地点</div>
@@ -138,6 +139,12 @@ const data = [
           </template>
         </a-radio-group>
       </div>
+
+      <a-divider />
+      <div class="modal-footer">
+        <a-button class="cancel-button" @click="onHideModal">取消</a-button>
+        <a-button type="primary" class="confirm-button" @click="onHideModal">确认</a-button>
+      </div>
     </div>
   </a-modal>
 </template>
@@ -163,4 +170,29 @@ const data = [
 .checkboxItem {
   padding: 20px;
 }
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 0 20px;
+}
+
+.cancel-button,
+.confirm-button {
+  width: 120px;
+  border-radius: 4px;
+}
+
+.cancel-button {
+  margin-right: 10px; 
+  background-color: #f0f0f0; 
+  border-color: #d9d9d9;
+  color: #9fa0a7;
+}
+
+.confirm-button {
+  margin-left: 10px; 
+}
+
+
 </style>
