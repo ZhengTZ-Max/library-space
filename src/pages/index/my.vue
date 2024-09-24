@@ -9,7 +9,24 @@ const state = reactive({
     { label: "常用预约", link: "c-appointments" },
     { label: "座位预约记录", link: "seat-record" },
   ],
+  isShowDrawer: false,
 });
+
+const formState = reactive({
+  studentId: "",
+  name: "",
+  oldPassword: "",
+  newPassword: "",
+  confirmPassword: "",
+});
+
+const onShowDrawer = () => {
+  state.isShowDrawer = true;
+};
+
+const onHideDrawer = () => {
+  state.isShowDrawer = false;
+};
 
 const isRightActiveNav = (link) => {
   return route.path?.includes(link);
@@ -81,7 +98,14 @@ const onChangeNav = (item) => {
             >退出登录</a-button
           >
 
-          <a-button type="primary" shape="round" ghost block>修改密码</a-button>
+          <a-button
+            type="primary"
+            shape="round"
+            ghost
+            block
+            @click="onShowDrawer"
+            >修改密码</a-button
+          >
         </div>
       </div>
     </div>
@@ -105,6 +129,55 @@ const onChangeNav = (item) => {
       </div>
     </div>
   </div>
+
+  <a-drawer
+    title="修改密码"
+    :open="state.isShowDrawer"
+    @close="onClose"
+    :footer="null"
+    width="600px"
+  >
+    <a-form
+      :model="formState"
+      layout="horizontal"
+      :label-col="{ span: 6 }"
+      :wrapper-col="{ span: 18 }"
+    >
+      <a-form-item label="学工号：" name="studentId">
+        <a-input
+          v-model:value="formState.studentId"
+          placeholder="请输入学工号"
+        />
+      </a-form-item>
+      <a-form-item label="姓名：" name="name">
+        <a-input v-model:value="formState.name" placeholder="请输入您的姓名" />
+      </a-form-item>
+      <a-form-item label="原密码：" name="oldPassword">
+        <a-input-password
+          v-model:value="formState.oldPassword"
+          placeholder="请输入原密码"
+        />
+      </a-form-item>
+      <a-form-item label="新密码：" name="newPassword">
+        <a-input-password
+          v-model:value="formState.newPassword"
+          placeholder="请输入新密码"
+        />
+      </a-form-item>
+      <a-form-item label="确认密码：" name="confirmPassword">
+        <a-input-password
+          v-model:value="formState.confirmPassword"
+          placeholder="请再次输入新密码"
+        />
+      </a-form-item>
+    </a-form>
+    <template #extra>
+      <a-button class="cancel-button" @click="onHideDrawer">取消</a-button>
+      <a-button type="primary" class="confirm-button" @click="onSubmit"
+        >确认</a-button
+      >
+    </template>
+  </a-drawer>
 </template>
 
 <style scoped lang="less">
@@ -228,5 +301,41 @@ const onChangeNav = (item) => {
       border-radius: 0 10px 10px 10px;
     }
   }
+}
+
+.cancel-button,
+.confirm-button {
+  width: 80px;
+  height: 30px; 
+  font-size: 14px;
+  border-radius: 4px;
+  text-align: center;
+  padding: 0; /* 移除默认内边距 */
+}
+
+.cancel-button {
+  margin-right: 10px;
+  background-color: #f0f0f0;
+  border-color: #d9d9d9;
+  color: #9fa0a7;
+}
+
+.confirm-button {
+  margin-left: 10px;
+}
+:deep(.ant-form-item) {
+  margin-bottom: 16px;
+}
+
+:deep(.ant-form-item-label) {
+  text-align: left !important;
+  padding-right: 8px;
+}
+:deep(.ant-form-item-label > label) {
+  font-weight: bold;
+}
+
+:deep(.ant-input-affix-wrapper) {
+  width: 100%;
 }
 </style>
