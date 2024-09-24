@@ -9,6 +9,8 @@ const state = reactive({
     { label: "常用预约", link: "c-appointments" },
     { label: "座位预约记录", link: "seat-record" },
     { label: "空间预约记录", link: "area-record" },
+    { label: "活动预约记录", link: "activity-record" },
+    { label: "存书柜预约记录", link: "book-locker" },
   ],
   isShowDrawer: false,
 });
