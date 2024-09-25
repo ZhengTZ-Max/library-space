@@ -2,6 +2,7 @@
 import { CheckCircleFilled } from "@ant-design/icons-vue";
 import { reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { Modal } from "ant-design-vue";
 const router = useRouter();
 const route = useRoute();
 const state = reactive({
@@ -40,11 +41,15 @@ const onChangeNav = (item) => {
   console.log(item, router);
   router.replace(`/my/${item?.link}`);
 };
+
+const onHelp = () => {
+  router.push('/help');
+};
 </script>
 <template>
   <div class="my">
     <div class="userInfo">
-      <div class="useHelp clickBox">
+      <div class="useHelp clickBox" @click="onHelp">
         <img class="helpSvg" src="@/assets/my/help.svg" alt="" />
         <p class="helpTxt">使用与帮助</p>
         <img class="rightIcon" src="@/assets/my/rightIcon.svg" alt="" />
@@ -310,7 +315,7 @@ const onChangeNav = (item) => {
 .cancel-button,
 .confirm-button {
   width: 80px;
-  height: 30px; 
+  height: 30px;
   font-size: 14px;
   border-radius: 4px;
   text-align: center;
