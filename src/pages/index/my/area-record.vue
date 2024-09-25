@@ -349,7 +349,7 @@ const onHideModal = () => {
         <p>预约时间：{{ state.selectedRecord.reservationTime }}</p>
         <p>开始时间：{{ state.selectedRecord.startTime }}</p>
         <p>结束时间：{{ state.selectedRecord.endTime }}</p>
-        <p>预约地点：{{ state.selectedRecord.seat }}</p>
+        <p>预约地点：{{ state.selectedRecord.area }}</p>
         <p>预约信息：{{ state.selectedRecord.info }}</p>
         <div class="members-row">
           <span>全部成员：</span>

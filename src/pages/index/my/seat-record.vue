@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive } from "vue";
 import { useStore } from "vuex";
+import { SearchOutlined } from "@ant-design/icons-vue";
 
 const store = useStore();
 const state = reactive({
@@ -327,7 +328,7 @@ const onQuery = () => {
       </div>
       <div class="query-result-footer">
         <a-button type="primary" class="query-button" @click="onQuery"
-          >查询</a-button
+          ><SearchOutlined /> 查询</a-button
         >
       </div>
     </a-card>

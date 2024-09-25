@@ -11,6 +11,7 @@ const state = reactive({
     { label: "空间预约记录", link: "area-record" },
     { label: "活动预约记录", link: "activity-record" },
     { label: "存书柜预约记录", link: "book-locker" },
+    { label: "失物招领", link: "lostAndFound" },
   ],
   isShowDrawer: false,
 });
