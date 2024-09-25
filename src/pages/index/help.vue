@@ -40,8 +40,51 @@
             <p>这里是预约系统的详细使用说明...</p>
           </div>
           <div v-else-if="selectedKey === '2'">
-            <h3>场馆预约规则说明</h3>
-            <p>这里是关于场馆预约的规则和注意事项...</p>
+            <div class="layout">
+              <div class="header">场馆预约规则说明</div>
+
+              <div class="rules">
+                <p>
+                  1.
+                  读者预约当日或次日的研讨室,预约登录系统用户名为学号,密码为校园卡统一身份认证密码。
+                </p>
+                <p>
+                  2. 预约时须填写必要的预约申请,研讨室需要提交其他参与人员学号。
+                </p>
+                <p>
+                  3.
+                  研讨室开放时间为每日8:00-22:00,各层研讨室每次预约最短1小时,最长4小时。
+                </p>
+                <p>4. 每人每日可预约使用研讨室一次。</p>
+              </div>
+
+              <div class="floor-plan">
+                <!-- 这里放置图片 -->
+                <img
+                  src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
+                  alt="楼层平面图"
+                />
+              </div>
+
+              <div class="additional-rules">
+                <p>
+                  5.
+                  预约成功后,开始时间前15分钟内可刷卡签到(之前没有其他预约者)。距离预约开始前15分钟,可取消预约。取消具体操作：点击"我的--研讨室预约"取消预约。
+                </p>
+                <p>
+                  6.
+                  预约成功后,全部成员须按时刷卡签到;研讨室至少需要3人刷卡签到;预约开始15分钟后,若成员刷卡签到人数未达研讨室最少使用人数,系统记录申请人违约一次,并且释放本次预约。违约三次后将被暂停使用图书馆的座位与空间的预约权限7天。
+                </p>
+                <p>
+                  7.
+                  读者进入研讨室后须先查看设备是否完好,有问题请及时联系工作人员（联系方式在预约网页"房间信息"或门口牌卡上查看）。否则,本次设备故障由预约人负责。
+                </p>
+                <p>
+                  8.
+                  研讨室使用完成后,使用者负责将室内物品及设备恢复使用前的状态,带走个人物品及废弃物,关好门窗,关闭电源及房门。
+                </p>
+              </div>
+            </div>
           </div>
           <div v-else-if="selectedKey === '3'">
             <h3>设备租借指南</h3>
@@ -179,5 +222,30 @@ const goBack = () => {
 
 :deep(.ant-radio-wrapper) {
   margin-right: 0;
+}
+
+.header {
+  font-size: 16px;
+  font-weight: bold;
+
+  margin-bottom: 20px;
+}
+.rules, .additional-rules {
+  margin-bottom: 20px;
+}
+
+.rules p, .additional-rules p {
+    color:#818181;
+  margin: 12px;
+}
+
+.floor-plan {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.floor-plan img {
+  max-width: 100%;
+  height: auto;
 }
 </style>
