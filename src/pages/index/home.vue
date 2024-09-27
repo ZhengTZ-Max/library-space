@@ -1,4 +1,6 @@
-<script setup></script>
+<script setup>
+import AppointmentsCards from "@/components/h-appointments-cards.vue";
+</script>
 <template>
   <div class="home">
     <div class="content">
@@ -23,6 +25,8 @@
     </div>
 
     <div class="footer"></div>
+
+    <AppointmentsCards />
   </div>
 </template>
 
