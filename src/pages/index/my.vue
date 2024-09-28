@@ -143,6 +143,7 @@ const onHelp = () => {
     title="修改密码"
     :open="state.isShowDrawer"
     @close="onClose"
+    :closable="false"
     :footer="null"
     width="600px"
   >
