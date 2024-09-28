@@ -1,7 +1,8 @@
 <script setup>
 import { ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
-import { ShareAltOutlined } from "@ant-design/icons-vue";
+import AppointmentItem from "@/components/AppointmentItem.vue";
+import Carousel from "@/components/CarouselCom.vue";
 
 const store = useStore();
 const onCheckedForLocation = ref(true);
@@ -164,8 +165,8 @@ const statusClass = computed(() => {
   }
 });
 
-const dates = ['2024-02-19', '2024-02-20', '2024-02-21', '2024-02-22'];
-const times = ['08:00~10:00', '10:00~12:00', '13:00~15:00'];
+const dates = ["2024-02-19", "2024-02-20", "2024-02-21", "2024-02-22"];
+const times = ["08:00~10:00", "10:00~12:00", "13:00~15:00"];
 </script>
 
 <template>
@@ -260,13 +261,25 @@ const times = ['08:00~10:00', '10:00~12:00', '13:00~15:00'];
       </div>
       <a-divider />
       <div class="drawer-content">
-        <div class="content-top">
-          <a-carousel :dots="false">
-            <div><h3>1</h3></div>
-            <div><h3>2</h3></div>
-            <div><h3>3</h3></div>
-            <div><h3>4</h3></div>
-          </a-carousel>
+        <div
+          class="content-top"
+          v-if="
+            (state.activeKey === 'apply' &&
+            state.selectedRecord.status !== '等待审核') ||
+            state.activeKey === 'register'
+          "
+        >
+          <Carousel>
+            <template v-slot:content>
+              <div v-for="i in 3">
+                <img
+                  class="image"
+                  src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
+                  alt=""
+                />
+              </div>
+            </template>
+          </Carousel>
           <div class="controls">
             <div
               class="toggleLang"
@@ -283,19 +296,6 @@ const times = ['08:00~10:00', '10:00~12:00', '13:00~15:00'];
               />
               <span class="share-text">分享</span>
             </div>
-          </div>
-
-          <div class="navigation">
-            <img src="@/assets/prev.svg" alt="" />
-            <div class="indicators">
-              <span
-                v-for="(_, index) in images"
-                :key="index"
-                :class="['indicator', { active: index === currentIndex }]"
-              >
-              </span>
-            </div>
-            <img src="@/assets/next.svg" alt="" />
           </div>
         </div>
 
@@ -409,7 +409,11 @@ const times = ['08:00~10:00', '10:00~12:00', '13:00~15:00'];
               </div>
             </div>
             <div v-if="state.selectedRecord.status === '报名成功'">
-              <a-button type="primary" shape="round" size="large" @click="onHideDrawer"
+              <a-button
+                type="primary"
+                shape="round"
+                size="large"
+                @click="onHideDrawer"
                 >取消报名</a-button
               >
             </div>
@@ -467,22 +471,16 @@ const times = ['08:00~10:00', '10:00~12:00', '13:00~15:00'];
   position: relative;
   width: 100%;
   max-width: 400px;
-}
-:deep(.slick-slide) {
-  text-align: center;
-  height: 160px;
-  line-height: 160px;
-  background: #065213;
-  overflow: hidden;
+  .image {
+    width: 400px;
+    height: 225px;
+  }
 }
 
-:deep(.slick-slide h3) {
-  color: #fff;
-}
 .controls {
   position: absolute;
   width: 263px;
-  bottom: 36px;
+  bottom: 30px;
   left: 136px;
   display: flex;
   justify-content: space-between;
