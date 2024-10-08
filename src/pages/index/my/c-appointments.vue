@@ -1,10 +1,12 @@
 <script setup>
 import { ref, reactive } from "vue";
+import { useStore } from "vuex";
+// import { format, addDays } from "date-fns"; // 引入日期工具
 
 const onCheckedForLocation = ref(true);
 const onCheckedForData = ref(false);
 const onCheckedForTime = ref(false);
-
+const store = useStore();
 const state = reactive({
   isModalVisible: false,
   selectLocationName: "",
@@ -35,7 +37,7 @@ const state = reactive({
       value: "15:00~19:00",
     },
   ],
-  tiemValue: "15:00~19:00",
+  timeValue: "15:00~19:00",
 });
 
 const onShowModal = (record) => {
@@ -81,23 +83,76 @@ const data = [
     seating: "015",
   },
 ];
+
+// 生成日期和时间选项
+// const generateDateAndTimeOptions = () => {
+//   const today = new Date();
+//   for (let i = 0; i < 3; i++) {
+//     const date = addDays(today, i);
+//     state.dates.push({
+//       label: format(date, 'yyyy-MM-dd (E)'),
+//       value: format(date, 'yyyy-MM-dd (E)'),
+//     });
+//     state.times.push({
+//       label: `${format(date, 'HH:mm')}~${format(date, 'HH:mm', { addHours: 8 })}`, // 假设时间范围
+//       value: `${format(date, 'HH:mm')}~${format(date, 'HH:mm', { addHours: 8 })}`,
+//     });
+//   }
+// };
+
+// generateDateAndTimeOptions(); // 生成选项
 </script>
 
 <template>
   <div class="table">
-    <a-tabs v-model:activeKey="activeKey" size='middle'>
-      <a-tab-pane key="seat" tab="常用座位"></a-tab-pane>
-      <a-tab-pane key="seminar" tab="常用研讨室"></a-tab-pane>
+    <a-tabs v-model:activeKey="activeKey" size="middle">
+      <a-tab-pane key="seat" tab="座位"></a-tab-pane>
+      <a-tab-pane key="seminar" tab="空间"></a-tab-pane>
     </a-tabs>
-    <a-table :columns="columns" :data-source="data">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'action'">
-          <span>
-            <a type="primary" @click="onShowModal(record)">预约</a>
-          </span>
+    <div class="header">
+      <div
+        class="toggleLang"
+        :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
+      >
+        <div class="langItem langActive activeBtn">收藏</div>
+        <div class="langItem activeBtn">常用</div>
+      </div>
+
+      <div class="date-time-selector">
+        <div class="date-selector">
+          <span>日期：</span>
+          <a-radio-group v-model:value="state.dateValue">
+            <template v-for="item in state.dates" :key="item.value">
+              <a-radio :value="item.value">{{ item.label }}</a-radio>
+            </template>
+          </a-radio-group>
+        </div>
+        <div class="time-selector">
+          <span>时间：</span>
+          <a-radio-group v-model:value="state.timeValue">
+            <template v-for="item in state.times" :key="item.value">
+              <a-radio :value="item.value">{{ item.label }}</a-radio>
+            </template>
+          </a-radio-group>
+        </div>
+      </div>
+    </div>
+
+    <div class="table_content">
+      <a-table :columns="columns" :data-source="data">
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'action'">
+            <span>
+              <a class="red" type="primary" @click="onShowModal(record)"
+                >取消收藏</a
+              >
+              <a-divider type="vertical" />
+              <a type="primary" @click="onShowModal(record)">预约</a>
+            </span>
+          </template>
         </template>
-      </template>
-    </a-table>
+      </a-table>
+    </div>
   </div>
   <a-modal
     v-model:open="state.isModalVisible"
@@ -143,7 +198,9 @@ const data = [
       <a-divider />
       <div class="modal-footer">
         <a-button class="cancel-button" @click="onHideModal">取消</a-button>
-        <a-button type="primary" class="confirm-button" @click="onHideModal">确认</a-button>
+        <a-button type="primary" class="confirm-button" @click="onHideModal"
+          >确认</a-button
+        >
       </div>
     </div>
   </a-modal>
@@ -152,6 +209,60 @@ const data = [
 <style scoped lang="less">
 .table {
   padding-left: 30px;
+  position: relative;
+
+  .red {
+    color: red;
+  }
+  .header {
+    display: flex;
+    justify-content: end; /* 使内容均匀分布 */
+    align-items: center; /* 垂直居中对齐 */
+    .date-time-selector {
+      display: flex;
+      margin-top: 10px;
+
+      .date-selector,
+      .time-selector {
+        margin-left: 20px; /* 添加左侧间距 */
+      }
+    }
+
+    .toggleLang {
+      position: absolute;
+      top: 36px;
+      left: 30px;
+      width: 240px;
+      height: 36px;
+      padding: 4px;
+      background: #f1f1f1;
+      border-radius: 21px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .langItem {
+        color: #868686;
+        padding: 2px 34px;
+        min-width: 100px;
+        height: 28px;
+      }
+      .langActive {
+        background: #ffffff;
+        box-shadow: 0px 5px 10px 0px rgba(51, 102, 153, 0.1);
+        border-radius: 17px 17px 17px 17px;
+        font-weight: bold;
+        font-size: 14px;
+        color: #1f56e1;
+      }
+    }
+    .toggleLangPc {
+      top: 65px;
+      left: 30px;
+    }
+  }
+}
+.table_content {
+  margin-top: 60px;
 }
 
 :deep(.ant-table-thead > tr > th) {
@@ -184,15 +295,13 @@ const data = [
 }
 
 .cancel-button {
-  margin-right: 10px; 
-  background-color: #f0f0f0; 
+  margin-right: 10px;
+  background-color: #f0f0f0;
   border-color: #d9d9d9;
   color: #9fa0a7;
 }
 
 .confirm-button {
-  margin-left: 10px; 
+  margin-left: 10px;
 }
-
-
 </style>
