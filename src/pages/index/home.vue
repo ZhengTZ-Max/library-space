@@ -1,5 +1,13 @@
 <script setup>
+import { reactive, onMounted } from "vue";
+import { useStore } from "vuex";
 import AppointmentsCards from "@/components/h-appointments-cards.vue";
+import Tabs from "@/components/h-tabs.vue";
+const store = useStore();
+
+const state = reactive({});
+
+onMounted(() => {});
 </script>
 <template>
   <div class="home">
@@ -15,12 +23,7 @@ import AppointmentsCards from "@/components/h-appointments-cards.vue";
           不如用知识武装自己...
         </p>
 
-        <div class="tabs">
-          <div v-for="i in 7" class="tabItem activeBtn">
-            <img src="@/assets/home/seatIcon.svg" alt="" />
-            <p>座位预约</p>
-          </div>
-        </div>
+        <Tabs></Tabs>
       </div>
     </div>
 
@@ -58,15 +61,16 @@ import AppointmentsCards from "@/components/h-appointments-cards.vue";
       .library {
         margin: 8px 0 0 0;
         font-weight: 400;
-        font-size: 80px;
+        font-size: 75px;
         color: #1a49c0;
-        line-height: 100px;
+        line-height: 80px;
+        transform: skewX(-6deg);
       }
 
       .tabs {
         margin-top: 40px;
         display: grid;
-        grid-template-columns: repeat(4, 106px);
+        grid-template-columns: repeat(5, 106px);
         grid-row-gap: 30px;
         grid-column-gap: 30px;
         .tabItem {

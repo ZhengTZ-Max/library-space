@@ -23,6 +23,10 @@ const onToggleCard = (type) => {
         transform: !state.isUnfold ? 'translateX(440px)' : 'translateX(0)',
       }"
     >
+      <div class="appointmentsTypes">
+        <div class="itemTab">座位</div>
+        <div class="itemTab active">空间</div>
+      </div>
       <Transition>
         <div
           v-if="state.isUnfold"
@@ -57,14 +61,35 @@ const onToggleCard = (type) => {
   right: 0;
   top: 65%;
   transform: translate(0%, -65%);
+
   .unfold {
     position: relative;
     display: flex;
+    .appointmentsTypes {
+      position: absolute;
+      top: -32px;
+      display: flex;
+      align-items: center;
+      .itemTab {
+        padding: 6px 24px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px 10px 0px 0px;
+        font-weight: normal;
+        font-size: 15px;
+        color: rgba(32, 32, 32, 0.4);
+        margin-right: 2px;
+        cursor: pointer;
+        &.active {
+          background: #ffffff;
+          color: #1a49c0;
+        }
+      }
+    }
     .CardCon {
       width: 440px;
       box-shadow: 0px 24px 48px 0px rgba(0, 13, 75, 0.24);
       background: #ffffff;
-      border-radius: 10px 0px 0px 10px;
+      border-radius: 0 0px 0px 10px;
     }
     .shrink {
       position: absolute;

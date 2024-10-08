@@ -19,6 +19,7 @@ const state = reactive({
       link: "rule",
     },
   ],
+  quickValue: "",
 });
 
 const isActiveNav = (link) => {
@@ -26,6 +27,10 @@ const isActiveNav = (link) => {
 };
 const onChangeNav = (item) => {
   router.push(`/${item?.link}`);
+};
+
+const handleChange = (value) => {
+  console.log(`selected ${value}`);
 };
 </script>
 <template>
@@ -46,6 +51,20 @@ const onChangeNav = (item) => {
     </div>
     <div class="navr">
       <!-- <div class="navItem">我的</div> -->
+      <div class="navItem quickSelect">
+        <a-select
+          v-model:value="state.quickValue"
+          @change="handleChange"
+          size="small"
+          popupClassName="popupQuickSlt"
+        >
+          <a-select-option value="">
+            <img src="@/assets/home/quickSelectIcon_01.svg" alt="" srcset="" />
+            常用预约
+          </a-select-option>
+          <a-select-option value="lucy">lucy</a-select-option>
+        </a-select>
+      </div>
       <div class="navItem activeBtn">
         <img src="@/assets/loginout.svg" alt="" />
       </div>
@@ -53,7 +72,7 @@ const onChangeNav = (item) => {
   </header>
 </template>
 
-<style lang="less">
+<style lang="less" scoped>
 .PcHeader {
   box-sizing: border-box;
   display: flex;
@@ -84,6 +103,45 @@ const onChangeNav = (item) => {
     .navItem {
       cursor: pointer;
     }
+    .quickSelect {
+      margin-right: 40px;
+      width: 180px;
+      padding: 9px 16px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 21px;
+      :deep(.ant-select) {
+        display: block;
+        .ant-select-selector {
+          background-color: transparent !important;
+          border: none;
+          .ant-select-selection-item {
+            color: #fff;
+            display: flex;
+            align-items: center;
+            img {
+              margin-right: 6px;
+            }
+          }
+        }
+        .ant-select-arrow {
+          color: #fff;
+        }
+      }
+    }
+  }
+}
+</style>
+
+<style lang="less">
+.popupQuickSlt {
+  background-color: rgb(76, 109, 204);
+  .ant-select-item {
+    color: #fff;
+  }
+  .ant-select-item-option-selected {
+    color: rgb(255 255 255) !important;
+    font-weight: 600;
+    background-color: rgba(0, 0, 0, 0.14) !important;
   }
 }
 </style>

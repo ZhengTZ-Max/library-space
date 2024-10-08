@@ -62,8 +62,10 @@ service.interceptors.request.use(
   },
   function (error) {
     // 对请求错误做些什么
-    console.log(error);
-    Toast.clear();
+    // console.log(error);
+    // Toast.clear();
+    ClearPageLoading(error?.config);
+
     return Promise.reject(error);
   }
 );
@@ -92,9 +94,10 @@ service.interceptors.response.use(
     return dataAxios;
   },
   function (error) {
-    Toast({
-      message: "网络请求错误~",
-    });
+    ClearPageLoading(error?.config);
+    // Toast({
+    //   message: "网络请求错误~",
+    // });
     return Promise.reject(error);
   }
 );
@@ -118,6 +121,11 @@ const isRemovePageLoading = (config) => {
     store.commit("setPageLoading", false);
     config.PageLoading = false;
   }
+};
+
+const ClearPageLoading = (config) => {
+  store.commit("setPageLoading", false);
+  config.PageLoading = false;
 };
 
 export default service;

@@ -13,6 +13,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@font-face {
+  font-family: AliLight;
+  src: url("./assets/font/AlibabaPuHuiTi-2-45-Light.otf");
+}
+
+@font-face {
+  font-family: AliRegular;
+  src: url("./assets/font/AlibabaPuHuiTi-2-55-Regular.otf");
+}
+* {
+  font-family: AliRegular;
+}
 #app {
   width: 100%;
   height: 100%;
