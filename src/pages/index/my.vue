@@ -43,7 +43,7 @@ const onChangeNav = (item) => {
 };
 
 const onHelp = () => {
-  router.push('/help');
+  router.push("/help");
 };
 </script>
 <template>
@@ -234,6 +234,7 @@ const onHelp = () => {
       height: 100%;
       flex: 1;
       padding: 34px 40px;
+      overflow-y: auto;
 
       .userName {
         padding: 0 10px;

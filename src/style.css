@@ -23,7 +23,7 @@
   src: url("./assets/font/AlibabaPuHuiTi-2-55-Regular.otf");
 }
 * {
-  font-family: AliRegular;
+  font-family: AliRegular !important;
 }
 #app {
   width: 100%;
