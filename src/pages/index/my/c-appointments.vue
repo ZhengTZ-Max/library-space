@@ -22,6 +22,11 @@ const state = reactive({
       label: "2023-11-29 (明天)",
       value: "2023-11-29 (明天)",
     },
+    {
+      // 使用date utils
+      label: "2023-11-30 (后天)",
+      value: "2023-11-30 (后天)",
+    },
   ],
   dateValue: "2023-11-28 (今天)",
 
@@ -216,9 +221,9 @@ const data = [
   }
   .header {
     display: flex;
-    justify-content: end; /* 使内容均匀分布 */
-    align-items: center; /* 垂直居中对齐 */
+
     .date-time-selector {
+      margin-left: 240px;
       display: flex;
       margin-top: 10px;
 
