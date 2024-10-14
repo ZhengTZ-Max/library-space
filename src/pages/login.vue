@@ -203,6 +203,7 @@ const onFinish = (values) => {
       width: 90px;
       height: 24px;
       object-fit: contain;
+      cursor: pointer;
     }
     .forgetPass {
       margin: 0 auto;

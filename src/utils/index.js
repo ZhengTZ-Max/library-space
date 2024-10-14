@@ -188,3 +188,110 @@ export const exchangeDateTime = (date, type = "") => {
       return moment(date).format("DD/MM/YYYY");
   }
 };
+
+export function useLanguage() {
+  const UserInfo =
+    sessionStorage.getItem("UserInfo") &&
+    JSON.parse(sessionStorage.getItem("UserInfo"));
+  let language = "zh";
+  if (!UserInfo) {
+    return language;
+  }
+  if (UserInfo?.language == 2) {
+    language = "en";
+  }
+  return language;
+}
+
+export const tabType = [
+  {
+    id: "1",
+    name: "座位预约",
+    enname: "Seat Reservation",
+    path: "/seat",
+  },
+  {
+    id: "2",
+    name: "空间预约",
+    enname: "Space Reservation",
+    path: "",
+  },
+  {
+    id: "3",
+    name: "常用预约",
+    enname: "often Reservation",
+    path: "",
+  },
+  {
+    id: "4",
+    name: "大型空间",
+    enname: "big seminar Room",
+    path: "",
+  },
+  {
+    id: "5",
+    name: "入馆预约",
+    enname: "Admission Reservation",
+    path: "",
+  },
+  {
+    id: "6",
+    name: "研习座位",
+    enname: "Admission Reservation",
+    path: "",
+  },
+  {
+    id: "7",
+    name: "考研座位",
+    enname: "Postgraduate Seats",
+    path: "",
+  },
+  {
+    id: "8",
+    name: "入馆查询",
+    enname: "Library entry Query",
+    path: "",
+  },
+  {
+    id: "9",
+    name: "活动报名",
+    enname: "Event Registration",
+    path: "",
+  },
+  {
+    id: "10",
+    name: "存书柜预约",
+    enname: "Bookcase Reservation",
+    path: "",
+  },
+  {
+    id: "11",
+    name: "设备租借",
+    enname: "Device Reservation",
+    path: "",
+  },
+  {
+    id: "12",
+    name: "活动申请",
+    enname: "Activity Application",
+    path: "",
+  },
+  {
+    id: "13",
+    name: "清柜",
+    enname: "Locker  Clear",
+    path: "",
+  },
+  {
+    id: "14",
+    name: "物品招领",
+    enname: "Lost  Item Locker",
+    path: "",
+  },
+  {
+    id: "15",
+    name: "帮助与反馈",
+    enname: "Feedback and Repair Request",
+    path: "",
+  },
+];

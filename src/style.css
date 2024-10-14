@@ -127,3 +127,76 @@ div {
 .v-leave-to {
   opacity: 0;
 }
+
+.ant-spin-container::after {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+.ant-spin-blur {
+  opacity: initial !important;
+}
+.ant-spin-blur::after {
+  opacity: 0.3;
+}
+
+.quickBtns {
+  min-width: 147px;
+  height: 36px;
+  padding: 4px;
+  background: #f1f1f1;
+  border-radius: 21px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.quickBtns .item {
+  color: #868686;
+  padding: 2px 16px;
+  padding-top: 4px;
+  min-width: 60px;
+  height: 28px;
+}
+.quickBtns .itemActive {
+  background: #ffffff;
+  box-shadow: 0px 5px 10px 0px rgba(51, 102, 153, 0.1);
+  border-radius: 17px 17px 17px 17px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #1f56e1;
+}
+
+.cardItem {
+  padding: 10px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 2px solid #e7e7e7;
+  cursor: pointer;
+}
+.libraryItem .cardItemImgCon {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.libraryItem .cardItemImgCon .posBot {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  padding: 28px 20px 14px 20px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%);
+}
+.libraryItem .cardItemImgCon .cardItemImg {
+  width: 100%;
+  /* width: 389px; */
+  height: 220px;
+  object-fit: cover;
+}
+
+.activeItem {
+  border: 2px solid #1a49c0;
+}
+
+.ant-modal-footer{
+  margin: 12px -24px 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(4,4,21,0.05);
+  text-align: center !important;
+}

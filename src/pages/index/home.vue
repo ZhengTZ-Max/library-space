@@ -67,31 +67,7 @@ onMounted(() => {});
         transform: skewX(-6deg);
       }
 
-      .tabs {
-        margin-top: 40px;
-        display: grid;
-        grid-template-columns: repeat(5, 106px);
-        grid-row-gap: 30px;
-        grid-column-gap: 30px;
-        .tabItem {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 16px;
-          background: linear-gradient(
-            180deg,
-            #ffffff 0%,
-            rgba(255, 255, 255, 0) 52%,
-            #ffffff 100%
-          );
-          border-radius: 24px;
-          border: 1px solid #ffffff;
 
-          img {
-            width: 44px;
-          }
-        }
-      }
     }
   }
   .footer {
