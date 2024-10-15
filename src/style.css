@@ -99,6 +99,19 @@ div {
   transform: scale(0.99);
 }
 
+.clickBoxT {
+  user-select: none;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.clickBoxT:hover {
+  background: #335cc4 !important;
+}
+
+.clickBoxT:active {
+  background: #4d76de !important;
+}
+
 /*
   进入和离开动画可以使用不同
   持续时间和速度曲线。
@@ -137,6 +150,10 @@ div {
 .ant-spin-blur::after {
   opacity: 0.3;
 }
+.ant-breadcrumb-link{
+  cursor: pointer;
+  user-select: none;
+}
 
 .quickBtns {
   min-width: 147px;
@@ -171,19 +188,32 @@ div {
   border: 2px solid #e7e7e7;
   cursor: pointer;
 }
-.libraryItem .cardItemImgCon {
+.cardItem .cardItemImgCon {
   position: relative;
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
 }
-.libraryItem .cardItemImgCon .posBot {
+.cardItem .cardItemImgCon .posBot {
   position: absolute;
   width: 100%;
   bottom: 0;
   padding: 28px 20px 14px 20px;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%);
 }
-.libraryItem .cardItemImgCon .cardItemImg {
+
+.cardItem .cardItemImgCon .leftBadge {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.cardItem .cardItemImgCon .rightBadge {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.cardItem .cardItemImgCon .cardItemImg {
   width: 100%;
   /* width: 389px; */
   height: 220px;
@@ -192,11 +222,12 @@ div {
 
 .activeItem {
   border: 2px solid #1a49c0;
+  background: rgba(26, 73, 192, 0.03);
 }
 
-.ant-modal-footer{
+.ant-modal-footer {
   margin: 12px -24px 0;
   padding-top: 12px;
-  border-top: 1px solid rgba(4,4,21,0.05);
+  border-top: 1px solid rgba(4, 4, 21, 0.05);
   text-align: center !important;
 }

@@ -48,7 +48,7 @@ onMounted(() => {
       <div class="features">
         <div v-for="item in state.propsData?.boutiques" class="item">
           <img src="@/assets/seat/PowerSupply.svg" alt="" />
-          独立电源
+          {{item?.name}}
         </div>
       </div>
     </template>

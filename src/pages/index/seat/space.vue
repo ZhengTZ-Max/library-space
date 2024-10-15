@@ -1,25 +1,30 @@
 <script setup>
 import { reactive, onMounted, watch, ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
-
 import moment from "moment";
 
 import { exchangeDateTime } from "@/utils";
-import { getPcTopFor, getSpaceDetail } from "@/request/seat";
+import { getSpacePick, getSpaceDetail } from "@/request/seat";
 
 import LibraryInfo from "@/components/LibraryInfo.vue";
 const store = useStore();
 const router = useRouter();
+const route = useRoute();
 const containerRef = ref();
-
 const state = reactive({
   libraryInfoShow: false,
   libraryInfo: {},
+  libraryId: route?.query?.id || "",
   activeIndex: "",
   quickDate: "",
   quickDateList: [],
-  libraryList: [],
+  quickMode: "",
+  quickModeList: [
+    { value: 0, label: "地图模式" },
+    { value: 1, label: "列表模式" },
+  ],
+  spaceList: [],
 
   floorList: [],
 
@@ -28,21 +33,18 @@ const state = reactive({
 
 onMounted(() => {
   initQuickDateList();
+  if (state.libraryId) {
+    fetchLibrary();
+  } else {
+    router.go(-1);
+  }
 });
 
 watch(
-  () => state.quickDate,
-  (v) => {
-    if (v) fetchLibrary();
-  }
-);
-
-watch(
-  () => state.libraryList,
+  () => state.spaceList,
   (v) => {
     if (v?.length) {
       state.activeIndex = v[0]?.id;
-      state.floorList = v[0]?.children;
     }
   }
 );
@@ -80,9 +82,7 @@ const handleShowInfo = (item) => {
   fetchInfo(item.id);
 };
 
-const handleAppt = () => {
-  goToLink();
-};
+const handleAppt = () => {};
 
 const onChangeAct = (i) => {
   state.activeIndex = i.id;
@@ -91,16 +91,20 @@ const onChangeAct = (i) => {
 const fetchLibrary = async () => {
   try {
     let params = {
-      day: state.quickDate,
+      premisesIds: state?.libraryId,
+      categoryIds: "",
+      storeyIds: "",
+      noiseIds: "",
+      boutiqueIds: "",
+      date: "",
     };
-    let res = await getPcTopFor(params);
+    let res = await getSpacePick(params);
 
     if (res.code != 0) {
       return false;
     }
 
-    state.libraryList = res.data?.list || [];
-    initQuickDateList(res.data?.date || []);
+    state.spaceList = res.data?.area || [];
   } catch (e) {}
 };
 
@@ -118,8 +122,13 @@ const fetchInfo = async (id) => {
   }
 };
 
-const goToLink = () => {
-  router.push({ path: "/seat/space", query: { id: state.activeIndex } });
+const goToLink = (link) => {
+  router.replace(link);
+};
+
+const filterBoutique = (list) => {
+  let newList = list?.map((e) => e?.name);
+  return newList?.join("·") || "";
 };
 </script>
 <template>
@@ -131,14 +140,14 @@ const goToLink = () => {
             <template #separator
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
-            <a-breadcrumb-item
-              >选择馆舍<img src="@/assets/seat/titRightIcon.svg" alt=""
-            /></a-breadcrumb-item>
-            <!-- <a-breadcrumb-item>1</a-breadcrumb-item> -->
+            <a-breadcrumb-item @click="goToLink('/seat')"
+              >选择馆舍</a-breadcrumb-item
+            >
+            <a-breadcrumb-item>选择空间</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         <div class="rightAction">
-          <div class="quickBtns">
+          <div class="quickBtns" style="margin-right: 200px">
             <div
               v-for="item in state.quickDateList"
               :key="item.label"
@@ -150,13 +159,31 @@ const goToLink = () => {
               {{ item?.label }}
             </div>
           </div>
+
+          <div class="quickBtns">
+            <div
+              v-for="item in state.quickModeList"
+              :key="item.label"
+              class="item activeBtn"
+              :class="{ itemActive: item?.value == state.quickMode }"
+              @click="state.quickMode = item?.value"
+            >
+              {{ item?.label }}
+            </div>
+          </div>
+
+          <div class="filters activeBtn">
+            <img src="@/assets/seat/filtersIcon.svg" alt="" />
+            筛选
+          </div>
         </div>
       </div>
     </a-affix>
+
     <div class="librarySlt">
-      <a-row v-if="state.libraryList?.length" :gutter="[40, 40]">
-        <template v-for="item in state.libraryList" :key="item?.id">
-          <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="8" :xxl="6">
+      <a-row v-if="state.spaceList?.length" :gutter="[60, 80]">
+        <template v-for="item in state.spaceList" :key="item?.id">
+          <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
             <div
               class="libraryItem cardItem"
               :class="{ activeItem: item?.id == state.activeIndex }"
@@ -164,64 +191,46 @@ const goToLink = () => {
             >
               <div class="cardItemImgCon">
                 <img class="cardItemImg" :src="item?.firstImg" alt="" />
+                <div class="leftBadge basicsBadge">{{ item?.typeName }}</div>
+                <div
+                  class="rightBadge viewMore clickBox"
+                  @click.stop="handleShowInfo(item)"
+                >
+                  <span> 查看详情 </span>
+                  <img src="@/assets/home/rightIconW.svg" alt="" />
+                </div>
                 <div class="posBot">
-                  <span>{{ item?.name }}</span>
-                  <span @click.stop="handleShowInfo(item)">查看详情</span>
-                  <img
-                    @click.stop="handleShowInfo(item)"
-                    src="@/assets/home/rightIconW.svg"
-                    alt=""
-                  />
+                  <span>- {{ item?.typeName }} -</span>
                 </div>
               </div>
               <div class="bottomItem">
+                <div class="title">
+                  <span>{{ item?.name }}</span>
+                  <span>1F</span>
+                </div>
                 <div class="num">
-                  <span>空闲{{ item?.free_num || "-" }}</span>
-                  <span>/总数{{ item?.total_num || "-" }}</span>
+                  总数 <span>{{ item?.total_num || "-" }}</span> 空闲
+                  <span>{{ item?.free_num || "-" }}</span>
                 </div>
-                <div
-                  v-if="item?.id == state.activeIndex"
-                  class="action"
-                  @click="goToLink"
-                >
-                  <span>预约</span>
-                  <img src="@/assets/home/rightIconPrimary.svg" alt="" />
-                </div>
+                <p class="boutiqueList">{{ filterBoutique(item?.boutique) }}</p>
+              </div>
+              <div
+                v-if="item?.id == state.activeIndex"
+                class="action clickBoxT"
+              >
+                立即预约
               </div>
             </div>
           </a-col>
         </template>
       </a-row>
       <a-empty v-else />
-      <a-row
-        v-if="state.activeIndex"
-        :gutter="[40, 40]"
-        style="margin-top: 50px"
-      >
-        <a-col
-          v-for="item in state.floorList"
-          :xs="12"
-          :sm="12"
-          :md="8"
-          :lg="8"
-          :xl="6"
-          :xxl="4"
-        >
-          <div class="quickFloor">
-            <p class="floorNum">{{ item?.name }}</p>
-            <div class="floorTotal">
-              <span>空闲{{ item?.free_num }}</span>
-              <span>/总数{{ item?.total_num }}</span>
-            </div>
-          </div>
-        </a-col>
-      </a-row>
     </div>
 
     <a-modal
       width="40%"
       v-model:open="state.libraryInfoShow"
-      title="馆舍详情"
+      title="空间详情"
       @ok="handleAppt"
       destroyOnClose
       okText="预约"
@@ -261,61 +270,119 @@ const goToLink = () => {
     }
     .rightAction {
       display: flex;
+      .filters {
+        margin-left: 20px;
+        padding: 8px 16px;
+        background: rgba(26, 73, 192, 0.07);
+        border-radius: 18px 18px 18px 18px;
+        border: 1px solid rgba(26, 73, 192, 0.14);
+        font-size: 14px;
+        color: #1a49c0;
+        img {
+          width: 14px;
+          height: 14px;
+          margin-right: 4px;
+        }
+      }
     }
   }
   .librarySlt {
     width: 100%;
     margin: 38px 0 50px 0;
     padding: 0 82px;
+    .libraryItem {
+      position: relative;
+      box-sizing: initial;
+    }
+    .basicsBadge {
+      padding: 3px 8px;
+      background: #1a49c0;
+      border-radius: 6px 0px 6px 0px;
+      font-size: 14px;
+      color: #ffffff;
+    }
+    .viewMore {
+      display: flex;
+      align-items: center;
+      padding: 7px 10px 7px 22px;
+      background: linear-gradient(
+        254deg,
+        #122f7a 0%,
+        rgba(18, 47, 122, 0.3) 74%,
+        rgba(18, 47, 122, 0) 100%
+      );
+      border-radius: 0px 6px 0px 6px;
+      font-size: 14px;
+      color: #ffffff;
+      img {
+        margin-left: 2px;
+        width: 10px;
+        height: 12px;
+      }
+    }
     .posBot {
       display: flex;
       align-items: center;
+      justify-content: center;
       color: #ffffff;
-      font-size: 14px;
-      span {
-        &:nth-child(1) {
-          flex: 1;
-          font-size: 18px;
-        }
-        &:nth-child(2) {
-          cursor: pointer;
-        }
-      }
-      img {
-        cursor: pointer;
-        margin-left: 2px;
-        width: 13px;
-        height: 16px;
-      }
+      font-size: 16px;
     }
     .bottomItem {
       padding: 14px 10px 5px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
 
-      .num {
+      .title {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         font-size: 16px;
         color: #616161;
         span {
           &:nth-child(1) {
-            color: #f28800;
+            font-size: 16px;
+            color: #202020;
           }
         }
       }
-
-      .action {
+      .num {
+        margin-bottom: 6px;
+        font-size: 14px;
+        color: #616161;
         display: flex;
         align-items: center;
-        cursor: pointer;
-        color: #1a49c0;
-        font-size: 16px;
-        img {
-          margin-left: 4px;
-          width: 13px;
-          height: 16px;
+        span {
+          &:nth-child(1) {
+            font-size: 16px;
+            color: #202020;
+            margin-left: 2px;
+            margin-right: 40px;
+          }
+          &:nth-child(2) {
+            font-size: 16px;
+            color: #1a49c0;
+            margin-left: 2px;
+          }
         }
       }
+      .boutiqueList {
+        font-size: 14px;
+        color: #868686;
+      }
+    }
+    .action {
+      position: absolute;
+      left: -2px;
+      width: calc(100% + 4px);
+      transform: translateY(10%);
+      padding: 9px 0;
+      cursor: pointer;
+      color: #fff;
+      font-size: 14px;
+      background: #1a49c0;
+      border-radius: 0px 0px 10px 10px;
+      text-align: center;
+      box-sizing: initial;
+      z-index: 1;
     }
   }
 
