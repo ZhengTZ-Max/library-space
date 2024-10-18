@@ -185,6 +185,10 @@ const fetchInfo = async (id) => {
 };
 
 const goToLink = (link) => {
+  if (link === -1) {
+    router.go(-1);
+    return false;
+  }
   router.replace(link);
 };
 
@@ -236,7 +240,7 @@ const getFloorArea = () => {
 };
 </script>
 <template>
-  <div class="seatLibrary" ref="containerRef">
+  <div class="seatAppointment" ref="containerRef">
     <a-affix offset-top="0" :target="() => containerRef">
       <div class="header">
         <div class="leftTit">
@@ -247,25 +251,13 @@ const getFloorArea = () => {
             <a-breadcrumb-item @click="goToLink('/seat')"
               >选择馆舍</a-breadcrumb-item
             >
-            <a-breadcrumb-item>选择空间</a-breadcrumb-item>
+            <a-breadcrumb-item @click="goToLink(-1)"
+              >选择空间</a-breadcrumb-item
+            >
+            <a-breadcrumb-item>选择座位</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         <div class="rightAction">
-          <div class="quickDate">
-            <div class="quickBtns" style="margin-right: 40px">
-              <div
-                v-for="item in state.quickDateList"
-                :key="item.label"
-                class="item activeBtn"
-                :class="{ itemActive: item?.value == state.quickDate }"
-                @click="onChangeQDate(item)"
-              >
-                {{ exchangeDateTime(item?.value, 40) }}
-                {{ item?.label }}
-              </div>
-            </div>
-          </div>
-
           <div class="quickBtns">
             <div
               v-for="item in state.quickModeList"
@@ -280,64 +272,72 @@ const getFloorArea = () => {
 
           <div class="filters activeBtn" @click="state.spaceFilterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            筛选
           </div>
         </div>
       </div>
     </a-affix>
-
-    <div v-if="state.quickMode == '1'" class="librarySlt">
-      <a-row v-if="state.spaceList?.length" :gutter="[60, 80]">
-        <template v-for="item in state.spaceList" :key="item?.id">
-          <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
-            <div
-              class="libraryItem cardItem"
-              :class="{ activeItem: item?.id == state.activeIndex }"
-              @click="onChangeAct(item)"
-            >
-              <div class="cardItemImgCon">
-                <img class="cardItemImg" :src="item?.firstImg" alt="" />
-                <div class="leftBadge basicsBadge">{{ item?.typeName }}</div>
+    <div class="showCon">
+      <div class="leftBox">
+        <div v-if="state.quickMode == '1'" class="librarySlt">
+          <a-row v-if="state.spaceList?.length" :gutter="[60, 80]">
+            <template v-for="item in state.spaceList" :key="item?.id">
+              <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
                 <div
-                  class="rightBadge viewMore clickBox"
-                  @click.stop="handleShowInfo(item)"
+                  class="libraryItem cardItem"
+                  :class="{ activeItem: item?.id == state.activeIndex }"
+                  @click="onChangeAct(item)"
                 >
-                  <span> 查看详情 </span>
-                  <img src="@/assets/home/rightIconW.svg" alt="" />
+                  <div class="cardItemImgCon">
+                    <img class="cardItemImg" :src="item?.firstImg" alt="" />
+                    <div class="leftBadge basicsBadge">
+                      {{ item?.typeName }}
+                    </div>
+                    <div
+                      class="rightBadge viewMore clickBox"
+                      @click.stop="handleShowInfo(item)"
+                    >
+                      <span> 查看详情 </span>
+                      <img src="@/assets/home/rightIconW.svg" alt="" />
+                    </div>
+                    <div class="posBot">
+                      <span>- {{ item?.typeName }} -</span>
+                    </div>
+                  </div>
+                  <div class="bottomItem">
+                    <div class="title">
+                      <span>{{ item?.name }}</span>
+                      <span>1F</span>
+                    </div>
+                    <div class="num">
+                      总数 <span>{{ item?.total_num || "-" }}</span> 空闲
+                      <span>{{ item?.free_num || "-" }}</span>
+                    </div>
+                    <p class="boutiqueList">
+                      {{ filterBoutique(item?.boutique) }}
+                    </p>
+                  </div>
+                  <div
+                    v-if="item?.id == state.activeIndex"
+                    class="action clickBoxT"
+                  >
+                    立即预约
+                  </div>
                 </div>
-                <div class="posBot">
-                  <span>- {{ item?.typeName }} -</span>
-                </div>
-              </div>
-              <div class="bottomItem">
-                <div class="title">
-                  <span>{{ item?.name }}</span>
-                  <span>1F</span>
-                </div>
-                <div class="num">
-                  总数 <span>{{ item?.total_num || "-" }}</span> 空闲
-                  <span>{{ item?.free_num || "-" }}</span>
-                </div>
-                <p class="boutiqueList">{{ filterBoutique(item?.boutique) }}</p>
-              </div>
-              <div
-                v-if="item?.id == state.activeIndex"
-                class="action clickBoxT"
-              >
-                立即预约
-              </div>
-            </div>
-          </a-col>
-        </template>
-      </a-row>
-      <a-empty v-else />
-    </div>
+              </a-col>
+            </template>
+          </a-row>
+          <a-empty v-else />
+        </div>
 
-    <div v-else class="spaceMapSlt">
-      <SpaceMap
-        v-if="state.floorMapOpt.list?.length"
-        :options="state.floorMapOpt"
-      />
+        <div v-else class="spaceMapSlt">
+          <SpaceMap
+            v-if="state.floorMapOpt.list?.length"
+            :options="state.floorMapOpt"
+          />
+        </div>
+      </div>
+
+      <div class="rightBox"></div>
     </div>
 
     <a-modal
@@ -390,7 +390,7 @@ const getFloorArea = () => {
   </div>
 </template>
 <style lang="less" scoped>
-.seatLibrary {
+.seatAppointment {
   height: 100%;
   overflow: auto;
   .header {
@@ -418,24 +418,31 @@ const getFloorArea = () => {
       }
       .filters {
         margin-left: 20px;
-        padding: 8px 16px;
+        padding: 6px 10px;
         background: rgba(26, 73, 192, 0.07);
-        border-radius: 18px 18px 18px 18px;
+        border-radius: 24px;
         border: 1px solid rgba(26, 73, 192, 0.14);
         font-size: 14px;
         color: #1a49c0;
         img {
           width: 14px;
           height: 14px;
-          margin-right: 4px;
         }
       }
     }
   }
+  .showCon {
+    display: flex;
+    padding: 12px 30px;
+    .leftBox {
+      flex: 1;
+    }
+    .rightBox {
+      width: 320px;
+    }
+  }
   .librarySlt {
     width: 100%;
-    margin: 38px 0 50px 0;
-    padding: 0 82px;
     .libraryItem {
       position: relative;
       box-sizing: initial;
