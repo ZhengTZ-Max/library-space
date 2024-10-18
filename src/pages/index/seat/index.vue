@@ -119,7 +119,21 @@ const fetchInfo = async (id) => {
 };
 
 const goToLink = () => {
-  router.push({ path: "/seat/space", query: { id: state.activeIndex } });
+  router.push({
+    path: "/seat/space",
+    query: { id: state.activeIndex, date: state.quickDate },
+  });
+};
+
+const onFloor = (row) => {
+  router.push({
+    path: "/seat/space",
+    query: {
+      id: state.activeIndex,
+      date: state.quickDate,
+      floor: row?.id || "",
+    },
+  });
 };
 </script>
 <template>
@@ -207,7 +221,7 @@ const goToLink = () => {
           :xl="6"
           :xxl="4"
         >
-          <div class="quickFloor">
+          <div class="quickFloor" @click="onFloor(item)">
             <p class="floorNum">{{ item?.name }}</p>
             <div class="floorTotal">
               <span>空闲{{ item?.free_num }}</span>

@@ -33,4 +33,15 @@ export function getSpacePick(data) {
   });
 }
 
+export function getSpaceIndex(data) {
+  return service({
+    url: "/v4/space/index",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+
 

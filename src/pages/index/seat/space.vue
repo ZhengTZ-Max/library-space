@@ -4,10 +4,12 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
 
-import { exchangeDateTime } from "@/utils";
-import { getSpacePick, getSpaceDetail } from "@/request/seat";
+import { SearchOutlined } from "@ant-design/icons-vue";
 
+import { exchangeDateTime } from "@/utils";
+import { getSpacePick, getSpaceDetail, getSpaceIndex } from "@/request/seat";
 import LibraryInfo from "@/components/LibraryInfo.vue";
+import SpaceFilter from "@/components/SpaceFilterCom.vue";
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
@@ -15,9 +17,16 @@ const containerRef = ref();
 const state = reactive({
   libraryInfoShow: false,
   libraryInfo: {},
-  libraryId: route?.query?.id || "",
+  spaceFilterShow: false,
   activeIndex: "",
-  quickDate: "",
+
+  initQuery: {
+    libraryId: route?.query?.id || "",
+    quickDate: route?.query?.date || "",
+    floorId: route?.query?.floor || "",
+  },
+
+  quickDate: route?.query?.date || "",
   quickDateList: [],
   quickMode: "",
   quickModeList: [
@@ -29,12 +38,24 @@ const state = reactive({
   floorList: [],
 
   spaceInfo: {},
+
+  filterOptions: {},
+  filterSearch: {
+    search: "",
+    library: [],
+    floor: [],
+    seatType: [],
+    date: "",
+    boutique: [],
+  },
 });
 
 onMounted(() => {
   initQuickDateList();
-  if (state.libraryId) {
-    fetchLibrary();
+
+  fetchFilter();
+  if (state.initQuery?.libraryId) {
+    // fetchLibrary();
   } else {
     router.go(-1);
   }
@@ -48,6 +69,23 @@ watch(
     }
   }
 );
+
+const initQueryFn = () => {
+  let { libraryId, quickDate, floorId } = state.initQuery;
+
+  let floorSelect = [];
+
+  state.filterSearch.library = [libraryId];
+  state.filterSearch.date = quickDate;
+
+  state.filterOptions?.storey?.map((e) => {
+    if (e?.list?.find((f) => f?.id == floorId)) {
+      floorSelect.push(e);
+    }
+  });
+
+  state.filterSearch.floor = floorSelect?.map((e) => e.name);
+};
 
 const initQuickDateList = (list) => {
   state.quickDateList = [
@@ -88,16 +126,30 @@ const onChangeAct = (i) => {
   state.activeIndex = i.id;
 };
 
+const fetchFilter = async () => {
+  try {
+    let res = await getSpaceIndex();
+    state.filterOptions = res?.data;
+    initQuickDateList(res?.data?.date);
+    initQueryFn();
+    fetchLibrary();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const fetchLibrary = async () => {
   try {
+    let { search, library, floor, seatType, date, boutique } =
+      state.filterSearch;
     let params = {
-      premisesIds: state?.libraryId,
-      categoryIds: "",
-      storeyIds: "",
-      noiseIds: "",
-      boutiqueIds: "",
-      date: "",
+      premisesIds: library,
+      categoryIds: seatType,
+      storeyIds: filterFloorIds(floor),
+      boutiqueIds: boutique,
+      date,
     };
+
     let res = await getSpacePick(params);
 
     if (res.code != 0) {
@@ -105,7 +157,9 @@ const fetchLibrary = async () => {
     }
 
     state.spaceList = res.data?.area || [];
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const fetchInfo = async (id) => {
@@ -130,6 +184,35 @@ const filterBoutique = (list) => {
   let newList = list?.map((e) => e?.name);
   return newList?.join("·") || "";
 };
+
+const filterFloorIds = (ids) => {
+  let list = state.filterOptions?.storey;
+  let library = state.filterSearch.library;
+  let floorIds = [];
+  list = list?.filter((e) => {
+    return ids?.includes(e?.name);
+  });
+
+  list.map((e) => {
+    let floorList = e?.list;
+    floorList?.map((fl) => {
+      if (library?.includes(fl?.parentId)) floorIds.push(fl?.id);
+    });
+  });
+
+  return floorIds || [];
+};
+
+const handleFilter = () => {
+  fetchLibrary();
+  state.spaceFilterShow = false;
+};
+
+const onChangeQDate = (row) => {
+  state.quickDate = row?.value;
+  state.filterSearch.date = row?.value;
+  fetchLibrary();
+};
 </script>
 <template>
   <div class="seatLibrary" ref="containerRef">
@@ -147,16 +230,18 @@ const filterBoutique = (list) => {
           </a-breadcrumb>
         </div>
         <div class="rightAction">
-          <div class="quickBtns" style="margin-right: 200px">
-            <div
-              v-for="item in state.quickDateList"
-              :key="item.label"
-              class="item activeBtn"
-              :class="{ itemActive: item?.value == state.quickDate }"
-              @click="state.quickDate = item?.value"
-            >
-              {{ exchangeDateTime(item?.value, 40) }}
-              {{ item?.label }}
+          <div class="quickDate">
+            <div class="quickBtns" style="margin-right: 40px">
+              <div
+                v-for="item in state.quickDateList"
+                :key="item.label"
+                class="item activeBtn"
+                :class="{ itemActive: item?.value == state.quickDate }"
+                @click="onChangeQDate(item)"
+              >
+                {{ exchangeDateTime(item?.value, 40) }}
+                {{ item?.label }}
+              </div>
             </div>
           </div>
 
@@ -172,7 +257,7 @@ const filterBoutique = (list) => {
             </div>
           </div>
 
-          <div class="filters activeBtn">
+          <div class="filters activeBtn" @click="state.spaceFilterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
             筛选
           </div>
@@ -248,6 +333,32 @@ const filterBoutique = (list) => {
     >
       <LibraryInfo v-if="state.spaceInfo?.id" :data="state.spaceInfo" />
     </a-modal>
+
+    <a-modal
+      width="50%"
+      v-model:open="state.spaceFilterShow"
+      title="空间筛选"
+      @ok="handleFilter"
+      destroyOnClose
+      okText="确认"
+      cancelText="取消"
+      :cancelButtonProps="{
+        size: 'middle',
+        style: {
+          color: '#8C8F9E',
+          background: '#F3F4F7',
+          borderColor: '#CECFD5',
+        },
+      }"
+      :okButtonProps="{ size: 'middle' }"
+      centered
+    >
+      <SpaceFilter
+        v-if="state.filterOptions?.premises?.length"
+        :data="state.filterOptions"
+        :initSearch="state.filterSearch"
+      />
+    </a-modal>
   </div>
 </template>
 <style lang="less" scoped>
@@ -269,7 +380,14 @@ const filterBoutique = (list) => {
       }
     }
     .rightAction {
+      flex: 1;
       display: flex;
+      justify-content: flex-end;
+      .quickDate {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+      }
       .filters {
         margin-left: 20px;
         padding: 8px 16px;
@@ -416,6 +534,41 @@ const filterBoutique = (list) => {
         }
       }
     }
+  }
+}
+
+.filterCon {
+  padding: 24px 0;
+  height: 100%;
+  overflow: auto;
+  .filterFilter {
+    margin-bottom: 24px;
+    background: rgba(97, 97, 97, 0.05);
+    border-radius: 0px 0px 0px 0px;
+    padding: 2px 10px;
+  }
+  .fiterItem {
+    user-select: none;
+    padding: 0 20px;
+    margin-bottom: 40px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  .ant-input,
+  .ant-input-affix-wrapper {
+    border-radius: 40px;
+  }
+
+  .ant-checkbox-group {
+    column-gap: 36px;
+    row-gap: 20px;
+  }
+
+  .ant-radio-group {
+    display: inline-flex;
+    column-gap: 36px;
+    row-gap: 20px;
   }
 }
 </style>
