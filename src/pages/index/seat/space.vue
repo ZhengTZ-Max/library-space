@@ -126,8 +126,6 @@ const handleShowInfo = (item) => {
   fetchInfo(item.id);
 };
 
-const handleAppt = () => {};
-
 const onChangeAct = (i) => {
   state.activeIndex = i.id;
 };
@@ -234,6 +232,17 @@ const getFloorArea = () => {
   state.floorMapOpt.background = firstFloor?.web_plane;
   state.floorMapOpt.list = area;
 };
+
+const handleAppt = (row) => {
+  router.push({
+    path: "/seat/appointment",
+    query: {
+      id: row?.id,
+      date: state.filterSearch.date,
+    },
+  });
+  console.log(row);
+};
 </script>
 <template>
   <div class="seatLibrary" ref="containerRef">
@@ -323,6 +332,7 @@ const getFloorArea = () => {
               <div
                 v-if="item?.id == state.activeIndex"
                 class="action clickBoxT"
+                @click="handleAppt(item)"
               >
                 立即预约
               </div>
@@ -344,7 +354,7 @@ const getFloorArea = () => {
       width="40%"
       v-model:open="state.libraryInfoShow"
       title="空间详情"
-      @ok="handleAppt"
+      @ok="handleAppt(state.spaceInfo)"
       destroyOnClose
       okText="预约"
       cancelText="关闭"

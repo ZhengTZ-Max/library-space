@@ -49,7 +49,7 @@ import { LeftCircleOutlined, RightCircleOutlined } from "@ant-design/icons-vue";
 }
 
 :deep(.carouseDots) {
-  bottom: 0;
+  bottom: 3px;
   li {
     width: 5px;
     height: 5px;

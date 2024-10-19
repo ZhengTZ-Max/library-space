@@ -11,6 +11,7 @@ import { getSpacePick, getSpaceDetail, getSpaceIndex } from "@/request/seat";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceFilter from "@/components/SpaceFilterCom.vue";
 import SpaceMap from "@/components/SpaceMap.vue";
+import SeatAreaSwipe from "@/components/SeatAreaSwipe.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -23,7 +24,7 @@ const state = reactive({
   activeIndex: "",
 
   initQuery: {
-    libraryId: route?.query?.id || "",
+    spaceId: route?.query?.id || "",
     quickDate: route?.query?.date || "",
     floorId: route?.query?.floor || "",
   },
@@ -60,8 +61,9 @@ onMounted(() => {
   initQuickDateList();
 
   fetchFilter();
-  if (state.initQuery?.libraryId) {
-    // fetchLibrary();
+
+  if (state.initQuery?.spaceId) {
+    fetchInfo(state.initQuery?.spaceId);
   } else {
     router.go(-1);
   }
@@ -178,7 +180,7 @@ const fetchInfo = async (id) => {
     let res = await getSpaceDetail(params);
     if (res.code != 0) return;
     state.spaceInfo = res?.data || {};
-    state.libraryInfoShow = true;
+    // state.libraryInfoShow = true;
   } catch (e) {
     console.log(e);
   }
@@ -337,7 +339,25 @@ const getFloorArea = () => {
         </div>
       </div>
 
-      <div class="rightBox"></div>
+      <div class="rightBox">
+        <SeatAreaSwipe
+          v-if="state.spaceInfo?.brother_area?.length"
+          :data="state.spaceInfo"
+          :defaultId="state.initQuery.spaceId"
+        />
+
+        <div class="reservation">
+          <div class="selectDate">
+            <span>今天</span>
+            <span>2023-11-28 10:00~18:00</span>
+            <img src="@/assets/seat/selectDate.svg" alt="" />
+          </div>
+          <p class="selectSeat">已选座位： <span>015</span></p>
+        </div>
+        <a-button class="reserve-btn" shape="round" type="primary" block
+          >立即预约</a-button
+        >
+      </div>
     </div>
 
     <a-modal
@@ -439,6 +459,44 @@ const getFloorArea = () => {
     }
     .rightBox {
       width: 320px;
+
+      .reservation {
+        background: #ffffff;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
+        border-radius: 10px 10px 10px 10px;
+        border: 1px solid #e7e7e7;
+        padding: 20px 18px;
+        margin-top: 20px;
+
+        .selectDate {
+          display: flex;
+          font-size: 15px;
+          color: #202020;
+          span {
+            &:nth-child(1) {
+              font-size: 15px;
+              color: #1a49c0;
+              margin-right: 6px;
+            }
+            &:nth-child(2) {
+              flex: 1;
+            }
+          }
+        }
+        .selectSeat {
+          margin-top: 20px;
+          font-size: 15px;
+          color: #616161;
+          span {
+            color: #202020;
+          }
+        }
+      }
+
+      .reserve-btn {
+        margin-top: 60px;
+        font-size: 16px;
+      }
     }
   }
   .librarySlt {
