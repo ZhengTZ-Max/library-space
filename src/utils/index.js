@@ -257,7 +257,7 @@ export const tabType = [
     id: "9",
     name: "活动报名",
     enname: "Event Registration",
-    path: "",
+    path: "/event",
   },
   {
     id: "10",
