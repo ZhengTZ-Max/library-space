@@ -65,6 +65,7 @@ onMounted(() => {});
         color: #1a49c0;
         line-height: 80px;
         transform: skewX(-6deg);
+        font-family: AliHeavy !important;
       }
 
 

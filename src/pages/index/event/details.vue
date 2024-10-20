@@ -311,6 +311,7 @@ const fetchEventDetails = async () => {
         font-size: 18px;
         color: #202020;
         font-weight: bold;
+        font-family: AliHeavy !important;
       }
     }
   }
