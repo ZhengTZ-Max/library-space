@@ -7,11 +7,19 @@ import moment from "moment";
 import { SearchOutlined } from "@ant-design/icons-vue";
 
 import { exchangeDateTime } from "@/utils";
-import { getSpacePick, getSpaceDetail, getSpaceIndex } from "@/request/seat";
+import {
+  getSpacePick,
+  getSpaceDetail,
+  getSpaceMap,
+  getSpaceIndex,
+  getSpaceLabel,
+  getSpaceSeat,
+} from "@/request/seat";
 import LibraryInfo from "@/components/LibraryInfo.vue";
-import SpaceFilter from "@/components/SpaceFilterCom.vue";
-import SpaceMap from "@/components/SpaceMap.vue";
+import SpaceFilterDate from "@/components/SpaceFilterDate.vue";
+import SpaceSeatMap from "@/components/SpaceSeatMap.vue";
 import SeatAreaSwipe from "@/components/SeatAreaSwipe.vue";
+import SeatAreaList from "@/components/SeatAreaList.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -26,24 +34,24 @@ const state = reactive({
   initQuery: {
     spaceId: route?.query?.id || "",
     quickDate: route?.query?.date || "",
-    floorId: route?.query?.floor || "",
   },
 
   quickDate: route?.query?.date || "",
   quickDateList: [],
+
   quickMode: "1",
   quickModeList: [
     { value: 0, label: "地图模式" },
     { value: 1, label: "列表模式" },
   ],
-  spaceList: [],
-  floorList: [],
 
+  spaceSelected: {},
+  spaceList: [],
   spaceInfo: {},
+  spaceLabelList: [],
 
   filterOptions: {},
   filterSearch: {
-    search: "",
     library: [],
     floor: [],
     seatType: [],
@@ -51,17 +59,10 @@ const state = reactive({
     boutique: [],
   },
 
-  floorMapOpt: {
-    list: [],
-    background: "",
-  },
+  labelShow: false,
 });
 
 onMounted(() => {
-  initQuickDateList();
-
-  fetchFilter();
-
   if (state.initQuery?.spaceId) {
     fetchInfo(state.initQuery?.spaceId);
   } else {
@@ -77,48 +78,6 @@ watch(
     }
   }
 );
-
-const initQueryFn = () => {
-  let { libraryId, quickDate, floorId } = state.initQuery;
-
-  let floorSelect = [];
-
-  state.filterSearch.library = [libraryId];
-  state.filterSearch.date = quickDate;
-
-  state.filterOptions?.storey?.map((e) => {
-    if (e?.list?.find((f) => f?.id == floorId)) {
-      floorSelect.push(e);
-    }
-  });
-
-  state.filterSearch.floor = floorSelect?.map((e) => e.name);
-};
-
-const initQuickDateList = (list) => {
-  state.quickDateList = [
-    { label: "今天", value: moment().format("YYYY-MM-DD") },
-    { label: "明天", value: moment().add(1, "days").format("YYYY-MM-DD") },
-  ];
-
-  if (list?.length) {
-    state.quickDateList = list?.map((e) => {
-      let label = "";
-      if (moment().format("YYYY-MM-DD") == e) {
-        label = "今天";
-      } else if (exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == e) {
-        label = "明天";
-      } else {
-        label = exchangeDateTime(e, 4);
-      }
-      return {
-        label,
-        value: moment(e).format("YYYY-MM-DD"),
-      };
-    });
-  }
-  if (!state?.quickDate) state.quickDate = state.quickDateList[0]?.value;
-};
 
 const handleShowInfo = (item) => {
   state.libraryInfo = {
@@ -138,35 +97,51 @@ const fetchFilter = async () => {
   try {
     let res = await getSpaceIndex();
     state.filterOptions = res?.data;
-    initQuickDateList(res?.data?.date);
-    initQueryFn();
-    fetchLibrary();
   } catch (e) {
     console.log(e);
   }
 };
 
-const fetchLibrary = async () => {
+const fetchSpaceMap = async () => {
   try {
-    let { search, library, floor, seatType, date, boutique } =
-      state.filterSearch;
-    let params = {
-      premisesIds: library,
-      categoryIds: seatType,
-      storeyIds: filterFloorIds(floor),
-      boutiqueIds: boutique,
-      date,
-    };
-    state.floorMapOpt.list = [];
-    let res = await getSpacePick(params);
+    let params = {};
+    let res = await getSpaceMap(params);
 
     if (res.code != 0) {
       return false;
     }
 
     state.spaceList = res?.data?.area || [];
-    state.floorList = res?.data?.storey || [];
     getFloorArea();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// const fetchSpace = async () => {
+//   try {
+//     let { date } = state.filterSearch;
+//     let params = {};
+//     state.floorMapOpt.list = [];
+//     let res = await getSpaceSeat(params);
+
+//     if (res.code != 0) {
+//       return false;
+//     }
+
+//     state.spaceList = res?.data?.area || [];
+//     getFloorArea();
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+const fetchLabel = async (data) => {
+  try {
+    let res = await getSpaceLabel(data);
+    if (res.code != 0) return;
+    state.spaceLabelList = res?.data || {};
+    // state.libraryInfoShow = true;
   } catch (e) {
     console.log(e);
   }
@@ -177,7 +152,8 @@ const fetchInfo = async (id) => {
     let params = {
       id,
     };
-    let res = await getSpaceDetail(params);
+    fetchLabel(params);
+    let res = await getSpaceMap(params);
     if (res.code != 0) return;
     state.spaceInfo = res?.data || {};
     // state.libraryInfoShow = true;
@@ -194,51 +170,15 @@ const goToLink = (link) => {
   router.replace(link);
 };
 
-const filterBoutique = (list) => {
-  let newList = list?.map((e) => e?.name);
-  return newList?.join("·") || "";
-};
-
-const filterFloorIds = (ids) => {
-  let list = state.filterOptions?.storey;
-  let library = state.filterSearch.library;
-  let floorIds = [];
-  list = list?.filter((e) => {
-    return ids?.includes(e?.name);
-  });
-
-  list.map((e) => {
-    let floorList = e?.list;
-    floorList?.map((fl) => {
-      if (library?.includes(fl?.parentId)) floorIds.push(fl?.id);
-    });
-  });
-
-  return floorIds || [];
-};
-
 const handleFilter = () => {
-  fetchLibrary();
+  // fetchLibrary();
   state.spaceFilterShow = false;
 };
 
-const onChangeQDate = (row) => {
-  state.quickDate = row?.value;
-  state.filterSearch.date = row?.value;
-  fetchLibrary();
-};
+const onSelectLabel = () => {};
 
-const getFloorArea = () => {
-  let list = state.floorList;
-  let area = state.spaceList;
-  let firstFloor = list[0];
-
-  area = area?.filter((e) => {
-    return firstFloor?.id == e?.parentId;
-  });
-
-  state.floorMapOpt.background = firstFloor?.web_plane;
-  state.floorMapOpt.list = area;
+const onSelected = (v) => {
+  state.spaceSelected = v;
 };
 </script>
 <template>
@@ -272,71 +212,48 @@ const getFloorArea = () => {
             </div>
           </div>
 
-          <div class="filters activeBtn" @click="state.spaceFilterShow = true">
-            <img src="@/assets/seat/filtersIcon.svg" alt="" />
-          </div>
+          <a-dropdown
+            v-if="state.spaceLabelList?.length"
+            trigger="click"
+            v-model:open="state.labelShow"
+          >
+            <div class="filters activeBtn">
+              <img src="@/assets/seat/filtersIcon.svg" alt="" />
+            </div>
+            <template #overlay>
+              <a-menu @click="onSelectLabel">
+                <a-menu-item
+                  v-for="item in state.spaceLabelList"
+                  :key="item?.id"
+                >
+                  {{ item?.name }}
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
         </div>
       </div>
     </a-affix>
     <div class="showCon">
       <div class="leftBox">
-        <div v-if="state.quickMode == '1'" class="librarySlt">
-          <a-row v-if="state.spaceList?.length" :gutter="[60, 80]">
-            <template v-for="item in state.spaceList" :key="item?.id">
-              <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
-                <div
-                  class="libraryItem cardItem"
-                  :class="{ activeItem: item?.id == state.activeIndex }"
-                  @click="onChangeAct(item)"
-                >
-                  <div class="cardItemImgCon">
-                    <img class="cardItemImg" :src="item?.firstImg" alt="" />
-                    <div class="leftBadge basicsBadge">
-                      {{ item?.typeName }}
-                    </div>
-                    <div
-                      class="rightBadge viewMore clickBox"
-                      @click.stop="handleShowInfo(item)"
-                    >
-                      <span> 查看详情 </span>
-                      <img src="@/assets/home/rightIconW.svg" alt="" />
-                    </div>
-                    <div class="posBot">
-                      <span>- {{ item?.typeName }} -</span>
-                    </div>
-                  </div>
-                  <div class="bottomItem">
-                    <div class="title">
-                      <span>{{ item?.name }}</span>
-                      <span>1F</span>
-                    </div>
-                    <div class="num">
-                      总数 <span>{{ item?.total_num || "-" }}</span> 空闲
-                      <span>{{ item?.free_num || "-" }}</span>
-                    </div>
-                    <p class="boutiqueList">
-                      {{ filterBoutique(item?.boutique) }}
-                    </p>
-                  </div>
-                  <div
-                    v-if="item?.id == state.activeIndex"
-                    class="action clickBoxT"
-                  >
-                    立即预约
-                  </div>
-                </div>
-              </a-col>
-            </template>
-          </a-row>
-          <a-empty v-else />
-        </div>
+        <template v-if="state.spaceInfo?.seat?.length">
+          <div v-if="state.quickMode == '1'" class="librarySlt">
+            <SeatAreaList
+              :data="state.spaceInfo"
+              :seatSelected="state.spaceSelected"
+              @selected="onSelected"
+            />
+          </div>
 
-        <div v-else class="spaceMapSlt">
-          <SpaceMap
-            v-if="state.floorMapOpt.list?.length"
-            :options="state.floorMapOpt"
-          />
-        </div>
+          <div v-else class="spaceMapSlt">
+            <SpaceSeatMap
+              :data="state.spaceInfo"
+              :seatSelected="state.spaceSelected"
+              @selected="onSelected"
+            />
+          </div>
+        </template>
+        <a-skeleton v-else :paragraph="{ rows: 12 }" active />
       </div>
 
       <div class="rightBox">
@@ -344,15 +261,23 @@ const getFloorArea = () => {
           v-if="state.spaceInfo?.brother_area?.length"
           :data="state.spaceInfo"
           :defaultId="state.initQuery.spaceId"
+          @viewInfo="state.libraryInfoShow = true"
         />
 
         <div class="reservation">
           <div class="selectDate">
             <span>今天</span>
             <span>2023-11-28 10:00~18:00</span>
-            <img src="@/assets/seat/selectDate.svg" alt="" />
+            <img
+              style="cursor: pointer"
+              @click="state.spaceFilterShow = true"
+              src="@/assets/seat/selectDate.svg"
+              alt=""
+            />
           </div>
-          <p class="selectSeat">已选座位： <span>015</span></p>
+          <p class="selectSeat">
+            已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
+          </p>
         </div>
         <a-button class="reserve-btn" shape="round" type="primary" block
           >立即预约</a-button
@@ -385,7 +310,7 @@ const getFloorArea = () => {
     <a-modal
       width="50%"
       v-model:open="state.spaceFilterShow"
-      title="空间筛选"
+      title="选择时间"
       @ok="handleFilter"
       destroyOnClose
       okText="确认"
@@ -401,9 +326,9 @@ const getFloorArea = () => {
       :okButtonProps="{ size: 'middle' }"
       centered
     >
-      <SpaceFilter
-        v-if="state.filterOptions?.premises?.length"
-        :data="state.filterOptions"
+      <SpaceFilterDate
+        v-if="state.spaceInfo?.date?.list?.length"
+        :date="state.spaceInfo?.date"
         :initSearch="state.filterSearch"
       />
     </a-modal>
@@ -431,11 +356,7 @@ const getFloorArea = () => {
       flex: 1;
       display: flex;
       justify-content: flex-end;
-      .quickDate {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-      }
+
       .filters {
         margin-left: 20px;
         padding: 6px 10px;
@@ -452,12 +373,18 @@ const getFloorArea = () => {
     }
   }
   .showCon {
+    height: calc(100% - 90px);
     display: flex;
     padding: 12px 30px;
     .leftBox {
+      padding: 30px;
       flex: 1;
+      background: #f7f9fb;
+      border-radius: 10px;
+      overflow-y: auto;
     }
     .rightBox {
+      margin-left: 20px;
       width: 320px;
 
       .reservation {
@@ -501,137 +428,11 @@ const getFloorArea = () => {
   }
   .librarySlt {
     width: 100%;
-    .libraryItem {
-      position: relative;
-      box-sizing: initial;
-    }
-    .basicsBadge {
-      padding: 3px 8px;
-      background: #1a49c0;
-      border-radius: 6px 0px 6px 0px;
-      font-size: 14px;
-      color: #ffffff;
-    }
-    .viewMore {
-      display: flex;
-      align-items: center;
-      padding: 7px 10px 7px 22px;
-      background: linear-gradient(
-        254deg,
-        #122f7a 0%,
-        rgba(18, 47, 122, 0.3) 74%,
-        rgba(18, 47, 122, 0) 100%
-      );
-      border-radius: 0px 6px 0px 6px;
-      font-size: 14px;
-      color: #ffffff;
-      img {
-        margin-left: 2px;
-        width: 10px;
-        height: 12px;
-      }
-    }
-    .posBot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      font-size: 16px;
-    }
-    .bottomItem {
-      padding: 14px 10px 5px 10px;
-
-      .title {
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 16px;
-        color: #616161;
-        span {
-          &:nth-child(1) {
-            font-size: 16px;
-            color: #202020;
-          }
-        }
-      }
-      .num {
-        margin-bottom: 6px;
-        font-size: 14px;
-        color: #616161;
-        display: flex;
-        align-items: center;
-        span {
-          &:nth-child(1) {
-            font-size: 16px;
-            color: #202020;
-            margin-left: 2px;
-            margin-right: 40px;
-          }
-          &:nth-child(2) {
-            font-size: 16px;
-            color: #1a49c0;
-            margin-left: 2px;
-          }
-        }
-      }
-      .boutiqueList {
-        font-size: 14px;
-        color: #868686;
-      }
-    }
-    .action {
-      position: absolute;
-      left: -2px;
-      width: calc(100% + 4px);
-      transform: translateY(10%);
-      padding: 9px 0;
-      cursor: pointer;
-      color: #fff;
-      font-size: 14px;
-      background: #1a49c0;
-      border-radius: 0px 0px 10px 10px;
-      text-align: center;
-      box-sizing: initial;
-      z-index: 1;
-    }
   }
 
   .spaceMapSlt {
     display: flex;
     justify-content: center;
-  }
-
-  .quickFloor {
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 180px;
-    background: linear-gradient(135deg, #f0f2f7 0%, #ffffff 100%);
-    border-radius: 20px;
-    box-shadow: 8px 10px 14px #e7ecf7;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.08);
-    }
-
-    .floorNum {
-      font-weight: 400;
-      font-size: 36px;
-      color: #1a49c0;
-      transform: skewX(-12deg);
-    }
-    .floorTotal {
-      font-size: 18px;
-      color: #616161;
-      span {
-        &:nth-child(1) {
-          color: #f28800;
-        }
-      }
-    }
   }
 }
 

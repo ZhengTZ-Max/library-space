@@ -44,4 +44,42 @@ export function getSpaceIndex(data) {
   });
 }
 
+export function getSpaceLabel(data) {
+  return service({
+    url: "/v4/Space/label",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+
+export function getSpaceMap(data) {
+  return service({
+    url: "/v4/Space/map",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+
+export function getSpaceSeat(data) {
+  return service({
+    url: "/v4/Space/seat",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+
+
+
+
+
+
 

@@ -3,6 +3,7 @@ import { reactive, onMounted } from "vue";
 import { useStore } from "vuex";
 import Carousel from "@/components/CarouselCom.vue";
 const store = useStore();
+const emits = defineEmits(["viewInfo"]);
 const props = defineProps({
   data: {
     type: Object,
@@ -64,7 +65,7 @@ const initFirst = () => {
                 查看平面图
                 <img src="@/assets/home/rightIcon.svg" alt="" />
               </p>
-              <p class="activeBtn">
+              <p class="activeBtn" @click="() => emits('viewInfo')">
                 查看详情
                 <img src="@/assets/home/rightIcon.svg" alt="" />
               </p>
