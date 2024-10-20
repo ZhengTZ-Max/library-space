@@ -5,6 +5,7 @@ import { useStore } from "vuex";
 import moment from "moment";
 import Carousel from "@/components/CarouselCom.vue";
 import { getEventDetails } from "@/request/event";
+import { exchangeDateTime } from "../../../utils";
 
 const store = useStore();
 const router = useRouter();
@@ -17,6 +18,8 @@ const state = reactive({
   eventDateIndex: "",
   eventTimeList: [],
   eventTimeIndex: "",
+  eventMaxNum: "",
+  eventCurrentNum: "",
 });
 
 onMounted(() => {
@@ -28,7 +31,7 @@ watch(
   (v) => {
     if (v?.length) {
       state.eventDateIndex = v[0]?.date;
-      state.eventTimeList = v[0]?.List;
+      state.eventTimeList = v[0]?.list;
     }
   }
 );
@@ -38,15 +41,145 @@ watch(
   (v) => {
     if (v?.length) {
       state.eventTimeIndex = v[0]?.id;
+      state.eventCurrentNum = v[0]?.count || "1";
     }
   }
 );
+const onChangeDateAct = (row) => {
+  state.eventDateIndex = row?.date;
+  state.eventTimeList = row?.list;
+  state.eventCurrentNum = row?.list[0]?.count || "1";
+};
+const onChangeTimeAct = (row) => {
+  state.eventTimeIndex = row?.id;
+  state.eventCurrentNum = row?.count || "1";
+};
+
+const getDefalutList = () => {
+  return {
+    code: 0,
+    message: "操作成功",
+    data: {
+      id: "1402",
+      title: "v4申请活动标题",
+      status: -1,
+      max: "25",
+      nameMerge: "活动馆舍-一层-活动区域",
+      ennameMerge: "new prem--ActivityArea001",
+      content: "v4申请活动内容",
+      ddl_time: "2024-04-19 16:59:30",
+      status_name: "未开始",
+      status_en_name: "Not started",
+      times: [
+        {
+          date: "2024-04-18",
+          list: [
+            {
+              id: "1942",
+              show_time: "10:00-20:00",
+              count: 1,
+            },
+          ],
+        },
+        {
+          date: "2024-04-19",
+          list: [
+            {
+              id: "1943",
+              show_time: "10:00-20:00",
+              count: 0,
+            },
+          ],
+        },
+        {
+          date: "2024-04-20",
+          list: [
+            {
+              id: "1944",
+              show_time: "10:00-20:00",
+              count: 1,
+            },
+          ],
+        },
+        {
+          date: "2024-04-21",
+          list: [
+            {
+              id: "1945",
+              show_time: "08:00-09:00",
+              count: 1,
+            },
+            {
+              id: "1946",
+              show_time: "10:00-20:00",
+              count: 1,
+            },
+            {
+              id: "1947",
+              show_time: "21:00-22:00",
+              count: 1,
+            },
+          ],
+        },
+        {
+          date: "2024-04-22",
+          list: [
+            {
+              id: "1948",
+              show_time: "10:00-20:00",
+              count: 1,
+            },
+          ],
+        },
+        {
+          date: "2024-04-23",
+          list: [
+            {
+              id: "1949",
+              show_time: "10:00-20:00",
+              count: 1,
+            },
+          ],
+        },
+        {
+          date: "2024-04-24",
+          list: [
+            {
+              id: "1950",
+              show_time: "10:00-20:00",
+              count: 1,
+            },
+          ],
+        },
+        {
+          date: "2024-04-25",
+          list: [
+            {
+              id: "1951",
+              show_time: "10:00-20:00",
+              count: 1,
+            },
+          ],
+        },
+      ],
+    },
+  };
+};
 
 const fetchEventDetails = async () => {
   try {
     let res = await getEventDetails({ id: state.id });
-    state.eventDateList = res?.eventDateInfoList?.times;
-    console.log(res);
+    if (res?.code == 10001) {
+      state.eventDateList = getDefalutList()?.data?.times;
+      state.eventMaxNum = getDefalutList()?.data?.max;
+      console.log(state.eventDateList);
+    } else {
+      state.eventDateList =
+        res.data?.times && res.data.times.length > 0
+          ? res.data?.times
+          : getDefalutList();
+      state.eventMaxNum = getDefalutList()?.data?.max;
+    }
   } catch (e) {
     console.log(e);
   }
@@ -85,6 +218,7 @@ const fetchEventDetails = async () => {
               </template>
             </Carousel>
             <div class="controls">
+              <div></div>
               <div
                 class="toggleLang"
                 :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
@@ -125,7 +259,80 @@ const fetchEventDetails = async () => {
         </div>
       </div>
       <div class="right_info">
-        <div class="right_info_title">活动日期</div>
+        <div class="right_info_box">
+          <div class="right_info_title">活动日期</div>
+          <a-row v-if="state.eventDateList?.length" :gutter="[15, 15]">
+            <template v-for="item in state.eventDateList" :key="item?.date">
+              <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
+                <div
+                  class="libraryItem cardItemBorTran"
+                  :class="{ activeItem: item?.date == state.eventDateIndex }"
+                  @click="onChangeDateAct(item)"
+                >
+                  <span>{{ moment(item?.data).format("MM-DD") }}</span>
+                  <span>{{ exchangeDateTime(item?.data, 31) }}</span>
+
+                  <div
+                    v-if="item?.date == state.eventDateIndex"
+                    style="align-self: flex-end; margin-bottom: -10px"
+                  >
+                    <img src="@/assets/event/checked.svg" />
+                  </div>
+                  <div
+                    v-else
+                    style="
+                      align-self: flex-end;
+                      margin-bottom: -10px;
+                      height: 25px;
+                    "
+                  ></div>
+                </div>
+              </a-col>
+            </template>
+          </a-row>
+          <a-empty v-else />
+          <div class="right_info_title" style="margin-top: 50px">活动时间</div>
+          <a-row v-if="state.eventTimeList?.length" :gutter="[15, 15]">
+            <template v-for="item in state.eventTimeList" :key="item?.id">
+              <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
+                <div
+                  class="libraryItem cardItemBorTran"
+                  :class="{ activeItem: item?.id == state.eventTimeIndex }"
+                  @click="onChangeTimeAct(item)"
+                >
+                  <span>{{ item?.show_time }}</span>
+                  <div
+                    v-if="item?.id == state.eventTimeIndex"
+                    style="align-self: flex-end; margin-bottom: -10px"
+                  >
+                    <img src="@/assets/event/checked.svg" />
+                  </div>
+                  <div
+                    v-else
+                    style="
+                      align-self: flex-end;
+                      margin-bottom: -10px;
+                      height: 25px;
+                    "
+                  ></div>
+                </div>
+              </a-col>
+            </template>
+          </a-row>
+
+          <div class="right_info_title" style="margin-top: 50px">报名人数</div>
+          <div
+            v-if="state.eventTimeList?.length"
+            style="color: rgba(97, 97, 97, 1)"
+          >
+            {{ state.eventCurrentNum }}/{{ state.eventMaxNum }}
+          </div>
+          <div v-if="state.eventTimeList?.length" class="right_info_btn">
+            <a-button type="primary" shape="round" style="width: 200px"
+              >我要报名</a-button
+            >
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -204,9 +411,10 @@ const fetchEventDetails = async () => {
 
           .controls {
             position: absolute;
-            width: 384px;
-            bottom: 60px;
-            left: 276px;
+
+            width: 97%;
+            margin-left: 0%;
+            bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -302,11 +510,34 @@ const fetchEventDetails = async () => {
       border-radius: 10px;
       margin-left: 20px;
       padding: 20px;
-      .right_info_title {
-        font-size: 18px;
-        color: #202020;
-        font-weight: bold;
-        font-family: AliHeavy !important;
+      .right_info_box {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        .right_info_title {
+          font-size: 18px;
+          color: #202020;
+          font-weight: bold;
+          font-family: AliHeavy !important;
+          margin-bottom: 20px;
+        }
+        .libraryItem {
+          position: relative;
+          background-color: rgba(97, 97, 97, 0.05);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
+        .right_info_btn {
+          height: 100%;
+          display: flex;
+          justify-content: flex-end;
+          align-items: flex-end;
+        }
       }
     }
   }
