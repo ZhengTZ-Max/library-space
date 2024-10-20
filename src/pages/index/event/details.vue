@@ -271,16 +271,21 @@ const fetchEventDetails = async () => {
                 >
                   <span>{{ moment(item?.data).format("MM-DD") }}</span>
                   <span>{{ exchangeDateTime(item?.data, 31) }}</span>
+
                   <div
                     v-if="item?.date == state.eventDateIndex"
-                    style="
-                      position: absolute;
-                      margin-left: 71px;
-                      margin-top: 40px;
-                    "
+                    style="align-self: flex-end; margin-bottom: -10px"
                   >
                     <img src="@/assets/event/checked.svg" />
                   </div>
+                  <div
+                    v-else
+                    style="
+                      align-self: flex-end;
+                      margin-bottom: -10px;
+                      height: 25px;
+                    "
+                  ></div>
                 </div>
               </a-col>
             </template>
@@ -298,14 +303,18 @@ const fetchEventDetails = async () => {
                   <span>{{ item?.show_time }}</span>
                   <div
                     v-if="item?.id == state.eventTimeIndex"
-                    style="
-                      position: absolute;
-                      margin-left: 71px;
-                      margin-top: 20px;
-                    "
+                    style="align-self: flex-end; margin-bottom: -10px"
                   >
                     <img src="@/assets/event/checked.svg" />
                   </div>
+                  <div
+                    v-else
+                    style="
+                      align-self: flex-end;
+                      margin-bottom: -10px;
+                      height: 25px;
+                    "
+                  ></div>
                 </div>
               </a-col>
             </template>
