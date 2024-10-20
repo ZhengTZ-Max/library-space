@@ -21,7 +21,7 @@ const state = reactive({
 
 onMounted(() => {
   fetchEventDetails();
-}); 
+});
 
 watch(
   () => state.eventDateList,
@@ -51,7 +51,6 @@ const fetchEventDetails = async () => {
     console.log(e);
   }
 };
-
 </script>
 <template>
   <div class="eventDetail">
@@ -118,6 +117,8 @@ const fetchEventDetails = async () => {
               <span>活动地点：</span>
               <span>
                 这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍
+                这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍
+                这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍
               </span>
             </div>
           </div>
@@ -125,7 +126,6 @@ const fetchEventDetails = async () => {
       </div>
       <div class="right_info">
         <div class="right_info_title">活动日期</div>
-
       </div>
     </div>
   </div>
@@ -181,28 +181,25 @@ const fetchEventDetails = async () => {
     background: #fff;
     display: flex;
     .left_info {
-      flex: 1.3;
-      display: flex;
-      flex-direction: column;
+      width: 60%;
       background: #f7f9fb;
       border-radius: 10px;
       margin-right: 20px;
+      overflow: auto;
       .left_top {
-        flex: 3;
+        height: 65%;
+        min-height: 570px;
         background: #fff;
         border-radius: 10px;
         margin: 20px;
         .left_top_content {
-          padding-top: 20px;
-          padding-left: 20px;
-          padding-right: 20px;
+          padding: 20px 20px 0 20px;
           position: relative;
           width: 100%;
-          max-width: 680px;
           .image {
-            width: 680px;
-            height: 550px;
-            padding-bottom: 30px;
+            width: 100%;
+            height: 500px;
+            object-fit: cover; /* 确保图片不失真 */
           }
 
           .controls {
@@ -262,7 +259,6 @@ const fetchEventDetails = async () => {
         }
       }
       .left_bottom {
-        flex: 1;
         background: #fff;
         border-radius: 10px;
         padding: 20px;
@@ -288,7 +284,6 @@ const fetchEventDetails = async () => {
                 font-size: 16px;
                 color: #a7a7a7;
                 margin-left: 2px;
-                
               }
               &:nth-child(2) {
                 flex: 1;
@@ -302,7 +297,7 @@ const fetchEventDetails = async () => {
       }
     }
     .right_info {
-      flex: 1;
+      width: 40%;
       background: #f7f9fb;
       border-radius: 10px;
       margin-left: 20px;
@@ -316,13 +311,15 @@ const fetchEventDetails = async () => {
     }
   }
 }
-:deep(.slick-prev ) {
+:deep(.slick-prev) {
   left: 0 !important;
+  bottom: 12px !important;
 }
 :deep(.slick-next) {
   right: 0 !important;
+  bottom: 12px !important;
 }
 :deep(.carouseDots) {
-  bottom: 18px !important;
+  bottom: 3px !important;
 }
 </style>

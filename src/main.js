@@ -4,11 +4,14 @@ import _ from "lodash";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store"; // 引入 store
+import directives from "./directives";
 
 import "ant-design-vue/dist/reset.css";
 import "./style.css";
 
 const app = createApp(App);
+directives(app);
+
 app.use(router);
 app.use(Antd);
 app.use(store);
