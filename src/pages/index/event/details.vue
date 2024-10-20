@@ -275,8 +275,8 @@ const fetchEventDetails = async () => {
                     v-if="item?.date == state.eventDateIndex"
                     style="
                       position: absolute;
-                      margin-left: 71px;
-                      margin-top: 40px;
+                      right: 0;
+                      bottom: 0;
                     "
                   >
                     <img src="@/assets/event/checked.svg" />
@@ -299,18 +299,14 @@ const fetchEventDetails = async () => {
                   <span>{{ item?.show_time }}</span>
                   <div
                     v-if="item?.id == state.eventTimeIndex"
-                    style="align-self: flex-end; margin-bottom: -10px"
+                    style="
+                      position: absolute;
+                      right: 0;
+                      bottom: 0;
+                    "
                   >
                     <img src="@/assets/event/checked.svg" />
                   </div>
-                  <div
-                    v-else
-                    style="
-                      align-self: flex-end;
-                      margin-bottom: -10px;
-                      height: 25px;
-                    "
-                  ></div>
                 </div>
               </a-col>
             </template>
@@ -408,9 +404,9 @@ const fetchEventDetails = async () => {
           .controls {
             position: absolute;
 
-            width: 97%;
-            margin-left: 0%;
+            width: 87%;
             bottom: 30px;
+            right: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
