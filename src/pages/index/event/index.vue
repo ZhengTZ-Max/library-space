@@ -58,6 +58,12 @@ const handleFilter = () => {
   fetchCurrentEventList();
 };
 
+const goToLink = (id) => {
+  router.push({
+    path: "/event/details",
+    query: { id },
+  });
+};
 const fetchGetEventIndex = async () => {
   try {
     let res = await getEventFilterIndex();
@@ -271,6 +277,7 @@ const getDefaultList = () => {
               <div
                 v-if="item?.id == state.activeIndex"
                 class="action clickBoxT"
+                @click="goToLink(item?.id)"
               >
                 立即报名
               </div>
@@ -313,7 +320,7 @@ const getDefaultList = () => {
 .eventLibrary {
   height: 100%;
   overflow: auto;
-  .header {
+  .header { 
     padding: 20px 30px;
     color: #202020;
     display: flex;
