@@ -271,21 +271,17 @@ const fetchEventDetails = async () => {
                 >
                   <span>{{ moment(item?.data).format("MM-DD") }}</span>
                   <span>{{ exchangeDateTime(item?.data, 31) }}</span>
-
                   <div
                     v-if="item?.date == state.eventDateIndex"
-                    style="align-self: flex-end; margin-bottom: -10px"
+                    style="
+                      position: absolute;
+                      margin-left: 71px;
+                      margin-top: 40px;
+                    "
                   >
                     <img src="@/assets/event/checked.svg" />
                   </div>
-                  <div
-                    v-else
-                    style="
-                      align-self: flex-end;
-                      margin-bottom: -10px;
-                      height: 25px;
-                    "
-                  ></div>
+                  
                 </div>
               </a-col>
             </template>
