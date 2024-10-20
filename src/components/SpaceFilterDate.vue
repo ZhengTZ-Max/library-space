@@ -76,7 +76,7 @@ const getTimes = () => {
 <style lang="less" scoped>
 .filterCon {
   padding: 24px 0 0 0;
-  height: 30vh;
+  height: 30vh !important;
   overflow: hidden;
   display: flex;
   flex-direction: column;

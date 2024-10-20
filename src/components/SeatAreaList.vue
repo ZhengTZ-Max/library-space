@@ -6,6 +6,9 @@ const store = useStore();
 const emit = defineEmits(["selected"]);
 
 const props = defineProps({
+  list: {
+    type: Array,
+  },
   data: {
     type: Object,
   },
@@ -22,7 +25,7 @@ const state = reactive({
 });
 
 onMounted(() => {
-  state.list = props?.data?.seat || [];
+  state.list = props?.list || [];
 });
 
 const selectSeat = (seat) => {
@@ -34,10 +37,19 @@ const selectSeat = (seat) => {
     <div class="seatList">
       <a-row :gutter="[26, 26]" justify="start">
         <a-col v-for="item in state.list" :key="item?.id">
-          <div class="seatItem activeBtn" :class="{active:props?.seatSelected?.id == item?.id}" @click="selectSeat(item)">
+          <div
+            class="seatItem activeBtn"
+            :class="{ active: props?.seatSelected?.id == item?.id }"
+            @click="selectSeat(item)"
+          >
             <span>{{ item?.no }}</span>
             <!-- <span class="leftStatus">{{item?.status_name}}</span> -->
-            <img v-if="props?.seatSelected?.id == item?.id" class="selected" src="@/assets/seat/seatSelected.svg" alt="" />
+            <img
+              v-if="props?.seatSelected?.id == item?.id"
+              class="selected"
+              src="@/assets/seat/seatSelected.svg"
+              alt=""
+            />
           </div>
         </a-col>
       </a-row>

@@ -5,6 +5,9 @@ import Panzoom from "panzoom";
 
 const emit = defineEmits(["selected"]);
 const props = defineProps({
+  list: {
+    type: Array,
+  },
   data: {
     default: {},
   },
@@ -24,7 +27,7 @@ const state = reactive({
 });
 
 onMounted(() => {
-  state.list = props?.data?.seat;
+  state.list = props?.list;
   state.backgroundMap = props?.data?.map;
 });
 
@@ -98,7 +101,10 @@ const statusBg = (seat) => {
   } else {
     backgroundImg = state?.backgroundMap?.not;
   }
-  return (backgroundImg && `url("${backgroundImg}")`) || "";
+  return (
+    (backgroundImg && `url("http://kfcs.skalibrary.com/${backgroundImg}")`) ||
+    ""
+  );
 };
 
 const selectSeat = (seat, event) => {

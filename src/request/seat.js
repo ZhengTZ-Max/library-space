@@ -77,6 +77,19 @@ export function getSpaceSeat(data) {
   });
 }
 
+export function getSpaceRule(data) {
+  return service({
+    url: "/v4/space/rule",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+
+
+
 
 
 

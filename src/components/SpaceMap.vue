@@ -129,12 +129,17 @@ const selectSeat = (seat, event) => {
   emit("selected", { title: "空间详情", ...seat });
   console.log(seat);
 };
+
+const onReset = (v) => {
+  if (mapIMG?.value?.clientHeight) {
+    fillCanvas();
+  }
+};
 </script>
 <template>
-  <div class="spaceMap">
+  <div class="spaceMap" v-onReset:150="onReset">
     <div class="zoommap" ref="zoommap">
       <img ref="mapIMG" :src="state.background" alt="" @load="onMapImg" />
-
       <canvas
         v-for="item in state.list"
         :key="item.id"

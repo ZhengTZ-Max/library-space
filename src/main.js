@@ -9,8 +9,15 @@ import directives from "./directives";
 import "ant-design-vue/dist/reset.css";
 import "./style.css";
 
+// --- Vant组件
+import { Button, List } from "vant";
+import "vant/lib/index.css";
+
 const app = createApp(App);
 directives(app);
+
+app.use(Button);
+app.use(List);
 
 app.use(router);
 app.use(Antd);

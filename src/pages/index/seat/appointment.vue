@@ -4,22 +4,21 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
 
-import { SearchOutlined } from "@ant-design/icons-vue";
-
 import { exchangeDateTime } from "@/utils";
 import {
-  getSpacePick,
   getSpaceDetail,
   getSpaceMap,
-  getSpaceIndex,
   getSpaceLabel,
   getSpaceSeat,
+  getSpaceRule,
 } from "@/request/seat";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceFilterDate from "@/components/SpaceFilterDate.vue";
 import SpaceSeatMap from "@/components/SpaceSeatMap.vue";
 import SeatAreaSwipe from "@/components/SeatAreaSwipe.vue";
 import SeatAreaList from "@/components/SeatAreaList.vue";
+import SeatFilterLabel from "@/components/SpaceSltLabel.vue";
+import SpaceRuleConfirm from "@/components/SpaceRuleConfirm.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -49,6 +48,7 @@ const state = reactive({
   spaceList: [],
   spaceInfo: {},
   spaceLabelList: [],
+  spaceLabelVal: [],
 
   filterOptions: {},
   filterSearch: {
@@ -59,7 +59,8 @@ const state = reactive({
     boutique: [],
   },
 
-  labelShow: false,
+  spaceRuleShow: false,
+  ruleInfo: {},
 });
 
 onMounted(() => {
@@ -70,15 +71,6 @@ onMounted(() => {
   }
 });
 
-watch(
-  () => state.spaceList,
-  (v) => {
-    if (v?.length) {
-      state.activeIndex = v[0]?.id;
-    }
-  }
-);
-
 const handleShowInfo = (item) => {
   state.libraryInfo = {
     id: item.id,
@@ -87,54 +79,29 @@ const handleShowInfo = (item) => {
   fetchInfo(item.id);
 };
 
-const handleAppt = () => {};
-
-const onChangeAct = (i) => {
-  state.activeIndex = i.id;
-};
-
-const fetchFilter = async () => {
+const fetchSpace = async (id) => {
   try {
-    let res = await getSpaceIndex();
-    state.filterOptions = res?.data;
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-const fetchSpaceMap = async () => {
-  try {
-    let params = {};
-    let res = await getSpaceMap(params);
+    let { date } = state.filterSearch;
+    let params = {
+      id,
+      day: date,
+      label_id: state.spaceLabelVal,
+      start_time: "",
+      end_time: "",
+      begdate: "",
+      enddate: "",
+    };
+    let res = await getSpaceSeat(params);
 
     if (res.code != 0) {
       return false;
     }
 
-    state.spaceList = res?.data?.area || [];
-    getFloorArea();
+    // state.spaceList = res?.data?.area || [];
   } catch (e) {
     console.log(e);
   }
 };
-
-// const fetchSpace = async () => {
-//   try {
-//     let { date } = state.filterSearch;
-//     let params = {};
-//     state.floorMapOpt.list = [];
-//     let res = await getSpaceSeat(params);
-
-//     if (res.code != 0) {
-//       return false;
-//     }
-
-//     state.spaceList = res?.data?.area || [];
-//     getFloorArea();
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
 
 const fetchLabel = async (data) => {
   try {
@@ -156,7 +123,22 @@ const fetchInfo = async (id) => {
     let res = await getSpaceMap(params);
     if (res.code != 0) return;
     state.spaceInfo = res?.data || {};
+    fetchSpace(id);
     // state.libraryInfoShow = true;
+    fetchRule(id);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const fetchRule = async (id) => {
+  try {
+    let params = {
+      id,
+    };
+    let res = await getSpaceRule(params);
+    if (res.code != 0) return;
+    state.ruleInfo = res?.data;
   } catch (e) {
     console.log(e);
   }
@@ -175,10 +157,17 @@ const handleFilter = () => {
   state.spaceFilterShow = false;
 };
 
-const onSelectLabel = () => {};
-
 const onSelected = (v) => {
   state.spaceSelected = v;
+};
+
+const onFilterLabel = (v) => {
+  state.spaceLabelVal = v;
+};
+
+const handleAppt = () => {
+  console.log("预约");
+  state.spaceRuleShow = false;
 };
 </script>
 <template>
@@ -212,25 +201,12 @@ const onSelected = (v) => {
             </div>
           </div>
 
-          <a-dropdown
+          <SeatFilterLabel
             v-if="state.spaceLabelList?.length"
-            trigger="click"
-            v-model:open="state.labelShow"
-          >
-            <div class="filters activeBtn">
-              <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            </div>
-            <template #overlay>
-              <a-menu @click="onSelectLabel">
-                <a-menu-item
-                  v-for="item in state.spaceLabelList"
-                  :key="item?.id"
-                >
-                  {{ item?.name }}
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
+            :list="state.spaceLabelList"
+            :selected="state.spaceLabelVal"
+            @onSelected="onFilterLabel"
+          />
         </div>
       </div>
     </a-affix>
@@ -239,6 +215,7 @@ const onSelected = (v) => {
         <template v-if="state.spaceInfo?.seat?.length">
           <div v-if="state.quickMode == '1'" class="librarySlt">
             <SeatAreaList
+              :list="state.spaceList"
               :data="state.spaceInfo"
               :seatSelected="state.spaceSelected"
               @selected="onSelected"
@@ -247,6 +224,7 @@ const onSelected = (v) => {
 
           <div v-else class="spaceMapSlt">
             <SpaceSeatMap
+              :list="state.spaceList"
               :data="state.spaceInfo"
               :seatSelected="state.spaceSelected"
               @selected="onSelected"
@@ -279,7 +257,12 @@ const onSelected = (v) => {
             已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
           </p>
         </div>
-        <a-button class="reserve-btn" shape="round" type="primary" block
+        <a-button
+          class="reserve-btn"
+          shape="round"
+          type="primary"
+          block
+          @click="state.spaceRuleShow = true"
           >立即预约</a-button
         >
       </div>
@@ -308,7 +291,7 @@ const onSelected = (v) => {
     </a-modal>
 
     <a-modal
-      width="50%"
+      width="35%"
       v-model:open="state.spaceFilterShow"
       title="选择时间"
       @ok="handleFilter"
@@ -332,6 +315,13 @@ const onSelected = (v) => {
         :initSearch="state.filterSearch"
       />
     </a-modal>
+
+    <SpaceRuleConfirm
+      v-if="state.spaceRuleShow"
+      :open="state.spaceRuleShow"
+      :content="state.ruleInfo?.content"
+      @onConfirm="handleAppt"
+    />
   </div>
 </template>
 <style lang="less" scoped>
