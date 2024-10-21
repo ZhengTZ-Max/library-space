@@ -88,6 +88,19 @@ export function getSpaceRule(data) {
   });
 }
 
+export function getSpaceConfirm(data) {
+  return service({
+    url: "/v4/space/confirm",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+
+
+
 
 
 

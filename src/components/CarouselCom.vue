@@ -34,7 +34,7 @@ import { LeftCircleOutlined, RightCircleOutlined } from "@ant-design/icons-vue";
   font-size: 25px;
   color: #fff;
   transition: ease all 0.3s;
-  z-index: 16;
+  z-index: 16 !important;
 }
 :deep(.slick-arrow.custom-slick-arrow:before) {
   display: none;

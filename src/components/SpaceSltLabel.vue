@@ -4,7 +4,7 @@ import { useStore } from "vuex";
 const store = useStore();
 
 const props = defineProps(["list", "selected"]);
-const emits = defineEmits("onSelected");
+const emits = defineEmits(["handleSlt"]);
 const state = reactive({
   list: [],
   selected: [],
@@ -33,8 +33,8 @@ watch(
   }
 );
 
-const handleClickChange = () => {
-  emits("onSelected", state.selected);
+const handleClickChange = (v) => {
+  !v && emits("handleSlt", state.selected);
 };
 </script>
 <template>
@@ -92,6 +92,10 @@ const handleClickChange = () => {
     &:hover {
       background-color: rgba(0, 0, 0, 0.1);
     }
+  }
+  .ant-checkbox-group {
+    display: flex;
+    flex-direction: column;
   }
 }
 </style>

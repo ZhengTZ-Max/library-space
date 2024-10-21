@@ -4,6 +4,7 @@ import { useStore } from "vuex";
 import { SearchOutlined } from "@ant-design/icons-vue";
 
 const store = useStore();
+const emits = defineEmits(["update:initSearch"]);
 const props = defineProps({
   date: {
     type: Object,
@@ -19,6 +20,7 @@ const state = reactive({
   filterRows: {
     date: "",
     time: "",
+    times: {},
   },
 
   filterTimes: [],
@@ -29,6 +31,7 @@ onMounted(() => {
   state.filterDateType = props?.date?.reserveType || {};
   state.filterRows = props?.initSearch || {};
   getTimes();
+  console.log("initSearch", state.filterRows);
 });
 
 watch(
@@ -37,6 +40,18 @@ watch(
     if (v) getTimes();
   }
 );
+
+watch(
+  () => state.filterRows.time,
+  (v) => {
+    if (v) onChangeTimes(v);
+  }
+);
+
+const onChangeTimes = (v) => {
+  let findTime = state.filterTimes?.find((e) => e?.id == v);
+  state.filterRows.times = findTime;
+};
 
 const getTimes = () => {
   let cDate = state.filterRows?.date;
@@ -49,7 +64,10 @@ const getTimes = () => {
     <div class="filterScr">
       <div class="filterFilter">日期</div>
       <div class="fiterItem">
-        <a-radio-group v-model:value="state.filterRows.date">
+        <a-radio-group
+          v-model:value="state.filterRows.date"
+          @change="state.filterRows.time = ''"
+        >
           <a-radio
             v-for="item in state.filterDate"
             :value="item?.day"
@@ -62,12 +80,22 @@ const getTimes = () => {
       <div class="filterFilter">时间</div>
       <div class="fiterItem">
         <a-radio-group v-model:value="state.filterRows.time">
-          <a-radio
-            v-for="item in state.filterTimes"
-            :value="item?.id"
-            :key="item?.id"
-            >{{ item?.start }} - {{ item?.end }}</a-radio
-          >
+          <template v-if="state.filterDateType == 1">
+            <a-radio
+              v-for="item in state.filterTimes"
+              :value="item?.id"
+              :key="item?.id"
+              >{{ item?.start }} - {{ item?.end }}</a-radio
+            >
+          </template>
+          <template v-else-if="state.filterDateType == 2">
+            <a-radio
+              v-for="item in state.filterTimes[0]"
+              :value="item"
+              :key="item"
+              >{{ item }}</a-radio
+            >
+          </template>
         </a-radio-group>
       </div>
     </div>

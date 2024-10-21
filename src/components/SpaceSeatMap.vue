@@ -29,6 +29,7 @@ const state = reactive({
 onMounted(() => {
   state.list = props?.list;
   state.backgroundMap = props?.data?.map;
+
 });
 
 const onMapImg = () => {
@@ -127,7 +128,7 @@ const onResizing = (v) => {
     <div class="zoommap" ref="zoommap">
       <img
         ref="mapIMG"
-        :src="`http://kfcs.skalibrary.com/` + state.backgroundMap?.free"
+        :src="state.backgroundMap?.free"
         alt=""
         @load="onMapImg"
       />

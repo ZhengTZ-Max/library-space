@@ -11,6 +11,7 @@ import {
   getSpaceLabel,
   getSpaceSeat,
   getSpaceRule,
+  getSpaceConfirm,
 } from "@/request/seat";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceFilterDate from "@/components/SpaceFilterDate.vue";
@@ -19,6 +20,7 @@ import SeatAreaSwipe from "@/components/SeatAreaSwipe.vue";
 import SeatAreaList from "@/components/SeatAreaList.vue";
 import SeatFilterLabel from "@/components/SpaceSltLabel.vue";
 import SpaceRuleConfirm from "@/components/SpaceRuleConfirm.vue";
+import ShowInfoToast from "@/components/ShowInfoToast.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -57,15 +59,31 @@ const state = reactive({
     seatType: [],
     date: "",
     boutique: [],
+    times: {},
+    time: "",
+  },
+
+  filterDate: {
+    date: "",
+    times: {},
+    time: "",
   },
 
   spaceRuleShow: false,
   ruleInfo: {},
+
+  apptResult: {
+    show: false,
+    title: "预约成功~~",
+    type: "success",
+  },
 });
 
 onMounted(() => {
   if (state.initQuery?.spaceId) {
-    fetchInfo(state.initQuery?.spaceId);
+    fetchInfo();
+    state.filterSearch.date = state.initQuery.quickDate;
+    state.filterDate.date = state.initQuery.quickDate;
   } else {
     router.go(-1);
   }
@@ -79,25 +97,31 @@ const handleShowInfo = (item) => {
   fetchInfo(item.id);
 };
 
-const fetchSpace = async (id) => {
+const fetchSpace = async () => {
   try {
-    let { date } = state.filterSearch;
+    let { date, times, time } = state.filterSearch;
+    let dateType = state.spaceInfo?.date?.reserveType;
+
     let params = {
-      id,
+      id: state.initQuery?.spaceId,
       day: date,
       label_id: state.spaceLabelVal,
-      start_time: "",
-      end_time: "",
+      start_time: times?.start || "",
+      end_time: times?.end || "",
       begdate: "",
       enddate: "",
     };
+    if (dateType == 2) {
+      params.start_time = time;
+      params.end_time = time;
+    }
     let res = await getSpaceSeat(params);
 
     if (res.code != 0) {
       return false;
     }
 
-    // state.spaceList = res?.data?.area || [];
+    state.spaceList = res?.data?.list || [];
   } catch (e) {
     console.log(e);
   }
@@ -114,27 +138,51 @@ const fetchLabel = async (data) => {
   }
 };
 
-const fetchInfo = async (id) => {
+const fetchInfo = async () => {
   try {
     let params = {
-      id,
+      id: state.initQuery?.spaceId,
     };
     fetchLabel(params);
     let res = await getSpaceMap(params);
     if (res.code != 0) return;
     state.spaceInfo = res?.data || {};
-    fetchSpace(id);
-    // state.libraryInfoShow = true;
-    fetchRule(id);
+    initSltTimes();
+    fetchRule();
+    fetchSpace();
   } catch (e) {
     console.log(e);
   }
 };
 
-const fetchRule = async (id) => {
+const initSltTimes = () => {
+  let curDate = state.spaceInfo?.date?.list?.find(
+    (e) => e?.day == state.filterSearch?.date
+  );
+  let dateType = state.spaceInfo?.date?.reserveType;
+
+  if (!curDate) {
+    let firstDate = state.spaceInfo?.date?.list[0];
+    state.filterSearch.date = firstDate?.day;
+    state.filterDate.date = firstDate?.day;
+    curDate = firstDate;
+  }
+  if (dateType == 1) {
+    state.filterSearch.time = curDate?.times[0]?.id;
+    state.filterSearch.times = curDate?.times[0];
+
+    state.filterDate.time = curDate?.times[0]?.id;
+    state.filterDate.times = curDate?.times[0];
+  } else if (dateType == 2) {
+    state.filterSearch.time = curDate?.times[0][0];
+    state.filterDate.time = curDate?.times[0][0];
+  }
+};
+
+const fetchRule = async () => {
   try {
     let params = {
-      id,
+      id: state.initQuery?.spaceId,
     };
     let res = await getSpaceRule(params);
     if (res.code != 0) return;
@@ -152,9 +200,32 @@ const goToLink = (link) => {
   router.replace(link);
 };
 
-const handleFilter = () => {
-  // fetchLibrary();
+const handleFilter = (type) => {
   state.spaceFilterShow = false;
+
+  if (type == "cancel") {
+    state.filterDate = {
+      date: state.filterSearch.date,
+      times: state.filterSearch.times,
+      time: state.filterSearch.time,
+    };
+    return false;
+  }
+  let dateType = state.spaceInfo?.date?.reserveType;
+  if (dateType == 1) {
+    state.filterSearch = {
+      ...state.filterSearch,
+      ...state.filterDate,
+    };
+  } else if (dateType == 2) {
+    state.filterSearch = {
+      ...state.filterSearch,
+      ...state.filterDate,
+    };
+  }
+  // fetchLibrary();
+
+  fetchSpace();
 };
 
 const onSelected = (v) => {
@@ -163,16 +234,49 @@ const onSelected = (v) => {
 
 const onFilterLabel = (v) => {
   state.spaceLabelVal = v;
+  fetchSpace()
 };
 
 const handleAppt = () => {
   console.log("预约");
   state.spaceRuleShow = false;
+  state.apptResult.show = true;
+};
+
+const confirmAppt = async () => {
+  try {
+    let params = {
+      seat_id: "",
+      segment: "",
+      day: "",
+      start_time: "",
+      end_time: "",
+    };
+
+    let res = await getSpaceConfirm(params);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const ShowSelectedDateTime = () => {
+  let dateType = state.spaceInfo?.date?.reserveType;
+  let { times, time, date } = state.filterSearch;
+  if (dateType == 1) {
+    return `${date} ${times?.start}~${times?.end}`;
+  } else if (dateType == 2) {
+    return `${date} ${time}`;
+  }
+};
+
+const ShowArea = () => {
+  let { premise_name, storey_name, name } = state.spaceInfo;
+  return `${premise_name} ${storey_name} ${name}`;
 };
 </script>
 <template>
   <div class="seatAppointment" ref="containerRef">
-    <a-affix offset-top="0" :target="() => containerRef">
+    <a-affix :offset-top="0" :target="() => containerRef">
       <div class="header">
         <div class="leftTit">
           <a-breadcrumb>
@@ -205,14 +309,14 @@ const handleAppt = () => {
             v-if="state.spaceLabelList?.length"
             :list="state.spaceLabelList"
             :selected="state.spaceLabelVal"
-            @onSelected="onFilterLabel"
+            @handleSlt="onFilterLabel"
           />
         </div>
       </div>
     </a-affix>
     <div class="showCon">
       <div class="leftBox">
-        <template v-if="state.spaceInfo?.seat?.length">
+        <template v-if="state.spaceList?.length">
           <div v-if="state.quickMode == '1'" class="librarySlt">
             <SeatAreaList
               :list="state.spaceList"
@@ -235,36 +339,40 @@ const handleAppt = () => {
       </div>
 
       <div class="rightBox">
-        <SeatAreaSwipe
-          v-if="state.spaceInfo?.brother_area?.length"
-          :data="state.spaceInfo"
-          :defaultId="state.initQuery.spaceId"
-          @viewInfo="state.libraryInfoShow = true"
-        />
+        <template v-if="state.spaceInfo?.name">
+          <SeatAreaSwipe
+            v-if="state.spaceInfo?.brother_area?.length"
+            :data="state.spaceInfo"
+            :defaultId="state.initQuery.spaceId"
+            @viewInfo="state.libraryInfoShow = true"
+          />
 
-        <div class="reservation">
-          <div class="selectDate">
-            <span>今天</span>
-            <span>2023-11-28 10:00~18:00</span>
-            <img
-              style="cursor: pointer"
-              @click="state.spaceFilterShow = true"
-              src="@/assets/seat/selectDate.svg"
-              alt=""
-            />
+          <div class="reservation">
+            <div class="selectDate">
+              <span>今天</span>
+              <span>{{ ShowSelectedDateTime() }} </span>
+              <img
+                style="cursor: pointer"
+                @click="state.spaceFilterShow = true"
+                src="@/assets/seat/selectDate.svg"
+                alt=""
+              />
+            </div>
+            <p class="selectSeat">
+              已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
+            </p>
           </div>
-          <p class="selectSeat">
-            已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
-          </p>
-        </div>
-        <a-button
-          class="reserve-btn"
-          shape="round"
-          type="primary"
-          block
-          @click="state.spaceRuleShow = true"
-          >立即预约</a-button
-        >
+          <a-button
+            class="reserve-btn"
+            shape="round"
+            type="primary"
+            block
+            @click="state.spaceRuleShow = true"
+            :disabled="!state.spaceSelected?.id"
+            >立即预约</a-button
+          >
+        </template>
+        <a-skeleton v-else :paragraph="{ rows: 4 }" active />
       </div>
     </div>
 
@@ -295,6 +403,7 @@ const handleAppt = () => {
       v-model:open="state.spaceFilterShow"
       title="选择时间"
       @ok="handleFilter"
+      @cancel="handleFilter('cancel')"
       destroyOnClose
       okText="确认"
       cancelText="取消"
@@ -306,13 +415,19 @@ const handleAppt = () => {
           borderColor: '#CECFD5',
         },
       }"
-      :okButtonProps="{ size: 'middle' }"
+      :okButtonProps="{
+        size: 'middle',
+        style: {
+          background: (!state?.filterDate?.time && 'rgba(26,73,192,0.3)') || '',
+          pointerEvents: (!state?.filterDate?.time && 'none') || '',
+        },
+      }"
       centered
     >
       <SpaceFilterDate
         v-if="state.spaceInfo?.date?.list?.length"
         :date="state.spaceInfo?.date"
-        :initSearch="state.filterSearch"
+        :initSearch="state.filterDate"
       />
     </a-modal>
 
@@ -322,6 +437,32 @@ const handleAppt = () => {
       :content="state.ruleInfo?.content"
       @onConfirm="handleAppt"
     />
+
+    <ShowInfoToast
+      v-if="state.apptResult.show"
+      :isShow="state.apptResult.show"
+      :type="state.apptResult.type"
+      :title="state.apptResult.title"
+    >
+      <template v-slot:content>
+        <div class="toastItem">
+          <span>时间：</span>
+          <span>{{ ShowSelectedDateTime() }}</span>
+        </div>
+        <div class="toastItem">
+          <span>地点：</span>
+          <span>{{ ShowArea() }}</span>
+        </div>
+        <div class="toastItem">
+          <span>座位：</span>
+          <span>{{ state.spaceSelected?.no || "-" }}</span>
+        </div>
+        <div class="toastItem">
+          <span>提醒：</span>
+          <span>提醒</span>
+        </div>
+      </template>
+    </ShowInfoToast>
   </div>
 </template>
 <style lang="less" scoped>
@@ -458,6 +599,19 @@ const handleAppt = () => {
     display: inline-flex;
     column-gap: 36px;
     row-gap: 20px;
+  }
+}
+
+.toastItem {
+  display: flex;
+  width: 100%;
+  font-size: 14px;
+  color: #616161;
+  margin-bottom: 10px;
+  span {
+    &:nth-child(2) {
+      flex: 1;
+    }
   }
 }
 </style>
