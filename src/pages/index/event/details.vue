@@ -4,6 +4,8 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
 import Carousel from "@/components/CarouselCom.vue";
+import EventApplyCom from "../../../components/EventApplyCom.vue";
+import EventApplyResultCom from "../../../components/EventApplyResultCom.vue";
 import { getEventDetails } from "@/request/event";
 import { exchangeDateTime } from "../../../utils";
 
@@ -20,6 +22,12 @@ const state = reactive({
   eventTimeIndex: "",
   eventMaxNum: "",
   eventCurrentNum: "",
+  isApply: false,
+  applyInfo: { phone: "", email: "" },
+  applyResultInfo: {
+    result: "success",
+    message: "XXXX",
+  },
 });
 
 onMounted(() => {
@@ -166,6 +174,13 @@ const getDefalutList = () => {
   };
 };
 
+const onApply = () => {
+  state.isApply = true;
+};
+const onApplyResult = () => {
+  state.isApplyResult = true;
+};
+
 const fetchEventDetails = async () => {
   try {
     let res = await getEventDetails({ id: state.id });
@@ -273,15 +288,10 @@ const fetchEventDetails = async () => {
                   <span>{{ exchangeDateTime(item?.data, 31) }}</span>
                   <div
                     v-if="item?.date == state.eventDateIndex"
-                    style="
-                      position: absolute;
-                      right: 0;
-                      bottom: 0;
-                    "
+                    class="check_icon"
                   >
                     <img src="@/assets/event/checked.svg" />
                   </div>
-                  
                 </div>
               </a-col>
             </template>
@@ -299,11 +309,7 @@ const fetchEventDetails = async () => {
                   <span>{{ item?.show_time }}</span>
                   <div
                     v-if="item?.id == state.eventTimeIndex"
-                    style="
-                      position: absolute;
-                      right: 0;
-                      bottom: 0;
-                    "
+                    class="check_icon"
                   >
                     <img src="@/assets/event/checked.svg" />
                   </div>
@@ -320,13 +326,39 @@ const fetchEventDetails = async () => {
             {{ state.eventCurrentNum }}/{{ state.eventMaxNum }}
           </div>
           <div v-if="state.eventTimeList?.length" class="right_info_btn">
-            <a-button type="primary" shape="round" style="width: 200px"
+            <a-button
+              type="primary"
+              shape="round"
+              style="width: 200px"
+              @click="onApplyResult"
               >我要报名</a-button
             >
           </div>
         </div>
       </div>
     </div>
+    <a-modal
+      width="40%"
+      v-model:open="state.isApply"
+      title="联系方式"
+      destroyOnClose
+      :footer="null"
+      @cancel="state.isApply = false"
+      centered
+    >
+      <EventApplyCom :data="state.applyInfo" />
+    </a-modal>
+    <a-modal
+      width="22%"
+      v-model:open="state.isApplyResult"
+      destroyOnClose
+      :closable="false"
+      @cancel="state.isApplyResult = false"
+      :footer="null"
+      centered
+    >
+      <EventApplyResultCom :data="state.applyResultInfo" />
+    </a-modal>
   </div>
 </template>
 
@@ -523,6 +555,11 @@ const fetchEventDetails = async () => {
           flex-direction: column;
           justify-content: center;
           align-items: center;
+          .check_icon {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+          }
         }
         .right_info_btn {
           height: 100%;
@@ -534,6 +571,7 @@ const fetchEventDetails = async () => {
     }
   }
 }
+
 :deep(.slick-prev) {
   left: 0 !important;
   bottom: 12px !important;
@@ -544,5 +582,11 @@ const fetchEventDetails = async () => {
 }
 :deep(.carouseDots) {
   bottom: 3px !important;
+}
+
+.ant-input,
+.ant-input-affix-wrapper {
+  padding-left: 20px;
+  border-radius: 40px;
 }
 </style>

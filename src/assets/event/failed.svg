@@ -1,0 +1,14 @@
+<svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="&#229;&#164;&#177;&#232;&#180;&#165;" clip-path="url(#clip0_710_7066)">
+<path id="Vector" d="M25 0C38.8075 0 50 11.1925 50 25C50 38.8075 38.8075 50 25 50C11.1925 50 0 38.8075 0 25C0 11.1925 11.1925 0 25 0Z" fill="#DD3131"/>
+<g id="Group 3003">
+<rect id="Rectangle 34625874" x="16.9727" y="14" width="26.9081" height="4.20439" rx="2.1022" transform="rotate(45 16.9727 14)" fill="white"/>
+<rect id="Rectangle 34625875" x="14" y="33.0273" width="26.9081" height="4.20439" rx="2.1022" transform="rotate(-45 14 33.0273)" fill="white"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_710_7066">
+<rect width="50" height="50" fill="white"/>
+</clipPath>
+</defs>
+</svg>
