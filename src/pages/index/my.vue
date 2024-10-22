@@ -1,8 +1,11 @@
 <script setup>
 import { CheckCircleFilled } from "@ant-design/icons-vue";
-import { reactive } from "vue";
+import { reactive,onMounted, watch, } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { Modal } from "ant-design-vue";
+import { getMyInfo } from "@/request/my";
+
+
 const router = useRouter();
 const route = useRoute();
 const state = reactive({
@@ -45,6 +48,22 @@ const onChangeNav = (item) => {
 const onHelp = () => {
   router.push("/help");
 };
+
+onMounted(() => { 
+  fetchMyInfo();
+});
+
+const fetchMyInfo = async () => {
+
+  try {
+    const res = await getMyInfo();
+    console.log(res);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
 </script>
 <template>
   <div class="my">

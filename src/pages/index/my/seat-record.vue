@@ -1,7 +1,8 @@
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { SearchOutlined } from "@ant-design/icons-vue";
+import { getSeatRecordList } from "@/request/sear-record";
 
 const store = useStore();
 const state = reactive({
@@ -188,6 +189,19 @@ const onHideModal = () => {
 
 const onQuery = () => {
   state.isModalVisibleForQuery = true;
+};
+
+onMounted(() => { 
+  fetchSeatRecordList();
+});
+
+const fetchSeatRecordList = async () => {
+  try {
+    const res = await getSeatRecordList();
+    console.log(res);
+  } catch (error) {
+    console.log(error);
+  }
 };
 </script>
 <template>
