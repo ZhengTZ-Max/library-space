@@ -1,11 +1,18 @@
 // src/store/index.js
 import { createStore } from "vuex";
+import { getBanner } from "../request";
 
 const store = createStore({
   state: {
     pageLoading: false,
     pageLoadingText: "",
     systemMode: "",
+    bannerList: [],
+
+    apiConfig: {},
+    loginInfo: {},
+    langData: {},
+    lang: "en",
   },
   mutations: {
     systemMode(state, mode) {
@@ -16,6 +23,21 @@ const store = createStore({
     },
     setPageLoadingText(state, text) {
       state.pageLoadingText = text;
+    },
+    setBannerList(state, list) {
+      state.bannerList = list;
+    },
+    setLoginInfo(state, info) {
+      state.loginInfo = info;
+    },
+    setApiConfig(state, info) {
+      state.apiConfig = info;
+    },
+    setLangData(state, data) {
+      state.langData = data;
+    },
+    setLang(state, data) {
+      state.lang = data;
     },
   },
   actions: {
@@ -28,6 +50,21 @@ const store = createStore({
     updateSystemMode({ commit }, mode) {
       commit("systemMode", mode);
     },
+    setBannerList({ commit }, list) {
+      commit("setBannerList", list);
+    },
+    updateLoginInfo({ commit }, info) {
+      commit("setLoginInfo", info);
+    },
+    updateApiConfig({ commit }, info) {
+      commit("setApiConfig", info);
+    },
+    updateLangData({ commit }, data) {
+      commit("setLangData", data);
+    },
+    updateLang({ commit }, type) {
+      commit("setLang", type);
+    },
   },
   getters: {
     isPageLoading(state) {
@@ -38,6 +75,12 @@ const store = createStore({
     },
     systemMode(state) {
       return state.systemMode;
+    },
+    getBannerList(state) {
+      return state.bannerList;
+    },
+    getLoginInfo(state) {
+      return state.loginInfo;
     },
   },
 });

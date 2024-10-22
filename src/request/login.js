@@ -10,3 +10,17 @@ export function verify(data) {
     data,
   });
 }
+
+export function login(data) {
+  return service({
+    url: "/api/login/login",
+    method: "post",
+    isLoading: true,
+    data,
+    isCrypto: true,
+    succMsg: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    // isCryptoPas: true,
+  });
+}

@@ -1,5 +1,10 @@
 import axios from "axios";
 import moment from "moment";
+import _ from "lodash";
+import crypto from "./crypto";
+import store from "../store";
+import { useRouter } from "vue-router";
+
 const MODE = import.meta.env.MODE;
 
 //替换字符串中的undefined位空
@@ -62,7 +67,7 @@ export function encryptPas(type, data, password) {
 export const exchangeDateTime = (date, type = "") => {
   let lang = useLanguage();
   // moment.locale("zh-cn");
-  setMomentLang()
+  setMomentLang();
   switch (type) {
     case 43:
       return moment(date).format("HH:mm:ss");
@@ -399,3 +404,56 @@ function setMomentLang() {
     },
   });
 }
+
+export const initSltTime = (end, step) => {
+  let start = exchangeDateTime(new Date(), 8);
+  const [startHour, startMinute] = start.split(":").map(Number);
+  const [endHour, endMinute] = end.split(":").map(Number);
+
+  let firstAvailableHour = startHour;
+  let firstAvailableMinute = startMinute;
+
+  const nextMinuteBlock = Math.ceil(startMinute / step) * step;
+
+  if (nextMinuteBlock < 60) {
+    firstAvailableMinute = nextMinuteBlock;
+  } else {
+    firstAvailableHour += 1;
+    firstAvailableMinute = 0;
+  }
+
+  let initTime = [
+    `${firstAvailableHour.toString().padStart(2, "0")}:${firstAvailableMinute
+      .toString()
+      .padStart(2, "0")}`,
+    `${endHour.toString().padStart(2, "0")}:${endMinute
+      .toString()
+      .padStart(2, "0")}`,
+  ];
+
+  return initTime;
+};
+
+export const areArraysDifferent = (arr1, arr2) => {
+  if (arr1.length !== arr2.length) return true;
+  return !arr1.every((item) => arr2.some((item2) => _.isEqual(item, item2)));
+};
+
+export const OutLogin = () => {
+  sessionStorage.removeItem("token");
+  store.dispatch("updateLoginInfo", {});
+  console.log(store);
+  location.reload();
+};
+
+export const t = (key) => {
+  let langList = store?.state?.langData || [];
+  if (!langList?.length) {
+    return "";
+  }
+  
+  let lang = store?.state.lang;
+  let findRow = langList?.find((e) => e?.name == key);
+
+  return lang == "zh" ? findRow?.zh : findRow?.en || "";
+};

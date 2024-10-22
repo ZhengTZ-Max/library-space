@@ -4,7 +4,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
 
-import { exchangeDateTime } from "@/utils";
+import { exchangeDateTime, initSltTime, areArraysDifferent } from "@/utils";
 import {
   getSpaceDetail,
   getSpaceMap,
@@ -52,7 +52,6 @@ const state = reactive({
   spaceLabelList: [],
   spaceLabelVal: [],
 
-  filterOptions: {},
   filterSearch: {
     library: [],
     floor: [],
@@ -94,7 +93,7 @@ const handleShowInfo = (item) => {
     id: item.id,
     type: "library",
   };
-  fetchInfo(item.id);
+  fetchInfo();
 };
 
 const fetchSpace = async () => {
@@ -114,6 +113,9 @@ const fetchSpace = async () => {
     if (dateType == 2) {
       params.start_time = time;
       params.end_time = time;
+    } else if (dateType == 3) {
+      params.start_time = time[0];
+      params.end_time = time[1];
     }
     let res = await getSpaceSeat(params);
 
@@ -127,9 +129,9 @@ const fetchSpace = async () => {
   }
 };
 
-const fetchLabel = async (data) => {
+const fetchLabel = async () => {
   try {
-    let res = await getSpaceLabel(data);
+    let res = await getSpaceLabel({ id: state.initQuery?.id });
     if (res.code != 0) return;
     state.spaceLabelList = res?.data || {};
     // state.libraryInfoShow = true;
@@ -143,13 +145,13 @@ const fetchInfo = async () => {
     let params = {
       id: state.initQuery?.spaceId,
     };
-    fetchLabel(params);
     let res = await getSpaceMap(params);
     if (res.code != 0) return;
     state.spaceInfo = res?.data || {};
     initSltTimes();
     fetchRule();
     fetchSpace();
+    fetchLabel();
   } catch (e) {
     console.log(e);
   }
@@ -170,13 +172,31 @@ const initSltTimes = () => {
   if (dateType == 1) {
     state.filterSearch.time = curDate?.times[0]?.id;
     state.filterSearch.times = curDate?.times[0];
-
-    state.filterDate.time = curDate?.times[0]?.id;
-    state.filterDate.times = curDate?.times[0];
   } else if (dateType == 2) {
     state.filterSearch.time = curDate?.times[0][0];
-    state.filterDate.time = curDate?.times[0][0];
+  } else if (dateType == 3) {
+    if (state.filterSearch?.date == exchangeDateTime(new Date(), 2)) {
+      let [start, end] = initSltTime(
+        curDate?.times[0]?.end,
+        curDate?.min_time || 30
+      );
+
+      curDate.times[0].start = start;
+      curDate.times[0].end = end;
+    }
+
+    let cStart = curDate.times[0].start;
+
+    state.filterSearch.time = [
+      cStart,
+      moment(cStart, "HH:mm")
+        .add(Number(curDate?.min_time), "minutes")
+        .format("HH:mm"),
+    ];
   }
+
+  state.filterDate.time = state.filterSearch?.time;
+  state.filterDate.times = state.filterSearch?.times;
 };
 
 const fetchRule = async () => {
@@ -222,9 +242,12 @@ const handleFilter = (type) => {
       ...state.filterSearch,
       ...state.filterDate,
     };
+  } else if (dateType == 3) {
+    state.filterSearch = {
+      ...state.filterSearch,
+      ...state.filterDate,
+    };
   }
-  // fetchLibrary();
-
   fetchSpace();
 };
 
@@ -233,8 +256,10 @@ const onSelected = (v) => {
 };
 
 const onFilterLabel = (v) => {
-  state.spaceLabelVal = v;
-  fetchSpace()
+  if (areArraysDifferent(state.spaceLabelVal, v)) {
+    state.spaceLabelVal = v;
+    fetchSpace();
+  }
 };
 
 const handleAppt = () => {
@@ -266,12 +291,24 @@ const ShowSelectedDateTime = () => {
     return `${date} ${times?.start}~${times?.end}`;
   } else if (dateType == 2) {
     return `${date} ${time}`;
+  } else if (dateType == 3) {
+    return `${date} ${time[0]}~${time[1]}`;
   }
 };
 
 const ShowArea = () => {
   let { premise_name, storey_name, name } = state.spaceInfo;
   return `${premise_name} ${storey_name} ${name}`;
+};
+
+const onChangeSlide = (row) => {
+  state.initQuery.spaceId = row.id;
+  state.spaceList = [];
+  state.spaceLabelList = [];
+  state.spaceLabelVal = [];
+  state.spaceSelected = "";
+
+  fetchInfo();
 };
 </script>
 <template>
@@ -345,6 +382,7 @@ const ShowArea = () => {
             :data="state.spaceInfo"
             :defaultId="state.initQuery.spaceId"
             @viewInfo="state.libraryInfoShow = true"
+            @changeSlide="onChangeSlide"
           />
 
           <div class="reservation">

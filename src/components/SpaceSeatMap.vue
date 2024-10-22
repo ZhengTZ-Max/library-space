@@ -103,7 +103,7 @@ const statusBg = (seat) => {
     backgroundImg = state?.backgroundMap?.not;
   }
   return (
-    (backgroundImg && `url("http://kfcs.skalibrary.com/${backgroundImg}")`) ||
+    (backgroundImg && `url("${backgroundImg}")`) ||
     ""
   );
 };
@@ -179,7 +179,8 @@ const onResizing = (v) => {
       box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.7);
     }
 
-    .noSelectV2 {
+    &.noSelectV2 {
+      pointer-events: none;
       border: none;
       cursor: initial;
       &:hover {

@@ -5,6 +5,7 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store"; // 引入 store
 import directives from "./directives";
+import { t } from "./utils";
 
 import "ant-design-vue/dist/reset.css";
 import "./style.css";
@@ -38,6 +39,9 @@ function computedWidth() {
     store.dispatch("updateSystemMode", "pc");
   }
 }
+
+// 注册全局函数
+app.config.globalProperties.$t = t;
 
 router.isReady().then(() => {
   app.mount("#app");

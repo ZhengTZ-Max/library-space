@@ -1,22 +1,29 @@
 <script setup>
-import { reactive } from "vue";
+import { reactive, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-
+import { useStore } from "vuex";
+import { OutLogin } from "@/utils";
 const router = useRouter();
 const route = useRoute();
+const store = useStore();
+const lang = computed(() => store.state.lang);
+
 const state = reactive({
   navList: [
     {
       label: "首页",
       link: "home",
+      langKey: "menu_home",
     },
     {
       label: "我的",
       link: "my",
+      langKey: "menu_mycenter",
     },
     {
       label: "规则",
       link: "rule",
+      langKey: "menu_rules",
     },
   ],
   quickValue: "",
@@ -32,12 +39,28 @@ const onChangeNav = (item) => {
 const handleChange = (value) => {
   console.log(`selected ${value}`);
 };
+const handleOut = () => OutLogin();
+
+const toggleLang = (type) => {
+  store.dispatch("updateLang", type);
+};
 </script>
 <template>
   <header class="PcHeader">
     <div class="navl">
       <div class="navItem activeBtn">
-        <img src="@/assets/languageToggle.svg" alt="" />
+        <img
+          v-if="lang == 'en'"
+          @click="toggleLang('zh')"
+          src="@/assets/languageToggle.svg"
+          alt=""
+        />
+        <img
+          v-else
+          @click="toggleLang('en')"
+          src="@/assets/languageToggle.svg"
+          alt=""
+        />
       </div>
       <div
         v-for="item in state.navList"
@@ -46,7 +69,7 @@ const handleChange = (value) => {
         :class="{ activeLink: isActiveNav(item.link) }"
         @click="onChangeNav(item)"
       >
-        {{ item.label }}
+        {{ $t(item?.langKey) }}
       </div>
     </div>
     <div class="navr">
@@ -65,7 +88,7 @@ const handleChange = (value) => {
           <a-select-option value="lucy">lucy</a-select-option>
         </a-select>
       </div>
-      <div class="navItem activeBtn">
+      <div class="navItem activeBtn" @click="handleOut">
         <img src="@/assets/loginout.svg" alt="" />
       </div>
     </div>

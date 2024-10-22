@@ -2,10 +2,12 @@
 import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import { verify } from "@/request/login";
+import { verify, login } from "@/request/login";
 
 const store = useStore();
 // const systemMode = store?.state?.systemMode;
+const lang = computed(() => store.state.lang);
+
 const router = useRouter();
 const state = reactive({
   verifyInfo: null,
@@ -36,8 +38,8 @@ const getVerify = async () => {
     state.verifyInfo = res.info;
 
     if (localStorage.getItem("isTest")) {
-      state.user = "2022010"; // 用户名
-      state.password = "000"; // 密码
+      formState.username = "2022010"; // 用户名
+      formState.password = "000"; // 密码
       // state.code = '' // 验证码
     }
   } catch (e) {
@@ -47,6 +49,35 @@ const getVerify = async () => {
 
 const onFinish = (values) => {
   console.log("Success:", values);
+  onLogin();
+};
+
+const onLogin = async () => {
+  try {
+    let params = {
+      key: state.verifyInfo?.key,
+      open_id: "",
+      ...formState,
+    };
+    let res = await login(params);
+    if (res?.code != 1) {
+      formState.code = "";
+      getVerify();
+      return false;
+    }
+
+    store.dispatch("updateLoginInfo", res?.data);
+    sessionStorage.setItem("token", res.data.token);
+    console.log(store);
+
+    router.replace("/");
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const toggleLang = (type) => {
+  store.dispatch("updateLang", type);
 };
 </script>
 <template>
@@ -62,11 +93,22 @@ const onFinish = (values) => {
         class="toggleLang"
         :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
       >
-        <div class="langItem langActive activeBtn">中文</div>
-        <div class="langItem activeBtn">English</div>
+        <div
+          @click="toggleLang('zh')"
+          :class="{ langActive: lang == 'zh' }"
+          class="langItem activeBtn"
+        >
+          中文
+        </div>
+        <div
+          @click="toggleLang('en')"
+          :class="{ langActive: lang == 'en' }"
+          class="langItem activeBtn"
+        >
+          English
+        </div>
       </div>
     </div>
-
     <div class="content">
       <a-form
         :model="formState"
@@ -78,28 +120,43 @@ const onFinish = (values) => {
       >
         <a-form-item
           name="username"
-          :rules="[{ required: true, message: '请输入学工号' }]"
+          :rules="[
+            { required: true, message: $t('V4_please_enter_your_student_ID') },
+          ]"
         >
-          <a-input v-model:value="formState.username" placeholder="学工号" />
+          <a-input
+            v-model:value="formState.username"
+            :placeholder="$t('user_inputcard')"
+          />
         </a-form-item>
 
         <a-form-item
           placeholder="Username"
           name="password"
-          :rules="[{ required: true, message: 'Please input your password!' }]"
+          :rules="[
+            {
+              required: true,
+              message: `${$t('V4_please_enter')} ${$t('Password')}`,
+            },
+          ]"
         >
           <a-input-password
             v-model:value="formState.password"
-            placeholder="密码"
+            :placeholder="$t('Password')"
           />
         </a-form-item>
         <a-form-item
           name="code"
-          :rules="[{ required: true, message: 'Please input your password!' }]"
+          :rules="[
+            {
+              required: true,
+              message: `${$t('V4_please_enter')} ${$t('verification_code')}`,
+            },
+          ]"
         >
           <a-input
             v-model:value="formState.code"
-            placeholder="验证码"
+            :placeholder="$t('verification_code')"
             :maxlength="4"
           >
             <template #suffix>
@@ -117,10 +174,10 @@ const onFinish = (values) => {
         </a-form-item>
 
         <a-form-item>
-          <a-button class="submitBtn" type="primary" html-type="submit" block
-            >提交</a-button
-          >
-          <p class="forgetPass">忘记密码？</p>
+          <a-button class="submitBtn" type="primary" html-type="submit" block>{{
+            $t("Submit")
+          }}</a-button>
+          <p class="forgetPass">{{ $t("Forgot_password") }}？</p>
         </a-form-item>
       </a-form>
     </div>

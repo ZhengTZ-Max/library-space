@@ -1,6 +1,7 @@
 import axios from "axios";
 import store from "../store";
-// import { encrypt } from "./help";
+import { encrypt } from "../utils";
+import { message } from "ant-design-vue";
 const MODE = import.meta.env.MODE;
 // 创建一个 axios 实例
 const service = axios.create({
@@ -18,11 +19,9 @@ const service = axios.create({
 service.interceptors.request.use(
   function (config) {
     let token = localStorage.getItem("token") || "";
-    // console.log(store)
-    console.log(store);
+    // console.log(store);
     console.log(config);
     if (config?.isLoading) isAddPageLoading(config);
-
     if (token) {
       config.headers["authorization"] = `bearer${token}`;
       // config.headers["lang"] = lang;
@@ -35,26 +34,24 @@ service.interceptors.request.use(
       //   delete config.customHeaders;
       // }
 
-      // if (encryptRequest.includes(config.url)) {
-      //   let encryptStr = encrypt("encrypt", config.data);
-      //   config.data = {
-      //     aesjson: encryptStr,
-      //   };
-      // }
+      if (config?.isCrypto) {
+        let encryptStr = encrypt("encrypt", config.data);
+        config.data = {
+          aesjson: encryptStr,
+        };
+      }
+
       config.data = {
         ...eval(config.data),
         authorization: config.headers["authorization"],
       };
     } else {
-      // if (encryptRequest.includes(config.url)) {
-      //   let encryptStr = encrypt("encrypt", config.data);
-      //   config.data = {
-      //     aesjson: encryptStr,
-      //   };
-      // }
-      config.data = {
-        ...eval(config.data),
-      };
+      if (config?.isCrypto) {
+        let encryptStr = encrypt("encrypt", config.data);
+        config.data = {
+          aesjson: encryptStr,
+        };
+      }
     }
 
     // 在发送请求之前做些什么
@@ -77,21 +74,25 @@ service.interceptors.response.use(
     isRemovePageLoading(response.config);
     // let decryptRequest = ["/api/index/config"];
     // let toastWhite = ["/api/Captcha/verify", "/api/index/subscribe"];
-    let { code } = response.data;
 
-    // if (decryptRequest.includes(response.config.url)) {
-    //   let data = JSON.parse(encrypt("decrypt", response.data.data));
-    //   response.data.data = data;
-    //   console.log(response.data);
-    //   return response.data;
-    // }
+    if (response.config?.isCryptoPas) {
+      let data = JSON.parse(encrypt("decrypt", response.data.data));
+      response.data.data = data;
+    }
+
+    let { code, msg } = response.data;
+
+    if (response.config?.succMsg) {
+      if (code == 0) {
+        message.success(msg);
+      } else if (code == 1) {
+        message.error(msg);
+      }
+    }
+
     // 2xx 范围内的状态码都会触发该函数。
-    // 对响应数据做点什么
-    // dataAxios 是 axios 返回数据中的 data
-    const dataAxios = response.data;
-    // 这个状态码是和后端约定的
     // const code = dataAxios.reset;
-    return dataAxios;
+    return response.data;
   },
   function (error) {
     ClearPageLoading(error?.config);

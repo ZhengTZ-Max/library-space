@@ -1,5 +1,5 @@
 <template>
-  <a-carousel arrows dotsClass="carouseDots">
+  <a-carousel ref="carouselRef" arrows dotsClass="carouseDots" v-bind="$attrs">
     <template #prevArrow>
       <div class="custom-slick-arrow" style="left: 10px; z-index: 1">
         <img src="@/assets/home/prevLeft.svg" alt="" />
@@ -14,8 +14,18 @@
     <slot name="content"></slot>
   </a-carousel>
 </template>
-<script lang="ts" setup>
-import { LeftCircleOutlined, RightCircleOutlined } from "@ant-design/icons-vue";
+<script setup>
+import { ref } from "vue";
+const carouselRef = ref(null);
+
+const goToSlide = (index) => {
+  carouselRef.value?.goTo(index, true);
+};
+
+// 暴露 goToSlide 方法给父组件
+defineExpose({
+  goToSlide,
+});
 </script>
 <style scoped lang="less">
 /* For demo */

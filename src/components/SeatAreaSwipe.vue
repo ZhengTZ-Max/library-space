@@ -1,9 +1,9 @@
 <script setup>
-import { reactive, onMounted } from "vue";
+import { reactive, onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import Carousel from "@/components/CarouselCom.vue";
 const store = useStore();
-const emits = defineEmits(["viewInfo"]);
+const emits = defineEmits(["viewInfo", "changeSlide"]);
 const props = defineProps({
   data: {
     type: Object,
@@ -17,6 +17,8 @@ const state = reactive({
   initId: "",
 });
 
+const carouselRef = ref(null);
+
 onMounted(() => {
   state.list = props.data.brother_area;
   state.initId = props.defaultId;
@@ -24,20 +26,17 @@ onMounted(() => {
 });
 
 const initFirst = () => {
-  let findRow = {};
-  let list = state.list?.filter((e) => {
-    if (e?.id == state.initId) {
-      findRow = e;
-    }
-    return e?.id != state.initId;
-  });
-  list.unshift(findRow);
-  state.list = list;
+  let findIndex = state.list?.findIndex((e) => e?.id == state.initId);
+  carouselRef?.value?.goToSlide(findIndex);
+};
+
+const onChange = (v) => {
+  emits("changeSlide", state.list[v]);
 };
 </script>
 <template>
   <div class="container">
-    <Carousel>
+    <Carousel ref="carouselRef" :afterChange="onChange">
       <template v-slot:content>
         <div v-for="item in state.list" :key="item?.id" class="card">
           <div class="header">
@@ -51,7 +50,7 @@ const initFirst = () => {
           <div class="card-body">
             <div class="card-title">
               <h3>{{ item?.name }}</h3>
-              <p class="floor">2F</p>
+              <p class="floor">{{ props?.data?.storey_name || "-" }}</p>
             </div>
 
             <div class="info">
