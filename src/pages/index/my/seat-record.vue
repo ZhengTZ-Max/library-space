@@ -6,6 +6,12 @@ import { getSeatRecordList } from "@/request/sear-record";
 
 const store = useStore();
 const state = reactive({
+  quickMode: 1,
+  quickModeList: [
+    { value: 1, label: "预约记录" },
+    { value: 2, label: "违约记录" },
+    { value: 3, label: "权限查询" },
+  ],
   isModalVisible: false,
   isModalVisibleForQuery: false,
   selectLocationName: "",
@@ -22,7 +28,7 @@ const state = reactive({
     },
   },
 
-  room: [ 
+  room: [
     {
       label: "图书馆",
       value: "图书馆",
@@ -191,8 +197,13 @@ const onQuery = () => {
   state.isModalVisibleForQuery = true;
 };
 
-onMounted(() => { 
-  fetchSeatRecordList();
+const onChangeQMode = (row) => {
+  state.quickMode = row?.value;
+
+};
+
+onMounted(() => {
+  // fetchSeatRecordList();
 });
 
 const fetchSeatRecordList = async () => {
@@ -212,14 +223,21 @@ const fetchSeatRecordList = async () => {
       <a-tab-pane key="seminar" tab="考研座位"></a-tab-pane>
     </a-tabs>
     <div
-      class="toggleLang"
       :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
     >
-      <div class="langItem langActive activeBtn">预约记录</div>
-      <div class="langItem activeBtn">违约记录</div>
-      <div class="langItem activeBtn">权限查询</div>
+      
     </div>
-
+    <div class="quickBtns" style="width: 380px;">
+        <div
+          v-for="item in state.quickModeList"
+          :key="item.label"
+          class="item activeBtn"
+          :class="{ itemActive: item?.value == state.quickMode }"
+          @click="onChangeQMode(item)"
+        >
+          {{ item?.label }}
+        </div>
+      </div>
     <div class="table">
       <a-table :columns="columns" :data-source="data">
         <template #bodyCell="{ column, record }">
@@ -355,7 +373,7 @@ const fetchSeatRecordList = async () => {
       @ok="onHideModal"
     >
       <a-divider />
-      <div >
+      <div>
         <div class="dialog-title">馆舍</div>
         <div class="checkboxItem">
           <a-radio-group v-model:value="state.roomValue">
@@ -404,33 +422,6 @@ const fetchSeatRecordList = async () => {
   padding-left: 30px;
   position: relative;
 
-  .toggleLang {
-    position: absolute;
-    top: 36px;
-    left: 30px;
-    width: 386px;
-    height: 36px;
-    padding: 4px;
-    background: #f1f1f1;
-    border-radius: 21px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    .langItem {
-      color: #868686;
-      padding: 2px 16px;
-      min-width: 60px;
-      height: 28px;
-    }
-    .langActive {
-      background: #ffffff;
-      box-shadow: 0px 5px 10px 0px rgba(51, 102, 153, 0.1);
-      border-radius: 17px 17px 17px 17px;
-      font-weight: bold;
-      font-size: 14px;
-      color: #1f56e1;
-    }
-  }
   .toggleLangPc {
     top: 65px;
     left: 30px;
@@ -445,7 +436,7 @@ const fetchSeatRecordList = async () => {
   border-radius: 12px;
 }
 .table {
-  margin-top: 60px;
+  margin-top: 30px;
 }
 :deep(.ant-table-thead > tr > th) {
   background-color: #f7f9fb;

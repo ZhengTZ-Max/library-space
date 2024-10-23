@@ -10,3 +10,14 @@ export function getMyInfo(data) {
     data,
   });
 }
+
+export function getHelpList(data) {
+  return service({
+    url: "/v4/help/index",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
