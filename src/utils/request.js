@@ -18,7 +18,7 @@ const service = axios.create({
 // 添加请求拦截器
 service.interceptors.request.use(
   function (config) {
-    let token = localStorage.getItem("token") || "";
+    let token = sessionStorage.getItem("token") || "";
     // console.log(store);
     console.log(config);
     if (config?.isLoading) isAddPageLoading(config);
