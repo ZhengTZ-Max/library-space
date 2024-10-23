@@ -222,11 +222,6 @@ const fetchSeatRecordList = async () => {
       <a-tab-pane key="study" tab="研习座位"></a-tab-pane>
       <a-tab-pane key="seminar" tab="考研座位"></a-tab-pane>
     </a-tabs>
-    <div
-      :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
-    >
-      
-    </div>
     <div class="quickBtns" style="width: 380px;">
         <div
           v-for="item in state.quickModeList"
