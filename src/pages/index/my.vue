@@ -1,11 +1,12 @@
 <script setup>
 import { CheckCircleFilled } from "@ant-design/icons-vue";
-import { reactive,onMounted, watch, } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { reactive,onMounted, watch,computed } from "vue";
+import { useRoute, useRouter, } from "vue-router";
+import { useStore } from "vuex";
 import { Modal } from "ant-design-vue";
 import { getMyInfo } from "@/request/my";
 
-
+const store = useStore();
 const router = useRouter();
 const route = useRoute();
 const state = reactive({
@@ -18,6 +19,7 @@ const state = reactive({
     { label: "失物招领", link: "lostAndFound" },
   ],
   isShowDrawer: false,
+  userInfo: {},
 });
 
 const formState = reactive({
@@ -49,21 +51,49 @@ const onHelp = () => {
   router.push("/help");
 };
 
-onMounted(() => { 
+onMounted(() => {
   fetchMyInfo();
 });
+
+watch(
+  () => state.userInfo?.language,
+  (v) => {
+    if (v) {
+      // toggleLang(v === "1" ? "zh" : "en");
+    }
+  }
+)
 
 const fetchMyInfo = async () => {
 
   try {
     const res = await getMyInfo();
+    if (res.code === 0) {
+      state.userInfo = res.data || {};
+    }
     console.log(res);
   } catch (error) {
     console.log(error);
   }
 };
 
-
+const toggleLang = (type) => {
+  store.dispatch("updateLang", type);
+};
+const userStatusText = computed(() => {
+  switch (state.userInfo?.status) {
+    case "0":
+      return "注销";
+    case "1":
+      return "正常";
+    case "2":
+      return "挂失";
+    case "3":
+      return "临时禁止";
+    default:
+      return "未知状态";
+  }
+});
 </script>
 <template>
   <div class="my">
@@ -74,41 +104,41 @@ const fetchMyInfo = async () => {
         <img class="rightIcon" src="@/assets/my/rightIcon.svg" alt="" />
       </div>
       <div class="info">
-        <h1 class="userName">Test001</h1>
+        <h1 class="userName">{{ state.userInfo.name }}</h1>
         <div class="status">
           <CheckCircleFilled style="color: #4cc911; font-size: 18px" />
-          <span style="margin-left: 6px">20240922</span>
+          <span style="margin-left: 6px">{{ state.userInfo?.id }}</span>
         </div>
 
         <div class="infoItem" style="border-top: 1px solid #f5f5f5">
           <div class="itemLabel">手机号</div>
           <div class="itemRight">
-            <span>15201112740</span>
+            <span>{{ state.userInfo?.mobile }}</span>
             <img class="activeBtn" src="@/assets/my/edit.svg" alt="" />
           </div>
         </div>
         <div class="infoItem">
           <div class="itemLabel">邮箱</div>
           <div class="itemRight">
-            <span>15201112740</span>
+            <span>{{ state.userInfo?.email }}</span>
             <img class="activeBtn" src="@/assets/my/edit.svg" alt="" />
           </div>
         </div>
         <div class="infoItem">
           <div class="itemLabel">学工号</div>
-          <div class="itemRight">15201112740</div>
+          <div class="itemRight">{{ state.userInfo?.id }}</div>
         </div>
         <div class="infoItem">
           <div class="itemLabel">部门/专业</div>
-          <div class="itemRight">15201112740</div>
+          <div class="itemRight">{{ state.userInfo?.deptName }}</div>
         </div>
         <div class="infoItem">
           <div class="itemLabel">当前状态</div>
-          <div class="itemRight">15201112740</div>
+          <div class="itemRight">{{ userStatusText }}</div>
         </div>
         <div class="infoItem">
           <div class="itemLabel">卡有效期</div>
-          <div class="itemRight">15201112740</div>
+          <div class="itemRight">{{ state.userInfo?.date }}</div>
         </div>
         <div class="infoItem">
           <div class="itemLabel">微信</div>
