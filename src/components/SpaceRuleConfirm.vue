@@ -1,10 +1,10 @@
 <script setup>
-import { reactive, onMounted } from "vue";
+import { reactive, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 const store = useStore();
 
 const props = defineProps(["content", "open"]);
-const emits = defineEmits(["onConfirm"]);
+const emits = defineEmits(["onConfirm", "update:open"]);
 const state = reactive({
   finished: false,
   spaceRuleShow: false,
@@ -15,7 +15,12 @@ const state = reactive({
 onMounted(() => {
   state.spaceRuleShow = props?.open;
 });
-
+watch(
+  () => state.spaceRuleShow,
+  (v) => {
+    emits("update:open", v);
+  }
+);
 const onLoad = () => {
   state.finished = true;
   state.isConfirm = true;

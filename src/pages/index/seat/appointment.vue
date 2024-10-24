@@ -265,7 +265,6 @@ const onFilterLabel = (v) => {
 const handleAppt = () => {
   state.spaceRuleShow = false;
   confirmAppt();
-  state.apptResult.show = true;
 };
 
 const confirmAppt = async () => {
@@ -489,7 +488,7 @@ const onChangeSlide = (row) => {
 
     <SpaceRuleConfirm
       v-if="state.spaceRuleShow"
-      :open="state.spaceRuleShow"
+      v-model:open="state.spaceRuleShow"
       :content="state.ruleInfo?.content"
       @onConfirm="handleAppt"
     />
@@ -499,6 +498,7 @@ const onChangeSlide = (row) => {
       :isShow="state.apptResult.show"
       :type="state.apptResult.type"
       :title="state.apptResult.title"
+      @handleShow="(v) => (state.apptResult.show = v)"
     >
       <template v-slot:content>
         <div class="toastItem">

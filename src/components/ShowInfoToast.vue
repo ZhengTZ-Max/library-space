@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted } from "vue";
+import { reactive, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 const store = useStore();
 
@@ -8,6 +8,7 @@ const props = defineProps({
   type: String,
   title: String,
 });
+const emits = defineEmits(["handleShow"]);
 const state = reactive({
   isShow: true,
 });
@@ -15,6 +16,13 @@ const state = reactive({
 onMounted(() => {
   state.isShow = props?.isShow;
 });
+
+watch(
+  () => state.isShow,
+  (v) => {
+    emits("handleShow", v);
+  }
+);
 
 const handleConfirm = () => {
   state.isShow = false;
@@ -26,7 +34,6 @@ const handleConfirm = () => {
     width="320px"
     v-model:open="state.isShow"
     @ok="handleConfirm"
-    destroyOnClose
     :cancelButtonProps="{
       style: {
         display: 'none',
