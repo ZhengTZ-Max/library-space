@@ -1,11 +1,16 @@
 <script setup>
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch, computed } from "vue";
 import { useStore } from "vuex";
 import { SearchOutlined } from "@ant-design/icons-vue";
 import { getSeatRecordList } from "@/request/sear-record";
 
 const store = useStore();
 const state = reactive({
+  activeKey: "1",
+  currentPage: 1,
+  pageSize: 10,
+  total: 0,
+  data: [],
   quickMode: 1,
   quickModeList: [
     { value: 1, label: "预约记录" },
@@ -105,8 +110,8 @@ const columns = [
   },
   {
     title: "状态",
-    dataIndex: "result_info",
-    key: "result_info",
+    dataIndex: "status_name",
+    key: "status_name",
   },
   {
     title: "操作",
@@ -114,74 +119,6 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    key: "1",
-    seat: "图书馆-2F-外文特藏阅览室: 016",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "预约成功",
-    user: "VIP080 (202307080)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-  },
-  {
-    key: "2",
-    seat: "图书馆-2F-外文特藏阅览室: 015",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "使用中",
-    user: "VIP081 (202307081)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-  },
-  {
-    key: "3",
-    seat: "图书馆-2F-外文特藏阅览室: 014",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "已结束",
-    user: "VIP082 (202307082)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-  },
-  {
-    key: "4",
-    seat: "图书馆-2F-外文特藏阅览室: 014",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "已取消",
-    user: "VIP083 (202307083)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-  },
-  {
-    key: "5",
-    seat: "图书馆-2F-外文特藏阅览室: 014",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "未签到",
-    user: "VIP083 (202307083)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-  },
-  {
-    key: "6",
-    seat: "图书馆-2F-外文特藏阅览室: 014",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "状态异常",
-    user: "VIP083 (202307083)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-  },
-];
 
 const onShowModal = (record) => {
   state.isModalVisible = true;
@@ -199,66 +136,121 @@ const onQuery = () => {
 
 const onChangeQMode = (row) => {
   state.quickMode = row?.value;
-
 };
 
 onMounted(() => {
-  // fetchSeatRecordList();
+  fetch();
 });
+
+const fetch = () => {
+  if (state.quickMode === 1) {
+    // 预约记录
+    fetchSeatRecordList();
+  } else if (state.quickMode === 2) {
+    // 违约记录
+  } else if (state.quickMode === 3) {
+    // 权限查询
+  }
+};
 
 const fetchSeatRecordList = async () => {
   try {
-    const res = await getSeatRecordList();
-    console.log(res);
+    let params = {
+      type: state.activeKey,
+      page: state.currentPage,
+      limit: state.pageSize,
+    };
+    const res = await getSeatRecordList(params);
+    if (res?.code === 0) {
+      state.data = res?.data?.data || [];
+      state.total = res?.data?.total;
+    }
   } catch (error) {
     console.log(error);
   }
 };
+
+// 座位 tab 切换
+const onChangeTab = (key) => {
+  state.activeKey = key;
+  state.currentPage = 1;
+  fetch();
+  console.log(key);
+};
+
+const pagination = computed(() => ({
+  total: state.total,
+  current: state.currentPage,
+  showSizeChanger: false,
+}));
+
+const onChangePage = (pagination) => {
+  // pagination : {current: 2, pageSize: 10, total: 132, showSizeChanger: false}
+  let { current } = pagination;
+  state.currentPage = current;
+  fetch();
+};
 </script>
 <template>
   <div class="record">
-    <a-tabs v-model:activeKey="activeKey" size="middle">
-      <a-tab-pane key="seat" tab="普通座位"></a-tab-pane>
-      <a-tab-pane key="study" tab="研习座位"></a-tab-pane>
-      <a-tab-pane key="seminar" tab="考研座位"></a-tab-pane>
+    <a-tabs
+      v-model:activeKey="state.activeKey"
+      size="middle"
+      @change="onChangeTab"
+    >
+      <a-tab-pane key="1" tab="普通座位"></a-tab-pane>
+      <a-tab-pane key="3" tab="研习座位"></a-tab-pane>
+      <a-tab-pane key="4" tab="考研座位"></a-tab-pane>
     </a-tabs>
-    <div class="quickBtns" style="width: 380px;">
-        <div
-          v-for="item in state.quickModeList"
-          :key="item.label"
-          class="item activeBtn"
-          :class="{ itemActive: item?.value == state.quickMode }"
-          @click="onChangeQMode(item)"
-        >
-          {{ item?.label }}
-        </div>
+    <div class="quickBtns" style="width: 380px">
+      <div
+        v-for="item in state.quickModeList"
+        :key="item.label"
+        class="item activeBtn"
+        :class="{ itemActive: item?.value == state.quickMode }"
+        @click="onChangeQMode(item)"
+      >
+        {{ item?.label }}
       </div>
-    <div class="table">
-      <a-table :columns="columns" :data-source="data">
+    </div>
+    <div v-if="state.quickMode != 3" class="table">
+      <a-table
+        v-if="state.data?.length"
+        :columns="columns"
+        :data-source="state.data"
+        :pagination="pagination"
+        @change="onChangePage"
+      >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'result_info'">
+          <template v-if="column.key === 'seat'">
+            <span>{{ record.nameMerge }} : {{ record.name }}</span>
+          </template>
+          <template v-if="column.key === 'time'">
+            <span>{{ record.beginTime }}</span>
+          </template>
+          <template v-if="column.key === 'status_name'">
             <span>
               <a-tag
                 class="custom-tag"
                 :color="
-                  record.result_info === '预约成功'
+                  record.status_name === '预约成功'
                     ? 'success'
-                    : record.result_info === '使用中'
+                    : record.status_name === '使用中'
                     ? 'processing'
-                    : record.result_info === '未签到'
+                    : record.status_name === '未签到'
                     ? 'error'
-                    : record.result_info === '状态异常'
+                    : record.status_name === '状态异常'
                     ? 'warning'
                     : 'default'
                 "
               >
-                {{ record.result_info }}
+                {{ record.status_name }}
               </a-tag>
             </span>
           </template>
 
           <template v-if="column.key === 'action'">
-            <template v-if="record.key === '1'">
+            <template v-if="record.status_name === '预约成功'">
               <span>
                 <a class="red" type="primary" @click="onShowModal(record)"
                   >取消</a
@@ -268,25 +260,24 @@ const fetchSeatRecordList = async () => {
               </span>
             </template>
             <template v-else>
-              <template
+              <span>
+                <a type="primary" @click="onShowModal(record)">查看</a>
+              </span>
+              <!-- <template
                 v-if="
-                  record.result_info === '未签到' ||
-                  record.result_info === '状态异常'
+                  record.status_name === '已超时' ||
+                  record.status_name === '审核未通过'
                 "
               >
                 <span>
                   <a type="primary" @click="onShowModal(record)">查看</a>
                 </span>
-              </template>
-              <template v-else>
-                <span>
-                  <a type="primary" @click="onShowModal(record)">预约</a>
-                </span>
-              </template>
+              </template> -->
             </template>
           </template>
         </template>
       </a-table>
+      <a-empty v-else />
     </div>
     <a-modal
       class="result-modal"
@@ -330,7 +321,7 @@ const fetchSeatRecordList = async () => {
       </div>
     </a-modal>
 
-    <a-card class="query-result-card">
+    <a-card v-if="state.quickMode === 3" class="query-result-card">
       <div class="query-result-header">
         查询结果 <span class="query-result-subtitle">(请点击立即查询)</span>
       </div>
@@ -467,6 +458,7 @@ const fetchSeatRecordList = async () => {
 
 /* 查询结果卡片样式 */
 .query-result-card {
+  margin-top: 30px;
   border-radius: 12px;
   border: 1px solid #e8e8e8;
 }
@@ -549,5 +541,8 @@ const fetchSeatRecordList = async () => {
       margin-left: 10px;
     }
   }
+}
+.ant-tag-default {
+  color: rgba(97, 97, 97, 0.5);
 }
 </style>

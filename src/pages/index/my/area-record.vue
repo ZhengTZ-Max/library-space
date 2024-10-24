@@ -1,9 +1,21 @@
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { useStore } from "vuex";
+
+import { getAreaRecordList } from "@/request/area-record";
 
 const store = useStore();
 const state = reactive({
+  activeKey: "1",
+  currentPage: 1,
+  pageSize: 10,
+  total: 0,
+  data: [],
+  quickMode: 1,
+  quickModeList: [
+    { value: 1, label: "预约记录" },
+    { value: 2, label: "违约记录" },
+  ],
   isModalVisible: false,
   isModalVisibleForQuery: false,
   selectLocationName: "",
@@ -97,155 +109,12 @@ const columns = [
   },
   {
     title: "状态",
-    dataIndex: "result_info",
-    key: "result_info",
+    dataIndex: "status_name",
+    key: "status_name",
   },
   {
     title: "操作",
     key: "action",
-  },
-];
-
-const data = [
-  {
-    key: "1",
-    area: "图书馆-2F-外文特藏阅览室: 016",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "预约待确认",
-    user: "VIP080 (202307080)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-    info: "xxx研究课题讨论",
-    members: [
-      { id: 1, name: "VIP080 (202307080)", statusClass: "status-agreed" ,isMySelf:true},
-      { id: 2, name: "VIP078 (202307078)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 3, name: "VIP076 (202307076)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 4, name: "VIP079 (202307079)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 5, name: "VIP077 (202307077)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 6, name: "VIP075 (202307075)", statusClass: "status-rejected" ,isMySelf:false},
-    ],
-  },
-  {
-    key: "2",
-    area: "图书馆-2F-外文特藏阅览室: 015",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "预约成功",
-    user: "VIP081 (202307081)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-    info: "xxx研究课题讨论",
-    members: [
-      { id: 1, name: "VIP080 (202307080)", statusClass: "status-agreed" ,isMySelf:true},
-      { id: 2, name: "VIP078 (202307078)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 3, name: "VIP076 (202307076)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 4, name: "VIP079 (202307079)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 5, name: "VIP077 (202307077)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 6, name: "VIP075 (202307075)", statusClass: "status-rejected" ,isMySelf:false},
-    ],
-  },
-  {
-    key: "3",
-    area: "图书馆-2F-外文特藏阅览室: 014",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "使用中",
-    user: "VIP082 (202307082)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-    info: "xxx研究课题讨论",
-    members: [
-      { id: 1, name: "VIP080 (202307080)", statusClass: "status-agreed" ,isMySelf:true},
-      { id: 2, name: "VIP078 (202307078)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 3, name: "VIP076 (202307076)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 4, name: "VIP079 (202307079)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 5, name: "VIP077 (202307077)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 6, name: "VIP075 (202307075)", statusClass: "status-rejected" ,isMySelf:false},
-    ],
-  },
-  {
-    key: "4",
-    area: "图书馆-2F-外文特藏阅览室: 014",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "已取消",
-    user: "VIP083 (202307083)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-    info: "xxx研究课题讨论",
-    members: [
-      { id: 1, name: "VIP080 (202307080)", statusClass: "status-agreed" ,isMySelf:true},
-      { id: 2, name: "VIP078 (202307078)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 3, name: "VIP076 (202307076)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 4, name: "VIP079 (202307079)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 5, name: "VIP077 (202307077)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 6, name: "VIP075 (202307075)", statusClass: "status-rejected" ,isMySelf:false},
-    ],
-  },
-  {
-    key: "5",
-    area: "图书馆-2F-外文特藏阅览室: 014",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "已结束",
-    user: "VIP083 (202307083)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-    info: "xxx研究课题讨论",
-    members: [
-      { id: 1, name: "VIP080 (202307080)", statusClass: "status-agreed" ,isMySelf:true},
-      { id: 2, name: "VIP078 (202307078)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 3, name: "VIP076 (202307076)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 4, name: "VIP079 (202307079)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 5, name: "VIP077 (202307077)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 6, name: "VIP075 (202307075)", statusClass: "status-rejected" ,isMySelf:false},
-    ],
-  },
-  {
-    key: "6",
-    area: "图书馆-2F-外文特藏阅览室: 014",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "已关闭",
-    user: "VIP083 (202307083)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-    info: "xxx研究课题讨论",
-    members: [
-      { id: 1, name: "VIP080 (202307080)", statusClass: "status-agreed" ,isMySelf:true},
-      { id: 2, name: "VIP078 (202307078)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 3, name: "VIP076 (202307076)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 4, name: "VIP079 (202307079)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 5, name: "VIP077 (202307077)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 6, name: "VIP075 (202307075)", statusClass: "status-rejected" ,isMySelf:false},
-    ],
-  },
-  {
-    key: "7",
-    area: "图书馆-2F-外文特藏阅览室: 014",
-    time: "2023-12-01 16:00~18:00",
-    result_info: "未签到",
-    user: "VIP083 (202307083)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-    info: "xxx研究课题讨论",
-    members: [
-      { id: 1, name: "VIP080 (202307080)", statusClass: "status-agreed" ,isMySelf:true},
-      { id: 2, name: "VIP078 (202307078)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 3, name: "VIP076 (202307076)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 4, name: "VIP079 (202307079)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 5, name: "VIP077 (202307077)", statusClass: "status-pending" ,isMySelf:false},
-      { id: 6, name: "VIP075 (202307075)", statusClass: "status-rejected" ,isMySelf:false},
-    ],
   },
 ];
 
@@ -257,41 +126,113 @@ const onHideModal = () => {
   state.isModalVisible = false;
   state.selectedRecord = "";
 };
+const onChangeQMode = (row) => {
+  state.quickMode = row?.value;
+};
+
+onMounted(() => {
+  fetch();
+});
+
+const fetch = () => {
+  if (state.quickMode === 1) {
+    // 预约记录
+    fetchAreaRecordList();
+  } else if (state.quickMode === 2) {
+    // 违约记录
+  }
+};
+const fetchAreaRecordList = async () => {
+  try {
+    let params = {
+      type: state.activeKey,
+      page: state.currentPage,
+      limit: state.pageSize,
+    };
+    const res = await getAreaRecordList(params);
+    if (res?.code === 0) {
+      state.data = res?.data?.data || [];
+      state.total = res?.data?.total;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// 空间 tab 切换
+const onChangeTab = (key) => {
+  state.activeKey = key;
+  state.currentPage = 1;
+  fetch();
+  console.log(key);
+};
+const pagination = computed(() => ({
+  total: state.total,
+  current: state.currentPage,
+  showSizeChanger: false,
+}));
+
+const onChangePage = (pagination) => {
+  // pagination : {current: 2, pageSize: 10, total: 132, showSizeChanger: false}
+  let { current } = pagination;
+  state.currentPage = current;
+  fetch();
+};
 </script>
 <template>
   <div class="record">
-    <a-tabs v-model:activeKey="activeKey" size="middle">
-      <a-tab-pane key="seat" tab="普通空间"></a-tab-pane>
-      <a-tab-pane key="study" tab="大型空间"></a-tab-pane>
-    </a-tabs>
-    <div
-      class="toggleLang"
-      :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
+    <a-tabs
+      v-model:activeKey="state.activeKey"
+      size="middle"
+      @change="onChangeTab"
     >
-      <div class="langItem langActive activeBtn">预约记录</div>
-      <div class="langItem activeBtn">违约记录</div>
+      <a-tab-pane key="1" tab="普通空间"></a-tab-pane>
+      <a-tab-pane key="2" tab="大型空间"></a-tab-pane>
+    </a-tabs>
+    <div class="quickBtns" style="width: 200px">
+      <div
+        v-for="item in state.quickModeList"
+        :key="item.label"
+        class="item activeBtn"
+        :class="{ itemActive: item?.value == state.quickMode }"
+        @click="onChangeQMode(item)"
+      >
+        {{ item?.label }}
+      </div>
     </div>
 
     <div class="table">
-      <a-table :columns="columns" :data-source="data">
+      <a-table
+        v-if="state.data?.length"
+        :columns="columns"
+        :data-source="state.data"
+        :pagination="pagination"
+        @change="onChangePage"
+      >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'result_info'">
+          <template v-if="column.key === 'area'">
+            <span>{{ record.nameMerge }}</span>
+          </template>
+          <template v-if="column.key === 'time'">
+            <span>{{ record.begin_time }}</span>
+          </template>
+          <template v-if="column.key === 'status_name'">
             <span>
               <a-tag
                 class="custom-tag"
                 :color="
-                  record.result_info === '预约成功'
+                  record.status_name === '预约成功'
                     ? 'success'
-                    : record.result_info === '使用中'
+                    : record.status_name === '使用中'
                     ? 'processing'
-                    : record.result_info === '未签到'
+                    : record.status_name === '未签到'
                     ? 'error'
-                    : record.result_info === '预约待确认'
+                    : record.status_name === '状态异常'
                     ? 'warning'
                     : 'default'
                 "
               >
-                {{ record.result_info }}
+                {{ record.status_name }}
               </a-tag>
             </span>
           </template>
@@ -299,8 +240,8 @@ const onHideModal = () => {
           <template v-if="column.key === 'action'">
             <template
               v-if="
-                record.result_info === '预约待确认' ||
-                record.result_info === '预约成功'
+                record.status_name === '预约待确认' ||
+                record.status_name === '预约成功'
               "
             >
               <span>
@@ -319,6 +260,7 @@ const onHideModal = () => {
           </template>
         </template>
       </a-table>
+      <a-empty v-else />
     </div>
     <a-modal
       class="result-modal"
@@ -360,19 +302,19 @@ const onHideModal = () => {
               class="member"
             >
               <span :class="{ isMySelf: member.isMySelf }"
-                >{{ member.name }} 
+                >{{ member.name }}
               </span>
               <span :class="member.statusClass" class="member-status"
-                  >{{
-                    member.statusClass === "status-pending"
-                      ? "待确认"
-                      : member.statusClass === "status-agreed"
-                      ? "同意邀请"
-                      : member.statusClass === "status-rejected"
-                      ? "拒绝邀请"
-                      : ""
-                  }}
-                </span>
+                >{{
+                  member.statusClass === "status-pending"
+                    ? "待确认"
+                    : member.statusClass === "status-agreed"
+                    ? "同意邀请"
+                    : member.statusClass === "status-rejected"
+                    ? "拒绝邀请"
+                    : ""
+                }}
+              </span>
             </div>
           </div>
         </div>
@@ -414,38 +356,6 @@ const onHideModal = () => {
 .record {
   padding-left: 30px;
   position: relative;
-
-  .toggleLang {
-    position: absolute;
-    top: 36px;
-    left: 30px;
-    width: 240px;
-    height: 36px;
-    padding: 4px;
-    background: #f1f1f1;
-    border-radius: 21px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    .langItem {
-      color: #868686;
-      padding: 2px 16px;
-      min-width: 60px;
-      height: 28px;
-    }
-    .langActive {
-      background: #ffffff;
-      box-shadow: 0px 5px 10px 0px rgba(51, 102, 153, 0.1);
-      border-radius: 17px 17px 17px 17px;
-      font-weight: bold;
-      font-size: 14px;
-      color: #1f56e1;
-    }
-  }
-  .toggleLangPc {
-    top: 65px;
-    left: 30px;
-  }
 }
 
 .red {
@@ -463,30 +373,29 @@ const onHideModal = () => {
   color: #4c687b;
 }
 
-
 .result-modal {
   .modal-content {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
 
-  p {
-    margin: 19px 0;
-  }
+    p {
+      margin: 19px 0;
+    }
 
-  .status-wait {
-    color: #ea9e4c;
+    .status-wait {
+      color: #ea9e4c;
+    }
+    .status-active {
+      color: #1890ff;
+    }
+    .status-nosign {
+      color: #ff4d4f;
+    }
+    .status-success {
+      color: #70bc89;
+    }
   }
-  .status-active {
-    color: #1890ff;
-  }
-  .status-nosign {
-    color: #ff4d4f;
-  }
-  .status-success {
-    color: #70bc89;
-  }
-}
   .members-row {
     display: flex;
     align-items: top;
@@ -546,15 +455,18 @@ const onHideModal = () => {
   }
 
   .status-rejected {
-    color:#ff4d4f;
+    color: #ff4d4f;
   }
 
   .status-agreed {
-    color: #52c41a; 
+    color: #52c41a;
   }
 
   .status-pending {
-    color: #d9d9d9; 
+    color: #d9d9d9;
   }
+}
+.ant-tag-default {
+  color: rgba(97, 97, 97, 0.5);
 }
 </style>

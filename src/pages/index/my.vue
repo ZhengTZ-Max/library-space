@@ -59,7 +59,7 @@ watch(
   () => state.userInfo?.language,
   (v) => {
     if (v) {
-      toggleLang(v === "1" ? "zh" : "en");
+      // toggleLang(v === "1" ? "zh" : "en");
     }
   }
 )
