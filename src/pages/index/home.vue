@@ -57,7 +57,7 @@ onMounted(() => {});
     .homel {
       height: 100%;
       position: relative;
-      z-index: 9;
+      z-index: 2;
       padding: 100px 0 0 120px;
       min-width: 400px;
       max-width: 815px;

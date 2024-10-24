@@ -131,7 +131,7 @@ const fetchSpace = async () => {
 
 const fetchLabel = async () => {
   try {
-    let res = await getSpaceLabel({ id: state.initQuery?.id });
+    let res = await getSpaceLabel({ id: state.initQuery?.spaceId });
     if (res.code != 0) return;
     state.spaceLabelList = res?.data || {};
     // state.libraryInfoShow = true;
@@ -263,22 +263,40 @@ const onFilterLabel = (v) => {
 };
 
 const handleAppt = () => {
-  console.log("预约");
   state.spaceRuleShow = false;
+  confirmAppt();
   state.apptResult.show = true;
 };
 
 const confirmAppt = async () => {
   try {
+    let dateType = state.spaceInfo?.date?.reserveType;
+
     let params = {
-      seat_id: "",
+      seat_id: state.spaceSelected?.id,
       segment: "",
-      day: "",
+      day: state.filterSearch.date,
       start_time: "",
       end_time: "",
     };
-
+    let searchTime = state.filterSearch.time;
+    if (dateType == 1) {
+      params.segment = searchTime;
+    } else if (dateType == 2) {
+      // params.start_time = searchTime;
+      params.end_time = searchTime;
+    } else if (dateType == 3) {
+      params.start_time = searchTime[0];
+      params.end_time = searchTime[1];
+    }
+    console.log(params);
     let res = await getSpaceConfirm(params);
+    state.apptResult = {
+      show: true,
+      title: res?.code == 0 ? "预约成功" : "预约失败",
+      type: res?.code == 0 ? "success" : "error",
+      msg: (res?.code != 0 && res?.message) || "",
+    };
   } catch (e) {
     console.log(e);
   }
@@ -495,9 +513,9 @@ const onChangeSlide = (row) => {
           <span>座位：</span>
           <span>{{ state.spaceSelected?.no || "-" }}</span>
         </div>
-        <div class="toastItem">
+        <div v-if="state.apptResult?.msg" class="toastItem">
           <span>提醒：</span>
-          <span>提醒</span>
+          <span>{{ state.apptResult?.msg }}</span>
         </div>
       </template>
     </ShowInfoToast>

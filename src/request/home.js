@@ -4,9 +4,9 @@ export function getCategory(data) {
   return service({
     url: "/v4/index/category",
     method: "POST",
-    isLoading: true,
+    // isLoading: true,
     // loadingMsg: "",
-    // customLoading: true, //是否自定义loading
+    customLoading: true, //是否自定义loading
     data,
   });
 }
