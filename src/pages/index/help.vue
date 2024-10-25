@@ -33,7 +33,7 @@ const fetchHelpList = async () => {
 
 const onSelect = ({ item,key }) => {
   selectedKey.value = key
-  state.selectedItem = item?.content?.replace(/\\/g, '/');
+  state.selectedItem = item?.content;
 };
 
 const goBack = () => {
