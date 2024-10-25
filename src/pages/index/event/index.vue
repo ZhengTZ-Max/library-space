@@ -28,8 +28,8 @@ const state = reactive({
     { value: 1, label: "当前活动" },
     { value: 0, label: "历史活动" },
   ],
-  // date: moment().format("YYYY-MM-DD"),
-  date: "2024-10-26",
+  date: moment().format("YYYY-MM-DD"),
+  // date: "2024-10-26",
   selectDate: null,
   selectType: "",
   selectDateList: [
