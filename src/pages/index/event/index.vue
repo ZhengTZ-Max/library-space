@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, watch, ref } from "vue";
+import { reactive, onMounted, watch, ref,computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
@@ -29,6 +29,7 @@ const state = reactive({
     { value: 0, label: "历史活动" },
   ],
   date: moment().format("YYYY-MM-DD"),
+  // date: "2024-10-26",
   selectDate: null,
   selectType: "",
   selectDateList: [
@@ -41,6 +42,7 @@ const state = reactive({
 onMounted(() => {
   fetchGetEventIndex();
 });
+
 
 const onChangeAct = (i) => {
   state.activeIndex = i.id;
@@ -77,18 +79,15 @@ const fetchCurrentEventList = async () => {
     let params = {
       ilk: state.quickMode,
       date: state.date,
+      premises: state.filterSearch.premiseID,
+      category: state.filterSearch.categoryID,
     };
     let res = await getCurrentEventList(params);
 
-    if (res.code != 0) {
-      return false;
+    if (res.code == 0) {
+      state.eventList = res.data?.data;
+      console.log(state.eventList);
     }
-
-    state.eventList =
-      res.data?.list && res.data.list.length > 0
-        ? res.data.list
-        : getDefaultList();
-    console.log(state.eventList);
   } catch (e) {}
 };
 
@@ -246,31 +245,28 @@ const getDefaultList = () => {
                 <img class="cardItemImg" :src="item?.firstImg" alt="" />
                 <div
                   class="leftBadge basicsBadge"
-                  :class="{ leftBadgeActive: state?.eventStatus }"
+                  :class="{ status_not_started: item?.status_name === '未开始',
+                    status_in_registration : item?.status_name === '报名中',
+                    status_in_progress : item?.status_name === '进行中',
+                   }"
                 >
-                  报名中
+                  {{item?.status_name}}
                 </div>
 
                 <div class="posBot">
-                  <span>- {{ filterBoutique(item?.categorys) }} -</span>
+                  <span>- {{ item?.cate_name }} -</span>
                 </div>
               </div>
               <div class="bottomItem">
-                <span class="event-title">PS入门培训 - 设计与校园海报</span>
+                <span class="event-title">{{ item?.title }}</span>
                 <div class="event-location">
                   <img src="@/assets/event/seat.svg" alt="Location" />
-                  <span
-                    >{{ item?.top_name }}-{{ item?.storey_en_name }}-{{
-                      item?.name
-                    }}
-                  </span>
+                  <span>{{ item?.nameMerge}}</span>
                 </div>
                 <div class="event-time">
                   <img src="@/assets/event/time.svg" alt="Time" />
                   <div class="timeList">
-                    <span
-                      >2024-02-21 ~ 2024-02-23 13:30~15:30, 16:30~17:30</span
-                    >
+                    <span>{{ item?.show_time }}</span>
                   </div>
                 </div>
               </div>
@@ -320,7 +316,7 @@ const getDefaultList = () => {
 .eventLibrary {
   height: 100%;
   overflow: auto;
-  .header { 
+  .header {
     padding: 20px 30px;
     color: #202020;
     display: flex;
@@ -392,10 +388,19 @@ const getDefaultList = () => {
 
   .basicsBadge {
     padding: 3px 8px;
-    background: #1a49c0;
+    // background: #1a49c0;
     border-radius: 6px 0px 6px 0px;
     font-size: 14px;
     color: #ffffff;
+  }
+  .status_not_started {
+    background: rgba(174, 174, 174, 1);
+  }
+  .status_in_registration {
+    background: rgba(86, 187, 70, 1);
+  }
+  .status_in_progress {
+    background: rgba(26, 73, 192, 1);
   }
 
   .posBot {

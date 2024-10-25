@@ -1,14 +1,17 @@
 <script setup>
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, watch,onMounted } from "vue";
 import { useStore } from "vuex";
-import AppointmentItem from "@/components/AppointmentItem.vue";
-import Carousel from "@/components/CarouselCom.vue";
+import { getActivityRecordList } from "@/request/activity-record";
 
 const store = useStore();
 const onCheckedForLocation = ref(true);
 
 const state = reactive({
-  activeKey: "apply",
+  activeKey: "1",
+  currentPage: 1,
+  pageSize: 10,
+  total: 0,
+  data: [],
   isShowDrawer: false,
   selectedRecord: "",
 });
@@ -167,14 +170,48 @@ const statusClass = computed(() => {
 
 const dates = ["2024-02-19", "2024-02-20", "2024-02-21", "2024-02-22"];
 const times = ["08:00~10:00", "10:00~12:00", "13:00~15:00"];
+
+onMounted(() => {
+  fetch();
+});
+
+const fetch = async () => {
+  try { 
+    let params = {
+      ilk: state.activeKey,
+      page: state.currentPage,
+      limit: state.pageSize,
+    };
+    const res = await getActivityRecordList(params);
+    if (res?.code === 0) {
+      state.data = res?.data?.data || [];
+      state.total = res?.data?.total || 0;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// tab 切换
+const onChangeTab = (key) => {
+  state.activeKey = key;
+  state.currentPage = 1;
+  fetch();
+  console.log(key);
+};
+
 </script>
 
 <template>
   <div class="record">
-    <a-tabs v-model:activeKey="state.activeKey" size="middle">
-      <a-tab-pane key="apply" tab="申请记录"></a-tab-pane>
-      <a-tab-pane key="register" tab="报名记录"></a-tab-pane>
-      <a-tab-pane key="draft" tab="草稿箱"></a-tab-pane>
+    <a-tabs
+      v-model:activeKey="state.activeKey"
+      size="middle"
+      @change="onChangeTab"
+    >
+      <a-tab-pane key="1" tab="申请记录"></a-tab-pane>
+      <a-tab-pane key="2" tab="报名记录"></a-tab-pane>
+      <a-tab-pane key="3" tab="草稿箱"></a-tab-pane>
     </a-tabs>
 
     <div class="table" v-if="state.activeKey !== 'draft'">
@@ -265,7 +302,7 @@ const times = ["08:00~10:00", "10:00~12:00", "13:00~15:00"];
           class="content-top"
           v-if="
             (state.activeKey === 'apply' &&
-            state.selectedRecord.status !== '等待审核') ||
+              state.selectedRecord.status !== '等待审核') ||
             state.activeKey === 'register'
           "
         >
