@@ -35,7 +35,7 @@ service.interceptors.request.use(
     }
 
     if (token) {
-      config.headers["authorization"] = `bearer ${token}`;
+      config.headers["authorization"] = `bearer${token}`;
 
       if (config?.isCrypto) {
         let encryptStr = encrypt("encrypt", config.data);
@@ -44,7 +44,7 @@ service.interceptors.request.use(
 
       config.data = {
         ...config.data,
-        authorization: config.headers["authorization"],
+        // Authorization: config.headers["authorization"],
       };
     } else {
       if (config?.isCrypto) {

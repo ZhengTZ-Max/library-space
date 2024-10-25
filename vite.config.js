@@ -56,7 +56,7 @@ export default defineConfig({
     https: false,
     proxy: {
       "/api": {
-        target: "http://kfcs.skalibrary.com/",
+        target: "http://kfcs3.skalibrary.com/",
         // target: "https://sh.swechat.cc/",
         // target:"http://192.168.121.111/",
 

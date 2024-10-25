@@ -93,6 +93,7 @@ export function getSpaceConfirm(data) {
     url: "/v4/space/confirm",
     method: "POST",
     isLoading: true,
+    isCrypto: true,
     // loadingMsg: "",
     // customLoading: true, //是否自定义loading
     data,
