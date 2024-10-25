@@ -3,7 +3,7 @@ import { reactive, onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import Carousel from "@/components/CarouselCom.vue";
 const store = useStore();
-const emits = defineEmits(["viewInfo", "changeSlide"]);
+const emits = defineEmits(["viewInfo", "changeSlide", "viewFloor"]);
 const props = defineProps({
   data: {
     type: Object,
@@ -41,11 +41,7 @@ const onChange = (v) => {
         <div v-for="item in state.list" :key="item?.id" class="card">
           <div class="header">
             <div class="tag">{{ item?.premise_name }}</div>
-            <img
-              src="http://kfcs.skalibrary.com/home/images/first/area/45/1715999170251.jpg"
-              alt="Reading Room"
-              class="image"
-            />
+            <img :src="item?.firstImg" alt="Reading Room" class="image" />
           </div>
           <div class="card-body">
             <div class="card-title">
@@ -60,7 +56,7 @@ const onChange = (v) => {
               >
             </div>
             <div class="links">
-              <p class="activeBtn">
+              <p class="activeBtn" @click="() => emits('viewFloor')">
                 查看平面图
                 <img src="@/assets/home/rightIcon.svg" alt="" />
               </p>

@@ -75,6 +75,7 @@ const onGoToLink = (row, t) => {
       <p>{{ item?.name }}</p>
     </div>
   </div>
+  <a-skeleton v-else />
 </template>
 
 <style scoped lang="less">

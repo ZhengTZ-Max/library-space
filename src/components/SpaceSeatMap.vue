@@ -122,6 +122,7 @@ const onReset = (v) => {
 const onResizing = (v) => {
   state.resizing = true;
 };
+
 </script>
 <template>
   <div class="spaceMap" v-onReset:150="onReset" v-resizing="onResizing">

@@ -40,6 +40,7 @@ export default defineConfig({
         // 确保每个 route 都返回值
         return newRoute;
       },
+      importMode: "sync",
     }),
   ],
   resolve: {

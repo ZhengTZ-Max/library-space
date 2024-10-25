@@ -1,5 +1,15 @@
 import service from "@/utils/request";
 
+export function getNotice(data) {
+  return service({
+    url: "/v4/index/notice",
+    method: "POST",
+    // loadingMsg:"正在登录",
+    // isLoading: true,
+    data,
+  });
+}
+
 export function getGlobalConfig(data) {
   return service({
     url: "/v4/index/peizhi",

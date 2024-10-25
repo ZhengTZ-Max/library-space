@@ -3,6 +3,7 @@ import { reactive, onMounted, watch, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
+import html2canvas from "html2canvas";
 
 import { exchangeDateTime, initSltTime, areArraysDifferent } from "@/utils";
 import {
@@ -26,7 +27,10 @@ const store = useStore();
 const router = useRouter();
 const route = useRoute();
 const containerRef = ref();
+const captureArea = ref();
 const state = reactive({
+  isShowFloorPlane: false,
+  floorPlaneMapSrc: "",
   libraryInfoShow: false,
   libraryInfo: {},
   spaceFilterShow: false,
@@ -88,16 +92,32 @@ onMounted(() => {
   }
 });
 
-const handleShowInfo = (item) => {
-  state.libraryInfo = {
-    id: item.id,
-    type: "library",
-  };
-  fetchInfo();
+// const handleShowInfo = (item) => {
+//   state.libraryInfo = {
+//     id: item.id,
+//     type: "library",
+//   };
+//   fetchInfo();
+// };
+
+const fetchLibraryInfo = async () => {
+  try {
+    let params = {
+      id: state.initQuery.spaceId,
+    };
+    let res = await getSpaceDetail(params);
+    if (res.code != 0) return;
+    state.libraryInfo = res?.data || {};
+    state.libraryInfoShow = true;
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const fetchSpace = async () => {
   try {
+    state.spaceList = [];
+
     let { date, times, time } = state.filterSearch;
     let dateType = state.spaceInfo?.date?.reserveType;
 
@@ -124,6 +144,7 @@ const fetchSpace = async () => {
     }
 
     state.spaceList = res?.data?.list || [];
+    state.spaceSelected = {};
   } catch (e) {
     console.log(e);
   }
@@ -327,6 +348,24 @@ const onChangeSlide = (row) => {
 
   fetchInfo();
 };
+
+const handleShow = (v) => {
+  if (!v && state.apptResult?.type == "success") {
+    router.replace("/");
+  }
+};
+
+const captureMap = () => {
+  console.log(captureArea);
+  html2canvas(captureArea.value).then((canvas) => {
+    let imageUrl = canvas.toDataURL("image/png"); // 获取图片链接
+    state.floorPlaneMapSrc = imageUrl;
+    state.isShowFloorPlane = true;
+  });
+};
+const onViewMap = () => {
+  captureMap();
+};
 </script>
 <template>
   <div class="seatAppointment" ref="containerRef">
@@ -380,13 +419,25 @@ const onChangeSlide = (row) => {
             />
           </div>
 
-          <div v-else class="spaceMapSlt">
+          <div v-if="state.quickMode == '0'" class="spaceMapSlt">
             <SpaceSeatMap
               :list="state.spaceList"
               :data="state.spaceInfo"
               :seatSelected="state.spaceSelected"
               @selected="onSelected"
             />
+          </div>
+          <div
+            ref="captureArea"
+            style="
+              position: absolute;
+              top: -9999px;
+              left: -9999px;
+              z-index: -2;
+              display: inline-block;
+            "
+          >
+            <SpaceSeatMap :list="state.spaceList" :data="state.spaceInfo" />
           </div>
         </template>
         <a-skeleton v-else :paragraph="{ rows: 12 }" active />
@@ -398,8 +449,9 @@ const onChangeSlide = (row) => {
             v-if="state.spaceInfo?.brother_area?.length"
             :data="state.spaceInfo"
             :defaultId="state.initQuery.spaceId"
-            @viewInfo="state.libraryInfoShow = true"
+            @viewInfo="fetchLibraryInfo"
             @changeSlide="onChangeSlide"
+            @viewFloor="onViewMap"
           />
 
           <div class="reservation">
@@ -450,7 +502,7 @@ const onChangeSlide = (row) => {
       :okButtonProps="{ size: 'middle' }"
       centered
     >
-      <LibraryInfo v-if="state.spaceInfo?.id" :data="state.spaceInfo" />
+      <LibraryInfo v-if="state.libraryInfo?.id" :data="state.libraryInfo" />
     </a-modal>
 
     <a-modal
@@ -498,7 +550,7 @@ const onChangeSlide = (row) => {
       :isShow="state.apptResult.show"
       :type="state.apptResult.type"
       :title="state.apptResult.title"
-      @handleShow="(v) => (state.apptResult.show = v)"
+      @handleShow="handleShow"
     >
       <template v-slot:content>
         <div class="toastItem">
@@ -519,6 +571,18 @@ const onChangeSlide = (row) => {
         </div>
       </template>
     </ShowInfoToast>
+
+    <a-image
+      :width="200"
+      :style="{ display: 'none' }"
+      :preview="{
+        visible: state.isShowFloorPlane,
+        onVisibleChange: (v) => {
+          state.isShowFloorPlane = v;
+        },
+      }"
+      :src="state.floorPlaneMapSrc"
+    />
   </div>
 </template>
 <style lang="less" scoped>

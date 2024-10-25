@@ -11,12 +11,15 @@ import "ant-design-vue/dist/reset.css";
 import "./style.css";
 
 // --- Vant组件
-import { Button, List } from "vant";
+import { Button, List, ImagePreview, Swipe, SwipeItem } from "vant";
 import "vant/lib/index.css";
 
 const app = createApp(App);
 directives(app);
 
+app.use(Swipe);
+app.use(SwipeItem);
+app.use(ImagePreview);
 app.use(Button);
 app.use(List);
 

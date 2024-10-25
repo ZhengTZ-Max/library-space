@@ -8,15 +8,20 @@ const store = createStore({
     pageLoadingText: "",
     systemMode: "",
     bannerList: [],
+    noticeList: [],
 
     apiConfig: {},
     loginInfo: {},
     langData: {},
     lang: "en",
+    
 
     userName: "",
   },
   mutations: {
+    setNoticeList(state, list) {
+      state.noticeList = list;
+    },
     systemMode(state, mode) {
       state.systemMode = mode;
     },
@@ -46,6 +51,9 @@ const store = createStore({
     },
   },
   actions: {
+    setNoticeList({ commit }, list) {
+      commit("setNoticeList", list);
+    },
     setPageLoading({ commit }, isLoading) {
       commit("setPageLoading", isLoading);
     },

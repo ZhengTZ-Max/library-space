@@ -6,7 +6,12 @@ import { useRoute, useRouter } from "vue-router";
 import enUS from "ant-design-vue/es/locale/en_US";
 import zhCN from "ant-design-vue/es/locale/zh_CN";
 
-import { getBanner, getGlobalConfig, getGlobalLang } from "@/request";
+import {
+  getBanner,
+  getGlobalConfig,
+  getGlobalLang,
+  getNotice,
+} from "@/request";
 
 const store = useStore();
 const route = useRoute();
@@ -29,7 +34,17 @@ onMounted(() => {
   fetchBanner();
   fetchConfig();
   fetchLangConfig();
+  fetchNotice();
 });
+
+const fetchNotice = async () => {
+  try {
+    let res = await getNotice();
+    store.dispatch("setNoticeList", res?.data?.data || []);
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 const fetchBanner = async () => {
   try {
@@ -70,9 +85,7 @@ const fetchLangConfig = async () => {
       },
     }"
   >
-    <a-spin :spinning="isPageLoading" size="large" :tip="pageLoadingText">
-      <router-view />
-    </a-spin>
+    <router-view />
   </a-config-provider>
 </template>
 
