@@ -13,6 +13,8 @@ const store = createStore({
     loginInfo: {},
     langData: {},
     lang: "en",
+
+    userName: "",
   },
   mutations: {
     systemMode(state, mode) {
@@ -38,6 +40,9 @@ const store = createStore({
     },
     setLang(state, data) {
       state.lang = data;
+    },
+    setUserName(state, name) {
+      state.userName = name;
     },
   },
   actions: {
@@ -65,6 +70,9 @@ const store = createStore({
     updateLang({ commit }, type) {
       commit("setLang", type);
     },
+    setUserName({ commit }, name) {
+      commit("setUserName", name);
+    },
   },
   getters: {
     isPageLoading(state) {
@@ -81,6 +89,9 @@ const store = createStore({
     },
     getLoginInfo(state) {
       return state.loginInfo;
+    },
+    getUserName(state) {
+      return state.userName;
     },
   },
 });

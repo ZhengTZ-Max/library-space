@@ -98,6 +98,9 @@ const state = reactive({
   areaValue: "自修A区",
 });
 
+const userName = computed(() => store.state.userName);
+
+console.log(userName.value);
 const columns = [
   {
     title: "座位",
@@ -299,7 +302,7 @@ const onChangePage = (pagination) => {
       :footer="null"
       @ok="onHideModal"
     >
-      <MySeatRecordCom :data="state.selectedRecord" />
+      <MySeatRecordCom :data="state.selectedRecord" :userName="userName" />
     </a-modal>
 
     <a-card v-if="state.quickMode === 3" class="query-result-card">

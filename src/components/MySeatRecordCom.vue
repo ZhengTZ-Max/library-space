@@ -7,13 +7,18 @@ const props = defineProps({
   data: {
     type: Object,
   },
+  userName: {
+    type: String,
+  },
 });
 const state = reactive({
   selectedRecord: {},
+  userName: "",
 });
 
 onMounted(() => {
   state.selectedRecord = props?.data || {};
+  state.userName = props?.userName || "";
 });
 
 const onCancelReservation = () => {
@@ -38,7 +43,7 @@ const onCancelReservation = () => {
         >{{ state.selectedRecord.status_name }}</span
       >
     </p>
-    <p>预约用户：{{ state.selectedRecord.booker }}</p>
+    <p>预约用户：{{ state.userName }}({{ state.selectedRecord.booker }})</p>
     <p>预约时间：{{ state.selectedRecord.beginTime }}</p>
     <p>开始时间：{{ state.selectedRecord.beginTime }}</p>
     <p>结束时间：{{ state.selectedRecord.endTime }}</p>

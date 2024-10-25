@@ -70,6 +70,9 @@ const fetchMyInfo = async () => {
     const res = await getMyInfo();
     if (res.code === 0) {
       state.userInfo = res.data || {};
+      if (state.userInfo.name) {
+        store.dispatch("setUserName", res.data.name);
+      }
     }
     console.log(res);
   } catch (error) {
