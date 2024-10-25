@@ -3,6 +3,7 @@ import { ref, reactive, onMounted, watch, computed } from "vue";
 import { useStore } from "vuex";
 import { SearchOutlined } from "@ant-design/icons-vue";
 import { getSeatRecordList } from "@/request/sear-record";
+import MySeatRecordCom from "@/components/MySeatRecordCom.vue";
 
 const store = useStore();
 const state = reactive({
@@ -119,7 +120,6 @@ const columns = [
   },
 ];
 
-
 const onShowModal = (record) => {
   state.isModalVisible = true;
   state.selectedRecord = record;
@@ -135,12 +135,25 @@ const onQuery = () => {
 };
 
 const onChangeQMode = (row) => {
+  if (state.activeKey == "1") {
+    // 普通座位 下 不能点击 权限查询
+    if (row?.value == "3") return;
+  }
   state.quickMode = row?.value;
 };
 
 onMounted(() => {
   fetch();
 });
+watch(
+  () => state.selectedRecord.clickCancelReservation,
+  (val) => {
+    if (val) {
+      console.log("取消预约");
+      onHideModal();
+    }
+  }
+);
 
 const fetch = () => {
   if (state.quickMode === 1) {
@@ -256,7 +269,7 @@ const onChangePage = (pagination) => {
                   >取消</a
                 >
                 <a-divider type="vertical" />
-                <a type="primary" @click="onShowModal(record)">预约</a>
+                <a type="primary" @click="onShowModal(record)">查看</a>
               </span>
             </template>
             <template v-else>
@@ -286,39 +299,7 @@ const onChangePage = (pagination) => {
       :footer="null"
       @ok="onHideModal"
     >
-      <a-divider />
-      <div v-if="state.selectedRecord" class="modal-content">
-        <p>
-          预约状态：<span
-            :class="
-              state.selectedRecord.result_info === '使用中'
-                ? 'status-active'
-                : state.selectedRecord.result_info === '未签到' ||
-                  state.selectedRecord.result_info === '状态异常'
-                ? 'status-nosign'
-                : ''
-            "
-            >{{ state.selectedRecord.result_info }}</span
-          >
-        </p>
-        <p>预约用户：{{ state.selectedRecord.user }}</p>
-        <p>预约时间：{{ state.selectedRecord.reservationTime }}</p>
-        <p>开始时间：{{ state.selectedRecord.startTime }}</p>
-        <p>结束时间：{{ state.selectedRecord.endTime }}</p>
-        <p>预约地点：{{ state.selectedRecord.seat }}</p>
-        <a-divider dashed />
-        <p v-if="state.selectedRecord.result_info !== '预约成功'">
-          签到时间：{{ state.selectedRecord.checkInTime }}
-        </p>
-        <div
-          class="modal-footer"
-          v-if="state.selectedRecord.result_info === '预约成功'"
-        >
-          <a-button type="primary" class="cancel-button" @click="onHideModal"
-            >取消预约</a-button
-          >
-        </div>
-      </div>
+      <MySeatRecordCom :data="state.selectedRecord" />
     </a-modal>
 
     <a-card v-if="state.quickMode === 3" class="query-result-card">
@@ -415,7 +396,7 @@ const onChangePage = (pagination) => {
 }
 
 .red {
-  color: red;
+  color: orange;
 }
 
 .custom-tag {
