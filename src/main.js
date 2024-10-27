@@ -11,12 +11,28 @@ import "ant-design-vue/dist/reset.css";
 import "./style.css";
 
 // --- Vant组件
-import { Button, List, ImagePreview, Swipe, SwipeItem } from "vant";
+import {
+  Button,
+  List,
+  ImagePreview,
+  Swipe,
+  SwipeItem,
+  Overlay,
+  Popup,
+  Icon,
+  Lazyload,
+  Image,
+} from "vant";
 import "vant/lib/index.css";
-
+import "vant/lib/icon/index.css";
 const app = createApp(App);
 directives(app);
 
+app.use(Image);
+app.use(Lazyload);
+app.use(Icon);
+app.use(Popup);
+app.use(Overlay);
 app.use(Swipe);
 app.use(SwipeItem);
 app.use(ImagePreview);

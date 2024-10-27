@@ -18,6 +18,7 @@ const route = useRoute();
 const router = useRouter();
 const isPageLoading = computed(() => store.state.pageLoading);
 const pageLoadingText = computed(() => store.state.pageLoadingText);
+
 watch(
   () => store.state.systemMode,
   (mode) => {

@@ -41,6 +41,7 @@ const fetchCategory = async () => {
 
 const onGoToLink = (row, t) => {
   if (t == "m") {
+    router.push(`/mo${row?.path}`);
   } else {
     router.push(row?.path);
   }

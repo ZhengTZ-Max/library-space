@@ -5,6 +5,10 @@ import Panzoom from "panzoom";
 
 const emit = defineEmits(["selected"]);
 const props = defineProps({
+  review: {
+    type: Boolean,
+    default: false,
+  },
   list: {
     type: Array,
   },
@@ -29,7 +33,6 @@ const state = reactive({
 onMounted(() => {
   state.list = props?.list;
   state.backgroundMap = props?.data?.map;
-
 });
 
 const onMapImg = () => {
@@ -102,10 +105,7 @@ const statusBg = (seat) => {
   } else {
     backgroundImg = state?.backgroundMap?.not;
   }
-  return (
-    (backgroundImg && `url("${backgroundImg}")`) ||
-    ""
-  );
+  return (backgroundImg && `url("${backgroundImg}")`) || "";
 };
 
 const selectSeat = (seat, event) => {
@@ -142,13 +142,13 @@ const onResizing = (v) => {
           display: state?.resizing ? 'none' : '',
           backgroundImage:
             props?.seatSelected?.id == seat.id
-              ? `url(${state.allBackImg?.config})`
+              ? `url(${state.backgroundMap?.config})`
               : statusBg(seat),
         }"
         class="absolute"
         :class="{
           active: props?.seatSelected?.id == seat.id,
-          noSelectV2: seat.status != 1 || seat.in_label != 1,
+          noSelectV2: seat.status != 1 || seat.in_label != 1 || props?.review,
         }"
         @click="selectSeat(seat, $event)"
       ></div>

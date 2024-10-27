@@ -1,3 +1,13 @@
+<route>
+  {
+    meta: {
+      showHead: true,
+      showLeftBack:true,
+      title:'V4_space_selection',
+      showTabbar:false
+    }
+  }
+  </route>
 <script setup>
 import { reactive, onMounted, watch, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -246,74 +256,43 @@ const handleAppt = (row) => {
 </script>
 <template>
   <div class="seatLibrary" ref="containerRef">
-    <a-affix offset-top="0" :target="() => containerRef">
-      <div class="header">
-        <div class="leftTit">
-          <a-breadcrumb>
-            <template #separator
-              ><img src="@/assets/seat/titRightIcon.svg" alt=""
-            /></template>
-            <a-breadcrumb-item @click="goToLink('/seat')"
-              >选择馆舍</a-breadcrumb-item
-            >
-            <a-breadcrumb-item>选择空间</a-breadcrumb-item>
-          </a-breadcrumb>
-        </div>
-        <div class="rightAction">
-          <div class="quickDate">
-            <div class="quickBtns" style="margin-right: 40px">
-              <div
-                v-for="item in state.quickDateList"
-                :key="item.label"
-                class="item activeBtn"
-                :class="{ itemActive: item?.value == state.quickDate }"
-                @click="onChangeQDate(item)"
-              >
-                {{ exchangeDateTime(item?.value, 40) }}
-                {{ item?.label }}
-              </div>
-            </div>
-          </div>
-
-          <div class="quickBtns">
+    <div class="header">
+      <div class="leftTit"></div>
+      <div class="rightAction">
+        <div class="quickDate">
+          <div class="quickBtns" style="margin-right: 40px">
             <div
-              v-for="item in state.quickModeList"
+              v-for="item in state.quickDateList"
               :key="item.label"
               class="item activeBtn"
-              :class="{ itemActive: item?.value == state.quickMode }"
-              @click="state.quickMode = item?.value"
+              :class="{ itemActive: item?.value == state.quickDate }"
+              @click="onChangeQDate(item)"
             >
+              {{ exchangeDateTime(item?.value, 40) }}
               {{ item?.label }}
             </div>
           </div>
+        </div>
 
-          <div class="filters activeBtn" @click="state.spaceFilterShow = true">
-            <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            筛选
-          </div>
+        <div class="filters activeBtn" @click="state.spaceFilterShow = true">
+          <img src="@/assets/seat/filtersIcon.svg" alt="" />
+          筛选
         </div>
       </div>
-    </a-affix>
+    </div>
 
     <div v-if="state.quickMode == '1'" class="librarySlt">
-      <a-row v-if="state.spaceList?.length" :gutter="[60, 80]">
+      <a-row v-if="state.spaceList?.length" :gutter="[0, 12]">
         <template v-for="item in state.spaceList" :key="item?.id">
-          <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
-            <div
-              class="libraryItem cardItem"
-              :class="{ activeItem: item?.id == state.activeIndex }"
-              @click="onChangeAct(item)"
-            >
+          <a-col :xs="24" :sm="24">
+            <div class="libraryItem cardItem" @click="onChangeAct(item)">
               <div class="cardItemImgCon">
-                <img class="cardItemImg" :src="item?.firstImg" alt="" />
+                <van-image
+                  lazy-load
+                  class="cardItemImg"
+                  :src="item?.firstImg"
+                />
                 <div class="leftBadge basicsBadge">{{ item?.typeName }}</div>
-                <div
-                  class="rightBadge viewMore clickBox"
-                  @click.stop="handleShowInfo(item)"
-                >
-                  <span> 查看详情 </span>
-                  <img src="@/assets/home/rightIconW.svg" alt="" />
-                </div>
                 <div class="posBot">
                   <span>- {{ item?.typeName }} -</span>
                 </div>
@@ -327,15 +306,29 @@ const handleAppt = (row) => {
                   总数 <span>{{ item?.total_num || "-" }}</span> 空闲
                   <span>{{ item?.free_num || "-" }}</span>
                 </div>
-                <p class="boutiqueList">{{ filterBoutique(item?.boutique) }}</p>
+                <div class="actionApt">
+                  <p class="boutiqueList">
+                    {{ filterBoutique(item?.boutique) }}
+                  </p>
+                  <van-button
+                    style="padding: 0 15px"
+                    plain
+                    hairline
+                    size="small"
+                    round
+                    type="primary"
+                    @click="handleAppt(item)"
+                    >预约</van-button
+                  >
+                </div>
               </div>
-              <div
+              <!-- <div
                 v-if="item?.id == state.activeIndex"
                 class="action clickBoxT"
                 @click="handleAppt(item)"
               >
                 立即预约
-              </div>
+              </div> -->
             </div>
           </a-col>
         </template>
@@ -445,16 +438,26 @@ const handleAppt = (row) => {
   .librarySlt {
     width: 100%;
     margin: 38px 0 50px 0;
-    padding: 0 82px;
+    padding: 0 12px;
     .libraryItem {
+      padding: 14px;
       position: relative;
       box-sizing: initial;
+      display: flex;
+      .cardItemImgCon {
+        width: 120px;
+        height: 90px;
+        img {
+          width: 100%;
+          height: 100%;
+        }
+      }
     }
     .basicsBadge {
       padding: 3px 8px;
       background: #1a49c0;
       border-radius: 6px 0px 6px 0px;
-      font-size: 14px;
+      font-size: 12px;
       color: #ffffff;
     }
     .viewMore {
@@ -477,52 +480,59 @@ const handleAppt = (row) => {
       }
     }
     .posBot {
+      padding: 10px 17px 7px 17px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #ffffff;
-      font-size: 16px;
+      font-size: 12px;
     }
     .bottomItem {
-      padding: 14px 10px 5px 10px;
+      flex: 1;
+      padding: 0 12px;
 
       .title {
-        margin-bottom: 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-size: 16px;
+        font-size: 14px;
         color: #616161;
         span {
           &:nth-child(1) {
-            font-size: 16px;
+            font-size: 14px;
             color: #202020;
           }
         }
       }
       .num {
-        margin-bottom: 6px;
-        font-size: 14px;
+        margin-top: 11px;
+        font-size: 12px;
         color: #616161;
         display: flex;
         align-items: center;
         span {
           &:nth-child(1) {
-            font-size: 16px;
+            font-size: 14px;
             color: #202020;
             margin-left: 2px;
-            margin-right: 40px;
+            margin-right: 20px;
           }
           &:nth-child(2) {
-            font-size: 16px;
+            font-size: 14px;
             color: #1a49c0;
             margin-left: 2px;
           }
         }
       }
-      .boutiqueList {
-        font-size: 14px;
-        color: #868686;
+      .actionApt {
+        margin-top: 4px;
+        display: flex;
+        align-items: flex-end;
+        .boutiqueList {
+          flex: 1;
+          font-size: 12px;
+          color: #868686;
+        }
       }
     }
     .action {

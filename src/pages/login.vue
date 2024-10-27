@@ -7,6 +7,7 @@ import { verify, login } from "@/request/login";
 const store = useStore();
 // const systemMode = store?.state?.systemMode;
 const lang = computed(() => store.state.lang);
+const systemMode = computed(() => store.state.systemMode);
 
 const router = useRouter();
 const state = reactive({
@@ -68,9 +69,12 @@ const onLogin = async () => {
 
     store.dispatch("updateLoginInfo", res?.data);
     sessionStorage.setItem("token", res.data.token);
-    console.log(store);
-
-    router.replace("/");
+    
+    if (systemMode?.value == "pc") {
+      router.replace("/");
+    } else {
+      router.replace("/mo");
+    }
   } catch (e) {
     console.log(e);
   }
@@ -84,15 +88,12 @@ const toggleLang = (type) => {
   <div class="login">
     <div class="header">
       <img
-        :style="{ width: store.state.systemMode != 'pc' ? '100%' : '70%' }"
+        :style="{ width: systemMode != 'pc' ? '100%' : '70%' }"
         class="bg"
         src="@/assets/login/headerBg.svg"
         alt=""
       />
-      <div
-        class="toggleLang"
-        :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
-      >
+      <div class="toggleLang" :class="{ toggleLangPc: systemMode == 'pc' }">
         <div
           @click="toggleLang('zh')"
           :class="{ langActive: lang == 'zh' }"
@@ -204,7 +205,6 @@ const toggleLang = (type) => {
       position: absolute;
       top: 20px;
       right: 12px;
-      width: 147px;
       height: 36px;
       padding: 4px;
       background: #f1f1f1;
