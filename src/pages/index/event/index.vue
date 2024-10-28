@@ -20,7 +20,7 @@ const state = reactive({
     categoryID: "",
     date: "",
   },
-  eventList: [],
+  eventImg: "",
   activeIndex: "",
   eventStatus: "",
   quickMode: 1,
@@ -86,91 +86,11 @@ const fetchCurrentEventList = async () => {
 
     if (res.code == 0) {
       state.eventList = res.data?.data;
-      console.log(state.eventList);
+      console.log(state.eventImg);
     }
   } catch (e) {}
 };
 
-const getDefaultList = () => {
-  return [
-    {
-      id: "74", //区域id
-      name: "602研究室", //区域名称
-      enname: "602 Room", //英文
-      minPerson: "6", //最少人数
-      maxPerson: "20", //最多人数
-      firstimg: "/home/images/first/area/74/9.jpg", //首图
-      storey_name: "六层", //楼层名称
-      storey_en_name: "6F", //英文
-      top_name: "图书馆", //馆舍名称
-      top_en_name: "SKE Library", //英文
-      boutiques: [
-        {
-          id: "4", //特征id
-          name: "电视", //特征名称
-          icon: null, //特征图标
-          enname: "TV", //英文
-        },
-        {
-          id: "5", //特征id
-          name: "投影仪", //特征名称
-          icon: null, //特征图标
-          enname: "projector", //英文
-        },
-      ], //特征
-      categorys: [
-        {
-          id: "12", //类型id
-          name: "活动", //类型名称
-          enname: "Activity", //英文
-        },
-        {
-          id: "13", //类型id
-          name: "展览", //类型名称
-          enname: "put on display", //英文
-        },
-      ], //类型
-    },
-    {
-      id: "75", //区域id
-      name: "602研究室", //区域名称
-      enname: "602 Room", //英文
-      minPerson: "6", //最少人数
-      maxPerson: "20", //最多人数
-      firstimg: "/home/images/first/area/74/9.jpg", //首图
-      storey_name: "六层", //楼层名称
-      storey_en_name: "6F", //英文
-      top_name: "图书馆", //馆舍名称
-      top_en_name: "SKE Library", //英文
-      boutiques: [
-        {
-          id: "4", //特征id
-          name: "电视", //特征名称
-          icon: null, //特征图标
-          enname: "TV", //英文
-        },
-        {
-          id: "5", //特征id
-          name: "投影仪", //特征名称
-          icon: null, //特征图标
-          enname: "projector", //英文
-        },
-      ], //特征
-      categorys: [
-        {
-          id: "12", //类型id
-          name: "活动", //类型名称
-          enname: "Activity", //英文
-        },
-        {
-          id: "13", //类型id
-          name: "展览", //类型名称
-          enname: "put on display", //英文
-        },
-      ], //类型
-    },
-  ];
-};
 </script>
 <template>
   <div class="eventLibrary">
@@ -242,7 +162,7 @@ const getDefaultList = () => {
               @click="onChangeAct(item)"
             >
               <div class="cardItemImgCon">
-                <img class="cardItemImg" :src="item?.firstImg" alt="" />
+                <img class="cardItemImg" :src="item?.poster[0]?.file_path" alt="" />
                 <div
                   class="leftBadge basicsBadge"
                   :class="{ status_not_started: item?.status_name === '未开始',

@@ -10,12 +10,17 @@ const state = reactive({
   inputInfo: {
     phone: "",
     email: "",
+    isClose: false,
   },
 });
 
 onMounted(() => {
   state.inputInfo = props?.data || {};
 });
+
+const onApply = () => {
+  state.inputInfo.isClose = true;
+};
 </script>
 <template>
   <div>

@@ -5,41 +5,63 @@ const props = defineProps({
   data: {
     type: Object,
   },
+  show: {
+    type: Boolean,
+  },
 });
 const state = reactive({
   applyResultInfo: {
     result: "",
     message: "",
+    isClose: false,
+    eventInfo: {},
+    eventTimeShow: "",
+    eventDateIndex: "",
   },
 });
 
 onMounted(() => {
   state.applyResultInfo = props?.data || {};
+  console.log(state.applyResultInfo);
 });
 
+const onApply = () => {
+  state.applyResultInfo.isClose = true;
+};
 </script>
 <template>
   <div>
-
     <div class="dialog_item">
       <div class="result_item">
-        <img v-if="state.applyResultInfo.result === 'success'" 
-             src="@/assets/event/success.svg" 
-             alt="成功图像" />
-        <img v-else 
-             src="@/assets/event/failed.svg" 
-             alt="失败图像" />
-        <span>报名成功</span>
+        <img
+          v-if="state.applyResultInfo.result === 'success'"
+          src="@/assets/event/success.svg"
+          alt="成功图像"
+        />
+        <img v-else src="@/assets/event/failed.svg" alt="失败图像" />
+        <span>{{
+          state.applyResultInfo.result === "success" ? "报名成功" : "报名失败"
+        }}</span>
       </div>
-      <span>活动名称:XXX学院-青春校园影片展</span>
-      <span>活动时间:2024-02-21 9:00-12:00</span>
-      <span>活动地点:图书馆-3F-302研究室</span>
-      <span>报名提醒:报名失败原因XXXXX</span>
+      <div class="result_info_item">
+        <span>活动名称:</span>
+        <span>{{ state.applyResultInfo.eventInfo.title }}</span>
+      </div>
+      <div class="result_info_item">
+        <span>活动时间:</span>
+        <span>{{ state.applyResultInfo.eventDateIndex }} {{ state.applyResultInfo.eventTimeShow }}</span>
+      </div>
+      <div class="result_info_item">
+        <span>活动地点:</span>
+        <span>{{ state.applyResultInfo.eventInfo.nameMerge }}</span>
+      </div>
+      <div v-if="state.applyResultInfo.result === 'failed'" class="result_info_item">
+        <span>报名提醒:</span>
+        <span>报名失败原因{{ state.applyResultInfo.message }}</span>
+      </div>
     </div>
     <a-divider />
-    <a-button type="link" class="bottom_button"  @click="onApply"
-      >确认</a-button
-    >
+    <a-button type="link" class="bottom_button" @click="onApply">确认</a-button>
   </div>
 </template>
 <style lang="less" scoped>
@@ -63,14 +85,32 @@ onMounted(() => {
 .mt-20 {
   margin-top: 20px;
 }
-.ant-divider-horizontal{
+.ant-divider-horizontal {
   margin: 15px 0;
 }
-.bottom_button{
-    width: 100%;
-    padding: 0 !important;
-    margin: 0 !important;
-    margin-bottom: -20px !important;
-    margin-top: -20px !important;
+.bottom_button {
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-bottom: -20px !important;
+  margin-top: -20px !important;
+}
+.result_info_item {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 15px;
+  span {
+    &:nth-child(1) {
+      font-size: 16px;
+      color: #a7a7a7;
+      margin-left: 2px;
+    }
+    &:nth-child(2) {
+      flex: 1;
+      font-size: 16px;
+      color: #6e6e6e;
+      margin-left: 2px;
+    }
+  }
 }
 </style>

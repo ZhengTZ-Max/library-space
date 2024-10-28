@@ -31,3 +31,14 @@ export function getEventDetails(data) {
     data,
   });
 }
+
+export function getApplyActivity(data) {
+  return service({
+    url: "/v4/activity/enroll",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}

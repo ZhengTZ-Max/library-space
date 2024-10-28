@@ -6,7 +6,7 @@ import moment from "moment";
 import Carousel from "@/components/CarouselCom.vue";
 import EventApplyCom from "../../../components/EventApplyCom.vue";
 import EventApplyResultCom from "../../../components/EventApplyResultCom.vue";
-import { getEventDetails } from "@/request/event";
+import { getEventDetails, getApplyActivity } from "@/request/event";
 import { exchangeDateTime } from "../../../utils";
 
 const store = useStore();
@@ -16,17 +16,25 @@ const containerRef = ref();
 
 const state = reactive({
   id: route?.query?.id || "",
+  eventInfo: {},
+  eventImg: [],
   eventDateList: [],
   eventDateIndex: "",
   eventTimeList: [],
   eventTimeIndex: "",
   eventMaxNum: "",
   eventCurrentNum: "",
+  eventTimeShow: "",
   isApply: false,
-  applyInfo: { phone: "", email: "" },
+  quickMode: 1,
+  applyInfo: { phone: "", email: "", isClose: false },
   applyResultInfo: {
     result: "success",
     message: "XXXX",
+    eventInfo: {},
+    eventDateIndex: "",
+    eventTimeShow: "",
+    isClose: false,
   },
 });
 
@@ -49,18 +57,45 @@ watch(
   (v) => {
     if (v?.length) {
       state.eventTimeIndex = v[0]?.id;
-      state.eventCurrentNum = v[0]?.count || "1";
+      state.eventCurrentNum = v[0]?.count;
+      state.eventTimeShow = v[0]?.show_time;
     }
   }
 );
+watch(
+  () => state.applyInfo.isClose,
+  (v) => {
+    if (v) {
+      state.isApply = false;
+      fetchApplyActivity();
+    }
+  }
+);
+watch(
+  () => state.applyResultInfo.isClose,
+  (v) => {
+    if (v) {
+      state.isApplyResult = false;
+    }
+  }
+);
+
+const goToLink = (link) => {
+  router.replace(link);
+};
+const onChangeQMode = (value) => {
+  state.quickMode = value;
+};
 const onChangeDateAct = (row) => {
   state.eventDateIndex = row?.date;
   state.eventTimeList = row?.list;
-  state.eventCurrentNum = row?.list[0]?.count || "1";
+  state.eventCurrentNum = row?.list[0]?.count;
+  state.eventTimeShow = row?.list[0]?.show_time;
 };
 const onChangeTimeAct = (row) => {
   state.eventTimeIndex = row?.id;
-  state.eventCurrentNum = row?.count || "1";
+  state.eventCurrentNum = row?.count;
+  state.eventTimeShow = row?.show_time;
 };
 
 const getDefalutList = () => {
@@ -188,13 +223,52 @@ const fetchEventDetails = async () => {
       state.eventDateList = getDefalutList()?.data?.times;
       state.eventMaxNum = getDefalutList()?.data?.max;
       console.log(state.eventDateList);
-    } else {
+    } else if (res?.code == 0) {
+      state.eventInfo = res?.data || {};
+      state.eventImg = res?.data?.poster || [];
       state.eventDateList =
         res.data?.times && res.data.times.length > 0
           ? res.data?.times
           : getDefalutList();
-      state.eventMaxNum = getDefalutList()?.data?.max;
+      state.eventMaxNum = state.eventInfo?.max;
+      console.log(state.eventDateList);
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+const fetchApplyActivity = async () => {
+  try {
+    let params = {
+      id: state.eventTimeIndex, // 活动时间 id
+      book_id: state.eventInfo?.id, // 活动 id
+      mobile: state.applyInfo.phone,
+      email: state.applyInfo.email,
+    };
+    let res = await getApplyActivity(params);
+    let result = {};
+    if (res?.code == 0) {
+      result = {
+        result: "success",
+        message: "",
+        eventInfo: state.eventInfo,
+        eventDateIndex: state.eventDateIndex,
+        eventTimeShow: state.eventTimeShow,
+        isClose: false,
+      };
+      
+    } else{
+      result = {
+        result: "failed",
+        message: res?.message || "",
+        eventInfo: state.eventInfo,
+        eventDateIndex: state.eventDateIndex,
+        eventTimeShow: state.eventTimeShow,
+        isClose: false,
+      };
+    }
+    state.applyResultInfo = result;
+    onApplyResult();
   } catch (e) {
     console.log(e);
   }
@@ -223,12 +297,8 @@ const fetchEventDetails = async () => {
           <div class="left_top_content">
             <Carousel>
               <template v-slot:content>
-                <div v-for="i in 3">
-                  <img
-                    class="image"
-                    src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-                    alt=""
-                  />
+                <div v-for="item in state.eventImg">
+                  <img class="image" :src="item?.file_path" alt="" />
                 </div>
               </template>
             </Carousel>
@@ -238,8 +308,20 @@ const fetchEventDetails = async () => {
                 class="toggleLang"
                 :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
               >
-                <div class="langItem langActive activeBtn">图片</div>
-                <div class="langItem activeBtn">视频</div>
+                <div
+                  class="langItem activeBtn"
+                  :class="{ langActive: state.quickMode == 1 }"
+                  @click="onChangeQMode(1)"
+                >
+                  图片
+                </div>
+                <div
+                  class="langItem activeBtn"
+                  :class="{ langActive: state.quickMode == 2 }"
+                  @click="onChangeQMode(2)"
+                >
+                  视频
+                </div>
               </div>
               <div class="share-btn">
                 <img
@@ -254,20 +336,29 @@ const fetchEventDetails = async () => {
         </div>
         <div class="left_bottom">
           <div>
-            <span class="left_bottom_title_status">报名中</span>
-            <span class="left_bottom_title_name">XXX学院-青春校园片展</span>
+            <span
+              class="left_bottom_title_status"
+              :class="{
+                status_not_started: state.eventInfo?.status_name === '未开始',
+                status_in_registration:
+                  state.eventInfo?.status_name === '报名中',
+                status_in_progress: state.eventInfo?.status_name === '进行中',
+              }"
+              >{{ state.eventInfo?.status_name }}</span
+            >
+            <span class="left_bottom_title_name">{{
+              state.eventInfo?.title
+            }}</span>
           </div>
           <div class="left_bottom_detail">
             <div class="left_bottom_detail_item">
               <span>活动地点：</span>
-              <span>图书馆-3F-302研究室</span>
+              <span>{{ state.eventInfo?.nameMerge }}</span>
             </div>
             <div class="left_bottom_detail_item">
-              <span>活动地点：</span>
+              <span>活动介绍：</span>
               <span>
-                这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍
-                这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍
-                这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍，这是一段活动介绍
+                {{ state.eventInfo?.content }}
               </span>
             </div>
           </div>
@@ -284,8 +375,8 @@ const fetchEventDetails = async () => {
                   :class="{ activeItem: item?.date == state.eventDateIndex }"
                   @click="onChangeDateAct(item)"
                 >
-                  <span>{{ moment(item?.data).format("MM-DD") }}</span>
-                  <span>{{ exchangeDateTime(item?.data, 31) }}</span>
+                  <span>{{ moment(item?.date).format("MM-DD") }}</span>
+                  <span>{{ exchangeDateTime(item?.date, 31) }}</span>
                   <div
                     v-if="item?.date == state.eventDateIndex"
                     class="check_icon"
@@ -330,7 +421,7 @@ const fetchEventDetails = async () => {
               type="primary"
               shape="round"
               style="width: 200px"
-              @click="onApplyResult"
+              @click="onApply"
               >我要报名</a-button
             >
           </div>
@@ -443,7 +534,7 @@ const fetchEventDetails = async () => {
             justify-content: space-between;
             align-items: center;
             .toggleLang {
-              width: 130px;
+              width: 140px;
               height: 28px;
               margin-bottom: 25px;
               padding: 4px;
@@ -498,9 +589,18 @@ const fetchEventDetails = async () => {
         .left_bottom_title_status {
           margin-right: 10px;
           padding: 3px 8px;
-          background: #1a49c0;
+
           font-size: 14px;
           color: #ffffff;
+        }
+        .status_not_started {
+          background: rgba(174, 174, 174, 1);
+        }
+        .status_in_registration {
+          background: rgba(86, 187, 70, 1);
+        }
+        .status_in_progress {
+          background: rgba(26, 73, 192, 1);
         }
         .left_bottom_title_name {
           font-size: 18px;
