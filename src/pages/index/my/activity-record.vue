@@ -1,7 +1,12 @@
 <script setup>
-import { ref, reactive, computed, watch,onMounted } from "vue";
+import { ref, reactive, computed, watch, onMounted } from "vue";
 import { useStore } from "vuex";
-import { getActivityRecordList } from "@/request/activity-record";
+import {
+  getActivityRecordList,
+  getActivityDetail,
+  saveComments
+} from "@/request/activity-record";
+import Carousel from "@/components/CarouselCom.vue";
 
 const store = useStore();
 const onCheckedForLocation = ref(true);
@@ -14,32 +19,10 @@ const state = reactive({
   data: [],
   isShowDrawer: false,
   selectedRecord: "",
+  selectedDetails: {},
+  isShowTextArea: false,
+  comments: "",
 });
-
-const onShowDrawer = (record) => {
-  state.isShowDrawer = true;
-  state.selectedRecord = record;
-};
-const onHideDrawer = () => {
-  state.isShowDrawer = false;
-  state.selectedRecord = "";
-};
-
-const images = [
-  "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-  "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-  "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-];
-const currentIndex = ref(0);
-// const currentImage = computed(() => images[currentIndex.value]);
-
-const nextImage = () => {
-  currentIndex.value = (currentIndex.value + 1) % images.length;
-};
-
-const prevImage = () => {
-  currentIndex.value = (currentIndex.value - 1 + images.length) % images.length;
-};
 
 const columns = [
   {
@@ -49,23 +32,23 @@ const columns = [
   },
   {
     title: "活动名称",
-    dataIndex: "name",
-    key: "name",
+    dataIndex: "title",
+    key: "title",
   },
   {
     title: "地点",
-    dataIndex: "location",
-    key: "location",
+    dataIndex: "nameMerge",
+    key: "nameMerge",
   },
   {
     title: "时间",
-    dataIndex: "time",
-    key: "time",
+    dataIndex: "show_date",
+    key: "show_date",
   },
   {
     title: "状态",
-    dataIndex: "status",
-    key: "status",
+    dataIndex: "status_name",
+    key: "status_name",
   },
   {
     title: "操作",
@@ -95,67 +78,19 @@ const columnsForDraft = [
   },
 ];
 
-const data = [
-  {
-    key: "1",
-    image:
-      "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-    name: "xxx学院-xxx活动",
-    location: "图书馆-2F-外文特藏阅览室",
-    time: "2024-06-01 ~ 2024-06-02",
-    status: "等待审核",
-    user: "VIP082 (202307082)",
-    reservationTime: "2023-11-28 17:42",
-    startTime: "2023-11-29 16:00",
-    endTime: "2023-11-29 18:00",
-    checkInTime: "2023-11-29 15:58",
-    time_last: "2023-11-28 17:42",
-    introduction: "活动介绍",
-  },
-  {
-    key: "2",
-    image:
-      "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-    name: "xxx学院-xxx活动",
-    location: "图书馆-2F-外文特藏阅览室",
-    time: "2024-06-01 ~ 2024-06-02",
-    status: "进行中",
-    user: "VIP082 (202307082)",
-    reservationTime: "2023-11-28 17:42",
-    time_last: "2023-11-28 17:42",
-    introduction: "活动介绍",
-  },
-  {
-    key: "3",
-    image:
-      "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-    name: "xxx学院-xxx活动",
-    location: "图书馆-2F-外文特藏阅览室",
-    time: "2024-06-01 ~ 2024-06-02",
-    status: "已结束",
-    user: "VIP082 (202307082)",
-    reservationTime: "2023-11-28 17:42",
-    time_last: "2023-11-28 17:42",
-    introduction: "活动介绍",
-  },
-  {
-    key: "4",
-    image:
-      "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-    name: "xxx学院-xxx活动",
-    location: "图书馆-2F-外文特藏阅览室",
-    time: "2024-06-01 ~ 2024-06-02",
-    status: "报名成功",
-    user: "VIP082 (202307082)",
-    reservationTime: "2023-11-28 17:42",
-    time_last: "2023-11-28 17:42",
-    introduction: "活动介绍",
-  },
-];
+const onShowDrawer = (record) => {
+  state.isShowDrawer = true;
+  state.selectedRecord = record;
+  fetchGetActivityDetail(record.id);
+};
+const onHideDrawer = () => {
+  state.isShowDrawer = false;
+  state.selectedRecord = "";
+};
 
 const statusClass = computed(() => {
-  switch (state.selectedRecord.status) {
-    case "进行中":
+  switch (state.selectedRecord.status_name) {
+    case "报名中":
       return "status-ongoing";
     case "已结束":
       return "status-ended";
@@ -176,7 +111,7 @@ onMounted(() => {
 });
 
 const fetch = async () => {
-  try { 
+  try {
     let params = {
       ilk: state.activeKey,
       page: state.currentPage,
@@ -192,6 +127,35 @@ const fetch = async () => {
   }
 };
 
+const fetchGetActivityDetail = async (id) => {
+  try {
+    let params = {
+      ilk: state.activeKey,
+      id,
+    };
+    const res = await getActivityDetail(params);
+    if (res?.code === 0) {
+      state.selectedDetails = res?.data;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+const fetchSaveComments = async () => {
+  try {
+    let params = {
+      id: state.selectedRecord.id,
+      comments: state.comments,
+    };
+    const res = await saveComments(params);
+    if (res?.code === 0) {
+      
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // tab 切换
 const onChangeTab = (key) => {
   state.activeKey = key;
@@ -200,6 +164,29 @@ const onChangeTab = (key) => {
   console.log(key);
 };
 
+const pagination = computed(() => ({
+  total: state.total,
+  current: state.currentPage,
+  showSizeChanger: false,
+}));
+
+const onChangePage = (pagination) => {
+  // pagination : {current: 2, pageSize: 10, total: 132, showSizeChanger: false}
+  let { current } = pagination;
+  state.currentPage = current;
+  fetch();
+};
+
+const onShowTextArea = () => {
+  state.isShowTextArea = true;
+};
+const onCancelComments = () => {
+  state.isShowTextArea = false;
+  state.comments = "";
+};
+const onSaveComments = () => {
+  fetchSaveComments();
+};
 </script>
 
 <template>
@@ -214,37 +201,42 @@ const onChangeTab = (key) => {
       <a-tab-pane key="3" tab="草稿箱"></a-tab-pane>
     </a-tabs>
 
-    <div class="table" v-if="state.activeKey !== 'draft'">
-      <a-table :columns="columns" :data-source="data">
+    <div class="table" v-if="state.activeKey !== '3'">
+      <a-table
+        :columns="columns"
+        :data-source="state.data"
+        :pagination="pagination"
+        @change="onChangePage"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'image'">
             <a-image
-              :src="record.image || 'default-poster-url.jpg'"
+              :src="record.poster[0].file_path"
               :width="100"
               :preview="false"
             />
           </template>
-          <template v-if="column.key === 'status'">
+          <template v-if="column.key === 'status_name'">
             <span>
               <a-tag
                 class="custom-tag"
                 :color="
-                  record.status === '报名成功'
+                  record.status_name === '报名成功'
                     ? 'success'
-                    : record.status === '进行中'
+                    : record.status_name === '报名中'
                     ? 'processing'
-                    : record.status === '等待审核'
+                    : record.status_name === '等待审核'
                     ? 'warning'
                     : 'default'
                 "
               >
-                {{ record.status }}
+                {{ record.status_name }}
               </a-tag>
             </span>
           </template>
 
           <template v-if="column.key === 'action'">
-            <template v-if="record.status === '等待审核'">
+            <template v-if="record.status_name === '等待审核'">
               <span>
                 <a class="red" type="primary" @click="onShowDrawer(record)"
                   >取消</a
@@ -263,8 +255,13 @@ const onChangeTab = (key) => {
       </a-table>
     </div>
 
-    <div class="table" v-if="state.activeKey === 'draft'">
-      <a-table :columns="columnsForDraft" :data-source="data">
+    <div class="table" v-if="state.activeKey === '3'">
+      <a-table
+        :columns="columnsForDraft"
+        :data-source="data"
+        :pagination="pagination"
+        @change="onChangePage"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'image'">
             <a-image
@@ -301,22 +298,19 @@ const onChangeTab = (key) => {
         <div
           class="content-top"
           v-if="
-            (state.activeKey === 'apply' &&
-              state.selectedRecord.status !== '等待审核') ||
-            state.activeKey === 'register'
+            (state.activeKey === '1' &&
+              state.selectedRecord.status_name !== '等待审核') ||
+            state.activeKey === '2'
           "
         >
           <Carousel>
             <template v-slot:content>
-              <div v-for="i in 3">
-                <img
-                  class="image"
-                  src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-                  alt=""
-                />
+              <div v-for="item in state.selectedRecord.poster">
+                <img class="image" :src="item?.file_path" alt="" />
               </div>
             </template>
           </Carousel>
+
           <div class="controls">
             <div
               class="toggleLang"
@@ -338,20 +332,20 @@ const onChangeTab = (key) => {
 
         <div
           v-if="
-            state.activeKey === 'apply' &&
-            state.selectedRecord.status !== '等待审核'
+            state.activeKey === '1' &&
+            state.selectedRecord.status_name !== '等待审核'
           "
         >
           <div class="content-details">
             <div class="info-item status">
               <span class="label">活动状态：</span>
               <span :class="statusClass">{{
-                state.selectedRecord.status
+                state.selectedDetails.status_name
               }}</span>
             </div>
             <div class="info-item">
               <span class="label">活动名称：</span>
-              <span class="value">XXX学院-校园辩论赛决赛</span>
+              <span class="value">{{ state.selectedDetails.title }}</span>
             </div>
             <div class="info-item">
               <span class="label">活动日期：</span>
@@ -393,17 +387,17 @@ const onChangeTab = (key) => {
             </div>
           </div>
         </div>
-        <div v-if="state.activeKey === 'register'">
+        <div v-if="state.activeKey === '2'">
           <div class="content-details">
             <div class="info-item status">
               <span class="label">活动状态：</span>
               <span :class="statusClass">{{
-                state.selectedRecord.status
+                state.selectedDetails.status_name
               }}</span>
             </div>
             <div class="info-item">
               <span class="label">活动名称：</span>
-              <span class="value">XXX学院-校园辩论赛决赛</span>
+              <span class="value">{{ state.selectedDetails.title }}</span>
             </div>
             <div class="schedule-row">
               <span class="label">活动日期：</span>
@@ -430,22 +424,49 @@ const onChangeTab = (key) => {
               </div>
             </div>
             <div class="info-item">
-              <span class="label">可报名人数：</span>
-              <span class="value">30</span>
+              <span class="label">报名人数：</span>
+              <span class="value">{{ state.selectedDetails.max }}</span>
             </div>
             <div class="info-item">
               <span class="label">活动地点：</span>
-              <span class="value">嘉德馆-5F-501大型空间</span>
+              <span class="value">{{ state.selectedDetails.nameMerge }}</span>
             </div>
             <div class="info_item_description">
               <span class="label_description">活动介绍：</span>
               <div class="value-wrapper">
                 <p class="value">
-                  这是一段活动介绍，这是一段活动介绍这是一段活动介绍这是一段活动介绍这是一段活动介绍，这是一段活动介绍。
+                  {{ state.selectedDetails.content }}
                 </p>
               </div>
             </div>
-            <div v-if="state.selectedRecord.status === '报名成功'">
+            <div :class="{ 'info_item_comments' : state.isShowTextArea,'info-item':!state.isShowTextArea}">
+              <span class="label">活动评价：</span>
+              <img
+                v-if="!state.isShowTextArea"
+                src="@/assets/my/activity-record/comments_edit.svg"
+                alt=""
+                @click="onShowTextArea"
+              />
+              <div v-if="state.isShowTextArea" class="value-wrapper">
+                <a-textarea
+                  v-model:value="state.comments"
+                  :allowClear="true"
+                  :autosize="{ minRows: 1, maxRows: 5 }"
+                />
+                <img
+                  style="margin-right: 10px; margin-left: 10px"
+                  src="@/assets/my/activity-record/comments_cancel.svg"
+                  alt=""
+                  @click="onCancelComments"
+                />
+                <img
+                  src="@/assets/my/activity-record/comments_ok.svg"
+                  alt=""
+                  @click="onSaveComments"
+                />
+              </div>
+            </div>
+            <div v-if="state.selectedRecord.status_name === '报名成功'">
               <a-button
                 type="primary"
                 shape="round"
@@ -624,9 +645,10 @@ const onChangeTab = (key) => {
   }
 
   .label {
+    flex-shrink: 0;
+    width: 80px;
     font-weight: bold;
-    color: #333;
-    margin-right: 10px;
+    color: rgba(97, 97, 97, 1);
   }
 
   .info_item_description {
@@ -637,21 +659,27 @@ const onChangeTab = (key) => {
   .label_description {
     flex-shrink: 0;
     font-weight: bold;
-    color: #333;
+    color: rgba(97, 97, 97, 1);
 
     width: 70px; /* 调整标签的宽度 */
   }
 
   .value-wrapper {
+    display: flex;
     flex: 1;
   }
 
   .value {
-    color: #666;
+    color: rgba(32, 32, 32, 1);
     margin: 0;
     white-space: pre-wrap;
     word-wrap: break-word;
     line-height: 1.5;
+  }
+  .info_item_comments {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
   }
 
   .highlight {
@@ -690,13 +718,6 @@ const onChangeTab = (key) => {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
-  }
-
-  .label {
-    flex-shrink: 0;
-    width: 80px;
-    font-weight: bold;
-    color: #333;
   }
 
   .date-options,
