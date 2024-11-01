@@ -4,7 +4,7 @@ import { useStore } from "vuex";
 import {
   getActivityRecordList,
   getActivityDetail,
-  saveComments
+  saveComments,
 } from "@/request/activity-record";
 import Carousel from "@/components/CarouselCom.vue";
 
@@ -20,6 +20,9 @@ const state = reactive({
   isShowDrawer: false,
   selectedRecord: "",
   selectedDetails: {},
+  selectedDate: "",
+  selectedTimeList: [],
+  appointmentTime: "",
   isShowTextArea: false,
   comments: "",
 });
@@ -136,6 +139,7 @@ const fetchGetActivityDetail = async (id) => {
     const res = await getActivityDetail(params);
     if (res?.code === 0) {
       state.selectedDetails = res?.data;
+      onDealWithDate();
     }
   } catch (error) {
     console.log(error);
@@ -149,7 +153,6 @@ const fetchSaveComments = async () => {
     };
     const res = await saveComments(params);
     if (res?.code === 0) {
-      
     }
   } catch (error) {
     console.log(error);
@@ -186,6 +189,39 @@ const onCancelComments = () => {
 };
 const onSaveComments = () => {
   fetchSaveComments();
+};
+
+const onDealWithDate = () => {
+  state.selectedDetails.time.forEach((dateItem) => {
+    // 检查当前日期的 time 数组
+    const hasSubscribed = dateItem.time.some((timeItem) => {
+      let isSelected = false;
+      if (timeItem.is_subscribe === 1) {
+        isSelected = true;
+        state.appointmentTime = timeItem.id;
+      }
+      return isSelected;
+    });
+
+    // 根据是否有 is_subscribe = 1 来设置 isSelected
+    dateItem.isAppointment = hasSubscribed;
+    if (hasSubscribed && state.selectedDate === "") {
+      state.selectedDate = dateItem.date;
+    }
+
+    if (dateItem.date === state.selectedDate) {
+      state.selectedTimeList = dateItem.time;
+    }
+  });
+
+  // console.log(state.selectedDate);
+  // console.log(state.appointmentTime);
+  // console.log(state.selectedDetails.time);
+};
+
+const onSelectDate = (item) => {
+  state.selectedDate = item.date;
+  state.selectedTimeList = item.time;
 };
 </script>
 
@@ -403,11 +439,18 @@ const onSaveComments = () => {
               <span class="label">活动日期：</span>
               <div class="date-options">
                 <div
-                  v-for="(date, index) in dates"
-                  :key="date"
-                  :class="['date-option', { selected: index === 0 }]"
+                  v-for="(item, index) in state.selectedDetails.time"
+                  :key="item.date"
+                  :class="[
+                    'date-option',
+                    { selected: item.date === state.selectedDate },
+                  ]"
+                  @click="onSelectDate(item)"
                 >
-                  {{ date }}
+                  <div class="leftBadge basicsBadge">
+                    {{ item.isAppointment ? "已预约" : "未预约" }}
+                  </div>
+                  {{ item.date }}
                 </div>
               </div>
             </div>
@@ -415,11 +458,17 @@ const onSaveComments = () => {
               <span class="label">活动时间：</span>
               <div class="time-options">
                 <div
-                  v-for="(time, index) in times"
-                  :key="time"
-                  :class="['time-option', { selected: index === 0 }]"
+                  v-for="(item, index) in state.selectedTimeList"
+                  :key="item.id"
+                  :class="[
+                    'time-option',
+                    { selected: item.is_subscribe === 1 },
+                  ]"
                 >
-                  {{ time }}
+                  {{ item.start_time }} ~ {{ item.end_time }}
+                  <div class="leftBadge basicsBadge">
+                    {{ item.is_subscribe === 1 ? "已预约" : "未预约" }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -439,7 +488,12 @@ const onSaveComments = () => {
                 </p>
               </div>
             </div>
-            <div :class="{ 'info_item_comments' : state.isShowTextArea,'info-item':!state.isShowTextArea}">
+            <div
+              :class="{
+                info_item_comments: state.isShowTextArea,
+                'info-item': !state.isShowTextArea,
+              }"
+            >
               <span class="label">活动评价：</span>
               <img
                 v-if="!state.isShowTextArea"
@@ -628,7 +682,7 @@ const onSaveComments = () => {
     color: #1890ff;
   }
   .status-ended {
-    color: #d9d9d9;
+    color: rgba(32, 32, 32, 1);
   }
   .status-pending {
     color: #faad14;
@@ -724,6 +778,7 @@ const onSaveComments = () => {
   .time-options {
     display: flex;
     gap: 10px;
+    
   }
 
   .date-option,
@@ -733,6 +788,19 @@ const onSaveComments = () => {
     background-color: #f5f5f5;
     color: #333;
     border-radius: 4px;
+    position: relative;
+  }
+  .leftBadge {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  .basicsBadge {
+    padding: 3px 5px;
+    background: #1a49c0;
+    border-radius: 2px 0px 2px 0px;
+    font-size: 7px;
+    color: #ffffff;
   }
 
   .date-option.selected,
