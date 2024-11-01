@@ -362,20 +362,7 @@ const onViewMap = () => {
   <div class="seatAppointment" ref="containerRef">
     <a-affix :offset-top="0" :target="() => containerRef">
       <div class="header">
-        <div class="leftTit">
-          <a-breadcrumb>
-            <template #separator
-              ><img src="@/assets/seat/titRightIcon.svg" alt=""
-            /></template>
-            <a-breadcrumb-item @click="goToLink('/seat')"
-              >选择馆舍</a-breadcrumb-item
-            >
-            <a-breadcrumb-item @click="goToLink(-1)"
-              >选择空间</a-breadcrumb-item
-            >
-            <a-breadcrumb-item>选择座位</a-breadcrumb-item>
-          </a-breadcrumb>
-        </div>
+        <div class="leftTit"></div>
         <div class="rightAction">
           <div class="quickBtns">
             <div
@@ -399,6 +386,44 @@ const onViewMap = () => {
       </div>
     </a-affix>
     <div class="showCon">
+      <div class="rightBox">
+        <template v-if="state.spaceInfo?.name">
+          <SeatAreaSwipe
+            v-if="state.spaceInfo?.brother_area?.length"
+            :data="state.spaceInfo"
+            :defaultId="state.initQuery.spaceId"
+            @viewInfo="fetchLibraryInfo"
+            @changeSlide="onChangeSlide"
+            @viewFloor="onViewMap"
+          />
+
+          <div class="reservation">
+            <div class="selectDate">
+              <span>今天</span>
+              <span>{{ ShowSelectedDateTime() }} </span>
+              <img
+                style="cursor: pointer"
+                @click="state.spaceFilterShow = true"
+                src="@/assets/seat/selectDate.svg"
+                alt=""
+              />
+            </div>
+            <p class="selectSeat">
+              已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
+            </p>
+          </div>
+          <a-button
+            class="reserve-btn"
+            shape="round"
+            type="primary"
+            block
+            @click="state.spaceRuleShow = true"
+            :disabled="!state.spaceSelected?.id"
+            >立即预约</a-button
+          >
+        </template>
+        <a-skeleton v-else :paragraph="{ rows: 4 }" active />
+      </div>
       <div class="leftBox">
         <template v-if="state.spaceList?.length">
           <div v-if="state.quickMode == '1'" class="librarySlt">
@@ -442,44 +467,7 @@ const onViewMap = () => {
         <a-skeleton v-else :paragraph="{ rows: 12 }" active />
       </div>
 
-      <div class="rightBox">
-        <template v-if="state.spaceInfo?.name">
-          <SeatAreaSwipe
-            v-if="state.spaceInfo?.brother_area?.length"
-            :data="state.spaceInfo"
-            :defaultId="state.initQuery.spaceId"
-            @viewInfo="fetchLibraryInfo"
-            @changeSlide="onChangeSlide"
-            @viewFloor="onViewMap"
-          />
-
-          <div class="reservation">
-            <div class="selectDate">
-              <span>今天</span>
-              <span>{{ ShowSelectedDateTime() }} </span>
-              <img
-                style="cursor: pointer"
-                @click="state.spaceFilterShow = true"
-                src="@/assets/seat/selectDate.svg"
-                alt=""
-              />
-            </div>
-            <p class="selectSeat">
-              已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
-            </p>
-          </div>
-          <a-button
-            class="reserve-btn"
-            shape="round"
-            type="primary"
-            block
-            @click="state.spaceRuleShow = true"
-            :disabled="!state.spaceSelected?.id"
-            >立即预约</a-button
-          >
-        </template>
-        <a-skeleton v-else :paragraph="{ rows: 4 }" active />
-      </div>
+ 
     </div>
 
     <a-modal
@@ -637,17 +625,15 @@ const onViewMap = () => {
   .showCon {
     height: calc(100% - 90px);
     display: flex;
-    padding: 12px 30px;
+    flex-direction: column;
+    padding: 12px;
     .leftBox {
       padding: 30px;
-      flex: 1;
       background: #f7f9fb;
       border-radius: 10px;
       overflow-y: auto;
     }
     .rightBox {
-      margin-left: 20px;
-      width: 320px;
 
       .reservation {
         background: #ffffff;

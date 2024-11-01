@@ -210,6 +210,8 @@ const filterFloorIds = (ids) => {
 };
 
 const handleFilter = () => {
+  state.quickDate = state.filterSearch?.date;
+
   fetchLibrary();
   state.spaceFilterShow = false;
 };

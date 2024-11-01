@@ -5,6 +5,10 @@ import { SearchOutlined } from "@ant-design/icons-vue";
 
 const store = useStore();
 const props = defineProps({
+  showSearch: {
+    type: Boolean,
+    default: false,
+  },
   data: {
     type: Object,
   },
@@ -20,7 +24,7 @@ const state = reactive({
     library: [],
     floor: [],
     seatType: [],
-    date: '',
+    date: "",
     boutique: [],
   },
 });
@@ -65,6 +69,7 @@ const filterFloor = () => {
 <template>
   <div class="filterCon">
     <a-input
+      v-if="props?.showSearch"
       v-model:value="state.filterRows.search"
       placeholder="请输入筛选内容"
       style="margin-bottom: 24px"
@@ -148,6 +153,7 @@ const filterFloor = () => {
     background: rgba(97, 97, 97, 0.05);
     border-radius: 0px 0px 0px 0px;
     padding: 2px 10px;
+    color: #616161;
   }
   .fiterItem {
     user-select: none;

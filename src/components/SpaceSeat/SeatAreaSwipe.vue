@@ -1,9 +1,11 @@
 <script setup>
-import { reactive, onMounted, ref } from "vue";
+import { reactive, onMounted, ref, computed } from "vue";
 import { useStore } from "vuex";
 import Carousel from "@/components/CarouselCom.vue";
 const store = useStore();
 const emits = defineEmits(["viewInfo", "changeSlide", "viewFloor"]);
+const systemMode = computed(() => store.state.systemMode);
+
 const props = defineProps({
   data: {
     type: Object,
@@ -35,10 +37,15 @@ const onChange = (v) => {
 };
 </script>
 <template>
-  <div class="container">
+  <div class="container" :class="{ moContainer: systemMode != 'pc' }">
     <Carousel ref="carouselRef" :afterChange="onChange">
       <template v-slot:content>
-        <div v-for="item in state.list" :key="item?.id" class="card">
+        <div
+          v-for="item in state.list"
+          :key="item?.id"
+          class="card"
+          :class="{ moCard: systemMode != 'pc' }"
+        >
           <div class="header">
             <div class="tag">{{ item?.premise_name }}</div>
             <img :src="item?.firstImg" alt="Reading Room" class="image" />
@@ -79,6 +86,15 @@ const onChange = (v) => {
   border: 1px solid #e7e7e7;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
 }
+.moContainer {
+  padding: 0;
+  :deep(.slick-slide) {
+    padding-bottom: 0;
+  }
+  :deep(.slick-arrow) {
+    display: none !important;
+  }
+}
 .card {
   background-color: #fff;
   border-radius: 10px;
@@ -94,10 +110,10 @@ const onChange = (v) => {
   top: 0;
   left: 0;
   background-color: #48c774;
-  color: white;
-  padding: 5px 10px;
+  padding: 1px 6px;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: 12px;
+  color: #ffffff;
 }
 
 .image {
@@ -105,7 +121,29 @@ const onChange = (v) => {
   height: auto;
   border-radius: 6px;
 }
-
+.moCard {
+  display: flex !important;
+  align-items: center;
+  padding: 14px;
+  font-size: 12px;
+  .header {
+    // padding-left: 4px;
+    min-width: 120px;
+    width: 30%;
+    height: 100px;
+    img {
+      display: block;
+      height: 100px;
+    }
+  }
+  .card-body {
+    padding-left: 14px;
+    flex: 1;
+    .card-title h3 {
+      font-size: 15px;
+    }
+  }
+}
 .card-body {
   .card-title {
     margin: 14px 0 12px 0;

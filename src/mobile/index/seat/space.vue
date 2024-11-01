@@ -17,7 +17,7 @@ import moment from "moment";
 import { SearchOutlined } from "@ant-design/icons-vue";
 
 import { exchangeDateTime } from "@/utils";
-import { getSpacePick, getSpaceDetail, getSpaceIndex } from "@/request/seat";
+import { getSpacePick, getSpaceIndex } from "@/request/seat";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceFilter from "@/components/SpaceSeat/SpaceFilterCom.vue";
 import SpaceMap from "@/components/SpaceSeat/SpaceMap.vue";
@@ -128,12 +128,25 @@ const initQuickDateList = (list) => {
   if (!state?.quickDate) state.quickDate = state.quickDateList[0]?.value;
 };
 
-const handleShowInfo = (item) => {
-  state.libraryInfo = {
-    id: item.id,
-    type: "library",
-  };
-  fetchInfo(item.id);
+const showQuickDate = () => {
+  let date = state.quickDate;
+  let findCurDate = state?.quickDateList?.find((e) => e?.value == date);
+  if (date && findCurDate?.value) {
+    return `${date} ${findCurDate?.label}`;
+  }
+  return "-";
+};
+
+const onQuickDateAct = (type) => {
+  let date = state.quickDate;
+  let findIndex = state?.quickDateList?.findIndex((e) => e?.value == date);
+  if (type == "prev") {
+    state.filterSearch.date = state?.quickDateList[findIndex - 1]?.value;
+  } else if (type == "next") {
+    state.filterSearch.date = state?.quickDateList[findIndex + 1]?.value;
+  }
+  state.quickDate = state.filterSearch.date;
+  fetchLibrary();
 };
 
 const onChangeAct = (i) => {
@@ -178,20 +191,6 @@ const fetchLibrary = async () => {
   }
 };
 
-const fetchInfo = async (id) => {
-  try {
-    let params = {
-      id,
-    };
-    let res = await getSpaceDetail(params);
-    if (res.code != 0) return;
-    state.spaceInfo = res?.data || {};
-    state.libraryInfoShow = true;
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 const goToLink = (link) => {
   router.replace(link);
 };
@@ -220,14 +219,9 @@ const filterFloorIds = (ids) => {
 };
 
 const handleFilter = () => {
+  state.quickDate = state.filterSearch?.date;
   fetchLibrary();
   state.spaceFilterShow = false;
-};
-
-const onChangeQDate = (row) => {
-  state.quickDate = row?.value;
-  state.filterSearch.date = row?.value;
-  fetchLibrary();
 };
 
 const getFloorArea = () => {
@@ -245,7 +239,7 @@ const getFloorArea = () => {
 
 const handleAppt = (row) => {
   router.push({
-    path: "/seat/appointment",
+    path: "/mo/seat/appointment",
     query: {
       id: row?.id,
       date: state.filterSearch.date,
@@ -256,31 +250,44 @@ const handleAppt = (row) => {
 </script>
 <template>
   <div class="seatLibrary" ref="containerRef">
-    <div class="header">
-      <div class="leftTit"></div>
-      <div class="rightAction">
-        <div class="quickDate">
-          <div class="quickBtns" style="margin-right: 40px">
-            <div
-              v-for="item in state.quickDateList"
-              :key="item.label"
-              class="item activeBtn"
-              :class="{ itemActive: item?.value == state.quickDate }"
-              @click="onChangeQDate(item)"
-            >
-              {{ exchangeDateTime(item?.value, 40) }}
-              {{ item?.label }}
-            </div>
+    <a-affix offset-top="0" :target="() => containerRef">
+      <div class="header">
+        <div class="leftTit"></div>
+        <div v-if="state.filterOptions?.date?.length" class="rightAction">
+          <div class="quickDate">
+            <img
+              v-if="
+                state?.quickDateList?.findIndex(
+                  (e) => e?.value == state.quickDate
+                ) != 0
+              "
+              class="activeBtn"
+              src="@/assets/seat/quickLeftIcon.svg"
+              @click="onQuickDateAct('prev')"
+              alt=""
+            />
+            <span>{{ showQuickDate() }}</span>
+            <img
+              v-if="
+                state?.quickDateList?.findIndex(
+                  (e) => e?.value == state.quickDate
+                ) !=
+                state?.quickDateList?.length - 1
+              "
+              @click="onQuickDateAct('next')"
+              class="activeBtn"
+              src="@/assets/seat/quickRightIcon.svg"
+              alt=""
+            />
+          </div>
+
+          <div class="filters activeBtn" @click="state.spaceFilterShow = true">
+            <img src="@/assets/seat/filtersIcon.svg" alt="" />
+            筛选
           </div>
         </div>
-
-        <div class="filters activeBtn" @click="state.spaceFilterShow = true">
-          <img src="@/assets/seat/filtersIcon.svg" alt="" />
-          筛选
-        </div>
       </div>
-    </div>
-
+    </a-affix>
     <div v-if="state.quickMode == '1'" class="librarySlt">
       <a-row v-if="state.spaceList?.length" :gutter="[0, 12]">
         <template v-for="item in state.spaceList" :key="item?.id">
@@ -365,39 +372,45 @@ const handleAppt = (row) => {
       <LibraryInfo v-if="state.spaceInfo?.id" :data="state.spaceInfo" />
     </a-modal>
 
-    <a-modal
-      width="50%"
-      v-model:open="state.spaceFilterShow"
-      title="空间筛选"
-      @ok="handleFilter"
-      destroyOnClose
-      okText="确认"
-      cancelText="取消"
-      :cancelButtonProps="{
-        size: 'middle',
-        style: {
-          color: '#8C8F9E',
-          background: '#F3F4F7',
-          borderColor: '#CECFD5',
-        },
-      }"
-      :okButtonProps="{ size: 'middle' }"
-      centered
+    <a-drawer
+      rootClassName="filterDrawer"
+      width="100%"
+      height="70%"
+      placement="bottom"
+      :open="state.spaceFilterShow"
+      @close="state.spaceFilterShow = false"
+      :closable="false"
     >
-      <SpaceFilter
-        v-if="state.filterOptions?.premises?.length"
-        :data="state.filterOptions"
-        :initSearch="state.filterSearch"
-      />
-    </a-modal>
+      <div class="drawerCon">
+        <SpaceFilter
+          v-if="state.filterOptions?.premises?.length"
+          :data="state.filterOptions"
+          :initSearch="state.filterSearch"
+        />
+        <div class="bottomAct">
+          <van-button
+            round
+            block
+            type="default"
+            @click="state.libraryInfoShow = false"
+          >
+            取消
+          </van-button>
+          <van-button round block type="primary" @click="handleFilter"
+            >确认</van-button
+          >
+        </div>
+      </div>
+    </a-drawer>
   </div>
 </template>
 <style lang="less" scoped>
 .seatLibrary {
   height: 100%;
   overflow: auto;
+  background: #fafafa;
   .header {
-    padding: 20px 30px;
+    padding: 20px 12px;
     color: #202020;
     display: flex;
     align-items: center;
@@ -413,11 +426,20 @@ const handleAppt = (row) => {
     .rightAction {
       flex: 1;
       display: flex;
-      justify-content: flex-end;
+      align-items: center;
+      justify-content: space-between;
       .quickDate {
-        flex: 1;
+        border-radius: 30px;
+        border: 1px solid #eaeaea;
+        padding: 12px 14px;
         display: flex;
+        align-items: center;
         justify-content: center;
+        font-size: 14px;
+        span {
+          padding: 0 24px;
+          flex: 1;
+        }
       }
       .filters {
         margin-left: 20px;
@@ -437,13 +459,15 @@ const handleAppt = (row) => {
   }
   .librarySlt {
     width: 100%;
-    margin: 38px 0 50px 0;
+    margin: 12px 0 50px 0;
     padding: 0 12px;
     .libraryItem {
       padding: 14px;
       position: relative;
       box-sizing: initial;
       display: flex;
+      box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
+      border: none;
       .cardItemImgCon {
         width: 120px;
         height: 90px;
@@ -622,6 +646,31 @@ const handleAppt = (row) => {
     display: inline-flex;
     column-gap: 36px;
     row-gap: 20px;
+  }
+}
+
+.filterDrawer {
+  padding: 12px;
+}
+
+.drawerCon {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .filterCon {
+    padding: 12px;
+    flex: 1;
+  }
+  .bottomAct {
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    & button {
+      &:nth-child(1) {
+        margin-right: 12px;
+      }
+    }
   }
 }
 </style>

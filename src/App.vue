@@ -18,10 +18,20 @@ const route = useRoute();
 const router = useRouter();
 const isPageLoading = computed(() => store.state.pageLoading);
 const pageLoadingText = computed(() => store.state.pageLoadingText);
+const hasClass = (className) => {
+  return document.body.classList.contains(className);
+};
+const addClassToBody = (className) => {
+  document.body.classList.add(className);
+};
 
 watch(
   () => store.state.systemMode,
   (mode) => {
+    // 使用
+    if (!hasClass("mobile") && mode == "mobile") {
+      addClassToBody(mode);
+    }
     if (mode == "pc" && route.path?.includes("/mo")) {
       router.replace("/");
     } else if (mode != "pc" && !route.path?.includes("/mo")) {
