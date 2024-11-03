@@ -122,7 +122,6 @@ const onReset = (v) => {
 const onResizing = (v) => {
   state.resizing = true;
 };
-
 </script>
 <template>
   <div class="spaceMap" v-onReset:150="onReset" v-resizing="onResizing">
@@ -151,6 +150,7 @@ const onResizing = (v) => {
           noSelectV2: seat.status != 1 || seat.in_label != 1 || props?.review,
         }"
         @click="selectSeat(seat, $event)"
+        @touchend="selectSeat(seat, $event)"
       ></div>
     </div>
   </div>

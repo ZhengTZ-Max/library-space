@@ -9,6 +9,7 @@ import { t } from "./utils";
 
 import "ant-design-vue/dist/reset.css";
 import "./style.css";
+import "./common.less";
 
 // --- Vant组件
 import {
@@ -22,12 +23,14 @@ import {
   Icon,
   Lazyload,
   Image,
+  TimePicker 
 } from "vant";
 import "vant/lib/index.css";
 import "vant/lib/icon/index.css";
 const app = createApp(App);
 directives(app);
 
+app.use(TimePicker);
 app.use(Image);
 app.use(Lazyload);
 app.use(Icon);

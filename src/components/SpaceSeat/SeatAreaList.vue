@@ -1,6 +1,7 @@
 <script setup>
-import { reactive, onMounted, watch, ref } from "vue";
+import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useStore } from "vuex";
+const systemMode = computed(() => store.state.systemMode);
 
 const store = useStore();
 const emit = defineEmits(["selected"]);
@@ -33,9 +34,9 @@ const selectSeat = (seat) => {
 };
 </script>
 <template>
-  <div class="SeatArea">
+  <div class="SeatArea" :class="{ SeatAreaMo: systemMode != 'pc' }">
     <div class="seatList">
-      <a-row :gutter="[26, 26]" justify="start">
+      <a-row :gutter="systemMode != 'pc' ? [14, 14] : [26, 26]" justify="start">
         <a-col v-for="item in state.list" :key="item?.id">
           <div
             class="seatItem activeBtn"
@@ -104,6 +105,17 @@ const selectSeat = (seat) => {
         background: rgba(97, 97, 97, 0.05);
         border-radius: 6px 0px 6px 0px;
       }
+    }
+  }
+  &.SeatAreaMo {
+    .ant-col {
+      min-width: 33.3%;
+    }
+    .seatItem {
+      min-width: 33.3%;
+      padding: 10px 12px;
+      font-size: 14px;
+      text-align: center;
     }
   }
 }

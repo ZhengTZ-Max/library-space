@@ -1,7 +1,8 @@
 <script setup>
-import { reactive, onMounted, watch } from "vue";
+import { reactive, onMounted, watch, computed } from "vue";
 import { useStore } from "vuex";
 const store = useStore();
+const systemMode = computed(() => store.state.systemMode);
 
 const props = defineProps(["list", "selected"]);
 const emits = defineEmits(["handleSlt"]);
@@ -62,8 +63,13 @@ const handleClickChange = (v) => {
         </a-checkbox-group>
       </div>
     </template>
-    <div class="filters activeBtn">
-      <img src="@/assets/seat/filtersIcon.svg" alt="" />
+    <div :class="{ filters: systemMode == 'pc' }" class="activeBtn">
+      <img
+        v-if="systemMode == 'pc'"
+        src="@/assets/seat/filtersIcon.svg"
+        alt=""
+      />
+      <img v-else src="@/assets/home/filterOutline.svg" alt="" />
     </div>
   </a-popover>
 </template>

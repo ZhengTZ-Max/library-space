@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, watch, ref } from "vue";
+import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
@@ -28,6 +28,8 @@ const router = useRouter();
 const route = useRoute();
 const containerRef = ref();
 const captureArea = ref();
+const systemMode = computed(() => store.state.systemMode);
+
 const state = reactive({
   isShowFloorPlane: false,
   libraryInfoShow: false,
@@ -364,7 +366,7 @@ const onViewMap = () => {
       <div class="header">
         <div class="leftTit"></div>
         <div class="rightAction">
-          <div class="quickBtns">
+          <div class="quickMode">
             <div
               v-for="item in state.quickModeList"
               :key="item.label"
@@ -396,35 +398,13 @@ const onViewMap = () => {
             @changeSlide="onChangeSlide"
             @viewFloor="onViewMap"
           />
-
-          <div class="reservation">
-            <div class="selectDate">
-              <span>今天</span>
-              <span>{{ ShowSelectedDateTime() }} </span>
-              <img
-                style="cursor: pointer"
-                @click="state.spaceFilterShow = true"
-                src="@/assets/seat/selectDate.svg"
-                alt=""
-              />
-            </div>
-            <p class="selectSeat">
-              已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
-            </p>
-          </div>
-          <a-button
-            class="reserve-btn"
-            shape="round"
-            type="primary"
-            block
-            @click="state.spaceRuleShow = true"
-            :disabled="!state.spaceSelected?.id"
-            >立即预约</a-button
-          >
         </template>
         <a-skeleton v-else :paragraph="{ rows: 4 }" active />
       </div>
-      <div class="leftBox">
+      <div
+        class="leftBox"
+        :class="{ leftBoxMo: systemMode != 'pc' && state.quickMode == '0' }"
+      >
         <template v-if="state.spaceList?.length">
           <div v-if="state.quickMode == '1'" class="librarySlt">
             <SeatAreaList
@@ -466,63 +446,99 @@ const onViewMap = () => {
         </template>
         <a-skeleton v-else :paragraph="{ rows: 12 }" active />
       </div>
-
- 
+      <div class="reservation">
+        <div class="selectDate">
+          <span>今天</span>
+          <span>{{ ShowSelectedDateTime() }} </span>
+          <img
+            style="cursor: pointer"
+            @click="state.spaceFilterShow = true"
+            src="@/assets/seat/selectDate.svg"
+            alt=""
+          />
+        </div>
+        <p class="selectSeat">
+          已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
+        </p>
+      </div>
     </div>
 
-    <a-modal
-      width="40%"
-      v-model:open="state.libraryInfoShow"
-      title="空间详情"
-      @ok="handleAppt"
-      destroyOnClose
-      cancelText="关闭"
-      :cancelButtonProps="{
-        size: 'middle',
-        style: {
-          color: '#8C8F9E',
-          background: '#F3F4F7',
-          borderColor: '#CECFD5',
-        },
-      }"
-      :okButtonProps="{ size: 'middle', style: { display: 'none' } }"
-      centered
-    >
-      <LibraryInfo v-if="state.libraryInfo?.id" :data="state.libraryInfo" />
-    </a-modal>
+    <!-- <a-button
+        class="reserve-btn"
+        shape="round"
+        type="primary"
+        block
+        @click="state.spaceRuleShow = true"
+        :disabled="!state.spaceSelected?.id"
+        >立即预约</a-button
+      > -->
+    <div class="bottomAction">
+      <van-button round block type="default" @click="router.go(-1)">
+        <img src="@/assets/seat/moBackBtn.svg" alt="" />
+        返回
+      </van-button>
+      <van-button
+        round
+        block
+        type="primary"
+        @click="state.spaceRuleShow = true"
+        :disabled="!state.spaceSelected?.id"
+        >预约</van-button
+      >
+    </div>
 
-    <a-modal
-      width="35%"
-      v-model:open="state.spaceFilterShow"
-      title="选择时间"
-      @ok="handleFilter"
-      @cancel="handleFilter('cancel')"
-      destroyOnClose
-      okText="确认"
-      cancelText="取消"
-      :cancelButtonProps="{
-        size: 'middle',
-        style: {
-          color: '#8C8F9E',
-          background: '#F3F4F7',
-          borderColor: '#CECFD5',
-        },
-      }"
-      :okButtonProps="{
-        size: 'middle',
-        style: {
-          background: (!state?.filterDate?.time && 'rgba(26,73,192,0.3)') || '',
-          pointerEvents: (!state?.filterDate?.time && 'none') || '',
-        },
-      }"
-      centered
+    <van-popup
+      v-model:show="state.libraryInfoShow"
+      position="bottom"
+      :style="{ height: '100%' }"
     >
-      <SpaceFilterDate
-        v-if="state.spaceInfo?.date?.list?.length"
-        :date="state.spaceInfo?.date"
-        :initSearch="state.filterDate"
-      />
-    </a-modal>
+      <div class="libraryPop">
+        <LibraryInfo v-if="state.libraryInfo?.id" :data="state.libraryInfo" />
+        <div class="bottomAction">
+          <van-button
+            round
+            block
+            type="default"
+            @click="state.libraryInfoShow = false"
+          >
+            <img src="@/assets/seat/moBackBtn.svg" alt="" />
+            返回
+          </van-button>
+        </div>
+      </div>
+    </van-popup>
+
+    <van-popup
+      v-model:show="state.spaceFilterShow"
+      position="bottom"
+      :style="{ height: '60%' }"
+    >
+      <div class="spacefilterDateCon">
+        <SpaceFilterDate
+          v-if="state.spaceInfo?.date?.list?.length"
+          :date="state.spaceInfo?.date"
+          :initSearch="state.filterDate"
+        />
+        <div class="bottomAction">
+          <van-button
+            round
+            block
+            type="default"
+            @click="handleFilter('cancel')"
+          >
+            取消
+          </van-button>
+          <van-button
+            round
+            block
+            type="primary"
+            @click="handleFilter"
+            :disabled="!state?.filterDate?.time"
+            >确认</van-button
+          >
+        </div>
+      </div>
+    </van-popup>
 
     <SpaceRuleConfirm
       v-if="state.spaceRuleShow"
@@ -588,8 +604,9 @@ const onViewMap = () => {
 .seatAppointment {
   height: 100%;
   overflow: auto;
+  background: #f7f8fa;
   .header {
-    padding: 20px 30px;
+    padding: 10px 30px 0 30px;
     color: #202020;
     display: flex;
     align-items: center;
@@ -605,7 +622,22 @@ const onViewMap = () => {
     .rightAction {
       flex: 1;
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      .quickMode {
+        display: flex;
+        .item {
+          padding-bottom: 10px;
+          font-size: 15px;
+          color: #616161;
+          &:first-child {
+            margin-right: 40px;
+          }
+          &.itemActive {
+            color: #202020;
+            border-bottom: 2px solid #1a49c0;
+          }
+        }
+      }
 
       .filters {
         margin-left: 20px;
@@ -623,55 +655,20 @@ const onViewMap = () => {
     }
   }
   .showCon {
-    height: calc(100% - 90px);
+    height: calc(100% - 112px);
     display: flex;
     flex-direction: column;
     padding: 12px;
     .leftBox {
-      padding: 30px;
-      background: #f7f9fb;
+      margin-top: 12px;
+      padding: 14px;
+      background: #ffffff;
+      box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
       border-radius: 10px;
       overflow-y: auto;
     }
-    .rightBox {
-
-      .reservation {
-        background: #ffffff;
-        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
-        border-radius: 10px 10px 10px 10px;
-        border: 1px solid #e7e7e7;
-        padding: 20px 18px;
-        margin-top: 20px;
-
-        .selectDate {
-          display: flex;
-          font-size: 15px;
-          color: #202020;
-          span {
-            &:nth-child(1) {
-              font-size: 15px;
-              color: #1a49c0;
-              margin-right: 6px;
-            }
-            &:nth-child(2) {
-              flex: 1;
-            }
-          }
-        }
-        .selectSeat {
-          margin-top: 20px;
-          font-size: 15px;
-          color: #616161;
-          span {
-            color: #202020;
-          }
-        }
-      }
-
-      .reserve-btn {
-        margin-top: 60px;
-        font-size: 16px;
-      }
+    .leftBoxMo {
+      padding: 0;
     }
   }
   .librarySlt {
@@ -681,6 +678,9 @@ const onViewMap = () => {
   .spaceMapSlt {
     display: flex;
     justify-content: center;
+    :deep(.spaceMap) {
+      width: 100%;
+    }
   }
 }
 
@@ -719,6 +719,44 @@ const onViewMap = () => {
   }
 }
 
+.reservation {
+  background: #ffffff;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
+  border-radius: 10px 10px 10px 10px;
+  border: 1px solid #e7e7e7;
+  padding: 20px 18px;
+  margin-top: 20px;
+
+  .selectDate {
+    display: flex;
+    font-size: 15px;
+    color: #202020;
+    span {
+      &:nth-child(1) {
+        font-size: 15px;
+        color: #1a49c0;
+        margin-right: 6px;
+      }
+      &:nth-child(2) {
+        flex: 1;
+      }
+    }
+  }
+  .selectSeat {
+    margin-top: 20px;
+    font-size: 15px;
+    color: #616161;
+    span {
+      color: #202020;
+    }
+  }
+}
+
+.reserve-btn {
+  margin-top: 60px;
+  font-size: 16px;
+}
+
 .toastItem {
   display: flex;
   width: 100%;
@@ -749,5 +787,41 @@ const onViewMap = () => {
   width: 120px;
   height: 120px;
   background-color: #fff;
+}
+
+.libraryPop {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+
+  :deep(.libraryInfo) {
+    flex: 1;
+    padding: 14px;
+  }
+  .bottomAction {
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    & button {
+      &:nth-child(1) {
+        margin-right: 12px;
+      }
+      img {
+        margin-right: 4px;
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
+
+.spacefilterDateCon {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .filterCon {
+    flex: 1;
+  }
 }
 </style>

@@ -1,10 +1,12 @@
 <script setup>
-import { reactive, onMounted, watch, ref } from "vue";
+import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useStore } from "vuex";
 import { SearchOutlined } from "@ant-design/icons-vue";
 import { exchangeDateTime, initSltTime } from "@/utils";
 import moment from "moment";
 const store = useStore();
+const systemMode = computed(() => store.state.systemMode);
+
 const emits = defineEmits(["update:initSearch"]);
 const props = defineProps({
   date: {
@@ -25,6 +27,11 @@ const state = reactive({
   },
 
   filterTimes: [],
+
+  timePickerPopShow: false,
+
+  moTimePickerVal: [],
+  moTimeType: "",
 });
 
 onMounted(() => {
@@ -133,9 +140,73 @@ const onDisabledTime = (date, type) => {
     },
   };
 };
+// 定义 disabledTime 函数
+const onDisabledTimeMo = (type, options, values) => {
+  let { start, end } = state.filterTimes[0];
+
+  // if (state.filterRows.time?.length && state.moTimeType == "end") {
+  //   start = moment(state.filterTimes[0].start, "HH:mm")
+  //     .add(Number(state.filterDateRow?.min_time), "minutes")
+  //     .format("HH:mm");
+  // }
+
+  // 解析开始和结束时间的小时和分钟
+  const [startHour, startMinute] = start.split(":").map(Number);
+  const [endHour, endMinute] = end.split(":").map(Number);
+
+  let [sTime, eTime] = values;
+  if (type === "hour") {
+    return options.filter(
+      (option) =>
+        Number(option.value) >= startHour && Number(option.value) <= endHour
+    );
+  }
+
+  if (type === "minute") {
+    options = options.filter(
+      (option) => Number(option.value) % state.filterDateRow?.min_time === 0
+    );
+
+    if (state.moTimeType == "start" && sTime == startHour) {
+      return options.filter((option) => Number(option.value) > startMinute);
+    } else if (state.moTimeType == "end" && sTime == startHour) {
+      return options.filter((option) => Number(option.value) > startMinute);
+    }
+    return options;
+  }
+
+  return options;
+};
+
+const onShowTimePicker = (t) => {
+  state.moTimeType = t;
+  let [start, end] = state.filterRows.time;
+
+  if (t == "start" && start) {
+    const [startHour, startMinute] = start.split(":").map(Number);
+
+    state.moTimePickerVal = [startHour, startMinute];
+  } else if (end) {
+    const [endHour, endMinute] = end.split(":").map(Number);
+
+    state.moTimePickerVal = [endHour, endMinute];
+  }
+
+  state.timePickerPopShow = true;
+};
+
+const onChangeTimesMo = () => {
+  let [s, e] = state.moTimePickerVal;
+  if (state.moTimeType == "start") {
+    state.filterRows.time[0] = `${s}:${e}`;
+  } else {
+    state.filterRows.time[1] = `${s}:${e}`;
+  }
+  state.timePickerPopShow = false;
+};
 </script>
 <template>
-  <div class="filterCon">
+  <div class="filterCon" :class="{ filterConMo: systemMode != 'pc' }">
     <div class="filterScr">
       <div class="filterFilter">日期</div>
       <div class="fiterItem">
@@ -156,14 +227,27 @@ const onDisabledTime = (date, type) => {
       <div class="fiterItem">
         <template v-if="state.filterDateType == 3">
           <a-time-range-picker
+            v-if="systemMode == 'pc'"
             v-model:value="state.filterRows.time"
             format="HH:mm"
             valueFormat="HH:mm"
             :minuteStep="Number(state.filterDateRow?.min_time || 1)"
             hideDisabledOptions
             :disabledTime="onDisabledTime"
-            @openChange="onShowTimePicker"
           />
+
+          <div class="timePickerMo" v-else>
+            <div class="timeItem activeBtn" @click="onShowTimePicker('start')">
+              {{ state.filterRows.time[0] || "-" }}
+              <img class="posIcon" src="@/assets/seat/timeIcon.svg" alt="" />
+            </div>
+            <span>~</span>
+            <div class="timeItem activeBtn" @click="onShowTimePicker('end')">
+              {{ state.filterRows.time[1] || "-" }}
+
+              <img class="posIcon" src="@/assets/seat/timeIcon.svg" alt="" />
+            </div>
+          </div>
         </template>
         <a-radio-group v-else v-model:value="state.filterRows.time">
           <template v-if="state.filterDateType == 1">
@@ -184,6 +268,21 @@ const onDisabledTime = (date, type) => {
           </template>
         </a-radio-group>
       </div>
+
+      <van-popup
+        v-model:show="state.timePickerPopShow"
+        position="bottom"
+        :style="{ height: '35%' }"
+      >
+        <div class="timePickerPop">
+          <van-time-picker
+            v-model="state.moTimePickerVal"
+            :filter="onDisabledTimeMo"
+            title="选择时间"
+            @confirm="onChangeTimesMo"
+          />
+        </div>
+      </van-popup>
     </div>
   </div>
 </template>
@@ -194,6 +293,9 @@ const onDisabledTime = (date, type) => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  &.filterConMo {
+    height: auto !important;
+  }
   .filterScr {
     flex: 1;
     overflow-y: auto;
@@ -227,6 +329,28 @@ const onDisabledTime = (date, type) => {
     flex-wrap: wrap;
     column-gap: 36px;
     row-gap: 20px;
+  }
+  .timePickerMo {
+    display: flex;
+    align-items: center;
+    .timeItem {
+      position: relative;
+      min-width: 160px;
+      padding: 8px 14px;
+      border-radius: 18px;
+      border: 1px solid #eaeaea;
+      text-align: center;
+      .posIcon {
+        position: absolute;
+        right: 12px;
+        top: 12px;
+      }
+    }
+    span {
+      margin: 0 10px;
+      font-size: 14px;
+      color: #868686;
+    }
   }
 }
 </style>

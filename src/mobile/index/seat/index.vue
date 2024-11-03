@@ -26,12 +26,9 @@ const containerRef = ref();
 const state = reactive({
   libraryInfoShow: false,
   libraryInfo: {},
-  activeIndex: "",
   quickDate: "",
   quickDateList: [],
   libraryList: [],
-
-  floorList: [],
 
   spaceInfo: {},
 });
@@ -44,16 +41,6 @@ watch(
   () => state.quickDate,
   (v) => {
     if (v) fetchLibrary();
-  }
-);
-
-watch(
-  () => state.libraryList,
-  (v) => {
-    if (v?.length) {
-      state.activeIndex = v[0]?.id;
-      state.floorList = v[0]?.children;
-    }
   }
 );
 
@@ -94,10 +81,6 @@ const handleAppt = () => {
   goToLink();
 };
 
-const onChangeAct = (i) => {
-  state.activeIndex = i.id;
-};
-
 const fetchLibrary = async () => {
   try {
     let params = {
@@ -128,21 +111,10 @@ const fetchInfo = async (id) => {
   }
 };
 
-const goToLink = () => {
+const goToLink = (row) => {
   router.push({
     path: "/mo/seat/space",
-    query: { id: state.activeIndex, date: state.quickDate },
-  });
-};
-
-const onFloor = (row) => {
-  router.push({
-    path: "/seat/space",
-    query: {
-      id: state.activeIndex,
-      date: state.quickDate,
-      floor: row?.id || "",
-    },
+    query: { id: row?.id, date: state.quickDate },
   });
 };
 </script>
@@ -178,7 +150,7 @@ const onFloor = (row) => {
       <a-row v-if="state.libraryList?.length" :gutter="[40, 40]">
         <template v-for="item in state.libraryList" :key="item?.id">
           <a-col :xs="24" :sm="24" :md="24" :lg="24">
-            <div class="libraryItem cardItem" @click="onChangeAct(item)">
+            <div class="libraryItem cardItem">
               <div class="cardItemImgCon">
                 <div
                   class="rightBadge viewMore clickBox"
@@ -201,7 +173,7 @@ const onFloor = (row) => {
                       <span>空闲{{ item?.free_num || "-" }}</span>
                       <span>/总数{{ item?.total_num || "-" }}</span>
                     </div>
-                    <div class="action" @click="goToLink">
+                    <div class="action" @click="goToLink(item)">
                       <span>预约</span>
                       <img src="@/assets/home/rightIconW.svg" alt="" />
                     </div>
@@ -232,7 +204,9 @@ const onFloor = (row) => {
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
             返回
           </van-button>
-          <van-button round block type="primary"  @click="goToLink">预约</van-button>
+          <van-button round block type="primary" @click="goToLink"
+            >预约</van-button
+          >
         </div>
       </div>
     </van-popup>
