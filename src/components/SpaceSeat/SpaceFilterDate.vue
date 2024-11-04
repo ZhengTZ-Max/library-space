@@ -143,15 +143,16 @@ const onDisabledTime = (date, type) => {
 // 定义 disabledTime 函数
 const onDisabledTimeMo = (type, options, values) => {
   let { start, end } = state.filterTimes[0];
+  let [sltStart, sltEnd] = state.filterRows.time;
 
-  // if (state.filterRows.time?.length && state.moTimeType == "end") {
-  //   start = moment(state.filterTimes[0].start, "HH:mm")
-  //     .add(Number(state.filterDateRow?.min_time), "minutes")
-  //     .format("HH:mm");
-  // }
+  if (state.moTimeType == "end" && sltStart) {
+    start = moment(sltStart, "HH:mm")
+      .add(Number(state.filterDateRow?.min_time), "minutes")
+      .format("HH:mm");
+  }
 
   // 解析开始和结束时间的小时和分钟
-  const [startHour, startMinute] = start.split(":").map(Number);
+  let [startHour, startMinute] = start.split(":").map(Number);
   const [endHour, endMinute] = end.split(":").map(Number);
 
   let [sTime, eTime] = values;
@@ -168,9 +169,9 @@ const onDisabledTimeMo = (type, options, values) => {
     );
 
     if (state.moTimeType == "start" && sTime == startHour) {
-      return options.filter((option) => Number(option.value) > startMinute);
+      return options.filter((option) => Number(option.value) >= startMinute);
     } else if (state.moTimeType == "end" && sTime == startHour) {
-      return options.filter((option) => Number(option.value) > startMinute);
+      return options.filter((option) => Number(option.value) <= endMinute);
     }
     return options;
   }
@@ -181,6 +182,19 @@ const onDisabledTimeMo = (type, options, values) => {
 const onShowTimePicker = (t) => {
   state.moTimeType = t;
   let [start, end] = state.filterRows.time;
+  // let { start: deStart, end: deEnd } = state.filterTimes[0];
+
+  if (state?.filterRows?.date == exchangeDateTime(new Date(), 2)) {
+    let minTime = state.filterDateRow?.min_time;
+    let deTime = moment();
+    if (deTime.minutes() <= minTime - 1) {
+      deTime = deTime.minutes(Math.ceil(deTime.minutes() / minTime) * minTime);
+    } else if (deTime.minutes() > minTime) {
+      deTime.add(minTime, "minutes");
+      deTime = deTime.minutes(Math.floor(deTime.minutes() / minTime) * minTime);
+    }
+    state.filterTimes[0].start = exchangeDateTime(deTime, 8);
+  }
 
   if (t == "start" && start) {
     const [startHour, startMinute] = start.split(":").map(Number);
@@ -199,6 +213,9 @@ const onChangeTimesMo = () => {
   let [s, e] = state.moTimePickerVal;
   if (state.moTimeType == "start") {
     state.filterRows.time[0] = `${s}:${e}`;
+    if (`${s}:${e}` > state.filterRows.time[1]) {
+      state.filterRows.time[1] = ``;
+    }
   } else {
     state.filterRows.time[1] = `${s}:${e}`;
   }

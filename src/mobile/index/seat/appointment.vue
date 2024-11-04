@@ -352,7 +352,7 @@ const onChangeSlide = (row) => {
 
 const handleShow = (v) => {
   if (!v && state.apptResult?.type == "success") {
-    router.replace("/");
+    router.replace("/mo");
   }
 };
 
