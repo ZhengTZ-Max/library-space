@@ -1,43 +1,13 @@
 <script setup>
-import { reactive, onMounted } from "vue";
+import { reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { getCategory } from "@/request/home";
-import { tabType } from "@/utils";
 
 const store = useStore();
 const router = useRouter();
-const state = reactive({
-  categoryList: [],
-});
+const categoryList = computed(() => store.state.categoryList);
 
-onMounted(() => {
-  fetchCategory();
-});
-
-const fetchCategory = async () => {
-  try {
-    state.isCodeLoading = true;
-    const res = await getCategory();
-    state.isCodeLoading = false;
-
-    if (res.code != 0) {
-      return false;
-    }
-    let categoryList = res.data || [];
-    categoryList = res.data || [];
-    categoryList = categoryList?.map((e) => {
-      return {
-        ...e,
-        path: tabType?.find((t) => t?.id == e?.id)?.path,
-      };
-    });
-
-    state.categoryList = categoryList;
-  } catch (e) {
-    console.log(e);
-  }
-};
+onMounted(() => {});
 
 const onGoToLink = (row, t) => {
   if (t == "m") {
@@ -49,11 +19,11 @@ const onGoToLink = (row, t) => {
 </script>
 <template>
   <div
-    v-if="store.state.systemMode == 'pc' && state.categoryList?.length"
+    v-if="store.state.systemMode == 'pc' && categoryList?.length"
     class="tabs"
   >
     <div
-      v-for="item in state.categoryList"
+      v-for="item in categoryList"
       :key="item.id"
       class="tabItem activeBtn"
       @click="onGoToLink(item)"
@@ -63,11 +33,11 @@ const onGoToLink = (row, t) => {
     </div>
   </div>
   <div
-    v-else-if="store.state.systemMode == 'mobile' && state.categoryList?.length"
+    v-else-if="store.state.systemMode == 'mobile' && categoryList?.length"
     class="m-tabs"
   >
     <div
-      v-for="item in state.categoryList"
+      v-for="item in categoryList"
       :key="item.id"
       class="tabItem activeBtn"
       @click="onGoToLink(item, 'm')"

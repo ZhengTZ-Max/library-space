@@ -5,6 +5,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import enUS from "ant-design-vue/es/locale/en_US";
 import zhCN from "ant-design-vue/es/locale/zh_CN";
+import { tabType } from "@/utils";
 
 import {
   getBanner,
@@ -12,6 +13,7 @@ import {
   getGlobalLang,
   getNotice,
 } from "@/request";
+import { getCategory } from "@/request/home";
 
 const store = useStore();
 const route = useRoute();
@@ -46,8 +48,33 @@ onMounted(() => {
   fetchConfig();
   fetchLangConfig();
   fetchNotice();
+  fetchCategory();
 });
 
+const fetchCategory = async () => {
+  try {
+    // state.isCodeLoading = true;
+    const res = await getCategory();
+    // state.isCodeLoading = false;
+
+    if (res.code != 0) {
+      return false;
+    }
+    let categoryList = res.data || [];
+    categoryList = res.data || [];
+    categoryList = categoryList?.map((e) => {
+      return {
+        ...e,
+        path: tabType?.find((t) => t?.id == e?.id)?.path,
+      };
+    });
+    store.dispatch("setCategoryList", categoryList || []);
+
+    // state.categoryList = categoryList;
+  } catch (e) {
+    console.log(e);
+  }
+};
 const fetchNotice = async () => {
   try {
     let res = await getNotice();

@@ -9,16 +9,19 @@ const store = createStore({
     systemMode: "",
     bannerList: [],
     noticeList: [],
+    categoryList: [],
 
     apiConfig: {},
     loginInfo: {},
     langData: {},
     lang: "en",
-    
 
     userName: "",
   },
   mutations: {
+    setCategoryList(state, list) {
+      state.categoryList = list;
+    },
     setNoticeList(state, list) {
       state.noticeList = list;
     },
@@ -51,6 +54,9 @@ const store = createStore({
     },
   },
   actions: {
+    setCategoryList({ commit }, list) {
+      commit("setCategoryList", list);
+    },
     setNoticeList({ commit }, list) {
       commit("setNoticeList", list);
     },

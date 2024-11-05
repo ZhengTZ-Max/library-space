@@ -7,6 +7,8 @@ const router = useRouter();
 const route = useRoute();
 const store = useStore();
 const lang = computed(() => store.state.lang);
+const categoryList = computed(() => store.state.categoryList);
+// const systemMode = computed(() => store.state.systemMode);
 
 const state = reactive({
   navList: [
@@ -26,7 +28,7 @@ const state = reactive({
       langKey: "menu_rules",
     },
   ],
-  quickValue: "",
+  quickValue: undefined,
 });
 
 const isActiveNav = (link) => {
@@ -36,8 +38,14 @@ const onChangeNav = (item) => {
   router.push(`/${item?.link}`);
 };
 
-const handleChange = (value) => {
-  console.log(`selected ${value}`);
+const handleChange = (id) => {
+  let row = categoryList?.value?.find((e) => e?.id == id);
+  router.push(row?.path);
+
+  // if (systemMode == "mobile") {
+  //   router.push(`/mo${row?.path}`);
+  // } else {
+  // }
 };
 const handleOut = () => OutLogin();
 
@@ -80,12 +88,12 @@ const toggleLang = (type) => {
           @change="handleChange"
           size="small"
           popupClassName="popupQuickSlt"
+          placeholder="快速选择"
         >
-          <a-select-option value="">
-            <img src="@/assets/home/quickSelectIcon_01.svg" alt="" srcset="" />
-            常用预约
+          <a-select-option v-for="item in categoryList" :value="item.id">
+            <img src="@/assets/home/quickSelectIcon_01.svg" alt="" />
+            {{ item.name }}
           </a-select-option>
-          <a-select-option value="lucy">lucy</a-select-option>
         </a-select>
       </div>
       <div class="navItem activeBtn" @click="handleOut">
@@ -132,6 +140,7 @@ const toggleLang = (type) => {
       padding: 9px 16px;
       background: rgba(255, 255, 255, 0.2);
       border-radius: 21px;
+
       :deep(.ant-select) {
         display: block;
         .ant-select-selector {
@@ -146,6 +155,9 @@ const toggleLang = (type) => {
             }
           }
         }
+        .ant-select-selection-placeholder {
+          color: #ffffffa0 !important;
+        }
         .ant-select-arrow {
           color: #fff;
         }
@@ -158,7 +170,9 @@ const toggleLang = (type) => {
 <style lang="less">
 .popupQuickSlt {
   background-color: rgb(76, 109, 204);
+
   .ant-select-item {
+    padding: 12px;
     color: #fff;
   }
   .ant-select-item-option-selected {
