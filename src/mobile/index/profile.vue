@@ -62,12 +62,8 @@ const fetchMyInfo = async () => {
 
 const handleOut = () => OutLogin();
 
-const toggleLang = () => {
-  if (lang.value == "zh") {
-    store.dispatch("updateLang", "en");
-  } else {
-    store.dispatch("updateLang", "zh");
-  }
+const toggleLang = (type) => {
+  store.dispatch("updateLang", type);
 };
 </script>
 <template>
@@ -79,11 +75,20 @@ const toggleLang = () => {
           <div class="user_id">{{ state.userInfo?.id }}</div>
         </div>
         <div class="profile_header_top_right">
-          <img
-            src="@/assets/my/mobile_change_language.svg"
-            @click="toggleLang"
-            alt=""
-          />
+          <div class="navItem activeBtn">
+            <img
+              v-if="lang == 'en'"
+              @click="toggleLang('zh')"
+              src="@/assets/my/mobile_change_language.svg"
+              alt=""
+            />
+            <img
+              v-else
+              @click="toggleLang('en')"
+              src="@/assets/my/mobile_change_language.svg"
+              alt=""
+            />
+          </div>
         </div>
       </div>
     </div>
