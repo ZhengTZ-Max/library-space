@@ -10,29 +10,74 @@
 import { reactive, computed, onMounted, watch } from "vue";
 import { OutLogin } from "@/utils";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import { getMyInfo } from "@/request/my";
 
 const store = useStore();
 const lang = computed(() => store.state.lang);
 const categoryList = computed(() => store.state.categoryList);
-
-console.log(categoryList);
+const router = useRouter();
 const state = reactive({
   rightNavs: [
-    { id: "3", label: "常用预约", link: "c-appointments", icon: "@/assets/my/mobile_profile_item.svg" },
-    { id: "1", label: "座位预约记录", link: "seat-record", icon: "@/assets/my/mobile_seat.svg" },
-    { id: "2", label: "空间预约记录", link: "area-record", icon: "@/assets/my/mobile_area.svg" },
-    { id: "6", label: "活动预约记录", link: "activity-record", icon: "@/assets/my/mobile_activity_record.svg" },
-    { id: "10", label: "存书柜预约记录", link: "book-locker", icon: "@/assets/my/mobile_book_locker.svg" },
-    { id: "14", label: "失物招领", link: "lostAndFound", icon: "@/assets/my/mobile_lostAndFound.svg" },
-    { id: "15", label: "帮助与反馈", link: "help", icon: "@/assets/my/mobile_help.svg" },
+    {
+      id: "3",
+      label: "常用预约",
+      link: "c-appointments",
+      icon: "@/assets/my/mobile_profile_item.svg",
+    },
+    {
+      id: "1",
+      label: "座位预约记录",
+      link: "seat-record",
+      icon: "@/assets/my/mobile_seat.svg",
+    },
+    {
+      id: "2",
+      label: "空间预约记录",
+      link: "area-record",
+      icon: "@/assets/my/mobile_area.svg",
+    },
+    {
+      id: "6",
+      label: "活动预约记录",
+      link: "activity-record",
+      icon: "@/assets/my/mobile_activity_record.svg",
+    },
+    {
+      id: "10",
+      label: "存书柜预约记录",
+      link: "book-locker",
+      icon: "@/assets/my/mobile_book_locker.svg",
+    },
+    {
+      id: "14",
+      label: "失物招领",
+      link: "lostAndFound",
+      icon: "@/assets/my/mobile_lostAndFound.svg",
+    },
+    {
+      id: "15",
+      label: "帮助与反馈",
+      link: "help",
+      icon: "@/assets/my/mobile_help.svg",
+    },
   ],
 
   userInfo: {},
   filterRightNavs: [],
   myInfoNavs: [
-    { id: "16", label: "个人信息", link: "my-info", icon: "@/assets/my/mobile_my_info.svg" },
-    { id: "17", label: "修改密码", link: "change-password", icon: "@/assets/my/mobile_change_password.svg" },
+    {
+      id: "16",
+      label: "个人信息",
+      link: "my-info",
+      icon: "@/assets/my/mobile_my_info.svg",
+    },
+    {
+      id: "17",
+      label: "修改密码",
+      link: "change-password",
+      icon: "@/assets/my/mobile_change_password.svg",
+    },
   ],
 });
 const filterCategoryList = () => {
@@ -67,7 +112,6 @@ watch(
   { immediate: true }
 );
 
-
 const fetchMyInfo = async () => {
   try {
     const res = await getMyInfo();
@@ -89,7 +133,9 @@ const toggleLang = (type) => {
   store.dispatch("updateLang", type);
 };
 
-
+const goToLink = (link) => {
+  router.push(`/mo/profile/${link}`);
+};
 </script>
 <template>
   <div class="profile">
@@ -127,6 +173,7 @@ const toggleLang = (type) => {
             :icon="item.icon"
             size="large"
             is-link
+            @click="goToLink(item.link)"
           />
         </van-cell-group>
       </div>
@@ -140,36 +187,11 @@ const toggleLang = (type) => {
             :icon="item.icon"
             size="large"
             is-link
+            @click="goToLink(item.link)"
           />
         </van-cell-group>
       </div>
-      <!-- <div class="profile_content_broder">
-        <div class="profile_content_item" @click="goToLink('/mo/...')">
-          <img src="@/assets/my/mobile_profile_item.svg" alt="" />
-          <div class="profile_content_item_text">常用预约</div>
-          <img src="@/assets/my/rightIcon.svg" alt="" />
-        </div>
-        <a-divider />
-        <div class="profile_content_item" @click="goToLink('/mo/...')">
-          <img src="@/assets/my/mobile_seat.svg" alt="" />
-          <div class="profile_content_item_text">座位预约记录</div>
-          <img src="@/assets/my/rightIcon.svg" alt="" />
-        </div>
-        <a-divider />
-        <div class="profile_content_item" @click="goToLink('/mo/...')">
-          <img src="@/assets/my/mobile_area.svg" alt="" />
-          <div class="profile_content_item_text">空间预约记录</div>
-          <div class="profile_content_item_text_right">邀请待确认</div>
-          <img src="@/assets/my/rightIcon.svg" alt="" />
-        </div>
-        <a-divider />
-        <div class="profile_content_item" @click="goToLink('/mo/...')">
-          <img src="@/assets/my/mobile_help.svg" alt="" />
-          <div class="profile_content_item_text">帮助与反馈</div>
-          <img src="@/assets/my/rightIcon.svg" alt="" />
-        </div>
-      </div> -->
-      
+
       <div class="profile_footer">
         <button class="footer-button" @click="goToLink('/mo/...')">
           微信解绑
@@ -221,7 +243,7 @@ const toggleLang = (type) => {
     flex-direction: column;
     justify-content: center;
 
-    .profile_content_myInfo{
+    .profile_content_myInfo {
       margin-top: 20px;
     }
     .profile_footer {
