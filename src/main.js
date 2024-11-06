@@ -26,6 +26,7 @@ import {
   TimePicker,
   Cell,
   CellGroup,
+  PullRefresh,
 } from "vant";
 import "vant/lib/index.css";
 import "vant/lib/icon/index.css";
@@ -45,6 +46,7 @@ app.use(Button);
 app.use(List);
 app.use(Cell);
 app.use(CellGroup);
+app.use(PullRefresh);
 
 app.use(router);
 app.use(Antd);

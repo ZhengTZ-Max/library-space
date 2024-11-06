@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, watch, ref,computed } from "vue";
+import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
@@ -42,7 +42,6 @@ const state = reactive({
 onMounted(() => {
   fetchGetEventIndex();
 });
-
 
 const onChangeAct = (i) => {
   state.activeIndex = i.id;
@@ -90,7 +89,6 @@ const fetchCurrentEventList = async () => {
     }
   } catch (e) {}
 };
-
 </script>
 <template>
   <div class="eventLibrary">
@@ -162,15 +160,20 @@ const fetchCurrentEventList = async () => {
               @click="onChangeAct(item)"
             >
               <div class="cardItemImgCon">
-                <img class="cardItemImg" :src="item?.poster[0]?.file_path" alt="" />
+                <img
+                  class="cardItemImg"
+                  :src="item?.poster[0]?.file_path"
+                  alt=""
+                />
                 <div
                   class="leftBadge basicsBadge"
-                  :class="{ status_not_started: item?.status_name === '未开始',
-                    status_in_registration : item?.status_name === '报名中',
-                    status_in_progress : item?.status_name === '进行中',
-                   }"
+                  :class="{
+                    status_not_started: item?.status_name === '未开始',
+                    status_in_registration: item?.status_name === '报名中',
+                    status_in_progress: item?.status_name === '进行中',
+                  }"
                 >
-                  {{item?.status_name}}
+                  {{ item?.status_name }}
                 </div>
 
                 <div class="posBot">
@@ -181,7 +184,7 @@ const fetchCurrentEventList = async () => {
                 <span class="event-title">{{ item?.title }}</span>
                 <div class="event-location">
                   <img src="@/assets/event/seat.svg" alt="Location" />
-                  <span>{{ item?.nameMerge}}</span>
+                  <span>{{ item?.nameMerge }}</span>
                 </div>
                 <div class="event-time">
                   <img src="@/assets/event/time.svg" alt="Time" />
