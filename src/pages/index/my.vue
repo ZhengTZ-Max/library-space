@@ -1,7 +1,7 @@
 <script setup>
 import { CheckCircleFilled } from "@ant-design/icons-vue";
-import { reactive,onMounted, watch,computed } from "vue";
-import { useRoute, useRouter, } from "vue-router";
+import { reactive, onMounted, watch, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { Modal } from "ant-design-vue";
 import { getMyInfo } from "@/request/my";
@@ -9,17 +9,21 @@ import { getMyInfo } from "@/request/my";
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
+const categoryList = computed(() => store.state.categoryList);
+
 const state = reactive({
+  categoryList: [],
   rightNavs: [
-    { label: "常用预约", link: "c-appointments" },
-    { label: "座位预约记录", link: "seat-record" },
-    { label: "空间预约记录", link: "area-record" },
-    { label: "活动预约记录", link: "activity-record" },
-    { label: "存书柜预约记录", link: "book-locker" },
-    { label: "失物招领", link: "lostAndFound" },
+    { id: "3", label: "常用预约", link: "c-appointments" },
+    { id: "1", label: "座位预约记录", link: "seat-record" },
+    { id: "2", label: "空间预约记录", link: "area-record" },
+    { id: "6", label: "活动预约记录", link: "activity-record" },
+    { id: "10", label: "存书柜预约记录", link: "book-locker" },
+    { id: "14", label: "失物招领", link: "lostAndFound" },
   ],
   isShowDrawer: false,
   userInfo: {},
+  filterRightNavs: [],
 });
 
 const formState = reactive({
@@ -50,6 +54,25 @@ const onChangeNav = (item) => {
 const onHelp = () => {
   router.push("/help");
 };
+const filterCategoryList = () => {
+  state.filterRightNavs = state.rightNavs
+    .map((itemA) => {
+      if (itemA.id != 6) {
+        return {
+          ...itemA,
+          existsInB: categoryList.value.some((itemB) => itemB.id === itemA.id),
+        };
+      } else {
+        return {
+          ...itemA,
+          existsInB: categoryList.value.some(
+            (itemB) => itemB.id === "6" || itemB.id === "9"
+          ),
+        };
+      }
+    })
+    .filter((item) => item.existsInB);
+};
 
 onMounted(() => {
   fetchMyInfo();
@@ -62,10 +85,20 @@ watch(
       // toggleLang(v === "1" ? "zh" : "en");
     }
   }
-)
+);
+watch(
+  () => categoryList.value,
+  (v) => {
+    if (v) {
+      state.categoryList = v;
+      filterCategoryList();
+    }
+  },
+  { immediate: true }
+);
+
 
 const fetchMyInfo = async () => {
-
   try {
     const res = await getMyInfo();
     if (res.code === 0) {
@@ -83,6 +116,7 @@ const fetchMyInfo = async () => {
 const toggleLang = (type) => {
   store.dispatch("updateLang", type);
 };
+
 const userStatusText = computed(() => {
   switch (state.userInfo?.status) {
     case "0":
@@ -172,7 +206,7 @@ const userStatusText = computed(() => {
     </div>
     <div class="rightCon">
       <div class="rightNavBox">
-        <template v-for="item in state.rightNavs" :key="item.link">
+        <template v-for="item in state.filterRightNavs" :key="item.link">
           <div
             class="clickBox navItem"
             :class="{ activeNav: isRightActiveNav(item.link) }"

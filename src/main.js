@@ -23,7 +23,9 @@ import {
   Icon,
   Lazyload,
   Image,
-  TimePicker 
+  TimePicker,
+  Cell,
+  CellGroup,
 } from "vant";
 import "vant/lib/index.css";
 import "vant/lib/icon/index.css";
@@ -41,6 +43,8 @@ app.use(SwipeItem);
 app.use(ImagePreview);
 app.use(Button);
 app.use(List);
+app.use(Cell);
+app.use(CellGroup);
 
 app.use(router);
 app.use(Antd);

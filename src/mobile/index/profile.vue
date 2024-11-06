@@ -7,44 +7,67 @@
   }
   </route>
 <script setup>
-import { reactive, computed, onMounted } from "vue";
+import { reactive, computed, onMounted, watch } from "vue";
 import { OutLogin } from "@/utils";
 import { useStore } from "vuex";
 import { getMyInfo } from "@/request/my";
 
 const store = useStore();
 const lang = computed(() => store.state.lang);
+const categoryList = computed(() => store.state.categoryList);
 
+console.log(categoryList);
 const state = reactive({
   rightNavs: [
-    {
-      label: "常用预约",
-      link: "c-appointments",
-      icon: "@/assets/my/mobile_profile_item.svg",
-    },
-    {
-      label: "座位预约记录",
-      link: "seat-record",
-      icon: "@/assets/my/mobile_seat.svg",
-    },
-    {
-      label: "空间预约记录",
-      link: "area-record",
-      icon: "@/assets/my/mobile_area.svg",
-    },
-    {
-      label: "帮助与反馈",
-      link: "help-feedback",
-      icon: "@/assets/my/mobile_help.svg",
-    },
+    { id: "3", label: "常用预约", link: "c-appointments", icon: "@/assets/my/mobile_profile_item.svg" },
+    { id: "1", label: "座位预约记录", link: "seat-record", icon: "@/assets/my/mobile_seat.svg" },
+    { id: "2", label: "空间预约记录", link: "area-record", icon: "@/assets/my/mobile_area.svg" },
+    { id: "6", label: "活动预约记录", link: "activity-record", icon: "@/assets/my/mobile_activity_record.svg" },
+    { id: "10", label: "存书柜预约记录", link: "book-locker", icon: "@/assets/my/mobile_book_locker.svg" },
+    { id: "14", label: "失物招领", link: "lostAndFound", icon: "@/assets/my/mobile_lostAndFound.svg" },
+    { id: "15", label: "帮助与反馈", link: "help", icon: "@/assets/my/mobile_help.svg" },
   ],
 
   userInfo: {},
+  filterRightNavs: [],
+  myInfoNavs: [
+    { id: "16", label: "个人信息", link: "my-info", icon: "@/assets/my/mobile_my_info.svg" },
+    { id: "17", label: "修改密码", link: "change-password", icon: "@/assets/my/mobile_change_password.svg" },
+  ],
 });
+const filterCategoryList = () => {
+  state.filterRightNavs = state.rightNavs
+    .map((itemA) => {
+      if (itemA.id != 6) {
+        return {
+          ...itemA,
+          existsInB: categoryList.value.some((itemB) => itemB.id === itemA.id),
+        };
+      } else {
+        return {
+          ...itemA,
+          existsInB: categoryList.value.some(
+            (itemB) => itemB.id === "6" || itemB.id === "9"
+          ),
+        };
+      }
+    })
+    .filter((item) => item.existsInB);
+};
 
 onMounted(() => {
   fetchMyInfo();
 });
+watch(
+  () => categoryList.value,
+  (v) => {
+    state.categoryList = v;
+    filterCategoryList();
+  },
+  { immediate: true }
+);
+
+
 const fetchMyInfo = async () => {
   try {
     const res = await getMyInfo();
@@ -65,6 +88,8 @@ const handleOut = () => OutLogin();
 const toggleLang = (type) => {
   store.dispatch("updateLang", type);
 };
+
+
 </script>
 <template>
   <div class="profile">
@@ -93,7 +118,32 @@ const toggleLang = (type) => {
       </div>
     </div>
     <div class="profile_content">
-      <div class="profile_content_broder">
+      <div>
+        <van-cell-group inset>
+          <van-cell
+            v-for="item in state.filterRightNavs"
+            :key="item.id"
+            :title="item.label"
+            :icon="item.icon"
+            size="large"
+            is-link
+          />
+        </van-cell-group>
+      </div>
+
+      <div class="profile_content_myInfo">
+        <van-cell-group inset>
+          <van-cell
+            v-for="item in state.myInfoNavs"
+            :key="item.id"
+            :title="item.label"
+            :icon="item.icon"
+            size="large"
+            is-link
+          />
+        </van-cell-group>
+      </div>
+      <!-- <div class="profile_content_broder">
         <div class="profile_content_item" @click="goToLink('/mo/...')">
           <img src="@/assets/my/mobile_profile_item.svg" alt="" />
           <div class="profile_content_item_text">常用预约</div>
@@ -118,20 +168,8 @@ const toggleLang = (type) => {
           <div class="profile_content_item_text">帮助与反馈</div>
           <img src="@/assets/my/rightIcon.svg" alt="" />
         </div>
-      </div>
-      <div class="profile_content_broder">
-        <div class="profile_content_item" @click="goToLink('/mo/...')">
-          <img src="@/assets/my/mobile_my_info.svg" alt="" />
-          <div class="profile_content_item_text">个人信息</div>
-          <img src="@/assets/my/rightIcon.svg" alt="" />
-        </div>
-        <a-divider />
-        <div class="profile_content_item" @click="goToLink('/mo/...')">
-          <img src="@/assets/my/mobile_change_password.svg" alt="" />
-          <div class="profile_content_item_text">修改密码</div>
-          <img src="@/assets/my/rightIcon.svg" alt="" />
-        </div>
-      </div>
+      </div> -->
+      
       <div class="profile_footer">
         <button class="footer-button" @click="goToLink('/mo/...')">
           微信解绑
@@ -183,25 +221,8 @@ const toggleLang = (type) => {
     flex-direction: column;
     justify-content: center;
 
-    .profile_content_broder {
-      background: #ffffff;
-      border-radius: 8px;
-      margin-bottom: 10px;
-
-      .profile_content_item {
-        display: flex;
-        justify-content: left;
-        padding: 15px;
-
-        .profile_content_item_text {
-          flex: 1;
-          margin-left: 10px;
-        }
-        .profile_content_item_text_right {
-          color: rgba(247, 34, 34, 1);
-          margin-right: 10px;
-        }
-      }
+    .profile_content_myInfo{
+      margin-top: 20px;
     }
     .profile_footer {
       margin-top: 30px;
@@ -230,6 +251,9 @@ const toggleLang = (type) => {
 }
 
 .ant-divider-horizontal {
+  margin: 0 !important;
+}
+.van-cell-group--inset {
   margin: 0 !important;
 }
 </style>
