@@ -10,6 +10,7 @@ const categoryList = computed(() => store.state.categoryList);
 onMounted(() => {});
 
 const onGoToLink = (row, t) => {
+  console.log(row);
   if (t == "m") {
     router.push(`/mo${row?.path}`);
   } else {

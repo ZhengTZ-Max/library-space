@@ -29,7 +29,7 @@ const state = reactive({
     { value: 0, label: "历史活动" },
   ],
   date: moment().format("YYYY-MM-DD"),
-  // date: "2024-10-26",
+  // date: "2024-10-30",
   selectDate: null,
   selectType: "",
   selectDateList: [
@@ -37,6 +37,7 @@ const state = reactive({
     { value: "2024-01-03", label: "01-03" },
     { value: "2024-01-04", label: "01-04" },
   ],
+  eventList: [],
 });
 
 onMounted(() => {
@@ -85,7 +86,7 @@ const fetchCurrentEventList = async () => {
 
     if (res.code == 0) {
       state.eventList = res.data?.data;
-      console.log(state.eventImg);
+      // console.log(state.eventImg);
     }
   } catch (e) {}
 };

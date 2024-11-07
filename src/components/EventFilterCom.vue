@@ -72,7 +72,7 @@ onMounted(() => {
 <style lang="less" scoped>
 .filterCon {
   padding: 24px 0 0 0;
-  height: 80vh;
+  height: 59vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -85,6 +85,7 @@ onMounted(() => {
     background: rgba(97, 97, 97, 0.05);
     border-radius: 0px 0px 0px 0px;
     padding: 2px 10px;
+    color: rgba(97, 97, 97, 1);
   }
   .fiterItem {
     user-select: none;
