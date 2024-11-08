@@ -375,6 +375,6 @@ const fetchCurrentEventList = async () => {
   margin-bottom: 0px !important;
 }
 :deep(.van-pull-refresh) {
-  height: 100% !important;
+  height: 50% !important;
 }
 </style>

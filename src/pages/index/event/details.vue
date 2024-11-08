@@ -26,6 +26,7 @@ const state = reactive({
   eventCurrentNum: "",
   eventTimeShow: "",
   isApply: false,
+  isApplyResult: false,
   quickMode: 1,
   applyInfo: { phone: "", email: "", isClose: false },
   applyResultInfo: {
