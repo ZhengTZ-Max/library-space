@@ -354,23 +354,22 @@ const fetchCurrentEventList = async () => {
   .filterDrawer {
     padding: 22px;
   }
-  
 }
 .drawerCon {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  .bottomAct {
-      padding: 12px;
-      display: flex;
-      justify-content: space-between;
-      & button {
-        &:nth-child(1) {
-          margin-right: 12px;
-        }
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.bottomAct {
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  & button {
+    &:nth-child(1) {
+      margin-right: 12px;
     }
   }
+}
 :deep(.ant-tabs-nav) {
   margin-bottom: 0px !important;
 }

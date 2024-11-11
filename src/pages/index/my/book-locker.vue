@@ -9,7 +9,17 @@ const state = reactive({
   activeKey: "day",
   isModalVisible: false,
   selectedRecord: "",
+
+  quickMode: 1,
+  quickModeList: [
+    { value: 1, label: "预约记录" },
+    { value: 2, label: "违约记录" },
+  ],
 });
+
+const onChangeQMode = (row) => {
+  state.quickMode = row?.value;
+};
 
 const onShowModal = (record) => {
   state.isModalVisible = true;
@@ -119,12 +129,16 @@ const data = [
       <a-tab-pane key="week" tab="周柜"></a-tab-pane>
       <a-tab-pane key="long" tab="长期柜"></a-tab-pane>
     </a-tabs>
-    <div
-      class="toggleLang"
-      :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
-    >
-      <div class="langItem langActive activeBtn">预约记录</div>
-      <div class="langItem activeBtn">违约记录</div>
+    <div class="quickBtns" style="width: 220px;margin: 10px 10px;">
+      <div
+        v-for="item in state.quickModeList"
+        :key="item.label"
+        class="item activeBtn"
+        :class="{ itemActive: item?.value == state.quickMode }"
+        @click="onChangeQMode(item)"
+      >
+        {{ item?.label }}
+      </div>
     </div>
 
     <div class="table">
@@ -238,37 +252,7 @@ const data = [
   padding-left: 30px;
   position: relative;
 
-  .toggleLang {
-    position: absolute;
-    top: 36px;
-    left: 30px;
-    width: 240px;
-    height: 36px;
-    padding: 4px;
-    background: #f1f1f1;
-    border-radius: 21px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    .langItem {
-      color: #868686;
-      padding: 2px 16px;
-      min-width: 60px;
-      height: 28px;
-    }
-    .langActive {
-      background: #ffffff;
-      box-shadow: 0px 5px 10px 0px rgba(51, 102, 153, 0.1);
-      border-radius: 17px 17px 17px 17px;
-      font-weight: bold;
-      font-size: 14px;
-      color: #1f56e1;
-    }
-  }
-  .toggleLangPc {
-    top: 65px;
-    left: 30px;
-  }
+
 }
 .custom-tag {
   border-radius: 12px;
