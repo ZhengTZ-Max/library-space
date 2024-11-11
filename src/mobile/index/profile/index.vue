@@ -134,6 +134,7 @@ const toggleLang = (type) => {
 };
 
 const goToLink = (link) => {
+  // console.log(link);
   router.push(`/mo/profile/${link}`);
 };
 </script>

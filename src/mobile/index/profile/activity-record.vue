@@ -239,4 +239,7 @@ const onClickItem = (item) => {
 :deep(.ant-tabs-nav) {
   margin-bottom: 0px !important;
 }
+:deep(.van-pull-refresh) {
+  height: 50% !important;
+}
 </style>
