@@ -3,7 +3,7 @@
       meta: {
         showHead: true,
         showLeftBack:true,
-        title:'Bookcase_Appointment_Record',
+        title:'Space_Reservation_Record',
         showTabbar:false
       }
     }
@@ -87,22 +87,21 @@ const onLoad = () => {
 
 const onClickItem = (id) => {
   router.push({
-    path: "/mo/profile/book-locker-details",
+    path: "/mo/profile/area-record-details",
     query: { id },
   });
 };
 </script>
 <template>
-  <div class="book-locker">
+  <div class="area-record">
     <a-tabs
       v-model:activeKey="state.activeKey"
       class="top_tabs"
       size="middle"
       @change="onChangeTab"
     >
-      <a-tab-pane key="1" tab="日柜"></a-tab-pane>
-      <a-tab-pane key="2" tab="周柜"></a-tab-pane>
-      <a-tab-pane key="3" tab="长期柜"></a-tab-pane>
+      <a-tab-pane key="1" tab="普通空间"></a-tab-pane>
+      <a-tab-pane key="2" tab="大型空间"></a-tab-pane>
     </a-tabs>
     <div class="quickBtns" style="width: 220px; margin: 10px 10px">
       <div
@@ -118,10 +117,7 @@ const onClickItem = (id) => {
 
     <div class="item_list">
       <div class="info_item margin_bottom" @click="onClickItem('1')">
-        <img
-          src="@/assets/my/mobile_lostAndFound_item_location.svg"
-          alt="Location"
-        />
+        <img src="@/assets/event/seat.svg" alt="Location" />
         <span>失物招领</span>
       </div>
       <div class="info_item">
@@ -156,7 +152,7 @@ const onClickItem = (id) => {
   </div>
 </template>
 <style lang="less" scoped>
-.book-locker {
+.area-record {
   height: 100%;
   overflow: auto;
   background-color: #fafafa;

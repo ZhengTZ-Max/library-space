@@ -18,6 +18,8 @@ import { exchangeDateTime } from "@/utils";
 import { getCurrentEventList, getEventFilterIndex } from "@/request/event";
 import EventFilter from "@/components/EventFilterCom.vue";
 
+
+const router = useRouter();
 const state = reactive({
   eventFilterShow: false,
   filterOptions: {},
