@@ -311,7 +311,7 @@ const onChangePage = (pagination) => {
       </div>
       <div class="query-result-content">
         <p>
-          查詢位置：<span class="text-default">{{
+          查询位置：<span class="text-default">{{
             state.queryResult.location
           }}</span>
         </p>
