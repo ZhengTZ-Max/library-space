@@ -115,8 +115,8 @@ const onClickItem = (id) => {
       </div>
     </div>
 
-    <div class="item_list">
-      <div class="info_item margin_bottom" @click="onClickItem('1')">
+    <div class="item_list" @click="onClickItem('1')">
+      <div class="info_item margin_bottom">
         <img src="@/assets/event/seat.svg" alt="Location" />
         <span>失物招领</span>
       </div>
