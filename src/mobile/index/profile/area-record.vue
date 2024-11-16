@@ -28,10 +28,9 @@ const state = reactive({
   ],
   status_name: "预约成功",
 
-
   refreshing: false,
   loading: false,
-  finished: false,
+  finished: true,
 });
 
 const onChangeTab = (key) => {
@@ -66,14 +65,14 @@ const fetchGetBookLocker = async () => {
   } catch (error) {
     state.loading = false;
     state.refreshing = false;
-    state.finished = false;
+    state.finished = true;
     state.data = [];
     console.log(error);
   }
 };
 
 onMounted(() => {
-    fetchGetBookLocker();
+  fetchGetBookLocker();
 });
 
 const onRefresh = () => {
@@ -125,7 +124,9 @@ const onClickItem = (id) => {
         <span>2024-02-05 09:57:00 2024-02-05 09:57:00 2024-02-05 09:57:00</span>
 
         <div>
-          <a-button type="primary" shape="round" size="small" block>取消</a-button>
+          <a-button type="primary" shape="round" size="small" block
+            >取消</a-button
+          >
         </div>
       </div>
 

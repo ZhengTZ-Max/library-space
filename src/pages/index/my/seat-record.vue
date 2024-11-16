@@ -203,6 +203,9 @@ const fetchSeatRenegeList = async () => {
 // 座位 tab 切换
 const onChangeTab = (key) => {
   state.activeKey = key;
+  if (state.quickMode == "3") {
+    state.quickMode = "1";
+  }
   state.currentPage = 1;
   fetch();
   console.log(key);

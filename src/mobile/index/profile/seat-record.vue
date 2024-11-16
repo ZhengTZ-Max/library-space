@@ -13,6 +13,8 @@ import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 
+import { getSeatRecordList, getSeatRenegeList } from "@/request/sear-record";
+
 const router = useRouter();
 const state = reactive({
   activeKey: "1",
@@ -39,16 +41,28 @@ const state = reactive({
     areaID: "",
   },
   filterOptions: {
-    premise: [{ id: 1, name: "图书馆" }, { id: 2, name: "基础馆" }],
-    category: [{ id: 1, name: "1楼" }, { id: 2, name: "2楼" }],
-    area: [{ id: 1, name: "1区" }, { id: 2, name: "2区" }],
+    premise: [
+      { id: 1, name: "图书馆" },
+      { id: 2, name: "基础馆" },
+    ],
+    category: [
+      { id: 1, name: "1楼" },
+      { id: 2, name: "2楼" },
+    ],
+    area: [
+      { id: 1, name: "1区" },
+      { id: 2, name: "2区" },
+    ],
   },
 });
 
 const onChangeTab = (key) => {
   state.activeKey = key;
+  if (state.quickMode == "3") {
+    state.quickMode = "1";
+  }
   state.currentPage = 1;
-  fetchGetSeatRecord();
+  fetch();
 };
 
 const onChangeQMode = (row) => {
@@ -57,45 +71,75 @@ const onChangeQMode = (row) => {
     if (row?.value == "3") return;
   }
   state.quickMode = row?.value;
+  fetch();
 };
 
-const fetchGetSeatRecord = async () => {
-  try {
-    let params = {
-      tab: state.activeKey,
-      page: state.currentPage,
-      type: state.quickMode,
-
-      limit: state.pageSize,
-    };
-    // const res = await getSeatRecord();
-
-    state.loading = false;
-    state.refreshing = false;
-
-    state.total = 0;
-    state.data = [];
-    state.finished = true;
-  } catch (error) {
-    state.loading = false;
-    state.refreshing = false;
-    state.finished = true;
-    state.data = [];
-    console.log(error);
+const fetch = () => {
+  if (state.quickMode === 1) {
+    // 预约记录
+    fetchSeatRecordList();
+  } else if (state.quickMode === 2) {
+    // 违约记录
+    fetchSeatRenegeList();
+  } else if (state.quickMode === 3) {
+    // 权限查询
   }
 };
 
 onMounted(() => {
-  fetchGetSeatRecord();
+  fetch();
 });
 
 const onRefresh = () => {
   state.currentPage = 1;
-  fetchGetSeatRecord();
+  fetch();
 };
 const onLoad = () => {
   state.currentPage++;
-  fetchGetSeatRecord();
+  fetch();
+};
+
+const fetchSeatRecordList = async () => {
+  try {
+    let params = {
+      type: state.activeKey,
+      page: state.currentPage,
+      limit: state.pageSize,
+    };
+    const res = await getSeatRecordList(params);
+    state.loading = false;
+    state.refreshing = false;
+    if (res?.code === 0) {
+      state.data = res?.data?.data || [];
+      state.total = res?.data?.total;
+    }
+
+    state.finished = res?.data?.current_page >= res?.data?.last_page || true;
+  } catch (error) {
+    state.loading = false;
+    state.refreshing = false;
+    state.finished = true;
+    console.log(error);
+  }
+};
+const fetchSeatRenegeList = async () => {
+  try {
+    let params = {
+      type: state.activeKey,
+    };
+    const res = await getSeatRenegeList(params);
+    state.loading = false;
+    state.refreshing = false;
+    if (res?.code === 0) {
+      state.data = res?.data?.data || [];
+      state.total = res?.data?.total;
+    }
+    state.finished = res?.data?.current_page >= res?.data?.last_page || true;
+  } catch (error) {
+    state.loading = false;
+    state.refreshing = false;
+    state.finished = true;
+  }
 };
 
 const onClickItem = (id) => {
@@ -134,34 +178,6 @@ const fetchQuery = () => {
       </div>
     </div>
 
-    <div v-if="state.quickMode != 3" class="item_list">
-      <div class="info_item margin_bottom" @click="onClickItem('1')">
-        <img src="@/assets/my/mobile_seat_record_seat.svg" alt="Location" />
-        <span>失物招领</span>
-      </div>
-      <div class="info_item">
-        <img src="@/assets/event/time.svg" alt="Time" />
-        <span>2024-02-05 09:57:00 2024-02-05 09:57:00 2024-02-05 09:57:00</span>
-
-        <div>
-          <a-button type="primary" shape="round" size="small" block
-            >取消</a-button
-          >
-        </div>
-      </div>
-
-      <div
-        class="rightBadge basicsBadge"
-        :class="{
-          status_success: state.status_name === '预约成功',
-          status_cancel: state.status_name === '已取消',
-          status_in_progress: state.status_name === '使用中',
-          status_end: state.status_name === '已结束',
-        }"
-      >
-        {{ state.status_name }}
-      </div>
-    </div>
     <van-pull-refresh
       v-if="state.quickMode != 3"
       v-model="state.refreshing"
@@ -172,7 +188,36 @@ const fetchQuery = () => {
         :finished="state.finished"
         finished-text="没有更多了"
         @load="onLoad"
-      ></van-list>
+      >
+        <div v-for="item in state.data" :key="item?.id" class="item_list">
+          <div class="info_item margin_bottom" @click="onClickItem(item)">
+            <img src="@/assets/my/mobile_seat_record_seat.svg" alt="Location" />
+            <span>{{ item.nameMerge }} : {{ item.name }}</span>
+          </div>
+          <div class="info_item">
+            <img src="@/assets/event/time.svg" alt="Time" />
+            <span>{{ item.beginTime }}</span>
+
+            <div v-if="item.status_name === '预约成功'">
+              <a-button type="primary" shape="round" size="small" block
+                >取消</a-button
+              >
+            </div>
+          </div>
+
+          <div
+            class="rightBadge basicsBadge"
+            :class="{
+              status_success: item.status_name === '预约成功',
+              status_cancel: item.status_name === '已取消',
+              status_in_progress: item.status_name === '使用中',
+              status_end: item.status_name === '已结束',
+            }"
+          >
+            {{ item.status_name }}
+          </div>
+        </div>
+      </van-list>
     </van-pull-refresh>
 
     <div v-if="state.quickMode == 3" class="query_result">
@@ -284,14 +329,16 @@ const fetchQuery = () => {
       padding: 3px 8px;
       border-radius: 0px 6px 0px 6px;
       font-size: 10px;
+      background-color: rgba(243, 243, 243, 1);
     }
     .status_success {
-      background: rgba(238, 250, 239, 1);
+      background-color: rgba(78, 201, 91, 0.10);
       color: rgba(78, 201, 91, 1);
     }
-    .status_cancel .status_end {
-      background: rgba(243, 243, 243, 1);
-      color: rgba(174, 174, 174, 1);
+    .status_cancel,
+    .status_end {
+      background-color: rgba(134, 134, 134, 0.10);
+      color: rgba(32, 32, 32, 0.30);
     }
     .status_in_progress {
       background: rgba(233, 239, 252, 1);
@@ -301,7 +348,6 @@ const fetchQuery = () => {
   .query_result {
     margin-top: 20px;
     height: 80vh;
-
 
     display: flex;
     flex-direction: column;
