@@ -212,6 +212,8 @@ const fetchQuery = () => {
               status_cancel: item.status_name === '已取消',
               status_in_progress: item.status_name === '使用中',
               status_end: item.status_name === '已结束',
+              status_no_sign: item.status_name === '未签到',
+              status_abnormal: item.status_name === '状态异常',
             }"
           >
             {{ item.status_name }}
@@ -343,6 +345,14 @@ const fetchQuery = () => {
     .status_in_progress {
       background: rgba(233, 239, 252, 1);
       color: rgba(31, 86, 225, 1);
+    }
+    .status_no_sign {
+      background-color: rgba(223, 31, 31, 0.07);
+      color: rgba(223, 31, 31, 1);
+    }
+    .status_abnormal {
+      background-color: rgba(243, 116, 0, 0.10);
+      color: rgba(243, 116, 0, 1);
     }
   }
   .query_result {
