@@ -340,8 +340,7 @@ const onSelectDate = (item) => {
   }
   .content {
     overflow-y: auto;
-
-    margin-top: 16px;
+    margin-bottom: 10px;
 
     .top_swipe {
       position: relative;

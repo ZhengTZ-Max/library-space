@@ -30,7 +30,7 @@ const state = reactive({
 
   refreshing: false,
   loading: false,
-  finished: false,
+  finished: true,
 
   isShowDrawer: false,
   selectedRecord: "",
@@ -45,7 +45,7 @@ const state = reactive({
 });
 
 onMounted(() => {
-  fetch();
+  // fetch();
 });
 
 const onRefresh = () => {
@@ -65,6 +65,7 @@ const fetch = async () => {
       limit: state.pageSize,
     };
     const res = await getActivityRecordList(params);
+    console.log(res);
     state.loading = false;
     state.refreshing = false;
     if (res?.code === 0) {
@@ -77,11 +78,13 @@ const fetch = async () => {
       state.finished = state.currentPage >= res?.data?.last_page;
     } else {
       state.data = [];
+      state.finished = true;
     }
+
   } catch (error) {
     state.loading = false;
     state.refreshing = false;
-    state.finished = false;
+    state.finished = true;
     state.data = [];
     console.log(error);
   }
@@ -96,10 +99,27 @@ const onChangeTab = (key) => {
 };
 
 const onClickItem = (id) => {
-  router.push({
-    path: "/mo/profile/activity-record-details",
-    query: { id },
-  });
+  if (state.activeKey !== "3") {
+    if (state.activeKey == "1") {
+      // 申请记录
+      router.push({
+        path: "/mo/profile/activity-record-apply-details",
+        query: { id },
+      });
+    } else {
+      // 报名记录
+      router.push({
+        path: "/mo/profile/activity-record-signup-details",
+        query: { id },
+      });
+    }
+  } else {
+    // 草稿箱
+    router.push({
+      path: "/mo/profile/activity-record-details",
+      query: { id },
+    });
+  }
 };
 </script>
 
