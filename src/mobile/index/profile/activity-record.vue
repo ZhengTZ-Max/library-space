@@ -10,6 +10,7 @@
 </route>
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import {
   getActivityRecordList,
@@ -17,6 +18,8 @@ import {
   saveComments,
 } from "@/request/activity-record";
 import Carousel from "@/components/CarouselCom.vue";
+
+const router = useRouter();
 
 const state = reactive({
   activeKey: "1",
@@ -37,6 +40,8 @@ const state = reactive({
   appointmentTime: "",
   isShowTextArea: false,
   comments: "",
+
+  status_name: "报名成功",
 });
 
 onMounted(() => {
@@ -90,8 +95,11 @@ const onChangeTab = (key) => {
   console.log(key);
 };
 
-const onClickItem = (item) => {
-  console.log(item.id);
+const onClickItem = (id) => {
+  router.push({
+    path: "/mo/profile/activity-record-details",
+    query: { id },
+  });
 };
 </script>
 
@@ -107,7 +115,53 @@ const onClickItem = (item) => {
       <a-tab-pane key="2" tab="报名记录"></a-tab-pane>
       <a-tab-pane key="3" tab="草稿箱"></a-tab-pane>
     </a-tabs>
-
+    <div class="item" v-if="state.activeKey !== '3'" @click="onClickItem('1')">
+      <div class="item_title">11111</div>
+      <div
+        class="rigthBadge basicsBadge"
+        :class="{
+          status_not_started: state?.status_name === '未开始',
+          status_in_registration: state?.status_name === '报名中',
+          status_in_progress: state?.status_name === '进行中',
+          status_end: state?.status_name === '已结束',
+          status_success: state?.status_name === '报名成功',
+        }"
+      >
+        {{ state?.status_name }}
+      </div>
+      <van-image
+        radius="10"
+        src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
+        alt="Empty state illustration"
+      />
+      <div class="item_bottom">
+        <div class="event-location">
+          <img src="@/assets/event/seat.svg" alt="Location" />
+          <span>1111</span>
+        </div>
+        <div class="event-time">
+          <img src="@/assets/event/time.svg" alt="Time" />
+          <div class="timeList">
+            <span>1111</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="item" v-if="state.activeKey == '3'" @click="onClickItem('1')">
+      <div class="item_title">11111</div>
+      <van-image
+        radius="10"
+        src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
+        alt="Empty state illustration"
+      />
+      <div class="item_bottom_draft" @click="onClickDraftEdit('1')">
+        <div class="draft_left">1111</div>
+        <div class="draft_right">
+          <div class="draft_time">编辑</div>
+          <img src="@/assets/my/mobile_event_edit_draft.svg" alt="Edit" />
+        </div>
+      </div>
+    </div>
     <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
       <van-list
         v-model:loading="state.loading"
@@ -149,6 +203,27 @@ const onClickItem = (item) => {
               <div class="timeList">
                 <span>{{ item?.show_date }}</span>
               </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="item"
+          v-if="state.activeKey == '3'"
+          v-for="item in state.data"
+          :key="item?.id"
+          @click="onClickItem(item)"
+        >
+          <div class="item_title">{{ item?.title }}</div>
+          <van-image
+            radius="10"
+            :src="item?.poster[0]?.file_path"
+            alt="Empty state illustration"
+          />
+          <div class="item_bottom_draft" @click="onClickDraftEdit('1')">
+            <div class="draft_left">1111</div>
+            <div class="draft_right">
+              <div class="draft_time">编辑</div>
+              <img src="@/assets/my/mobile_event_edit_draft.svg" alt="Edit" />
             </div>
           </div>
         </div>
@@ -231,6 +306,25 @@ const onClickItem = (item) => {
         .timeList {
           display: flex;
           flex-wrap: wrap;
+        }
+      }
+    }
+    .item_bottom_draft {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 10px;
+      .draft_left {
+        font-size: 13px;
+        color: rgba(134, 134, 134, 1);
+      }
+      .draft_right {
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+        color: rgba(31, 86, 225, 1);
+        img {
+          width: 16px;
+          height: 16px;
         }
       }
     }

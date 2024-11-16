@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted, watch, computed } from "vue";
 import { useStore } from "vuex";
 import { SearchOutlined } from "@ant-design/icons-vue";
-import { getSeatRecordList } from "@/request/sear-record";
+import { getSeatRecordList, getSeatRenegeList } from "@/request/sear-record";
 import MySeatRecordCom from "@/components/MySeatRecordCom.vue";
 
 const store = useStore();
@@ -143,6 +143,7 @@ const onChangeQMode = (row) => {
     if (row?.value == "3") return;
   }
   state.quickMode = row?.value;
+  fetch();
 };
 
 onMounted(() => {
@@ -164,6 +165,7 @@ const fetch = () => {
     fetchSeatRecordList();
   } else if (state.quickMode === 2) {
     // 违约记录
+    fetchSeatRenegeList();
   } else if (state.quickMode === 3) {
     // 权限查询
   }
@@ -184,6 +186,18 @@ const fetchSeatRecordList = async () => {
   } catch (error) {
     console.log(error);
   }
+};
+const fetchSeatRenegeList = async () => {
+  try {
+    let params = {
+      type: state.activeKey,
+    };
+    const res = await getSeatRenegeList(params);
+    if (res?.code === 0) {
+      state.data = res?.data?.data || [];
+      state.total = res?.data?.total;
+    }
+  } catch (error) {}
 };
 
 // 座位 tab 切换

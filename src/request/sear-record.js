@@ -10,3 +10,14 @@ export function getSeatRecordList(data) {
     data,
   });
 }
+
+export function getSeatRenegeList(data) {
+  return service({
+    url: "/v4/member/seatRenege",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}

@@ -27,6 +27,7 @@ import {
   Cell,
   CellGroup,
   PullRefresh,
+  Dialog,
 } from "vant";
 import "vant/lib/index.css";
 import "vant/lib/icon/index.css";
@@ -47,7 +48,7 @@ app.use(List);
 app.use(Cell);
 app.use(CellGroup);
 app.use(PullRefresh);
-
+app.use(Dialog);
 app.use(router);
 app.use(Antd);
 app.use(store);
