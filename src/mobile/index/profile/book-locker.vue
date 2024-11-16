@@ -31,7 +31,7 @@ const state = reactive({
 
   refreshing: false,
   loading: false,
-  finished: false,
+  finished: true,
 });
 
 const onChangeTab = (key) => {
@@ -66,7 +66,7 @@ const fetchGetBookLocker = async () => {
   } catch (error) {
     state.loading = false;
     state.refreshing = false;
-    state.finished = false;
+    state.finished = true;
     state.data = [];
     console.log(error);
   }

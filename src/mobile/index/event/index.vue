@@ -31,7 +31,7 @@ const state = reactive({
   activeKey: "1",
   refreshing: false,
   loading: false,
-  finished: false,
+  finished: true,
   date: moment().format("YYYY-MM-DD"),
   selectDate: null,
   selectType: "",
@@ -93,11 +93,11 @@ const fetchCurrentEventList = async () => {
     } else {
       state.eventList = [];
     }
-    state.finished = res?.data?.current_page >= res?.data?.last_page;
+    state.finished = res?.data?.current_page >= res?.data?.last_page || true;
   } catch (e) {
     state.loading = false;
     state.refreshing = false;
-    state.finished = false;
+    state.finished = true;
     state.eventList = [];
   }
 };

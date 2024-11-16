@@ -31,7 +31,7 @@ const state = reactive({
 
   refreshing: false,
   loading: false,
-  finished: false,
+  finished: true,
 
   filterRows: {
     premiseID: "",
@@ -79,7 +79,7 @@ const fetchGetSeatRecord = async () => {
   } catch (error) {
     state.loading = false;
     state.refreshing = false;
-    state.finished = false;
+    state.finished = true;
     state.data = [];
     console.log(error);
   }
