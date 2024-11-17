@@ -100,13 +100,28 @@ export function getSpaceConfirm(data) {
   });
 }
 
+// 考研查询
+export function getCheckStudyOpenTime(data) {
+  return service({
+    url: "/v4/member/checkStudyOpenTime",
+    method: "POST",
+    isLoading: true,
+    isCrypto: false,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
 
-
-
-
-
-
-
-
-
-
+// 考研/研习预约
+export function fetchStudyConfirm(data) {
+  return service({
+    url: "/v4/space/studyConfirm",
+    method: "POST",
+    isLoading: true,
+    isCrypto: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}

@@ -26,6 +26,7 @@ const state = reactive({
     libraryId: route?.query?.id || "",
     quickDate: route?.query?.date || "",
     floorId: route?.query?.floor || "",
+    seatType: route?.query?.seatType || "",
   },
 
   quickDate: route?.query?.date || "",
@@ -60,10 +61,9 @@ onMounted(() => {
   initQuickDateList();
 
   fetchFilter();
-  if (state.initQuery?.libraryId) {
-    // fetchLibrary();
-  } else {
-    router.go(-1);
+  if (!state.initQuery?.quickDate) {
+    state.initQuery.quickDate = exchangeDateTime(new Date(),2)
+    // router.go(-1);
   }
 });
 
@@ -77,12 +77,14 @@ watch(
 );
 
 const initQueryFn = () => {
-  let { libraryId, quickDate, floorId } = state.initQuery;
+  let { libraryId, quickDate, floorId, seatType } = state.initQuery;
 
   let floorSelect = [];
-
-  state.filterSearch.library = [libraryId];
+  if (libraryId) {
+    state.filterSearch.library = [libraryId];
+  }
   state.filterSearch.date = quickDate;
+  state.filterSearch.seatType = [seatType];
 
   state.filterOptions?.storey?.map((e) => {
     if (e?.list?.find((f) => f?.id == floorId)) {
@@ -153,6 +155,10 @@ const fetchLibrary = async () => {
       boutiqueIds: boutique,
       date,
     };
+    console.log("state.filterOptions", state.filterOptions, library);
+    if (!library?.length) {
+      params.premisesIds = state.filterOptions?.premises?.map((e) => e?.id);
+    }
     state.floorMapOpt.list = [];
     let res = await getSpacePick(params);
 
@@ -307,7 +313,20 @@ const handleAppt = (row) => {
               @click="onChangeAct(item)"
             >
               <div class="cardItemImgCon">
-                <img class="cardItemImg" :src="item?.firstImg" alt="" />
+                <a-image
+                  class="cardItemImg"
+                  :src="item?.firstImg"
+                  :preview="false"
+                >
+                  <template #placeholder>
+                    <a-image
+                      class="cardItemImg"
+                      style="width: 100%; height: 100%"
+                      :src="PlaceImg"
+                      :preview="false"
+                    />
+                  </template>
+                </a-image>
                 <div class="leftBadge basicsBadge">{{ item?.typeName }}</div>
                 <div
                   class="rightBadge viewMore clickBox"

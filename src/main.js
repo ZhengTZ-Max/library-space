@@ -6,6 +6,7 @@ import router from "./router";
 import store from "./store"; // 引入 store
 import directives from "./directives";
 import { t } from "./utils";
+import PlaceImg from '@/assets/login/headerBg.png'
 
 import "ant-design-vue/dist/reset.css";
 import "./style.css";
@@ -71,6 +72,7 @@ function computedWidth() {
 
 // 注册全局函数
 app.config.globalProperties.$t = t;
+app.config.globalProperties.PlaceImg = PlaceImg;
 
 router.isReady().then(() => {
   app.mount("#app");

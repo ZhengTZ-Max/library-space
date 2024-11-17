@@ -244,13 +244,13 @@ export const tabType = [
     id: "6",
     name: "研习座位",
     enname: "Admission Reservation",
-    path: "",
+    path: "/seat/space?seatType=3",
   },
   {
     id: "7",
     name: "考研座位",
     enname: "Postgraduate Seats",
-    path: "",
+    path: "/seat/space?seatType=4",
   },
   {
     id: "8",
@@ -451,7 +451,7 @@ export const t = (key) => {
   if (!langList?.length) {
     return "";
   }
-  
+
   let lang = store?.state.lang;
   let findRow = langList?.find((e) => e?.name == key);
 

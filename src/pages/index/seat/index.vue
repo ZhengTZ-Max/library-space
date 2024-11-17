@@ -81,7 +81,7 @@ const handleShowInfo = (item) => {
 };
 
 const handleAppt = () => {
-  goToLink();
+  goToLink(state.libraryInfo?.id);
 };
 
 const onChangeAct = (i) => {
@@ -118,10 +118,10 @@ const fetchInfo = async (id) => {
   }
 };
 
-const goToLink = () => {
+const goToLink = (id) => {
   router.push({
     path: "/seat/space",
-    query: { id: state.activeIndex, date: state.quickDate },
+    query: { id: id || state.activeIndex, date: state.quickDate },
   });
 };
 
@@ -177,7 +177,17 @@ const onFloor = (row) => {
               @click="onChangeAct(item)"
             >
               <div class="cardItemImgCon">
-                <img class="cardItemImg" :src="item?.firstImg" alt="" />
+                <a-image class="cardItemImg" :src="item?.firstImg" :preview="false">
+                  <template #placeholder>
+                    <a-image
+                      class="cardItemImg"
+                      style="width: 100%; height: 100%"
+                      :src="PlaceImg"
+                      :preview="false"
+                    />
+                  </template>
+                </a-image>
+                <!-- <img class="cardItemImg" :src="item?.firstImg" alt="" /> -->
                 <div class="posBot">
                   <span>{{ item?.name }}</span>
                   <span @click.stop="handleShowInfo(item)">查看详情</span>
@@ -196,7 +206,7 @@ const onFloor = (row) => {
                 <div
                   v-if="item?.id == state.activeIndex"
                   class="action"
-                  @click="goToLink"
+                  @click="goToLink(item?.id)"
                 >
                   <span>预约</span>
                   <img src="@/assets/home/rightIconPrimary.svg" alt="" />
