@@ -3,7 +3,6 @@ import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
-import html2canvas from "html2canvas";
 
 import { exchangeDateTime, initSltTime, areArraysDifferent } from "@/utils";
 import {
@@ -13,9 +12,12 @@ import {
   getSpaceSeat,
   getSpaceRule,
   getSpaceConfirm,
+  getCheckStudyOpenTime,
+  fetchStudyConfirm,
 } from "@/request/seat";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceFilterDate from "@/components/SpaceSeat/SpaceFilterDate.vue";
+import SpaceSeatStudy from "@/components/SpaceSeat/SpaceSeatStudy.vue";
 import SpaceSeatMap from "@/components/SpaceSeat/SpaceSeatMap.vue";
 import SeatAreaSwipe from "@/components/SpaceSeat/SeatAreaSwipe.vue";
 import SeatAreaList from "@/components/SpaceSeat/SeatAreaList.vue";
@@ -65,6 +67,7 @@ const state = reactive({
     boutique: [],
     times: {},
     time: "",
+    dateId: "",
   },
 
   filterDate: {
@@ -81,6 +84,8 @@ const state = reactive({
     title: "预约成功~~",
     type: "success",
   },
+
+  studyOpenTime: [],
 });
 
 onMounted(() => {
@@ -101,6 +106,20 @@ onMounted(() => {
 //   fetchInfo();
 // };
 
+const getStudyPermission = ({ index, id }) => {
+  let findRow;
+
+  if (id) {
+    findRow = state.studyOpenTime?.find((e) => e?.id == id);
+  } else {
+    findRow = state.studyOpenTime[index];
+  }
+  if (findRow && findRow?.id) {
+    return findRow?.isvalid == 1;
+  }
+  return false;
+};
+
 const fetchLibraryInfo = async () => {
   try {
     let params = {
@@ -119,24 +138,28 @@ const fetchSpace = async () => {
   try {
     state.spaceList = [];
 
-    let { date, times, time } = state.filterSearch;
+    let { date, times, time, begdate, enddate } = state.filterSearch;
+
     let dateType = state.spaceInfo?.date?.reserveType;
 
     let params = {
       id: state.initQuery?.spaceId,
-      day: date,
+      day: "",
       label_id: state.spaceLabelVal,
       start_time: times?.start || "",
       end_time: times?.end || "",
-      begdate: "",
-      enddate: "",
+      begdate: begdate || "",
+      enddate: enddate || "",
     };
-    if (dateType == 2) {
-      params.start_time = time;
-      params.end_time = time;
-    } else if (dateType == 3) {
-      params.start_time = time[0];
-      params.end_time = time[1];
+    if (!params?.begdate) {
+      params.day = date;
+      if (dateType == 2) {
+        params.start_time = time;
+        params.end_time = time;
+      } else if (dateType == 3) {
+        params.start_time = time[0];
+        params.end_time = time[1];
+      }
     }
     let res = await getSpaceSeat(params);
 
@@ -170,10 +193,15 @@ const fetchInfo = async () => {
     let res = await getSpaceMap(params);
     if (res.code != 0) return;
     state.spaceInfo = res?.data || {};
-    initSltTimes();
     fetchRule();
-    fetchSpace();
     fetchLabel();
+
+    if (state.spaceInfo?.type != "1") {
+      fetchCheckStudyOpenTime();
+    } else {
+      initSltTimes();
+      fetchSpace();
+    }
   } catch (e) {
     console.log(e);
   }
@@ -219,6 +247,37 @@ const initSltTimes = () => {
 
   state.filterDate.time = state.filterSearch?.time;
   state.filterDate.times = state.filterSearch?.times;
+};
+const fetchCheckStudyOpenTime = async () => {
+  try {
+    let params = {
+      area: state.initQuery?.spaceId,
+    };
+    let res = await getCheckStudyOpenTime(params);
+    if (res.code != 0) return;
+    state.studyOpenTime = res?.data?.map((e, i) => {
+      if (i == 0) {
+        e.showLabel = "本期";
+      } else if (i == 1) {
+        e.showLabel = "下期";
+      }
+
+      return e;
+    });
+    state.filterDate.date = state.studyOpenTime[0]?.id;
+    state.filterSearch.dateId = state.studyOpenTime[0]?.id;
+
+    let findCurDate = state.studyOpenTime[0];
+
+    state.filterSearch = {
+      ...state.filterSearch,
+      begdate: findCurDate?.startDay,
+      enddate: findCurDate?.endDay,
+    };
+    fetchSpace();
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const fetchRule = async () => {
@@ -293,25 +352,39 @@ const confirmAppt = async () => {
   try {
     let dateType = state.spaceInfo?.date?.reserveType;
 
-    let params = {
-      seat_id: state.spaceSelected?.id,
-      segment: "",
-      day: state.filterSearch.date,
-      start_time: "",
-      end_time: "",
-    };
-    let searchTime = state.filterSearch.time;
-    if (dateType == 1) {
-      params.segment = searchTime;
-    } else if (dateType == 2) {
-      // params.start_time = searchTime;
-      params.end_time = searchTime;
-    } else if (dateType == 3) {
-      params.start_time = searchTime[0];
-      params.end_time = searchTime[1];
+    let res;
+
+    if (state.spaceInfo?.type != 1) {
+      let { begdate, enddate } = state.filterSearch;
+
+      let params = {
+        seat_id: state.spaceSelected?.id,
+        begdate: begdate,
+        enddate: enddate,
+      };
+      res = await fetchStudyConfirm(params);
+    } else {
+      let params = {
+        seat_id: state.spaceSelected?.id,
+        segment: "",
+        day: state.filterSearch.date,
+        start_time: "",
+        end_time: "",
+      };
+      let searchTime = state.filterSearch.time;
+      if (dateType == 1) {
+        params.segment = searchTime;
+      } else if (dateType == 2) {
+        // params.start_time = searchTime;
+        params.end_time = searchTime;
+      } else if (dateType == 3) {
+        params.start_time = searchTime[0];
+        params.end_time = searchTime[1];
+      }
+      console.log(params);
+      res = await getSpaceConfirm(params);
     }
-    console.log(params);
-    let res = await getSpaceConfirm(params);
+
     state.apptResult = {
       show: true,
       title: res?.code == 0 ? "预约成功" : "预约失败",
@@ -324,14 +397,25 @@ const confirmAppt = async () => {
 };
 
 const ShowSelectedDateTime = () => {
-  let dateType = state.spaceInfo?.date?.reserveType;
-  let { times, time, date } = state.filterSearch;
-  if (dateType == 1) {
-    return `${date} ${times?.start}~${times?.end}`;
-  } else if (dateType == 2) {
-    return `${date} ${time}`;
-  } else if (dateType == 3) {
-    return `${date} ${time[0]}~${time[1]}`;
+  if (state.spaceInfo?.type != 1) {
+    let findCurDate = state.studyOpenTime?.find(
+      (e) => e?.id == state.filterSearch?.dateId
+    );
+    if (findCurDate) {
+      return `${findCurDate?.startDay} ~ ${findCurDate?.endDay}`;
+    } else {
+      return ``;
+    }
+  } else {
+    let dateType = state.spaceInfo?.date?.reserveType;
+    let { times, time, date } = state.filterSearch;
+    if (dateType == 1) {
+      return `${date} ${times?.start}~${times?.end}`;
+    } else if (dateType == 2) {
+      return `${date} ${time}`;
+    } else if (dateType == 3) {
+      return `${date} ${time[0]}~${time[1]}`;
+    }
   }
 };
 
@@ -447,8 +531,41 @@ const onViewMap = () => {
         <a-skeleton v-else :paragraph="{ rows: 12 }" active />
       </div>
       <div class="reservation">
+        <div v-if="state.spaceInfo?.type != 1" class="studyPermission">
+          <p class="studyTitle">预约权限</p>
+          <div class="studyBox">
+            <p>
+              本期：<span
+                :class="{
+                  success: getStudyPermission({ index: 0 }),
+                  fail: !getStudyPermission({ index: 0 }),
+                }"
+                class="success"
+                >{{
+                  getStudyPermission({ index: 0 }) ? "已获得" : "未获得"
+                }}</span
+              >
+            </p>
+            <p>
+              下期：<span
+                :class="{
+                  success: getStudyPermission({ index: 1 }),
+                  fail: !getStudyPermission({ index: 1 }),
+                }"
+                >{{
+                  getStudyPermission({ index: 1 }) ? "已获得" : "未获得"
+                }}</span
+              >
+            </p>
+          </div>
+        </div>
         <div class="selectDate">
-          <span>今天</span>
+          <span v-if="state?.spaceInfo?.type == 1">今天</span>
+          <span v-else>{{
+            state.studyOpenTime?.find(
+              (e) => e?.id == state.filterSearch?.dateId
+            )?.showLabel
+          }}</span>
           <span>{{ ShowSelectedDateTime() }} </span>
           <img
             style="cursor: pointer"
@@ -482,8 +599,15 @@ const onViewMap = () => {
         block
         type="primary"
         @click="state.spaceRuleShow = true"
-        :disabled="!state.spaceSelected?.id"
-        >预约</van-button
+        :disabled="
+          !state.spaceSelected?.id ||
+          !getStudyPermission({ id: state.filterSearch?.dateId })
+        "
+        >{{
+          !getStudyPermission({ id: state.filterSearch?.dateId })
+            ? "无预约权限"
+            : "立即预约"
+        }}</van-button
       >
     </div>
 
@@ -515,9 +639,14 @@ const onViewMap = () => {
     >
       <div class="spacefilterDateCon">
         <SpaceFilterDate
-          v-if="state.spaceInfo?.date?.list?.length"
+          v-if="state.spaceInfo?.type == 1"
           :date="state.spaceInfo?.date"
           :initSearch="state.filterDate"
+        />
+        <SpaceSeatStudy
+          v-else
+          :initSearch="state.filterDate"
+          :options="state.studyOpenTime"
         />
         <div class="bottomAction">
           <van-button
@@ -533,7 +662,11 @@ const onViewMap = () => {
             block
             type="primary"
             @click="handleFilter"
-            :disabled="!state?.filterDate?.time"
+            :disabled="
+              state.spaceInfo?.type != 1
+                ? !state?.filterDate?.date
+                : !state?.filterDate?.time
+            "
             >确认</van-button
           >
         </div>
@@ -726,6 +859,31 @@ const onViewMap = () => {
   border: 1px solid #e7e7e7;
   padding: 20px 18px;
   margin-top: 20px;
+
+  .studyPermission {
+    margin: 0 -18px;
+    padding: 0 18px;
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #e7e7e7;
+    .studyTitle {
+      font-size: 15px;
+      color: #202020;
+      margin-bottom: 10px;
+    }
+    .studyBox {
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      color: #616161;
+      .success {
+        color: #56bb46;
+      }
+      .fail {
+        color: #202020;
+      }
+    }
+  }
 
   .selectDate {
     display: flex;

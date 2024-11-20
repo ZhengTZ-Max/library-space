@@ -220,7 +220,7 @@ export const tabType = [
     id: "2",
     name: "空间预约",
     enname: "Space Reservation",
-    path: "",
+    path: "/space",
   },
   {
     id: "3",

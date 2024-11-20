@@ -3,9 +3,8 @@ import store from "../store";
 import { encrypt } from "../utils";
 import { message } from "ant-design-vue";
 import { showLoadingToast, closeToast } from "vant";
-
+import { useRouter } from "vue-router";
 const MODE = import.meta.env.MODE;
-
 // 创建一个 axios 实例
 const service = axios.create({
   baseURL: MODE === "production" ? "/" : "/api",
@@ -68,12 +67,17 @@ service.interceptors.request.use(
 // 添加响应拦截器
 service.interceptors.response.use(
   function (response) {
+    if (response.config?.isLoading) {
+      activeRequests--;
+      ClearPageLoading();
+    }
+
     if (response.config?.isCryptoPas) {
       let data = JSON.parse(encrypt("decrypt", response.data.data));
       response.data.data = data;
     }
 
-    let { code, msg } = response.data;
+    let { code, msg, message: messg } = response.data;
 
     if (response.config?.succMsg) {
       if (code === 0) {
@@ -83,11 +87,14 @@ service.interceptors.response.use(
       }
     }
 
-    if (response.config?.isLoading) {
-      activeRequests--;
-      ClearPageLoading();
+    if (code === 10001) {
+      message.error(messg);
+      setTimeout(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+        location.hash = "/login";
+      }, 1000);
     }
-
     // 请求完成后减少计数
 
     return response.data;

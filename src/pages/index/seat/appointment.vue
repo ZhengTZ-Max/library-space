@@ -3,7 +3,6 @@ import { reactive, onMounted, watch, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
-import html2canvas from "html2canvas";
 
 import { exchangeDateTime, initSltTime, areArraysDifferent } from "@/utils";
 import {

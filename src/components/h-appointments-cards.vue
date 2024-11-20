@@ -1,11 +1,64 @@
 <script setup>
 import AppointmentItem from "./AppointmentItem.vue";
 import Carousel from "./CarouselCom.vue";
-import { reactive } from "vue";
+import { reactive, onMounted, watch } from "vue";
+import { getSubscribe } from "@/request/home";
 
 const state = reactive({
   isUnfold: false,
+
+  tabActive: "",
+  config: {
+    seat: { type: [1, 3, 4], list: [] },
+    space: { type: [2], list: [] },
+  },
+
+  showList: [],
 });
+
+watch(
+  () => state.tabActive,
+  (v) => {
+    let { seat, space } = state.config;
+    if (v == "seat") {
+      state.showList = seat?.list || [];
+    } else if (v == "space") {
+      state.showList = space?.list || [];
+    }
+    console.log(state.showList);
+
+  }
+);
+
+onMounted(() => {
+  fetchSubscribe();
+});
+const fetchSubscribe = async () => {
+  try {
+    let params = {};
+    const res = await getSubscribe(params);
+
+    if (res?.code != 0) {
+      return false;
+    }
+    filterConfig(res?.data || []);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const filterConfig = (list) => {
+  let { seat, space } = state.config;
+
+  state.config.seat.list = list.filter((e) => seat?.type?.includes(e?.type));
+  state.config.space.list = list.filter((e) => space?.type?.includes(e?.type));
+
+  if (state.config.seat.list?.length) {
+    state.tabActive = "seat";
+  } else if (state.config.space.list?.length) {
+    state.tabActive = "space";
+  }
+};
 
 const onToggleCard = (type) => {
   if (type == "shrink") {
@@ -23,9 +76,24 @@ const onToggleCard = (type) => {
         transform: !state.isUnfold ? 'translateX(440px)' : 'translateX(0)',
       }"
     >
-      <div class="appointmentsTypes">
-        <div class="itemTab">座位</div>
-        <div class="itemTab active">空间</div>
+      <div
+        class="appointmentsTypes"
+        v-if="state.config.seat.list?.length || state.config.space.list?.length"
+      >
+        <div
+          class="itemTab"
+          :class="{ active: state.tabActive == 'seat' }"
+          v-if="state.config.seat.list?.length"
+        >
+          座位
+        </div>
+        <div
+          class="itemTab"
+          :class="{ active: state.tabActive == 'space' }"
+          v-if="state.config.space.list?.length"
+        >
+          空间
+        </div>
       </div>
       <Transition>
         <div
@@ -38,17 +106,16 @@ const onToggleCard = (type) => {
 
         <div v-else class="shrink clickBox" @click="onToggleCard('shrink')">
           <img class="currentApp" src="@/assets/home/currentApp.svg" alt="" />
-          <span>立即预约</span>
+          <span>当前预约</span>
           <img class="shrinkIcon" src="@/assets/home/shrinkIcon.svg" alt="" />
         </div>
       </Transition>
       <div class="CardCon">
         <Carousel>
           <template v-slot:content>
-            <AppointmentItem />
-            <AppointmentItem />
-            <AppointmentItem />
-            <AppointmentItem />
+            <template v-for="item in state.showList" :key="item?.id">
+              <AppointmentItem :data="item" @getList="fetchSubscribe" />
+            </template>
           </template>
         </Carousel>
       </div>
@@ -61,6 +128,7 @@ const onToggleCard = (type) => {
   right: 0;
   top: 65%;
   transform: translate(0%, -65%);
+  z-index: 9;
 
   .unfold {
     position: relative;

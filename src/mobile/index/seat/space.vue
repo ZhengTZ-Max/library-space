@@ -36,6 +36,7 @@ const state = reactive({
     libraryId: route?.query?.id || "",
     quickDate: route?.query?.date || "",
     floorId: route?.query?.floor || "",
+    seatType: route?.query?.seatType || "",
   },
 
   quickDate: route?.query?.date || "",
@@ -70,10 +71,9 @@ onMounted(() => {
   initQuickDateList();
 
   fetchFilter();
-  if (state.initQuery?.libraryId) {
-    // fetchLibrary();
-  } else {
-    router.go(-1);
+  if (!state.initQuery?.quickDate) {
+    state.initQuery.quickDate = exchangeDateTime(new Date(), 2);
+    // router.go(-1);
   }
 });
 
@@ -87,12 +87,13 @@ watch(
 );
 
 const initQueryFn = () => {
-  let { libraryId, quickDate, floorId } = state.initQuery;
+  let { libraryId, quickDate, floorId, seatType } = state.initQuery;
 
   let floorSelect = [];
 
-  state.filterSearch.library = [libraryId];
+  state.filterSearch.library = libraryId && [libraryId] || [];
   state.filterSearch.date = quickDate;
+  state.filterSearch.seatType = seatType && [seatType] || [];
 
   state.filterOptions?.storey?.map((e) => {
     if (e?.list?.find((f) => f?.id == floorId)) {

@@ -80,11 +80,10 @@ const initQueryFn = () => {
   let { libraryId, quickDate, floorId, seatType } = state.initQuery;
 
   let floorSelect = [];
-  if (libraryId) {
-    state.filterSearch.library = [libraryId];
-  }
+  
+  state.filterSearch.library = libraryId && [libraryId] || [];
   state.filterSearch.date = quickDate;
-  state.filterSearch.seatType = [seatType];
+  state.filterSearch.seatType = seatType && [seatType] || [];
 
   state.filterOptions?.storey?.map((e) => {
     if (e?.list?.find((f) => f?.id == floorId)) {
