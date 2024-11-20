@@ -143,10 +143,10 @@ const fetchSeatRenegeList = async () => {
 };
 
 const onClickItem = (id) => {
-  // router.push({
-  //   path: "/mo/profile/area-record-details",
-  //   query: { id },
-  // });
+  router.push({
+    path: "/mo/profile/seat-record-details",
+    query: { id },
+  });
 };
 
 const fetchQuery = () => {
@@ -190,7 +190,7 @@ const fetchQuery = () => {
         @load="onLoad"
       >
         <div v-for="item in state.data" :key="item?.id" class="item_list">
-          <div class="info_item margin_bottom" @click="onClickItem(item)">
+          <div class="info_item margin_bottom" @click="onClickItem(item.id)">
             <img src="@/assets/my/mobile_seat_record_seat.svg" alt="Location" />
             <span>{{ item.nameMerge }} : {{ item.name }}</span>
           </div>
