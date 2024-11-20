@@ -31,14 +31,22 @@ onMounted(() => {
 //     console.log(e);
 //   }
 // };
+
+const filterCategorys = (list) => {
+  let newList = list?.map((e) => e?.name);
+  return newList?.join("/") || "";
+};
 </script>
 <template>
   <div class="libraryInfo">
     <p class="title">{{ state.propsData?.name || "-" }}</p>
-    <div class="seatNum">
-      座位（ <span>空闲{{ state.propsData?.free_num || "-" }}</span
+    <div class="seatNum" v-if="state.propsData?.type == 'library'">
+      座位 ( <span>空闲{{ state.propsData?.free_num || "-" }}</span
       ><span>/总数{{ state.propsData?.total_num || "-" }}</span
-      >）
+      > )
+    </div>
+    <div class="seatNum" v-if="state.propsData?.type == 'activity'">
+      {{ filterCategorys(state.propsData?.categorys|| []) }} ( <span>可容纳{{ state.propsData?.minPerson }} ~ {{ state.propsData?.maxPerson }}人</span>)
     </div>
     <div class="libraryIntro" v-html="state.propsData?.contents || ''"></div>
 
@@ -67,6 +75,7 @@ onMounted(() => {
   .title {
     font-size: 26px;
     color: #1a49c0;
+    font-family: AliExtraBold !important;
   }
   .seatNum {
     margin: 14px 0;

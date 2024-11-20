@@ -17,7 +17,7 @@ const state = reactive({
 
   filterRows: {
     premiseID: "",
-    categoryID: "", 
+    categoryID: "",
     date: "",
   },
 });
@@ -26,11 +26,15 @@ onMounted(() => {
   state.filterOptions = props?.data || {};
   state.filterRows = props?.initSearch || {};
 });
-
-
 </script>
 <template>
-  <div class="filterCon">
+  <div
+    class="filterCon"
+    :class="{
+      height_35vh: state.filterOptions?.showDate,
+      height_25vh: !state.filterOptions?.showDate,
+    }"
+  >
     <div class="filterScr">
       <div class="filterFilter">馆舍</div>
       <div class="fiterItem">
@@ -54,8 +58,10 @@ onMounted(() => {
           >
         </a-checkbox-group>
       </div>
-      <div class="filterFilter">日期</div>
-      <div class="fiterItem">
+      <div class="filterFilter" v-if="state.filterOptions?.showDate">
+        活动时间
+      </div>
+      <div class="fiterItem" v-if="state.filterOptions?.showDate">
         <a-checkbox-group v-model:value="state.filterRows.date">
           <a-checkbox
             v-for="item in state.filterOptions?.date"
@@ -65,14 +71,13 @@ onMounted(() => {
           >
         </a-checkbox-group>
       </div>
-      
     </div>
   </div>
 </template>
 <style lang="less" scoped>
 .filterCon {
   padding: 24px 0 0 0;
-  height: 59vh;
+
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -111,5 +116,11 @@ onMounted(() => {
     column-gap: 36px;
     row-gap: 20px;
   }
+}
+.height_35vh {
+  height: 35vh;
+}
+.height_25vh {
+  height: 25vh;
 }
 </style>

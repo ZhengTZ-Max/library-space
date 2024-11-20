@@ -66,10 +66,10 @@ const goToLink = (id) => {
     query: { id },
   });
 };
-const fetchGetEventIndex = async () => {
+const fetchGetEventIndex = async () => { 
   try {
     let res = await getEventFilterIndex();
-    state.filterOptions = res?.data;
+    state.filterOptions = { ...res?.data, showDate: true };
     fetchCurrentEventList();
   } catch (e) {}
 };
