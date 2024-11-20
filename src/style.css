@@ -187,6 +187,7 @@ div {
   padding: 2px 16px;
   padding-top: 4px;
   min-width: 60px;
+  font-size: 14px;
   height: 28px;
 }
 .quickBtns .itemActive {

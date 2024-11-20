@@ -280,7 +280,7 @@ export const tabType = [
     id: "12",
     name: "活动申请",
     enname: "Activity Application",
-    path: "",
+    path: "/activity_application",
   },
   {
     id: "13",
