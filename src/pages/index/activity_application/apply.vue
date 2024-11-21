@@ -140,7 +140,7 @@ const filterArguments = (key) => {
           </van-row>
           <!-- 申请主题 -->
           <van-row
-            class="margin_top_20"
+            class="right_top_item"
             align="center"
             v-if="filterArguments('title')"
           >
