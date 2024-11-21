@@ -1,8 +1,13 @@
 <script setup>
 import { reactive, computed } from "vue";
 import { useStore } from "vuex";
-import { fetchCancelSeat } from "@/request/home";
-import { Toast, showConfirmDialog } from "vant";
+import {
+  fetchCancelSeat,
+  fetchSeatSignin,
+  fetchSeatStudySign,
+  fetchCancelStudyCancel,
+} from "@/request/home";
+import { showToast, showConfirmDialog } from "vant";
 const store = useStore();
 const lang = computed(() => store.state.lang);
 const emit = defineEmits(["getList", "getSeatImgInfo"]);
@@ -16,6 +21,7 @@ const props = defineProps({
 
 const onCancel = (row) => {
   try {
+    let res;
     let params = {
       id: row.id,
     };
@@ -51,20 +57,52 @@ const onCancel = (row) => {
         //   handleCancelActivity(row?.id, row?.bookTimeId);
         //   return false;
         // }
-        const res = await fetchCancelSeat(params);
-        if (res.code != 1) {
-          Toast({
+        if (row?.type == 1) {
+          res = await fetchCancelSeat(params);
+        } else if (row?.type == 3 || row?.type == 4) {
+          res = await fetchCancelStudyCancel(params);
+        }
+
+        if (res.code != 0) {
+          showToast({
             duration: 3000,
-            message: res.msg,
+            message: res.message,
           });
           return false;
         }
-        Toast(res.msg);
+        showToast({
+          message: res.message,
+        });
         resetSubscribeList();
       })
       .catch(() => {
         // on cancel
       });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const handleSign = async (row) => {
+  try {
+    let res;
+    if (row?.type == 1) {
+      res = await fetchSeatSignin({ id: row.id });
+    } else if (row?.type == 3 || row?.type == 4) {
+      res = await fetchSeatStudySign({ seat_id: row.id });
+    }
+
+    if (res.code != 0) {
+      showToast({
+        duration: 3000,
+        message: res.message,
+      });
+      return false;
+    }
+    showToast({
+      message: res.message,
+    });
+    resetSubscribeList();
   } catch (e) {
     console.log(e);
   }
@@ -119,6 +157,7 @@ const resetSubscribeList = () => {
             <van-button
               class="btn sign"
               style="background-color: var(--primary-color)"
+              @click.stop="handleSign(data)"
             >
               {{ store?.state?.lang?.currentLang?.signin || "签到" }}
             </van-button>

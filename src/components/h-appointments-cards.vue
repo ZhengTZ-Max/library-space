@@ -16,23 +16,24 @@ const state = reactive({
   showList: [],
 });
 
-watch(
-  () => state.tabActive,
-  (v) => {
-    let { seat, space } = state.config;
-    if (v == "seat") {
-      state.showList = seat?.list || [];
-    } else if (v == "space") {
-      state.showList = space?.list || [];
-    }
-    console.log(state.showList);
-
-  }
-);
+// watch(
+//   () => state.tabActive,
+//   (v) => {
+//     let { seat, space } = state.config;
+//     if (v == "seat") {
+//       state.showList = seat?.list || [];
+//     } else if (v == "space") {
+//       state.showList = space?.list || [];
+//     } else {
+//       state.showList = [];
+//     }
+//   }
+// );
 
 onMounted(() => {
   fetchSubscribe();
 });
+
 const fetchSubscribe = async () => {
   try {
     let params = {};
@@ -52,11 +53,20 @@ const filterConfig = (list) => {
 
   state.config.seat.list = list.filter((e) => seat?.type?.includes(e?.type));
   state.config.space.list = list.filter((e) => space?.type?.includes(e?.type));
+  if (!state.tabActive) {
+    if (state.config.seat.list?.length) {
+      state.tabActive = "seat";
+    } else if (state.config.space.list?.length) {
+      state.tabActive = "space";
+    }
+  }
 
-  if (state.config.seat.list?.length) {
-    state.tabActive = "seat";
-  } else if (state.config.space.list?.length) {
-    state.tabActive = "space";
+  if (state.tabActive == "seat") {
+    state.showList = seat?.list || [];
+  } else if (state.tabActive == "space") {
+    state.showList = space?.list || [];
+  } else {
+    state.showList = [];
   }
 };
 
@@ -69,7 +79,7 @@ const onToggleCard = (type) => {
 };
 </script>
 <template>
-  <div class="appointmentsCards">
+  <div v-if="state.showList?.length" class="appointmentsCards">
     <div
       class="unfold"
       :style="{
@@ -78,7 +88,7 @@ const onToggleCard = (type) => {
     >
       <div
         class="appointmentsTypes"
-        v-if="state.config.seat.list?.length || state.config.space.list?.length"
+        v-if="state.config.seat.list?.length && state.config.space.list?.length"
       >
         <div
           class="itemTab"
@@ -110,7 +120,14 @@ const onToggleCard = (type) => {
           <img class="shrinkIcon" src="@/assets/home/shrinkIcon.svg" alt="" />
         </div>
       </Transition>
-      <div class="CardCon">
+      <div
+        class="CardCon"
+        :class="{
+          hideTab: !(
+            state.config.seat.list?.length && state.config.space.list?.length
+          ),
+        }"
+      >
         <Carousel>
           <template v-slot:content>
             <template v-for="item in state.showList" :key="item?.id">
@@ -158,6 +175,12 @@ const onToggleCard = (type) => {
       box-shadow: 0px 24px 48px 0px rgba(0, 13, 75, 0.24);
       background: #ffffff;
       border-radius: 0 0px 0px 10px;
+      :deep(.carouseDots) {
+        bottom: 20px;
+      }
+      &.hideTab {
+        border-radius: 10px 0px 0px 10px;
+      }
     }
     .shrink {
       position: absolute;

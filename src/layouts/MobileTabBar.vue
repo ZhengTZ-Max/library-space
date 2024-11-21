@@ -18,9 +18,14 @@
     </div>
 
     <!-- 中间凸起图标 -->
-    <div class="tab-item tab-middle" @click="handleClick('center')">
+    <div class="tab-item tab-middle" @click="handleClick('current')">
       <div class="icon-middle">
-        <img src="@/assets/tabbar/current.svg" alt="" />
+        <img
+          v-if="isActiveTab('/mo/current')"
+          src="@/assets/tabbar/currentAct.svg"
+          alt=""
+        />
+        <img v-else src="@/assets/tabbar/current.svg" alt="" />
       </div>
     </div>
 
@@ -109,7 +114,7 @@ watch(
   /* 中间凸起的图标 */
   .tab-middle {
     position: relative;
-    top: -20px; /* 让图标凸起 */
+    top: -4px; /* 让图标凸起 */
     width: 60px;
     height: 60px;
     border-radius: 50%;

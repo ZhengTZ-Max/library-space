@@ -107,6 +107,9 @@ onMounted(() => {
 // };
 
 const getStudyPermission = ({ index, id }) => {
+  if (state?.spaceInfo?.type == 1) {
+    return true;
+  }
   let findRow;
 
   if (id) {

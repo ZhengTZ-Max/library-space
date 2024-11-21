@@ -89,6 +89,7 @@ const toggleLang = (type) => {
           size="small"
           popupClassName="popupQuickSlt"
           placeholder="快速选择"
+          :virtual="false"
         >
           <a-select-option v-for="item in categoryList" :value="item.id">
             <img src="@/assets/home/quickSelectIcon_01.svg" alt="" />
