@@ -81,9 +81,11 @@ service.interceptors.response.use(
 
     if (response.config?.succMsg) {
       if (code === 0) {
-        message.success(msg);
-      } else if (code === 1) {
+        // message.success(msg);
         message.error(msg);
+      } else if (code === 1) {
+        // message.error(msg);
+        message.success(msg);
       }
     }
 

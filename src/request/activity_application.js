@@ -26,3 +26,10 @@ export function getActivityDetail(data) {
     data,
   });
 }
+export function getActivityApply(data) {
+  return service({
+    url: "/v4/activity/axis",
+    method: "POST",
+    data,
+  });
+}
