@@ -736,6 +736,7 @@ const onViewMap = () => {
           review
           :list="state.spaceList"
           :data="state.spaceInfo"
+          :seatSelected="state.spaceSelected"
         />
       </div>
     </van-overlay>

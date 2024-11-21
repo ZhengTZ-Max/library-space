@@ -208,6 +208,7 @@ const resetSubscribeList = () => {
       justify-content: space-between;
     }
     .areaView {
+      white-space: nowrap;
       display: flex;
       font-size: 13px;
       color: #999999;
@@ -226,6 +227,7 @@ const resetSubscribeList = () => {
         color: #202020;
       }
       .actionBtn {
+        white-space: nowrap;
         button {
           padding: 0 8px;
           min-width: 70px;
