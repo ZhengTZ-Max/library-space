@@ -44,9 +44,9 @@ const onChange = (v) => {
         <div v-for="item in state.list" :key="item?.id">
           <div class="title">
             <div class="title_left">{{ item.name }}</div>
-            <div class="title_right">5F</div>
+            <div class="title_right">{{ item.storey_name }}</div>
           </div>
-          <div class="seatNum">可容纳人数<span>1 ~ 100人</span></div>
+          <div class="seatNum">可容纳人数<span>{{ item.minPerson }} ~ {{ item.maxPerson }}人</span></div>
           <div class="otherInfo">
             <div class="otherInfo_item" @click="() => emits('viewFloor')">
               查看平面图

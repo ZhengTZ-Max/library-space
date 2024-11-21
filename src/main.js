@@ -30,6 +30,8 @@ import {
   PullRefresh,
   Dialog,
   Field,
+  Col,
+  Row,
 } from "vant";
 import "vant/lib/index.css";
 import "vant/lib/icon/index.css";
@@ -52,6 +54,8 @@ app.use(CellGroup);
 app.use(PullRefresh);
 app.use(Dialog);
 app.use(Field);
+app.use(Col);
+app.use(Row);
 app.use(router);
 app.use(Antd);
 app.use(store);
