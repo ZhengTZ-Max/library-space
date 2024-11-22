@@ -171,10 +171,7 @@ const onChangeTime = (v, item, type, index) => {
 
     if (dateS >= dateE) {
       message.warning("开始时间不能大于结束时间");
-      item.begin_time = "";
-      state.chooseTimeList[index].begin_time = "";
-      v = "";
-      console.log(state.chooseTimeList, index, item, v);
+      item.begin_time = null; // 必须为null才能置空
     }
   } else {
     // rowData.end_time = rowData.end_time * 60;
@@ -188,10 +185,7 @@ const onChangeTime = (v, item, type, index) => {
 
     if (dateS >= dateE) {
       message.warning("结束时间不能小于开始时间");
-      item.end_time = "";
-      state.chooseTimeList[index].end_time = "";
-      v = "";
-      console.log(state.chooseTimeList, index, item, v);
+      item.end_time = null; // 必须为null才能置空
     }
   }
 };
