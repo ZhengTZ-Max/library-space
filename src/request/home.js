@@ -47,7 +47,6 @@ export function fetchCancelStudyCancel(data) {
   });
 }
 
-
 // 座位签到
 export function fetchSeatSignin(data) {
   return service({
@@ -72,4 +71,26 @@ export function fetchSeatStudySign(data) {
   });
 }
 
+// 临时离开
+export function fetchSeatleave(data) {
+  return service({
+    url: "/v4/space/leave",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
 
+// 完全离开
+export function fetchSeatCheckout(data) {
+  return service({
+    url: "/v4/space/checkout",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}

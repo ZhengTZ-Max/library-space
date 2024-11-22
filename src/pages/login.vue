@@ -69,7 +69,7 @@ const onLogin = async () => {
 
     store.dispatch("updateLoginInfo", res?.data);
     sessionStorage.setItem("token", res.data.token);
-    
+
     if (systemMode?.value == "pc") {
       router.replace("/");
     } else {
@@ -85,7 +85,10 @@ const toggleLang = (type) => {
 };
 </script>
 <template>
-  <div class="login">
+  <div
+    class="login"
+    :style="{ overflow: systemMode != 'pc' ? 'auto' : 'hidden' }"
+  >
     <div class="header">
       <img
         :style="{ width: systemMode != 'pc' ? '100%' : '70%' }"
@@ -189,9 +192,12 @@ const toggleLang = (type) => {
 .login {
   width: 100%;
   height: 100vh;
-  overflow: auto;
   max-width: 750px;
   margin: 0 auto;
+  /* 隐藏Chrome、Safari和Opera的滚动条 */
+  &::-webkit-scrollbar {
+    display: none;
+  }
   .header {
     position: relative;
     width: 100%;

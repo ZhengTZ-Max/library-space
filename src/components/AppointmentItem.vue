@@ -6,6 +6,8 @@ import {
   fetchSeatSignin,
   fetchSeatStudySign,
   fetchCancelStudyCancel,
+  fetchSeatleave,
+  fetchSeatCheckout,
 } from "@/request/home";
 import { showToast, showConfirmDialog } from "vant";
 const store = useStore();
@@ -108,8 +110,118 @@ const handleSign = async (row) => {
   }
 };
 
+const handleLeave = async (row) => {
+  try {
+    let title = store?.state?.lang?.currentLang?.rightback || "临时离开";
+    let message = `${
+      store?.state?.lang?.currentLang?.popup_window_Confirm || "是否确认"
+    } ${title}？`;
+
+    showConfirmDialog({
+      title,
+      message,
+    })
+      .then(async () => {
+        const res = await fetchSeatleave({ id: row.id });
+        if (res.code != 0) {
+          showToast({
+            message: res.message,
+          });
+          return false;
+        }
+        showToast({
+          message: res.message,
+        });
+        resetSubscribeList();
+      })
+      .catch(() => {
+        // on cancel
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const handleCheckout = async (row) => {
+  try {
+    let title = store?.state?.lang?.currentLang?.leave || "完全离开";
+    let message = `${
+      store?.state?.lang?.currentLang?.popup_window_Confirm || "是否确认"
+    } ${title}？`;
+    showConfirmDialog({
+      title,
+      message,
+    })
+      .then(async () => {
+        const res = await fetchSeatCheckout({ id: row.id });
+        if (res.code != 0) {
+          showToast({
+            message: res.message,
+          });
+          return false;
+        }
+        showToast({
+          message: res.message,
+        });
+        resetSubscribeList();
+      })
+      .catch(() => {
+        // on cancel
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const resetSubscribeList = () => {
   emit("getList");
+};
+
+const checkShow = (row, type) => {
+  // let notice = store?.state?.config?.config?.notice;
+  let isShow = false;
+  switch (type) {
+    case "leave":
+      {
+        // isShow = notice?.rightback == 1 && row.flag_out == 1;
+        isShow = row?.flag_out == 1;
+      }
+      break;
+    case "all-leave":
+      {
+        // isShow = notice?.leave == 1 && row.flag_out == 1;
+        isShow = row?.flag_out == 1;
+      }
+      break;
+    case "sign":
+      {
+        // isShow = notice?.signin == 1 && row.flag_in == 1 && row.flag_leave != 1;
+        isShow = row.flag_in == 1 && row.flag_leave != 1;
+      }
+      break;
+    case "back-sign":
+      {
+        // isShow = notice?.rightback == 1 && row.flag_leave == 1;
+        isShow = row.flag_leave == 1;
+      }
+      break;
+    case "cancel":
+      {
+        isShow = row.oksign == 1;
+      }
+      break;
+    case "renewal":
+      {
+        isShow = row.xuzuoflag == 1;
+      }
+      break;
+    default:
+      {
+        isShow = false;
+      }
+      break;
+  }
+  return isShow;
 };
 </script>
 <template>
@@ -132,20 +244,29 @@ const resetSubscribeList = () => {
       <div class="intro">
         <div class="introFirst">
           <p>地点：{{ data?.areaName }}</p>
-          <div class="areaView">
+          <!-- <div class="areaView">
             区域平面图
             <img src="@/assets/home/rightIcon.svg" alt="" />
-          </div>
+          </div> -->
         </div>
-        <div>座位：{{ data?.no }}</div>
+        <div class="seatCon">
+          <span>座位：{{ data?.no }}</span>
+          <span v-if="data?.type == 3 || data?.type == 4" class="statusText">当日未签到</span>
+          <span class="viewPosition">查看位置</span>
+        </div>
         <div>时间：{{ data?.showTime }}</div>
         <div class="action">
-          <div class="tips">
+          <div
+            v-if="data?.flag_in == 1 && data?.flag_leave == 1 && data?.type == 1"
+            class="tips"
+          >
             {{ `${$t("Please")} ${data.signintime} ${$t("Sign_in_before")}` }}
             <!-- 时间：{{ data?.signintime }} -->
           </div>
+          <div v-else></div>
           <div class="actionBtn">
             <van-button
+              v-if="checkShow(data, 'cancel')"
               class="btn cancel"
               plain
               type="primary"
@@ -155,11 +276,38 @@ const resetSubscribeList = () => {
               {{ store?.state?.lang?.currentLang?.signin || "取消" }}
             </van-button>
             <van-button
+              v-if="checkShow(data, 'sign')"
               class="btn sign"
               style="background-color: var(--primary-color)"
               @click.stop="handleSign(data)"
             >
               {{ store?.state?.lang?.currentLang?.signin || "签到" }}
+            </van-button>
+
+            <van-button
+              class="btn sign"
+              style="background: #e58100"
+              v-if="checkShow(data, 'back-sign')"
+              @click.stop="handleSign(data)"
+            >
+              {{ store?.state?.lang?.currentLang?.return_signin || "返回签到" }}
+            </van-button>
+
+            <van-button
+              class="btn"
+              style="background: #35539e"
+              v-if="checkShow(data, 'leave')"
+              @click.stop="handleLeave(data)"
+            >
+              {{ store?.state?.lang?.currentLang?.rightback || "临时离开" }}
+            </van-button>
+            <van-button
+              class="btn all-leave"
+              style="background: #e58100"
+              v-if="checkShow(data, 'all-leave')"
+              @click.stop="handleCheckout(data)"
+            >
+              {{ store?.state?.lang?.currentLang?.leave || "完全离开" }}
             </van-button>
           </div>
         </div>
@@ -248,6 +396,18 @@ const resetSubscribeList = () => {
         //   color: #202020;
         // }
       }
+    }
+  }
+  .seatCon {
+    display: flex;
+    align-items: center;
+    .statusText {
+      margin-left: 12px;
+    }
+    .viewPosition {
+      margin-left: 12px;
+      color: var(--primary-color);
+      cursor: pointer;
     }
   }
 }
