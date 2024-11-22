@@ -35,18 +35,19 @@ const initFirst = () => {
 const onChange = (v) => {
   emits("changeSlide", state.list[v]);
 };
-
 </script>
 <template>
   <div class="container">
     <Carousel ref="carouselRef" :afterChange="onChange">
       <template v-slot:content>
-        <div v-for="item in state.list" :key="item?.id">
+        <div v-for="item in [...state.list, ...state.list]" :key="item?.id">
           <div class="title">
             <div class="title_left">{{ item.name }}</div>
             <div class="title_right">{{ item.storey_name }}</div>
           </div>
-          <div class="seatNum">可容纳人数<span>{{ item.minPerson }} ~ {{ item.maxPerson }}人</span></div>
+          <div class="seatNum">
+            可容纳人数<span>{{ item.minPerson }} ~ {{ item.maxPerson }}人</span>
+          </div>
           <div class="otherInfo">
             <div class="otherInfo_item" @click="() => emits('viewFloor')">
               查看平面图
@@ -90,6 +91,12 @@ const onChange = (v) => {
   //   border-radius: 10px;
   //   border: 1px solid #e7e7e7;
   //   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
+  .ant-carousel {
+    height: 100%;
+    :deep(.slick-slider) {
+      height: 100%;
+    }
+  }
 }
 .title {
   display: flex;
@@ -162,7 +169,6 @@ const onChange = (v) => {
 }
 :deep(.slick-prev) {
   left: 0 !important;
-
 }
 
 :deep(.slick-next) {
@@ -171,5 +177,4 @@ const onChange = (v) => {
 :deep(.slick-slide) {
   padding-bottom: 0;
 }
-
 </style>

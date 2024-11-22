@@ -16,6 +16,8 @@
 
   --van-overlay-z-index: 99 !important;
   --van-primary-color: #1a49c0 !important;
+
+  --van-calendar-day-height: 46px !important;
 }
 
 /* 常规字体 */
@@ -261,4 +263,3 @@ div {
 .mobile .ant-drawer-body {
   padding: 0;
 }
-

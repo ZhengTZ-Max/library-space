@@ -525,6 +525,7 @@ const onChangeTime = (v, item, type, index) => {
     margin-bottom: 30px;
     .left {
       flex: 1.2;
+      min-width: 650px;
       background: rgba(247, 249, 251, 1);
       border-radius: 16px;
       margin-right: 20px;
@@ -543,16 +544,16 @@ const onChangeTime = (v, item, type, index) => {
         }
         .left_top_right {
           width: 350px;
-          padding-left: 30px;
+          padding-left: 10px;
           padding-top: 10px;
         }
       }
       .left_bottom {
         flex: 1.2;
-        margin: 30px;
+        margin: 12px 30px 12px 30px;
         background-color: #fff;
         border-radius: 16px;
-        padding: 30px;
+        padding: 30px 30px 12px 30px;
         .left_bottom_title {
           font-size: 16px;
           color: rgba(32, 32, 32, 1);
@@ -597,7 +598,7 @@ const onChangeTime = (v, item, type, index) => {
             border: 1px solid rgba(4, 4, 21, 0.1);
             border-radius: 4px;
             // height: 255px;
-            max-height: 300px;
+            max-height: 320px;
             overflow-y: auto;
             &::-webkit-scrollbar {
               display: none; /* 隐藏滚动条 */
