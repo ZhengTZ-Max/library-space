@@ -32,6 +32,8 @@ import {
   Field,
   Col,
   Row,
+  Calendar,
+  Toast,
 } from "vant";
 import "vant/lib/index.css";
 import "vant/lib/icon/index.css";
@@ -56,6 +58,8 @@ app.use(Dialog);
 app.use(Field);
 app.use(Col);
 app.use(Row);
+app.use(Calendar);
+app.use(Toast);
 app.use(router);
 app.use(Antd);
 app.use(store);

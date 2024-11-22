@@ -2,12 +2,16 @@
 import { ref, reactive, onMounted, watch, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
+import { message } from "ant-design-vue";
+
 import {
   getActivityApply,
   getActivityDetail,
 } from "@/request/activity_application";
+import { exchangeDateTime } from "@/utils";
 import ActivitySpaceSwipe from "@/components/ActivityApplication/ActivitySpaceSwipe.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
+import Calendar from "@/components/ActivityApplication/Calendar.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -21,6 +25,20 @@ const state = reactive({
   activityDetailInfo: {},
   activityDetailInfoShow: false,
 
+  calendarInfo: {
+    list: [],
+    startDate: "",
+    endDate: "",
+  },
+  selectDateInfo: [],
+  selectSlideShow: false,
+  selectChooseTime: false,
+  filterRows: {
+    date: "",
+    time: "",
+    times: {},
+  },
+
   topImg: "",
   filterActivityTypeId: "",
   filterActivityTheme: "",
@@ -29,6 +47,8 @@ const state = reactive({
   filterActivityMobile: "",
 
   bottomBtnDisabled: true,
+
+  chooseTimeList: [{ begin_time: "", end_time: "" }],
 });
 
 onMounted(() => {
@@ -39,6 +59,20 @@ const goToLink = (link) => {
   router.replace(link);
 };
 
+// 添加时间段
+const addTimeSlot = () => {
+  state.chooseTimeList.push({ begin_time: "", end_time: "" });
+  console.log(state.chooseTimeList);
+};
+
+// 移除最后一个时间段
+const removeTimeSlot = () => {
+  if (state.chooseTimeList.length > 1) {
+    // 确保至少有一条数据
+    state.chooseTimeList.pop();
+  }
+};
+
 const fetchGetActivityApply = async () => {
   try {
     let params = {
@@ -47,6 +81,27 @@ const fetchGetActivityApply = async () => {
     let res = await getActivityApply(params);
     if (res.code != 0) return;
     state.activityApplyInfo = res?.data?.detail || {};
+    state.calendarInfo.list = res?.data?.axis || [];
+
+    if (state.calendarInfo.list.length) {
+      state.calendarInfo.startDate = state.calendarInfo.list[0].day;
+      state.calendarInfo.endDate =
+        state.calendarInfo.list[state.calendarInfo.list.length - 1].day;
+    }
+
+    // 模拟数据
+    state.calendarInfo.list[0].status = -1;
+    state.calendarInfo.list[1].status = 0;
+    state.calendarInfo.list[1].list.push({
+      date: "2024-11-23",
+      begin_timestamp: "2024-11-23 08:00:00",
+      end_timestamp: "2024-11-23 19:00:00",
+      begin_time: 480,
+      end_time: 540,
+    });
+
+    console.log(state.calendarInfo);
+
     state.argumentArray = res?.data?.argument || [];
     state.topImg = res?.data?.detail?.firstImg || "";
 
@@ -82,6 +137,59 @@ const onViewFloor = (row) => {
 
 const filterArguments = (key) => {
   return state.argumentArray?.some((e) => e.key == key) || false;
+};
+
+const onSelected = (date) => {
+  state.selectDateInfo = date;
+
+  if (state.selectDateInfo.length > 0) {
+    if (state.selectDateInfo.length == 1) {
+      state.selectSlideShow = true;
+      state.selectChooseTime = false;
+    } else {
+      state.selectSlideShow = false;
+      state.selectChooseTime = true;
+    }
+  } else {
+    state.selectSlideShow = false;
+    state.selectChooseTime = false;
+  }
+};
+
+const onChangeTime = (item, type) => {
+  if (type == "start") {
+    // 结束时间没有选择
+    if (item.end_time == "") return;
+    // 开始时间大于结束时间
+    const [hoursS, minutesS] = item.begin_time.split(":").map(Number);
+    const [hoursE, minutesE] = item.end_time.split(":").map(Number);
+
+    const dateS = new Date(0, 0, 0, hoursS, minutesS);
+    const dateE = new Date(0, 0, 0, hoursE, minutesE);
+
+    if (dateS >= dateE) {
+      message.warning("开始时间不能大于结束时间");
+      item.begin_time = "";
+      console.log(item);
+      console.log(state.chooseTimeList);
+    }
+  } else {
+    // item.end_time = item.end_time * 60;
+    if (item.begin_time == "") return;
+    // 开始时间大于结束时间
+    const [hoursS, minutesS] = item.begin_time.split(":").map(Number);
+    const [hoursE, minutesE] = item.end_time.split(":").map(Number);
+
+    const dateS = new Date(0, 0, 0, hoursS, minutesS);
+    const dateE = new Date(0, 0, 0, hoursE, minutesE);
+
+    if (dateS >= dateE) {
+      message.warning("结束时间不能小于开始时间");
+      item.end_time = "";
+      console.log(item);
+      console.log(state.chooseTimeList);
+    }
+  }
 };
 </script>
 <template>
@@ -119,7 +227,88 @@ const filterArguments = (key) => {
             />
           </div>
         </div>
-        <div class="left_bottom">1</div>
+        <div class="left_bottom">
+          <div class="left_bottom_title">时间选择</div>
+          <van-row class="time_select_box">
+            <van-col span="12">
+              <div class="time_select_box_text">
+                <div class="time_select_box_text_left">
+                  点击您想要选择的日期<span>（可选择多天）</span>
+                </div>
+                <span class="can_book">有预约:</span>
+              </div>
+              <div class="calendar_box">
+                <Calendar
+                  :calendarInfo="state.calendarInfo"
+                  @onSelected="onSelected"
+                />
+              </div>
+            </van-col>
+            <van-col v-if="state.selectChooseTime" span="10" offset="2">
+              <div class="selected_time_text">
+                已选时间：<span
+                  >{{ exchangeDateTime(state.selectDateInfo[0], 2) }} ~
+                  {{ exchangeDateTime(state.selectDateInfo[1], 2) }}</span
+                >
+              </div>
+              <div
+                class="choose_time_box"
+                v-for="(item, index) in state.chooseTimeList"
+                :key="index"
+              >
+                <div class="choose_time_item">
+                  <a-time-picker
+                    format="HH:mm"
+                    valueFormat="HH:mm"
+                    :bordered="false"
+                    style="width: 100%"
+                    hideDisabledOptions
+                    size="middle"
+                    :showNow="false"
+                    v-model:value="item.begin_time"
+                    placeholder="开始时间"
+                    @change="onChangeTime(item, 'start')"
+                  />
+                </div>
+                <div>~</div>
+                <div class="choose_time_item">
+                  <a-time-picker
+                    format="HH:mm"
+                    valueFormat="HH:mm"
+                    :bordered="false"
+                    style="width: 100%"
+                    hideDisabledOptions
+                    size="middle"
+                    :showNow="false"
+                    v-model:value="item.end_time"
+                    placeholder="结束时间"
+                    @change="onChangeTime(item, 'end')"
+                  />
+                </div>
+
+                <img
+                  v-if="index == 0"
+                  @click="addTimeSlot"
+                  src="@/assets/activity_application/add_one_time.svg"
+                  alt=""
+                />
+                <img
+                  v-if="index != 0"
+                  @click="removeTimeSlot"
+                  src="@/assets/activity_application/remove_one_time.svg"
+                  alt=""
+                />
+              </div>
+            </van-col>
+          </van-row>
+
+          <div
+            v-if="state.selectSlideShow"
+            style="margin-top: 20px; background-color: #ff4d4f"
+          >
+            1
+          </div>
+        </div>
       </div>
       <div class="right">
         <div class="right_top">
@@ -162,7 +351,7 @@ const filterArguments = (key) => {
                 v-model:value="state.filterActivityContent"
                 size="middle"
                 show-count
-                :autosize="{ minRows: 3, maxRows: 5 }"
+                :autoSize="{ minRows: 3, maxRows: 5 }"
                 :maxlength="200"
               />
             </van-col>
@@ -247,9 +436,7 @@ const filterArguments = (key) => {
             </van-col>
             <!-- 活动海报 -->
             <van-col span="10" v-if="filterArguments('publicize')">
-              <div class="upload_file_title">
-                宣传片:
-              </div>
+              <div class="upload_file_title">宣传片:</div>
               <div class="upload_file_box">
                 <img
                   src="@/assets/activity_application/upload_file.svg"
@@ -262,9 +449,7 @@ const filterArguments = (key) => {
           <van-row class="upload_item margin_top_50">
             <!-- 其他申请材料 -->
             <van-col span="14" v-if="filterArguments('materials')">
-              <div class="upload_file_title">
-                其他申请材料:
-              </div>
+              <div class="upload_file_title">其他申请材料:</div>
               <div class="upload_file_box">
                 <img
                   src="@/assets/activity_application/upload_file.svg"
@@ -273,10 +458,13 @@ const filterArguments = (key) => {
                 Word/PDF
               </div>
             </van-col>
-            
           </van-row>
           <div class="bottom_btn">
-            <van-button :disabled="state.bottomBtnDisabled" round type="primary" style="width: 200px;"
+            <van-button
+              :disabled="state.bottomBtnDisabled"
+              round
+              type="primary"
+              style="width: 200px"
               >立即申请</van-button
             >
           </div>
@@ -365,6 +553,83 @@ const filterArguments = (key) => {
         margin: 30px;
         background-color: #fff;
         border-radius: 16px;
+        padding: 30px;
+        .left_bottom_title {
+          font-size: 16px;
+          color: rgba(32, 32, 32, 1);
+          font-family: AliHeavy !important;
+        }
+        .time_select_box {
+          margin-top: 20px;
+          flex: 1;
+          .time_select_box_text {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            .time_select_box_text_left {
+              font-size: 14px;
+              color: rgba(97, 97, 97, 1);
+              flex: 1;
+              span {
+                color: rgba(26, 73, 192, 1);
+              }
+            }
+            span {
+              position: relative;
+              &.can_book {
+                font-size: 14px;
+                color: rgba(97, 97, 97, 1);
+                padding-right: 18px;
+                &::after {
+                  content: "";
+                  position: absolute;
+                  top: calc(50% - 7px);
+                  right: 0;
+                  width: 14px;
+                  height: 14px;
+                  border-radius: 50%;
+                  background-color: rgba(245, 181, 68, 1);
+                }
+              }
+            }
+          }
+          .calendar_box {
+            margin-top: 10px;
+            border: 1px solid rgba(4, 4, 21, 0.1);
+            border-radius: 4px;
+            // height: 255px;
+            max-height: 300px;
+            overflow-y: auto;
+            &::-webkit-scrollbar {
+              display: none; /* 隐藏滚动条 */
+            }
+
+            scrollbar-width: none; /* Firefox 隐藏滚动条 */
+            -ms-overflow-style: none; /* IE 和 Edge 隐藏滚动条 */
+          }
+
+          .selected_time_text {
+            text-align: center;
+            margin-bottom: 10px;
+            color: rgba(97, 97, 97, 1);
+            font-size: 17px;
+            span {
+              color: rgba(26, 73, 192, 1);
+            }
+          }
+          .choose_time_box {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            .choose_time_item {
+              width: 150px;
+              border: 1px solid #cecfd5;
+              border-radius: 18px;
+            }
+          }
+        }
       }
     }
     .right {
