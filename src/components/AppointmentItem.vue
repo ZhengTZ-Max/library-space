@@ -1,6 +1,10 @@
 <script setup>
-import { reactive, computed } from "vue";
+import { reactive, computed, ref } from "vue";
 import { useStore } from "vuex";
+import { showToast, showConfirmDialog } from "vant";
+
+import { exchangeDateTime } from "@/utils";
+
 import {
   fetchCancelSeat,
   fetchSeatSignin,
@@ -9,17 +13,55 @@ import {
   fetchSeatleave,
   fetchSeatCheckout,
 } from "@/request/home";
-import { showToast, showConfirmDialog } from "vant";
+
+import { getSpaceMap, getSpaceSeat } from "@/request/seat";
+
+import SpaceSeatMap from "@/components/SpaceSeat/SpaceSeatMap.vue";
+
 const store = useStore();
 const lang = computed(() => store.state.lang);
+const systemMode = computed(() => store.state.systemMode);
 const emit = defineEmits(["getList", "getSeatImgInfo"]);
-
+const isDragging = ref(false);
 const props = defineProps({
   data: {
     type: Object,
     default: {},
   },
 });
+
+const state = reactive({
+  spaceList: [],
+  spaceInfo: [],
+  spaceSelected: [],
+
+  showSpaceMap: false,
+});
+
+const fetchReviewPosition = async (row) => {
+  try {
+    let infoParams = {
+      id: row?.area_id,
+    };
+
+    let listParams = {
+      id: row?.area_id,
+      day: exchangeDateTime(new Date(), 2),
+      start_time: exchangeDateTime(row?.beginTime, 33),
+      end_time: exchangeDateTime(row?.endTime, 33),
+    };
+
+    let infoData = await getSpaceMap(infoParams);
+    let listData = await getSpaceSeat(listParams);
+    state.spaceInfo = infoData?.data || {};
+    state.spaceList = listData?.data?.list || [];
+    state.spaceSelected = state.spaceList?.find((e) => e?.id == row?.space);
+
+    state.showSpaceMap = true;
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 const onCancel = (row) => {
   try {
@@ -244,6 +286,21 @@ const showStudyText = (row) => {
 
   return { str, color };
 };
+
+const handleMouseDown = () => {
+  isDragging.value = false; // 重置拖动状态
+};
+
+const handleMouseMove = () => {
+  isDragging.value = true; // 标记为拖动
+};
+
+const handleClick = () => {
+  if (!isDragging.value) {
+    // 只有未拖动时才执行点击逻辑
+    state.showSpaceMap = false;
+  }
+};
 </script>
 <template>
   <div class="AppointmentItem">
@@ -280,7 +337,9 @@ const showStudyText = (row) => {
             :style="{ color: showStudyText(data)?.color }"
             >({{ showStudyText(data)?.str }})</span
           >
-          <span class="viewPosition">查看位置</span>
+          <span class="viewPosition" @click="fetchReviewPosition(data)"
+            >查看位置</span
+          >
         </div>
         <div>时间：{{ data?.showTime }}</div>
         <div class="action">
@@ -343,6 +402,29 @@ const showStudyText = (row) => {
         </div>
       </div>
     </template>
+
+    <van-overlay
+      :show="state.showSpaceMap"
+      @click="handleClick"
+      teleport="#app"
+      lock-scroll
+    >
+      <div
+        class="wrapper captureArea"
+        :class="{ mobileArea: systemMode == 'mobile' }"
+        @click="handleClick"
+        @mousedown="handleMouseDown"
+        @mousemove="handleMouseMove"
+      >
+        <SpaceSeatMap
+          v-if="state.showSpaceMap"
+          review
+          :list="state.spaceList"
+          :data="state.spaceInfo"
+          :seatSelected="state.spaceSelected"
+        />
+      </div>
+    </van-overlay>
   </div>
 </template>
 <style lang="less" scoped>
@@ -439,6 +521,24 @@ const showStudyText = (row) => {
       color: var(--primary-color);
       cursor: pointer;
     }
+  }
+}
+
+.captureArea {
+  height: 100vh;
+  &.mobileArea {
+    :deep(.spaceMap) {
+      margin: 0 auto;
+      width: 100% !important;
+    }
+  }
+  :deep(.spaceMap) {
+    margin: 0 auto;
+    width: 80%;
+    height: auto;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
   }
 }
 </style>

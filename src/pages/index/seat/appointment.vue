@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, watch, ref } from "vue";
+import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
@@ -31,6 +31,9 @@ const router = useRouter();
 const route = useRoute();
 const containerRef = ref();
 const captureArea = ref();
+
+// const systemMode = computed(() => store.state.systemMode);
+
 const state = reactive({
   isShowFloorPlane: false,
   libraryInfoShow: false,
@@ -928,7 +931,8 @@ const onViewMap = () => {
 }
 .captureArea {
   :deep(.spaceMap) {
-    width: 100%;
+    margin: 0 auto;
+    width: 80%;
     height: auto;
   }
 }

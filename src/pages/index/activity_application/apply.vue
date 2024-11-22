@@ -156,41 +156,42 @@ const onSelected = (date) => {
   }
 };
 
-const onChangeTime = (item, type) => {
-  if (type == "start") {
-    // 结束时间没有选择
-    if (item.end_time == "") return;
-    // 开始时间大于结束时间
-    const [hoursS, minutesS] = item.begin_time.split(":").map(Number);
-    const [hoursE, minutesE] = item.end_time.split(":").map(Number);
+const onChangeTime = (v, row) => {
+  // let rowData = { ...item };
+  setTimeout(() => {
+    console.log(v, row);
+  }, 2000);
+  // if (type == "start") {
+  //   // 结束时间没有选择
+  //   if (rowData.end_time == "") return;
+  //   // 开始时间大于结束时间
+  //   const [hoursS, minutesS] = rowData?.begin_time?.split(":").map(Number);
+  //   const [hoursE, minutesE] = rowData?.end_time?.split(":").map(Number);
 
-    const dateS = new Date(0, 0, 0, hoursS, minutesS);
-    const dateE = new Date(0, 0, 0, hoursE, minutesE);
+  //   const dateS = new Date(0, 0, 0, hoursS, minutesS);
+  //   const dateE = new Date(0, 0, 0, hoursE, minutesE);
 
-    if (dateS >= dateE) {
-      message.warning("开始时间不能大于结束时间");
-      item.begin_time = "";
-      console.log(item);
-      console.log(state.chooseTimeList);
-    }
-  } else {
-    // item.end_time = item.end_time * 60;
-    if (item.begin_time == "") return;
-    // 开始时间大于结束时间
-    const [hoursS, minutesS] = item.begin_time.split(":").map(Number);
-    const [hoursE, minutesE] = item.end_time.split(":").map(Number);
+  //   if (dateS >= dateE) {
+  //     message.warning("开始时间不能大于结束时间");
+  //     rowData.begin_time = "";
+  //   }
+  // } else {
+  //   // rowData.end_time = rowData.end_time * 60;
+  //   if (rowData.begin_time == "") return;
+  //   // 开始时间大于结束时间
+  //   const [hoursS, minutesS] = rowData?.begin_time?.split(":").map(Number);
+  //   const [hoursE, minutesE] = rowData?.end_time?.split(":").map(Number);
 
-    const dateS = new Date(0, 0, 0, hoursS, minutesS);
-    const dateE = new Date(0, 0, 0, hoursE, minutesE);
+  //   const dateS = new Date(0, 0, 0, hoursS, minutesS);
+  //   const dateE = new Date(0, 0, 0, hoursE, minutesE);
 
-    if (dateS >= dateE) {
-      message.warning("结束时间不能小于开始时间");
-      item.end_time = "";
-      console.log(item);
-      console.log(state.chooseTimeList);
-    }
-  }
+  //   if (dateS >= dateE) {
+  //     message.warning("结束时间不能小于开始时间");
+  //     rowData.end_time = "";
+  //   }
+  // }
 };
+
 </script>
 <template>
   <div class="apply">
@@ -267,7 +268,7 @@ const onChangeTime = (item, type) => {
                     :showNow="false"
                     v-model:value="item.begin_time"
                     placeholder="开始时间"
-                    @change="onChangeTime(item, 'start')"
+                    @change="(v) => onChangeTime(v, item)"
                   />
                 </div>
                 <div>~</div>
@@ -282,7 +283,7 @@ const onChangeTime = (item, type) => {
                     :showNow="false"
                     v-model:value="item.end_time"
                     placeholder="结束时间"
-                    @change="onChangeTime(item, 'end')"
+                    @change="(v) => onChangeTime(v, item)"
                   />
                 </div>
 

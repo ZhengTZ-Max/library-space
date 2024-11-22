@@ -140,7 +140,7 @@ const onResizing = (v) => {
           ...seat.style,
           display: state?.resizing ? 'none' : '',
           backgroundImage:
-            props?.seatSelected?.id == seat.id
+            props?.seatSelected?.id == seat.id && !props?.review
               ? `url(${state.backgroundMap?.config})`
               : statusBg(seat),
         }"

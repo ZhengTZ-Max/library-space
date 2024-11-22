@@ -3,8 +3,11 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Pages from "vite-plugin-pages";
 
+const Timestamp = new Date().getTime();
 // https://vitejs.dev/config/
 export default defineConfig({
+  publicPath: "/h5",
+
   plugins: [
     vue(),
     Pages({
@@ -65,5 +68,24 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
+  },
+
+  build: {
+    cssCodeSplit: false,
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name].${Timestamp}.js`,
+        chunkFileNames: `assets/[name].${Timestamp}.js`,
+        assetFileNames: `assets/[name].${Timestamp}.[ext]`,
+      },
+    },
+    // minify: "terser",
+    // terserOptions: {
+    //   compress: {
+    //     //生产环境时移除console
+    //     drop_console: true,
+    //     drop_debugger: true,
+    //   },
+    // },
   },
 });
