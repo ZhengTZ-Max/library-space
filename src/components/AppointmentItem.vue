@@ -223,6 +223,27 @@ const checkShow = (row, type) => {
   }
   return isShow;
 };
+
+const showStudyText = (row) => {
+  let str = "";
+  let color = "";
+
+  if (row?.earlierPeriodsSignIn == -1) {
+    str = "预约未开始";
+    color = "var(--van-primary-color)";
+  } else if (row?.earlierPeriodsSignIn == 1) {
+    str = "当日已签到";
+    color = "green";
+  } else if (row?.earlierPeriodsSignIn == 2) {
+    str = "当日已违约";
+    color = "#e58100";
+  } else if (row?.earlierPeriodsSignIn == 0) {
+    str = "当日未签到";
+    color = "#e58100";
+  }
+
+  return { str, color };
+};
 </script>
 <template>
   <div class="AppointmentItem">
@@ -251,13 +272,22 @@ const checkShow = (row, type) => {
         </div>
         <div class="seatCon">
           <span>座位：{{ data?.no }}</span>
-          <span v-if="data?.type == 3 || data?.type == 4" class="statusText">当日未签到</span>
+          <span
+            v-if="
+              (data?.type == 3 || data?.type == 4) && data?.earlierPeriods > 0
+            "
+            class="statusText"
+            :style="{ color: showStudyText(data)?.color }"
+            >({{ showStudyText(data)?.str }})</span
+          >
           <span class="viewPosition">查看位置</span>
         </div>
         <div>时间：{{ data?.showTime }}</div>
         <div class="action">
           <div
-            v-if="data?.flag_in == 1 && data?.flag_leave == 1 && data?.type == 1"
+            v-if="
+              data?.flag_in == 1 && data?.flag_leave == 1 && data?.type == 1
+            "
             class="tips"
           >
             {{ `${$t("Please")} ${data.signintime} ${$t("Sign_in_before")}` }}
