@@ -6,7 +6,7 @@ import Pages from "vite-plugin-pages";
 const Timestamp = new Date().getTime();
 // https://vitejs.dev/config/
 export default defineConfig({
-  publicPath: "/h5",
+  base: "/h5",
 
   plugins: [
     vue(),
