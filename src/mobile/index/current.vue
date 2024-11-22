@@ -52,18 +52,34 @@ const filterConfig = (list) => {
   state.config.seat.list = list.filter((e) => seat?.type?.includes(e?.type));
   state.config.space.list = list.filter((e) => space?.type?.includes(e?.type));
 };
+
+const isEmpty = () => {
+  let { seat, space } = state.config;
+  let show = false;
+  if (seat?.list?.length || space?.list?.length) {
+    show = true;
+  }
+  return show;
+};
 </script>
 
 <template>
   <div class="current">
-    <div class="CardCon">
-      <Carousel>
-        <template v-slot:content>
-          <template v-for="item in state.config.seat.list" :key="item?.id">
-            <AppointmentItem :data="item" @getList="fetchSubscribe" />
+    <template v-if="isEmpty()">
+      <div class="CardCon">
+        <Carousel>
+          <template v-slot:content>
+            <template v-for="item in state.config.seat.list" :key="item?.id">
+              <AppointmentItem :data="item" @getList="fetchSubscribe" />
+            </template>
           </template>
-        </template>
-      </Carousel>
+        </Carousel>
+      </div>
+    </template>
+
+    <div v-else class="emptyCon">
+      <img src="@/assets/home/emptyAppt.png" alt="" />
+      <div class="apptBtn activeBtn" @click="router.push('/')">立即预约</div>
     </div>
   </div>
 </template>
@@ -73,7 +89,26 @@ const filterConfig = (list) => {
   background: #fafafa;
   height: 100%;
   overflow: auto;
-
+  .emptyCon {
+    width: 250px;
+    margin: 0 auto;
+    margin-top: 75px;
+    img {
+      width: 100%;
+    }
+    .apptBtn {
+      margin: 40px auto 0 auto;
+      width: 160px;
+      height: 42px;
+      border-radius: 22px;
+      border: 1px solid #c2c6d0;
+      font-weight: 500;
+      font-size: 15px;
+      color: #8b93a7;
+      line-height: 42px;
+      text-align: center;
+    }
+  }
   .CardCon {
     background: #ffffff;
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
