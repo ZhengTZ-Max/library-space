@@ -47,7 +47,7 @@ const state = reactive({
   quickDate: route?.query?.date || "",
   quickDateList: [],
 
-  quickMode: "1",
+  quickMode: "0",
   quickModeList: [
     { value: 0, label: "地图模式" },
     { value: 1, label: "列表模式" },
@@ -439,7 +439,7 @@ const onChangeSlide = (row) => {
 
 const handleShow = (v) => {
   if (!v && state.apptResult?.type == "success") {
-    router.replace("/mo");
+    router.replace("/mo/current");
   }
 };
 

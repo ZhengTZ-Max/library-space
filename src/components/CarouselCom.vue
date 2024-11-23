@@ -1,5 +1,5 @@
 <template>
-  <a-carousel ref="carouselRef" arrows dotsClass="carouseDots" v-bind="$attrs">
+  <a-carousel ref="carouselRef" arrows dotsClass="carouseDots" v-bind="$attrs" swipe>
     <template #prevArrow>
       <div class="custom-slick-arrow" style="left: 10px; z-index: 1">
         <img src="@/assets/home/prevLeft.svg" alt="" />

@@ -345,14 +345,39 @@ const handleClick = () => {
         <div class="action">
           <div
             v-if="
-              data?.flag_in == 1 && data?.flag_leave == 1 && data?.type == 1
+              data.flag_in == 1 &&
+              data.flag_leave == 0 &&
+              [1, 2, 5, 6, 7].includes(Number(data.type))
             "
             class="tips"
           >
             {{ `${$t("Please")} ${data.signintime} ${$t("Sign_in_before")}` }}
             <!-- 时间：{{ data?.signintime }} -->
           </div>
-          <div v-else></div>
+          <div
+            v-else-if="
+              data.flag_in == 1 && data.flag_leave == 1 && data.type == 1
+            "
+            class="tips"
+          >
+            {{ `${$t("Please")} ${data.signintime} ${$t("Sign_in_before")}` }}
+            <!-- 时间：{{ data?.signintime }} -->
+          </div>
+          <div v-else>
+            <div
+              class="clock"
+              v-if="
+                data?.use_time !== 0 &&
+                data?.type != 13 &&
+                data?.earlierPeriods == 0
+              "
+            >
+              <img src="@/assets/home/useTime.svg" alt="" />
+              <span>
+                {{ `${$t("Already_used")} ${data?.use_time} ${$t("Minutes")}` }}
+              </span>
+            </div>
+          </div>
           <div class="actionBtn">
             <van-button
               v-if="checkShow(data, 'cancel')"
@@ -485,6 +510,13 @@ const handleClick = () => {
         font-size: 13px;
         font-weight: 400;
         color: #202020;
+      }
+      .clock {
+        display: flex;
+        align-items: center;
+        img {
+          margin-right: 6px;
+        }
       }
       .actionBtn {
         white-space: nowrap;

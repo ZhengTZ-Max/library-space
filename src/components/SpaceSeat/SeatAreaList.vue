@@ -26,7 +26,7 @@ const state = reactive({
 });
 
 onMounted(() => {
-  state.list = props?.list || [];
+  state.list = props?.list?.filter((e) => e?.status == 1) || [];
 });
 
 const selectSeat = (seat) => {

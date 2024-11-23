@@ -1,10 +1,10 @@
 <route>
   {
     meta: {
-      showHead: true,
+      showHead: false,
       showLeftBack:true,
       title:'Facility_Selection',
-      showTabbar:false
+      showTabbar:true
     }
   }
   </route>
@@ -147,7 +147,7 @@ const goToLink = (row) => {
       </div>
     </div> -->
     <div class="librarySlt">
-      <a-row v-if="state.libraryList?.length" :gutter="[40, 40]">
+      <a-row v-if="state.libraryList?.length" :gutter="[12, 20]">
         <template v-for="item in state.libraryList" :key="item?.id">
           <a-col :xs="24" :sm="24" :md="24" :lg="24">
             <div class="libraryItem cardItem">
@@ -215,7 +215,7 @@ const goToLink = (row) => {
 <style lang="less" scoped>
 .seatLibrary {
   height: 100%;
-  overflow: auto;
+  overflow-y: auto;
   .header {
     padding: 20px 30px;
     color: #202020;
@@ -238,6 +238,9 @@ const goToLink = (row) => {
     width: 100%;
     margin: 38px 0 50px 0;
     padding: 0 12px;
+    // .ant-row {
+    //   margin: 0 12px !important;
+    // }
     .libraryItem {
       padding: 12px;
     }

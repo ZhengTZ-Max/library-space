@@ -18,7 +18,7 @@ export function login(data) {
     isLoading: true,
     data,
     isCrypto: true,
-    succMsg: true,
+    succMsg: false,
     // loadingMsg: "",
     // customLoading: true, //是否自定义loading
     // isCryptoPas: true,

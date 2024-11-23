@@ -1,10 +1,10 @@
 <route>
   {
     meta: {
-      showHead: true,
+      showHead: false,
       showLeftBack:true,
       title:'V4_space_selection',
-      showTabbar:false
+      showTabbar:true
     }
   }
   </route>
@@ -315,7 +315,7 @@ const handleAppt = (row) => {
                   <span>{{ item?.free_num || "-" }}</span>
                 </div>
                 <div class="actionApt">
-                  <p class="boutiqueList">
+                  <p class="boutiqueList ellipsis-2">
                     {{ filterBoutique(item?.boutique) }}
                   </p>
                   <van-button
