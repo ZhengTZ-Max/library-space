@@ -39,8 +39,8 @@ const onChange = (v) => {
 <template>
   <div class="container">
     <Carousel ref="carouselRef" :afterChange="onChange">
-      <template v-slot:content>
-        <div v-for="item in [...state.list, ...state.list]" :key="item?.id">
+      <template v-slot:content v-if="systemMode == 'pc'">
+        <div v-for="item in state.list" :key="item?.id">
           <div class="title">
             <div class="title_left">{{ item.name }}</div>
             <div class="title_right">{{ item.storey_name }}</div>
@@ -77,6 +77,63 @@ const onChange = (v) => {
               alt=""
             />
           </div>
+        </div>
+      </template>
+      <template v-slot:content v-else>
+        <div class="item" v-for="item in state.list" :key="item?.id">
+          <div style="padding: 16px; padding-bottom: 0">
+            <van-row>
+              <van-col span="10" class="img_col">
+                <a-image
+                  style="width: 104px; height: 90px; border-radius: 10px"
+                  :src="item?.firstImg"
+                  :preview="false"
+                />
+                <div class="basicsBadge" :class="{ greenBadge: false }">
+                  {{ item?.premise_name }}
+                </div>
+                <!-- <div class="posBot">
+                  - {{ filterCategorys(item?.categorys) }} -
+                </div> -->
+              </van-col>
+              <van-col span="14" class="right_info">
+                <div class="title">
+                  <span>{{ item?.name }}</span>
+                  <span>{{ item?.storey_name }}</span>
+                </div>
+
+                <!-- <div class="boutique">
+                  <div
+                    class="boutiqueList"
+                    v-for="bout in item?.boutiques"
+                    :key="bout?.id"
+                  >
+                    {{ bout.name }}
+                  </div>
+                </div> -->
+                <div class="num">
+                  <span>可容纳人数</span>
+                  <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} 人</span>
+                </div>
+
+                <div class="action">
+                  <span @click="() => emits('viewFloor')">查看平面图 ></span>
+                  <span @click="() => emits('viewInfo')">查看详情 ></span>
+                </div>
+              </van-col>
+            </van-row>
+            <div class="boutique_mobile">
+              <div
+                class="boutiqueList"
+                v-for="bout in item?.boutiques"
+                :key="bout?.id"
+              >
+                {{ bout.name }}
+              </div>
+            </div>
+          </div>
+          <a-divider class="divider" dashed />
+          <div class="bottom_button" style="">查看申请说明 ></div>
         </div>
       </template>
     </Carousel>
@@ -164,6 +221,108 @@ const onChange = (v) => {
   border: 1px solid rgba(26, 73, 192, 0.5);
 }
 
+.item {
+  background-color: #fff;
+  border-radius: 10px;
+  .img_col {
+    display: flex;
+    position: relative;
+
+    .basicsBadge {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 3px 8px;
+      background: #1a49c0;
+      border-radius: 6px 0px 6px 0px;
+      font-size: 12px;
+      color: #ffffff;
+    }
+
+    .posBot {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      display: flex;
+      width: 90%;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 1);
+      font-size: 12px;
+    }
+  }
+  .right_info {
+    padding: 0 0 5px 0;
+
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      color: #616161;
+      span {
+        &:nth-child(1) {
+          font-size: 14px;
+          color: #202020;
+        }
+      }
+    }
+    .num {
+      margin-top: 8px;
+      font-size: 12px;
+      color: rgba(97, 97, 97, 1);
+      display: flex;
+      align-items: center;
+      span {
+        &:nth-child(2) {
+          font-size: 14px;
+          color: rgba(32, 32, 32, 1);
+        }
+      }
+    }
+
+    .action {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      span {
+        font-size: 12px;
+        color: rgba(134, 134, 134, 1);
+      }
+    }
+  }
+  .boutique_mobile {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    .boutiqueList {
+      border: 1px solid #f28800;
+      font-size: 10px;
+      color: rgba(242, 136, 0, 1);
+      padding: 1px 4px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+  }
+  .divider {
+    margin: 10px 0 !important;
+  }
+  .bottom_button {
+    margin: 15px;
+    display: flex;
+    justify-content: center;
+    width: 110px;
+    color: rgba(26, 73, 192, 1);
+    font-size: 12px;
+    font-family: AliHeavy !important;
+    padding: 5px 10px;
+    background-color: rgba(26, 73, 192, 0.06);
+    border-radius: 17px;
+    border: 1px solid rgba(26, 73, 192, 0.5);
+  }
+}
+
 :deep(.carouseDots) {
   bottom: 20px !important;
 }
@@ -174,6 +333,7 @@ const onChange = (v) => {
 :deep(.slick-next) {
   right: 0 !important;
 }
+
 :deep(.slick-slide) {
   padding-bottom: 0;
 }

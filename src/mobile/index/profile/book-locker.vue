@@ -1,10 +1,10 @@
 <route>
     {
       meta: {
-        showHead: true,
+        showHead: false,
         showLeftBack:true,
         title:'Bookcase_Appointment_Record',
-        showTabbar:false
+        showTabbar:true
       }
     }
 </route>

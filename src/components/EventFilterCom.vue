@@ -1,9 +1,10 @@
 <script setup>
-import { reactive, onMounted, watch, ref } from "vue";
+import { reactive, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 import { SearchOutlined } from "@ant-design/icons-vue";
 
 const store = useStore();
+const systemMode = computed(() => store.state.systemMode);
 const props = defineProps({
   data: {
     type: Object,
@@ -40,6 +41,7 @@ onMounted(() => {
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.premiseID">
           <a-checkbox
+            :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.filterOptions?.premise"
             :value="item?.id"
             :key="item?.id"
@@ -51,6 +53,7 @@ onMounted(() => {
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.categoryID">
           <a-checkbox
+            :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.filterOptions?.category"
             :value="item?.id"
             :key="item?.id"
@@ -64,6 +67,7 @@ onMounted(() => {
       <div class="fiterItem" v-if="state.filterOptions?.showDate">
         <a-checkbox-group v-model:value="state.filterRows.date">
           <a-checkbox
+            :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.filterOptions?.date"
             :value="item?.date"
             :key="item"
@@ -93,11 +97,15 @@ onMounted(() => {
     color: rgba(97, 97, 97, 1);
   }
   .fiterItem {
+    width: 100%;
     user-select: none;
     padding: 0 20px;
     margin-bottom: 40px;
     &:last-child {
       margin-bottom: 0;
+    }
+    .width_half {
+      width: 40%;
     }
   }
   .ant-input,

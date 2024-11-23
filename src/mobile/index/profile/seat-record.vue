@@ -1,10 +1,10 @@
 <route>
     {
       meta: {
-        showHead: true,
+        showHead: false,
         showLeftBack:true,
         title:'Space_Reservation_Record',
-        showTabbar:false
+        showTabbar:true
       }
     }
 </route>
@@ -73,6 +73,16 @@ const onChangeQMode = (row) => {
   state.quickMode = row?.value;
   fetch();
 };
+
+// 计算属性，根据 activeKey 动态返回 quickModeList
+const filteredQuickModeList = computed(() => {
+  if (state.activeKey === "1") {
+    // 如果 activeKey 为 1，返回前两条数据
+    return state.quickModeList.slice(0, 2);
+  }
+  // 否则返回全部数据
+  return state.quickModeList;
+});
 
 const fetch = () => {
   if (state.quickMode === 1) {
@@ -165,9 +175,15 @@ const fetchQuery = () => {
       <a-tab-pane key="2" tab="考研座位"></a-tab-pane>
       <a-tab-pane key="3" tab="研习座位"></a-tab-pane>
     </a-tabs>
-    <div class="quickBtns" style="width: 270px; margin: 10px 10px">
+    <div
+      class="quickBtns margin_top_10"
+      :class="{
+        width_180: state.activeKey == '1',
+        width_270: state.activeKey != '1',
+      }"
+    >
       <div
-        v-for="item in state.quickModeList"
+        v-for="item in filteredQuickModeList"
         :key="item.label"
         class="item activeBtn"
         :class="{ itemActive: item?.value == state.quickMode }"
@@ -240,6 +256,7 @@ const fetchQuery = () => {
             <div class="fiterItem">
               <a-radio-group v-model:value="state.filterRows.premiseID">
                 <a-radio
+                  class="width_half"
                   v-for="item in state.filterOptions?.premise"
                   :value="item?.id"
                   :key="item?.id"
@@ -251,6 +268,7 @@ const fetchQuery = () => {
             <div class="fiterItem">
               <a-radio-group v-model:value="state.filterRows.categoryID">
                 <a-radio
+                  class="width_half"
                   v-for="item in state.filterOptions?.category"
                   :value="item?.id"
                   :key="item?.id"
@@ -262,6 +280,7 @@ const fetchQuery = () => {
             <div class="fiterItem">
               <a-radio-group v-model:value="state.filterRows.areaID">
                 <a-radio
+                  class="width_half"
                   v-for="item in state.filterOptions?.area"
                   :value="item?.id"
                   :key="item?.id"
@@ -288,6 +307,17 @@ const fetchQuery = () => {
   .top_tabs {
     background-color: #fff;
     padding-left: 10px !important;
+  }
+  .margin_top_10 {
+    margin-top: 10px;
+  }
+  .width_180 {
+    margin-left: 10px;
+    width: 200px;
+  }
+  .width_270 {
+    margin-left: 10px;
+    width: 270px;
   }
   .item_list {
     position: relative;
@@ -334,13 +364,13 @@ const fetchQuery = () => {
       background-color: rgba(243, 243, 243, 1);
     }
     .status_success {
-      background-color: rgba(78, 201, 91, 0.10);
+      background-color: rgba(78, 201, 91, 0.1);
       color: rgba(78, 201, 91, 1);
     }
     .status_cancel,
     .status_end {
-      background-color: rgba(134, 134, 134, 0.10);
-      color: rgba(32, 32, 32, 0.30);
+      background-color: rgba(134, 134, 134, 0.1);
+      color: rgba(32, 32, 32, 0.3);
     }
     .status_in_progress {
       background: rgba(233, 239, 252, 1);
@@ -351,7 +381,7 @@ const fetchQuery = () => {
       color: rgba(223, 31, 31, 1);
     }
     .status_abnormal {
-      background-color: rgba(243, 116, 0, 0.10);
+      background-color: rgba(243, 116, 0, 0.1);
       color: rgba(243, 116, 0, 1);
     }
   }
@@ -409,6 +439,9 @@ const fetchQuery = () => {
           // &:last-child {
           //   margin-bottom: 0;
           // }
+          .width_half {
+            width: 40%;
+          }
         }
       }
     }

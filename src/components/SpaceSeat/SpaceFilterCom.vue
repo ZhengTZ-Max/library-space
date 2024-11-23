@@ -1,9 +1,10 @@
 <script setup>
-import { reactive, onMounted, watch, ref } from "vue";
+import { reactive, onMounted, watch, computed } from "vue";
 import { useStore } from "vuex";
 import { SearchOutlined } from "@ant-design/icons-vue";
 
 const store = useStore();
+const systemMode = computed(() => store.state.systemMode);
 const props = defineProps({
   showSearch: {
     type: Boolean,
@@ -83,6 +84,7 @@ const filterFloor = () => {
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.library">
           <a-checkbox
+          :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.filterOptions?.premises"
             :value="item?.id"
             :key="item?.id"
@@ -94,6 +96,7 @@ const filterFloor = () => {
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.floor">
           <a-checkbox
+          :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.filterOptions?.filterStorey"
             :value="item?.name"
             :key="item?.id"
@@ -105,6 +108,7 @@ const filterFloor = () => {
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.seatType">
           <a-checkbox
+          :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.filterOptions?.category"
             :value="item?.id"
             :key="item?.id"
@@ -127,6 +131,7 @@ const filterFloor = () => {
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.boutique">
           <a-checkbox
+            :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.filterOptions?.boutique"
             :value="item?.id"
             :key="item?.id"
@@ -161,6 +166,9 @@ const filterFloor = () => {
     margin-bottom: 40px;
     &:last-child {
       margin-bottom: 0;
+    }
+    .width_half {
+      width: 40%;
     }
   }
   .ant-input,

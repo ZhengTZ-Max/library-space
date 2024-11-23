@@ -393,7 +393,7 @@ const handleAppt = (row) => {
             round
             block
             type="default"
-            @click="state.libraryInfoShow = false"
+            @click="state.spaceFilterShow = false"
           >
             取消
           </van-button>

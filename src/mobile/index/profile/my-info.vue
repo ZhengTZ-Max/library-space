@@ -1,10 +1,10 @@
 <route>
     {
       meta: {
-        showHead: true,
+        showHead: false,
         showLeftBack:true,
         title:'Personal_Information',
-        showTabbar:false
+        showTabbar:true
       }
     }
 </route>

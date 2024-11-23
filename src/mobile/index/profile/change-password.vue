@@ -1,10 +1,10 @@
 <route>
     {
       meta: {
-        showHead: true,
+        showHead: false,
         showLeftBack:true,
         title:'user_changepassword',
-        showTabbar:false
+        showTabbar:true
       }
     }
 </route>

@@ -1,9 +1,10 @@
 <script setup>
-import { reactive, onMounted, defineProps, watch } from "vue";
+import { reactive, onMounted, defineProps, computed } from "vue";
 import { useStore } from "vuex";
 import { getSpaceDetail } from "@/request/seat";
 
 const store = useStore();
+const systemMode = computed(() => store.state.systemMode);
 const props = defineProps({
   data: {
     type: Object,
@@ -16,6 +17,7 @@ const state = reactive({
 
 onMounted(() => {
   state.propsData = props?.data || {};
+  console.log(state.propsData);
   //   fetchInfo();
 });
 
@@ -39,29 +41,72 @@ const filterCategorys = (list) => {
 </script>
 <template>
   <div class="libraryInfo">
-    <p class="title">{{ state.propsData?.name || "-" }}</p>
+    <!-- 轮播图 -->
+
+    <van-swipe
+      v-if="systemMode != 'pc' && state.propsData?.type == 'activity'"
+      :autoplay="3000"
+      indicator-color="white"
+    >
+      <van-swipe-item v-for="(item, index) in state.propsData?.img" :key="item">
+        <img
+          width="100%"
+          height="290px"
+          :src="item"
+          alt="Empty state illustration"
+        />
+      </van-swipe-item>
+    </van-swipe>
+
+    <van-swipe
+      v-if="state.propsData?.type == 'library' && systemMode != 'pc'"
+      :autoplay="3000"
+      indicator-color="white"
+    >
+      <van-swipe-item >
+        <img
+          width="100%"
+          height="290px"
+          :src="state.propsData?.firstImg"
+          alt="Empty state illustration"
+        />
+      </van-swipe-item>
+    </van-swipe>
+
+    <!-- 标题 -->
+    <p v-if="systemMode == 'pc'" class="title">
+      {{ state.propsData?.name || "-" }}
+    </p>
+    <p v-else class="title_mobile">{{ state.propsData?.nameMerge || "-" }}</p>
+
+    <!-- 座位数 -->
     <div class="seatNum" v-if="state.propsData?.type == 'library'">
       座位 ( <span>空闲{{ state.propsData?.free_num || "-" }}</span
-      ><span>/总数{{ state.propsData?.total_num || "-" }}</span
-      > )
+      ><span>/总数{{ state.propsData?.total_num || "-" }}</span> )
     </div>
     <div class="seatNum" v-if="state.propsData?.type == 'activity'">
-      {{ filterCategorys(state.propsData?.categorys|| []) }} ( <span>可容纳{{ state.propsData?.minPerson }} ~ {{ state.propsData?.maxPerson }}人</span>)
+      {{ filterCategorys(state.propsData?.categorys || []) }} (
+      <span
+        >可容纳{{ state.propsData?.minPerson }} ~
+        {{ state.propsData?.maxPerson }}人</span
+      >)
     </div>
     <div class="libraryIntro" v-html="state.propsData?.contents || ''"></div>
 
-    <template v-if="state.propsData?.boutiques?.length">
+    <!-- 馆舍特征 -->
+    <template v-if="state.propsData?.boutiques?.length && systemMode == 'pc'">
       <p class="subtitle">馆舍特征</p>
 
       <div class="features">
         <div v-for="item in state.propsData?.boutiques" class="item">
           <img src="@/assets/seat/PowerSupply.svg" alt="" />
-          {{item?.name}}
+          {{ item?.name }}
         </div>
       </div>
     </template>
 
-    <template v-if="state.propsData?.sub_title">
+    <!-- 注意事项 -->
+    <template v-if="state.propsData?.sub_title && systemMode == 'pc'">
       <p class="subtitle" style="margin-top: 20px">注意事项</p>
       <div
         class="notice libraryIntro"
@@ -72,9 +117,22 @@ const filterCategorys = (list) => {
 </template>
 <style lang="less" scoped>
 .libraryInfo {
+  .my_swipe .van-swipe-item {
+    color: #fff;
+    font-size: 20px;
+    line-height: 150px;
+    text-align: center;
+    background-color: #39a9ed;
+  }
   .title {
     font-size: 26px;
     color: #1a49c0;
+    font-family: AliExtraBold !important;
+  }
+  .title_mobile {
+    margin-top: 10px;
+    font-size: 16px;
+    color: rgba(0, 0, 0, 1);
     font-family: AliExtraBold !important;
   }
   .seatNum {

@@ -158,10 +158,16 @@ const onSelected = (date) => {
 
 const onChangeTime = (v, item, type, index) => {
   // let rowData = { ...item };
-  
+
   if (type == "start") {
     // 结束时间没有选择
-    if (item.end_time == "" || item.begin_time == null) return;
+    if (
+      item.end_time == "" ||
+      item.end_time == null ||
+      item.begin_time == "" ||
+      item.begin_time == null
+    )
+      return;
     // 开始时间大于结束时间
     const [hoursS, minutesS] = item?.begin_time?.split(":").map(Number);
     const [hoursE, minutesE] = item?.end_time?.split(":").map(Number);
@@ -175,7 +181,13 @@ const onChangeTime = (v, item, type, index) => {
     }
   } else {
     // rowData.end_time = rowData.end_time * 60;
-    if (item.begin_time == "" || item.end_time == "") return;
+    if (
+      item.end_time == "" ||
+      item.end_time == null ||
+      item.begin_time == "" ||
+      item.begin_time == null
+    )
+      return;
     // 开始时间大于结束时间
     const [hoursS, minutesS] = item?.begin_time?.split(":").map(Number);
     const [hoursE, minutesE] = item?.end_time?.split(":").map(Number);
@@ -189,7 +201,6 @@ const onChangeTime = (v, item, type, index) => {
     }
   }
 };
-
 </script>
 <template>
   <div class="apply">
@@ -433,7 +444,7 @@ const onChangeTime = (v, item, type, index) => {
                 Word/PDF
               </div>
             </van-col>
-            <!-- 活动海报 -->
+            <!-- 宣传片 -->
             <van-col span="10" v-if="filterArguments('publicize')">
               <div class="upload_file_title">宣传片:</div>
               <div class="upload_file_box">

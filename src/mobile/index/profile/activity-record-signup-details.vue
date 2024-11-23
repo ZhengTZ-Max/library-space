@@ -1,10 +1,10 @@
 <route>
     {
       meta: {
-        showHead: true,
+        showHead: false,
         showLeftBack:true,
         title:'V4_event_details',
-        showTabbar:false
+        showTabbar:true
       }
     }
 </route>

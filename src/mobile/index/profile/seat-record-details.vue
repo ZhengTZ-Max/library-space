@@ -1,10 +1,10 @@
 <route>
     {
       meta: {
-        showHead: true,
+        showHead: false,
         showLeftBack:true,
         title:'yuyue_detail',
-        showTabbar:false
+        showTabbar:true
       }
     }
 </route>
