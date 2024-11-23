@@ -49,14 +49,17 @@ const onChange = (v) => {
             可容纳人数<span>{{ item.minPerson }} ~ {{ item.maxPerson }}人</span>
           </div>
           <div class="otherInfo">
-            <div class="otherInfo_item" @click="() => emits('viewFloor')">
+            <div
+              class="otherInfo_item activeBtn"
+              @click="() => emits('viewFloor')"
+            >
               查看平面图
               <img
                 src="@/assets/activity_application/right_arrow_gray.svg"
                 alt=""
               />
             </div>
-            <div class="otherInfo_item" @click="() => emits('viewInfo')">
+            <div class="otherInfo_item activeBtn" @click="() => emits('viewInfo')">
               查看详情
               <img
                 src="@/assets/activity_application/right_arrow_gray.svg"
