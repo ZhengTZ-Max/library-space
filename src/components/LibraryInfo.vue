@@ -75,7 +75,7 @@ const filterCategorys = (list) => {
 
     <!-- 标题 -->
     <p v-if="systemMode == 'pc'" class="title">
-      {{ state.propsData?.name || "-" }}
+      {{ state.propsData?.type == "space" ? state.propsData?.nameMerge || "-" : state.propsData?.name || "-" }}
     </p>
     <p v-else class="title_mobile">{{ state.propsData?.nameMerge || "-" }}</p>
 
@@ -83,6 +83,13 @@ const filterCategorys = (list) => {
     <div class="seatNum" v-if="state.propsData?.type == 'library'">
       座位 ( <span>空闲{{ state.propsData?.free_num || "-" }}</span
       ><span>/总数{{ state.propsData?.total_num || "-" }}</span> )
+    </div>
+    <div class="seatNum" v-if="state.propsData?.type == 'space'">
+      {{ state.propsData?.type_name }} (
+      <span
+        >可容纳{{ state.propsData?.minPerson }} ~
+        {{ state.propsData?.maxPerson }}人</span
+      >)
     </div>
     <div class="seatNum" v-if="state.propsData?.type == 'activity'">
       {{ filterCategorys(state.propsData?.categorys || []) }} (

@@ -122,14 +122,14 @@ const fetchInfo = async (id) => {
 
 const goToLink = (id) => {
   router.push({
-    path: "/seat/space",
+    path: "/space/space",
     query: { id: id || state.activeIndex, date: state.quickDate },
   });
 };
 
 const onFloor = (row) => {
   router.push({
-    path: "/seat/space",
+    path: "/space/space",
     query: {
       id: state.activeIndex,
       date: state.quickDate,
