@@ -137,6 +137,9 @@ const fetchGetApplicationList = async () => {
 
     if (res.code == 0) {
       state.applicationList = res.data?.data;
+      if (state.applicationList?.length)
+        state.activeIndex = state.applicationList[0]?.id;
+
       // console.log(state.eventImg);
     }
   } catch (e) {}
@@ -174,8 +177,6 @@ const handleAppt = (row) => {
   });
   console.log(row);
 };
-
-
 </script>
 <template>
   <div class="activity-application">

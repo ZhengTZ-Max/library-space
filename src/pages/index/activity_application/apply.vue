@@ -12,6 +12,7 @@ import { exchangeDateTime } from "@/utils";
 import ActivitySpaceSwipe from "@/components/ActivityApplication/ActivitySpaceSwipe.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import Calendar from "@/components/ActivityApplication/Calendar.vue";
+import Uploader from "@/components/Uploader.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -200,6 +201,10 @@ const onChangeTime = (v, item, type, index) => {
       item.end_time = null; // 必须为null才能置空
     }
   }
+};
+
+const fileUpload = (data, type) => {
+  console.log(data, type);
 };
 </script>
 <template>
@@ -408,13 +413,20 @@ const onChangeTime = (v, item, type, index) => {
               <div class="upload_file_title">
                 <span style="color: #ff4d4f">*</span>审批附件:
               </div>
-              <div class="upload_file_box">
-                <img
-                  src="@/assets/activity_application/upload_file.svg"
-                  alt=""
-                />
-                Word/PDF
-              </div>
+              <Uploader
+                filePath="activity"
+                :maxCount="1"
+                @onFileUpload="(v) => fileUpload(v, 'approve')"
+                accept="application/pdf,application/msword"
+              >
+                <div class="upload_file_box">
+                  <img
+                    src="@/assets/activity_application/upload_file.svg"
+                    alt=""
+                  />
+                  Word/PDF
+                </div>
+              </Uploader>
             </van-col>
             <!-- 活动海报 -->
             <van-col span="10" v-if="filterArguments('poster')">
@@ -692,6 +704,7 @@ const onChangeTime = (v, item, type, index) => {
             font-size: 14px;
           }
           .upload_file_box {
+            cursor: pointer;
             margin-top: 12px;
             color: rgba(134, 134, 134, 1);
             font-size: 12px;

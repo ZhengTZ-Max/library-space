@@ -3,11 +3,11 @@ import service from "@/utils/request";
 export function getActivityFilterIndex(data) {
   return service({
     url: "/v4/activity/sift",
-      method: "POST",
-      isLoading: true,
-      // loadingMsg: "",
-      // customLoading: true, //是否自定义loading
-      data,
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
   });
 }
 
@@ -23,6 +23,7 @@ export function getActivityDetail(data) {
   return service({
     url: "/v4/activity/detail",
     method: "POST",
+    isLoading: true,
     data,
   });
 }
@@ -30,6 +31,7 @@ export function getActivityApply(data) {
   return service({
     url: "/v4/activity/axis",
     method: "POST",
+    isLoading: true,
     data,
   });
 }
