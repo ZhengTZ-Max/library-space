@@ -84,7 +84,9 @@ const onChange = (v) => {
             </div>
           </div>
           <div class="contentInfo">
-            <div class="contentInfo_left">联系地址: <span>北京市海淀区</span></div>
+            <div class="contentInfo_left">
+              联系地址: <span>北京市海淀区</span>
+            </div>
           </div>
         </div>
       </template>
@@ -110,16 +112,6 @@ const onChange = (v) => {
                   <span>{{ item?.name }}</span>
                   <span>{{ item?.storey_name }}</span>
                 </div>
-
-                <!-- <div class="boutique">
-                  <div
-                    class="boutiqueList"
-                    v-for="bout in item?.boutiques"
-                    :key="bout?.id"
-                  >
-                    {{ bout.name }}
-                  </div>
-                </div> -->
                 <div class="num">
                   <span>可容纳人数</span>
                   <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} 人</span>
@@ -142,7 +134,17 @@ const onChange = (v) => {
             </div>
           </div>
           <a-divider class="divider" dashed />
-          <div class="bottom_button" style="">查看申请说明 ></div>
+          <div class="contentInfo">
+            <div class="contentInfo_left">联系人: <span>胡老师</span></div>
+            <div class="contentInfo_left">
+              联系电话: <span>13800000000</span>
+            </div>
+          </div>
+          <div class="contentInfo">
+            <div class="contentInfo_left">
+              联系地址: <span>北京市海淀区</span>
+            </div>
+          </div>
         </div>
       </template>
     </Carousel>

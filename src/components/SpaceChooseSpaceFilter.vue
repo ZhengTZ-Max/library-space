@@ -67,6 +67,7 @@ watch(
         <a-checkbox-group v-model:value="state.filterRows.floorID">
           <a-checkbox
             v-for="item in state.floors"
+            :class="{ width_half: systemMode != 'pc' }"
             :value="item?.name"
             :key="item?.name"
             >{{ item?.name }}</a-checkbox

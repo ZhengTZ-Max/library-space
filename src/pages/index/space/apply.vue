@@ -5,7 +5,7 @@ import { useStore } from "vuex";
 import { message } from "ant-design-vue";
 import moment from "moment";
 
-import { getSpaceApply } from "@/request/space";
+import { getSpaceApply, getSpaceDetail } from "@/request/space";
 import { exchangeDateTime } from "@/utils";
 import SpaceApplySwipe from "@/components/SpaceApplySwipe.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
@@ -50,7 +50,7 @@ const state = reactive({
   bottomBtnDisabled: true,
 
   chooseTimeList: [{ begin_time: "", end_time: "" }],
-  type: "",
+  type: "more",
   addPeople: "",
   addPeopleList: [],
   isOpen: 0,
@@ -477,7 +477,7 @@ const removePeople = (index) => {
             <van-col span="2" class="upload_item_title"> 上传附件: </van-col>
             <Uploader
               class="margin_left_10" 
-              filePath="activity"
+              filePath="seminar"
               :maxCount="1"
               @onFileUpload="(v) => fileUpload(v, 'approve')"
               accept="application/pdf,application/msword"

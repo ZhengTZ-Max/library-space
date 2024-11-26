@@ -73,7 +73,9 @@ const fetchGetSpaceSelectList = async () => {
         // 格式化为 MM-DD
         const formattedDate = moment(date).format("MM-DD");
         // 判断是否为今天
-        return date === today ? `${formattedDate} 今天` : formattedDate;
+        // return date === today ? `${formattedDate} 今天` : formattedDate;
+        return { value: date, label: date === today ? `${formattedDate} 今天` : formattedDate };
+
       }) || [];
 
     console.log(state.quickDateList);
@@ -156,11 +158,16 @@ const handleAppt = (row) => {
     },
   });
   console.log(row);
-
 };
 
 const handleFilter = () => {
   state.spaceFilterShow = false;
+  // fetchGetSpaceInfoList();
+};
+
+const handleDateChange = (v) => {
+  state.quickDate = v;
+  console.log(state.quickDate);
   // fetchGetSpaceInfoList();
 };
 </script>
@@ -181,18 +188,25 @@ const handleFilter = () => {
         </div>
         <div class="rightAction">
           <div class="select_radius">
-            <a-select v-model:value="state.quickDate" placeholder="选择日期">
+            <a-select
+              v-model:value="state.quickDate"
+              @change="handleDateChange"
+              placeholder="选择日期"
+            >
               <template v-for="item in state.quickDateList" :key="item">
-                <a-select-option :value="item">{{ item }}</a-select-option>
+                <a-select-option :value="item?.value">{{
+                  item?.label
+                }}</a-select-option>
               </template>
             </a-select>
           </div>
           <div class="select_radius marginLeft">
-            <a-select v-model:value="state.quickDate" placeholder="名称/人数">
-              <template v-for="item in state.quickDateList" :key="item">
-                <a-select-option :value="item">{{ item }}</a-select-option>
-              </template>
-            </a-select>
+            <a-input
+              :bordered="false"
+              v-model:value="state.searchValue"
+              placeholder="名称/人数"
+              style="width: 150px"
+            />
           </div>
 
           <div class="filters activeBtn" @click="state.spaceFilterShow = true">
@@ -356,7 +370,7 @@ const handleFilter = () => {
             background-color: transparent !important;
             border: none;
             .ant-select-selection-item {
-              color: #fff;
+              color: #000;
               display: flex;
               align-items: center;
             }

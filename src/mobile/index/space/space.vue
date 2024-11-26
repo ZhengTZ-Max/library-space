@@ -3,135 +3,200 @@
       meta: {
         showHead: false,
         showLeftBack:true,
-        title:'V4_space_selection',
+        title:'Facility_Selection',
         showTabbar:true
       }
     }
 </route>
 <script setup>
-import { ref, reactive, onMounted, watch, computed } from "vue";
+import { reactive, onMounted, watch, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
+import moment from "moment";
 
 import {
-  getActivityFilterIndex,
-  getApplicationList,
-  getActivityDetail,
-} from "@/request/activity_application";
-import EventFilter from "@/components/EventFilterCom.vue";
-import LibraryInfo from "@/components/LibraryInfo.vue";
+  getSpaceSelectList,
+  getSpaceFilterList,
+  getSpaceInfoList,
+  getSpaceDetail,
+  getSpaceApply,
+} from "@/request/space";
 
+import LibraryInfo from "@/components/LibraryInfo.vue";
+import SpaceChooseSpaceFilter from "@/components/SpaceChooseSpaceFilter.vue";
 
 const router = useRouter();
 const state = reactive({
-  boutiques: [{ name: "电视" }, { name: "投影仪" }],
-
+  spaceInfo: {},
+  spaceInfoShow: false,
   filterShow: false,
   refreshing: false,
   loading: false,
   finished: true,
 
+  quickDate: moment().format("YYYY-MM-DD"),
+  quickDateList: [],
   filterOptions: {},
   filterSearch: {
-    premiseID: [],
-    categoryID: [],
-    date: [],
+    premiseID: "",
+    floorID: "",
+    categoryID: "",
+    date: "",
+    time: "",
+    num: "",
+    boutiqueID: "",
   },
-  activityInfo: {},
-  applicationList: [],
+
+  searchValue: "",
+  spaceInfoList: [],
 });
 
 onMounted(() => {
-  fetchGetApplicationIndex();
+  fetchGetSpaceSelectList();
+  fetchGetSpaceFilterList();
+  fetchGetSpaceInfoList();
 });
 
-const fetchGetApplicationIndex = async () => {
-  try {
-    let res = await getActivityFilterIndex();
-    if (res.code != 0) {
-      state.filterOptions = {};
-      return;
-    }
-    state.filterOptions = {
-      ...res?.data,
-      premise: res?.data?.premises || [],
-      showDate: false,
-    };
-    console.log(state.filterOptions);
-    fetchGetApplicationList();
-  } catch (e) {
-    state.filterOptions = {};
-    console.log(e);
-  }
+const onRefresh = () => {
+  fetchGetSpaceInfoList();
+};
+const onLoad = () => {
+  //   fetchGetSpaceInfoList();
 };
 
-const fetchGetApplicationList = async () => {
-  try {
-    let params = {
-      premises: state.filterSearch.premiseID,
-      category: state.filterSearch.categoryID,
-    };
-    let res = await getApplicationList(params);
-    state.loading = false;
-    state.refreshing = false;
-    state.finished = true;
-    if (res.code == 0) {
-      state.applicationList = res.data?.data;
-      // console.log(state.eventImg);
-    } else {
-      state.applicationList = [];
-    }
-  } catch (e) {
-    state.loading = false;
-    state.refreshing = false;
-    state.finished = true;
-    state.applicationList = [];
-    console.log(e);
-  }
-};
-
-const fetchInfo = async (id) => {
-  try {
-    let params = {
-      id,
-    };
-    let res = await getActivityDetail(params);
-    if (res.code != 0) {
-      state.activityInfo = {};
-      return;
-    }
-    state.activityInfo = { ...res?.data, type: "activity" } || {};
-    state.activityInfoShow = true;
-    console.log(state.activityInfo);
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-const filterCategorys = (list) => {
-  let newList = list?.map((e) => e?.name);
-  return newList?.join("/") || "";
-};
-const handleFilter = () => {
-  state.filterShow = false;
-  console.log(state.filterSearch);
-};
 const handleShowInfo = (item) => {
   fetchInfo(item.id);
 };
 
+const fetchGetSpaceSelectList = async () => {
+  try {
+    let res = await getSpaceSelectList();
+    if (res.code != 0) {
+      state.quickDateList = [];
+      return;
+    }
+
+    const today = moment().format("YYYY-MM-DD");
+    state.quickDateList =
+      res?.data.map((date) => {
+        // 格式化为 MM-DD
+        const formattedDate = moment(date).format("MM-DD");
+        // 判断是否为今天
+        // return {
+        //   value: date === today ? `${formattedDate} 今天` : formattedDate,
+        // };
+        return { value: date, label: date === today ? `${formattedDate} 今天` : formattedDate };
+      }) || [];
+
+    console.log(state.quickDateList);
+  } catch (error) {
+    state.quickDateList = [];
+    console.log(error);
+  }
+};
+
+const fetchGetSpaceFilterList = async () => {
+  try {
+    let res = await getSpaceFilterList();
+    if (res.code != 0) {
+      state.filterOptions = {};
+      return;
+    }
+    state.filterOptions = res?.data || {};
+  } catch (error) {
+    state.filterOptions = {};
+    console.log(error);
+  }
+};
+
+const fetchGetSpaceInfoList = async () => {
+  try {
+    let params = {
+      premiseID: state.filterSearch.premiseID,
+      members: state.filterSearch.num,
+      date: state.quickDate,
+      floorID: state.filterSearch.floorID,
+      categoryID: state.filterSearch.categoryID,
+      boutiqueID: state.filterSearch.boutiqueID,
+    };
+    let res = await getSpaceInfoList(params);
+
+    state.refreshing = false;
+    state.loading = false;
+    state.finished = true;
+
+    if (res.code != 0) {
+      state.spaceInfoList = [];
+      return;
+    }
+    state.spaceInfoList = res?.data?.data || [];
+  } catch (error) {
+    state.spaceInfoList = [];
+    state.refreshing = false;
+    state.loading = false;
+    state.finished = true;
+    console.log(error);
+  }
+};
+const fetchInfo = async (id) => {
+  try {
+    let res = await getSpaceDetail({ id });
+    if (res.code != 0) {
+      state.spaceInfo = {};
+      return;
+    }
+    state.spaceInfo = { ...res?.data, type: "space" } || {};
+    state.spaceInfoShow = true;
+  } catch (error) {
+    state.spaceInfo = {};
+    console.log(error);
+  }
+};
+
 const onApply = (id) => {
-  state.activityInfoShow = false;
+  state.spaceInfoShow = false;
   router.push({
-    path: "/mo/activity_application/apply",
+    path: "/mo/space/apply",
     query: { id },
   });
 };
+
+const handleFilter = () => {
+  state.filterShow = false;
+  //   fetchGetSpaceInfoList();
+};
+
+const handleDateChange = (v) => {
+  state.quickDate = v;
+  console.log(state.quickDate);
+  //   fetchGetSpaceInfoList();
+};
 </script>
 <template>
-  <div class="activity_application_mobile">
-    <div class="top_tabs">
-      <div class="left_title">查看申请须知 ></div>
+  <div class="space_space_mobile">
+    <div class="header">
+      <div class="select_radius">
+        <a-select
+          v-model:value="state.quickDate"
+          @change="handleDateChange"
+          placeholder="选择日期"
+        >
+          <template v-for="item in state.quickDateList" :key="index">
+            <a-select-option
+              :value="item?.value"
+              >{{ item?.label }}</a-select-option
+            >
+          </template>
+        </a-select>
+      </div>
+      <div class="select_radius marginLeftAndRight">
+        <a-input
+          :bordered="false"
+          v-model:value="state.searchValue"
+          placeholder="名称/人数"
+          style="width: 150px"
+        />
+      </div>
       <div @click="state.filterShow = true">
         <img src="@/assets/event/mobile_event_filter.svg" alt="filter" />
       </div>
@@ -144,11 +209,11 @@ const onApply = (id) => {
         finished-text="没有更多了"
         @load="onLoad"
       >
-        <div v-for="item in state.applicationList" :key="item?.id" class="item">
+        <div v-for="item in state.spaceInfoList" :key="item?.id" class="item">
           <van-row>
             <van-col span="9" class="img_col">
               <a-image
-                style="width: 100px; height: 100px;border-radius: 10px"
+                style="width: 100px; height: 100px; border-radius: 10px"
                 :src="item?.firstImg"
                 :preview="false"
               />
@@ -156,7 +221,8 @@ const onApply = (id) => {
                 {{ item?.top_name }}
               </div>
               <div class="posBot">
-                - {{ filterCategorys(item?.categorys) }} -
+                <!-- - {{ filterCategorys(item?.categorys) }} - -->
+                <span>- {{ item?.type_name }} -</span>
               </div>
             </van-col>
             <van-col span="15" class="right_info">
@@ -202,16 +268,48 @@ const onApply = (id) => {
     <a-drawer
       rootClassName="filterDrawer"
       width="100%"
-      height="50%"
+      height="100%"
+      placement="bottom"
+      :open="state.spaceInfoShow"
+      @close="state.spaceInfoShow = false"
+      :closable="false"
+    >
+      <div class="libraryPop">
+        <LibraryInfo v-if="state.spaceInfo?.id" :data="state.spaceInfo" />
+        <div class="bottomAction">
+          <van-button
+            round
+            block
+            type="default"
+            @click="state.spaceInfoShow = false"
+          >
+            <img src="@/assets/seat/moBackBtn.svg" alt="" />
+            返回
+          </van-button>
+          <van-button
+            round
+            block
+            type="primary"
+            @click="onApply(state.spaceInfo?.id)"
+            >申请</van-button
+          >
+        </div>
+      </div>
+    </a-drawer>
+
+    <a-drawer
+      rootClassName="filterDrawer"
+      width="100%"
+      height="70%"
       placement="bottom"
       :open="state.filterShow"
       @close="state.filterShow = false"
       :closable="false"
     >
       <div class="drawerCon">
-        <EventFilter
+        <SpaceChooseSpaceFilter
           style="flex: 1"
-          v-if="state.filterOptions?.premise?.length"
+          v-if="state.filterOptions?.premises?.length"
           :data="state.filterOptions"
           :initSearch="state.filterSearch"
         />
@@ -230,49 +328,46 @@ const onApply = (id) => {
         </div>
       </div>
     </a-drawer>
-    <a-drawer
-      rootClassName="filterDrawer"
-      width="100%"
-      height="100%"
-      placement="bottom"
-      :open="state.activityInfoShow"
-      @close="state.activityInfoShow = false"
-      :closable="false"
-    >
-      <div class="libraryPop">
-        <LibraryInfo v-if="state.activityInfo?.id" :data="state.activityInfo" />
-        <div class="bottomAction">
-          <van-button
-            round
-            block
-            type="default"
-            @click="state.activityInfoShow = false"
-          >
-            <img src="@/assets/seat/moBackBtn.svg" alt="" />
-            返回
-          </van-button>
-          <van-button round block type="primary" @click="onApply(state.activityInfo?.id)"
-            >预约</van-button
-          >
-        </div>
-      </div>
-    </a-drawer>
   </div>
 </template>
 <style lang="less" scoped>
-.activity_application_mobile {
+.space_space_mobile {
   height: 100%;
   background-color: #fafafa;
-  .top_tabs {
-    padding: 15px 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  .header {
     background-color: #fff;
+    padding: 10px 14px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    .left_title {
-      font-size: 15px;
-      color: rgba(26, 73, 192, 1);
-      font-family: AliExtraBold !important;
+    align-items: center;
+    .marginLeftAndRight {
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+    .select_radius {
+      width: 180px;
+      padding: 0px 9px;
+      background: rgba(243, 239, 239, 0.2);
+      border-radius: 21px;
+      border: 1px solid #d9d9d9;
+      :deep(.ant-select) {
+        display: block;
+        .ant-select-selector {
+          background-color: transparent !important;
+          border: none;
+          .ant-select-selection-item {
+            color: #000;
+            display: flex;
+            align-items: center;
+          }
+        }
+        .ant-select-arrow {
+          color: #afaaaa;
+        }
+      }
     }
   }
 
@@ -305,7 +400,8 @@ const onApply = (id) => {
         width: 90%;
         align-items: center;
         justify-content: center;
-        color: rgba(255, 255, 255, 1);
+        // color: rgba(255, 255, 255, 1);
+        color: #000;
         font-size: 12px;
       }
     }
@@ -362,24 +458,8 @@ const onApply = (id) => {
       }
     }
   }
-
   .filterDrawer {
     padding: 22px;
-  }
-}
-.drawerCon {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-.bottomAct {
-  padding: 12px;
-  display: flex;
-  justify-content: space-between;
-  & button {
-    &:nth-child(1) {
-      margin-right: 12px;
-    }
   }
 }
 .libraryPop {
@@ -409,6 +489,21 @@ const onApply = (id) => {
   }
 }
 
+.drawerCon {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.bottomAct {
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  & button {
+    &:nth-child(1) {
+      margin-right: 12px;
+    }
+  }
+}
 // :deep(.van-pull-refresh) {
 //   height: 50% !important;
 // }
