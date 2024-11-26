@@ -264,7 +264,6 @@ div {
   padding: 0;
 }
 
-
 .ellipsis-1 {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -279,4 +278,8 @@ div {
   -webkit-line-clamp: 2;
   display: -webkit-box;
   -webkit-box-orient: vertical;
+}
+
+:where(.css-dev-only-do-not-override-gobucf).ant-slider .ant-slider-track {
+  transition: 0.15s !important;
 }
