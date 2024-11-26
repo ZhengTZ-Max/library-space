@@ -66,7 +66,7 @@ const goToLink = (id) => {
     query: { id },
   });
 };
-const fetchGetEventIndex = async () => { 
+const fetchGetEventIndex = async () => {
   try {
     let res = await getEventFilterIndex();
     state.filterOptions = { ...res?.data, showDate: true };
@@ -89,6 +89,12 @@ const fetchCurrentEventList = async () => {
       // console.log(state.eventImg);
     }
   } catch (e) {}
+};
+
+const handleDateChange = (v) => {
+  state.selectDate = v;
+  console.log(v, state.selectDate);
+  // fetchGetSpaceInfoList();
 };
 </script>
 <template>
@@ -122,12 +128,16 @@ const fetchCurrentEventList = async () => {
           </div>
 
           <div class="select_radius">
-            <a-select v-model:value="state.selectDate" placeholder="选择日期">
-              <template v-for="item in state.selectDateList" :key="item?.value">
-                <a-select-option value="item?.value">{{
-                  item?.value
-                }}</a-select-option>
-              </template>
+            <a-select
+              v-model:value="state.selectDate"
+              @change="handleDateChange"
+              placeholder="选择日期"
+            >
+              <a-select-option
+                v-for="item in state.selectDateList"
+                :value="item?.value"
+                >{{ item?.value }}</a-select-option
+              >
             </a-select>
           </div>
           <div class="select_radius marginLeft">
@@ -136,7 +146,7 @@ const fetchCurrentEventList = async () => {
               placeholder="名称/活动类型"
             >
               <template v-for="item in state.selectDateList" :key="item?.value">
-                <a-select-option value="item?.value">{{
+                <a-select-option :value="item?.value">{{
                   item?.value
                 }}</a-select-option>
               </template>
@@ -273,7 +283,7 @@ const fetchCurrentEventList = async () => {
             background-color: transparent !important;
             border: none;
             .ant-select-selection-item {
-              color: #fff;
+              color: #000;
               display: flex;
               align-items: center;
             }

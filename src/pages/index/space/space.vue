@@ -8,8 +8,10 @@ import {
   getSpaceFilterList,
   getSpaceInfoList,
   getSpaceDetail,
+  getSpaceApply,
 } from "@/request/space";
 import LibraryInfo from "@/components/LibraryInfo.vue";
+import SpaceChooseSpaceFilter from "@/components/SpaceChooseSpaceFilter.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -21,6 +23,7 @@ const state = reactive({
   spaceInfo: {},
   spaceInfoShow: false,
   spaceInfoList: [],
+  spaceFilterShow: false,
 
   boutiques: [{ name: "投影仪" }, { name: "WIFI" }],
 
@@ -63,7 +66,19 @@ const fetchGetSpaceSelectList = async () => {
       state.quickDateList = [];
       return;
     }
-    state.quickDateList = res?.data || [];
+
+    const today = moment().format("YYYY-MM-DD");
+    state.quickDateList =
+      res?.data.map((date) => {
+        // 格式化为 MM-DD
+        const formattedDate = moment(date).format("MM-DD");
+        // 判断是否为今天
+        // return date === today ? `${formattedDate} 今天` : formattedDate;
+        return { value: date, label: date === today ? `${formattedDate} 今天` : formattedDate };
+
+      }) || [];
+
+    console.log(state.quickDateList);
   } catch (error) {
     state.quickDateList = [];
     console.log(error);
@@ -100,6 +115,9 @@ const fetchGetSpaceInfoList = async () => {
       return;
     }
     state.spaceInfoList = res?.data?.data || [];
+    if (state.spaceInfoList?.length) {
+      state.activeIndex = state.spaceInfoList[0]?.id;
+    }
   } catch (error) {
     state.spaceInfoList = [];
     console.log(error);
@@ -142,6 +160,16 @@ const handleAppt = (row) => {
   console.log(row);
 };
 
+const handleFilter = () => {
+  state.spaceFilterShow = false;
+  // fetchGetSpaceInfoList();
+};
+
+const handleDateChange = (v) => {
+  state.quickDate = v;
+  console.log(state.quickDate);
+  // fetchGetSpaceInfoList();
+};
 </script>
 <template>
   <div class="space_chooseSpace">
@@ -160,21 +188,28 @@ const handleAppt = (row) => {
         </div>
         <div class="rightAction">
           <div class="select_radius">
-            <a-select v-model:value="state.quickDate" placeholder="选择日期">
+            <a-select
+              v-model:value="state.quickDate"
+              @change="handleDateChange"
+              placeholder="选择日期"
+            >
               <template v-for="item in state.quickDateList" :key="item">
-                <a-select-option :value="item">{{ item }}</a-select-option>
+                <a-select-option :value="item?.value">{{
+                  item?.label
+                }}</a-select-option>
               </template>
             </a-select>
           </div>
           <div class="select_radius marginLeft">
-            <a-select v-model:value="state.quickDate" placeholder="名称/人数">
-              <template v-for="item in state.quickDateList" :key="item">
-                <a-select-option :value="item">{{ item }}</a-select-option>
-              </template>
-            </a-select>
+            <a-input
+              :bordered="false"
+              v-model:value="state.searchValue"
+              placeholder="名称/人数"
+              style="width: 150px"
+            />
           </div>
 
-          <div class="filters activeBtn" @click="state.eventFilterShow = true">
+          <div class="filters activeBtn" @click="state.spaceFilterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
             筛选
           </div>
@@ -267,6 +302,33 @@ const handleAppt = (row) => {
     >
       <LibraryInfo v-if="state.spaceInfo?.id" :data="state.spaceInfo" />
     </a-modal>
+
+    <a-modal
+      width="50%"
+      height="70%"
+      v-model:open="state.spaceFilterShow"
+      title="空间筛选"
+      @ok="handleFilter"
+      destroyOnClose
+      okText="确认"
+      cancelText="取消"
+      :cancelButtonProps="{
+        size: 'middle',
+        style: {
+          color: '#8C8F9E',
+          background: '#F3F4F7',
+          borderColor: '#CECFD5',
+        },
+      }"
+      :okButtonProps="{ size: 'middle' }"
+      centered
+    >
+      <SpaceChooseSpaceFilter
+        v-if="state.filterOptions?.premises?.length"
+        :data="state.filterOptions"
+        :initSearch="state.filterSearch"
+      />
+    </a-modal>
   </div>
 </template>
 <style lang="less" scoped>
@@ -308,7 +370,7 @@ const handleAppt = (row) => {
             background-color: transparent !important;
             border: none;
             .ant-select-selection-item {
-              color: #fff;
+              color: #000;
               display: flex;
               align-items: center;
             }

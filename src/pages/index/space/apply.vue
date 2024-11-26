@@ -3,50 +3,34 @@ import { ref, reactive, onMounted, watch, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { message } from "ant-design-vue";
+import moment from "moment";
 
-import {
-  getActivityApply,
-  getActivityDetail,
-} from "@/request/activity_application";
+import { getSpaceApply, getSpaceDetail } from "@/request/space";
 import { exchangeDateTime } from "@/utils";
-import ActivitySpaceSwipe from "@/components/ActivityApplication/ActivitySpaceSwipe.vue";
+import SpaceApplySwipe from "@/components/SpaceApplySwipe.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import Calendar from "@/components/ActivityApplication/Calendar.vue";
 import Uploader from "@/components/Uploader.vue";
 
 const router = useRouter();
 const route = useRoute();
-const value = ref([20, 50]);
-const marks = ref({
-  0: "",
-  26: "",
-  37: "",
-  100: "",
-});
-const containerRef = ref();
 
 const state = reactive({
-  sliderConfig: {
-    previousValue: [],
-    startTime: 45,
-    endTime: 1395,
-    step: 15,
-    marksList: {},
-  },
-
   initQuerySpaceId: route?.query?.id || "",
 
   argumentArray: [],
 
-  activityApplyInfo: {},
-  activityDetailInfo: {},
-  activityDetailInfoShow: false,
+  spaceApplyInfo: {},
+  spaceDetailInfo: {},
+  spaceDetailInfoShow: false,
 
   calendarInfo: {
+    dateList: [],
     list: [],
     startDate: "",
     endDate: "",
   },
+  dateIndex: "",
   selectDateInfo: [],
   selectSlideShow: false,
   selectChooseTime: false,
@@ -57,7 +41,6 @@ const state = reactive({
   },
 
   topImg: "",
-  leftBadge: "",
   filterActivityTypeId: "",
   filterActivityTheme: "",
   filterActivityContent: "",
@@ -67,116 +50,22 @@ const state = reactive({
   bottomBtnDisabled: true,
 
   chooseTimeList: [{ begin_time: "", end_time: "" }],
+  type: "more",
+  addPeople: "",
+  addPeopleList: [],
+  isOpen: 0,
 });
 
 onMounted(() => {
-  fetchGetActivityApply();
-  initMarks();
+  fetchGetSpaceApply();
 });
 
-const onChangeSlider = (v) => {
-  console.log(v);
-  const [prevStart, prevEnd] = state.sliderConfig.previousValue;
-  const [newStart, newEnd] = v;
-
-  let action = "";
-  // 判断滑动方向
-  if (newStart < prevStart) {
-    console.log("左滑块向左滑动");
-    action = "left";
-  } else if (newStart > prevStart) {
-    console.log("左滑块向右滑动");
-  }
-
-  if (newEnd < prevEnd) {
-    console.log("右滑块向左滑动");
-    action = "left";
-  } else if (newEnd > prevEnd) {
-    console.log("右滑块向右滑动");
-  }
-
-  // 更新上一次的值
-  state.sliderConfig.previousValue = [...v];
-
-  // 处理滑块的边界逻辑
-  adjustSliderValue(v, action);
-};
-
-// 调整滑块的值，确保范围限制
-const adjustSliderValue = ([start, end], type) => {
-  const maxRange = 180; // 最大范围
-  const minRange = 60; // 最小范围
-
-  // 判断范围是否超出限制
-  if (end - start > maxRange) {
-    // 如果超出最大范围，调整 `start`
-    if (type == "left") {
-      end = start + maxRange;
-    } else {
-      start = end - maxRange;
-    }
-  } else if (end - start < minRange) {
-    // 如果小于最小范围，调整 `end`
-    end = start + minRange;
-    // if (type == "left") {
-    //   end = start + minRange;
-    // } else {
-    //   end = start + minRange;
-    // }
-  }
-
-  // 边界检查
-  if (start < state.sliderConfig.startTime) {
-    // 如果 `start` 小于滑块最小值，固定 `end` 并调整 `start`
-    start = state.sliderConfig.startTime;
-    end = Math.min(start + minRange, state.sliderConfig.endTime); // 保持范围
-  }
-
-  if (end > state.sliderConfig.endTime) {
-    // 如果 `end` 大于滑块最大值，固定 `start` 并调整 `end`
-    end = state.sliderConfig.endTime;
-    start = Math.max(end - minRange, state.sliderConfig.startTime); // 保持范围
-  }
-
-  // 更新滑块值
-  value.value = [start, end];
-};
-const initMarks = () => {
-  let { startTime, endTime } = state.sliderConfig;
-
-  let step = 15;
-  let showNum = (endTime - startTime) / step;
-
-  // 生成标记对象
-  let marks = {};
-
-  // 循环生成标记
-  for (let i = 0; i <= showNum; i++) {
-    let value = i * step; // 每个标记的值
-    value += startTime;
-    let isLine = value % 60 == 0;
-    marks[value] = isLine ? "line" : "short"; // 使用下标作为 key，值为对应的数值
-  }
-  state.sliderConfig.marksList = marks;
-};
-
-const convertMinutesToHHMM = (minutes, type) => {
-  let hours = Math.floor(minutes / 60); // 计算小时数
-  let mins = minutes % 60; // 计算剩余的分钟数
-
-  if (type == 1) {
-    return `${String(hours).padStart(2, "0")}`;
-  } else if (type == 2) {
-    return `${String(mins).padStart(2, "0")}`;
+const goToLink = (link, goBack = false) => {
+  if (goBack) {
+    router.go(-1);
   } else {
-    return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+    router.replace(link);
   }
-
-  // 格式化为 HH:MM 格式，确保小时和分钟都是两位数
-};
-
-const goToLink = (link) => {
-  router.replace(link);
 };
 
 // 添加时间段
@@ -193,20 +82,21 @@ const removeTimeSlot = () => {
   }
 };
 
-const fetchGetActivityApply = async () => {
+const fetchGetSpaceApply = async () => {
   try {
     let params = {
       id: state.initQuerySpaceId,
     };
-    let res = await getActivityApply(params);
+    let res = await getSpaceApply(params);
     if (res.code != 0) return;
-    state.activityApplyInfo = res?.data?.detail || {};
-    state.calendarInfo.list = res?.data?.axis || [];
+    state.spaceApplyInfo = res?.data?.detail || {};
+    state.calendarInfo.dateList = res?.data?.axis?.date || [];
+    state.calendarInfo.list = res?.data?.axis?.list || [];
 
     if (state.calendarInfo.list.length) {
-      state.calendarInfo.startDate = state.calendarInfo.list[0].day;
+      state.calendarInfo.startDate = state.calendarInfo.list[0].date;
       state.calendarInfo.endDate =
-        state.calendarInfo.list[state.calendarInfo.list.length - 1].day;
+        state.calendarInfo.list[state.calendarInfo.list.length - 1].date;
     }
 
     // 模拟数据
@@ -224,23 +114,22 @@ const fetchGetActivityApply = async () => {
 
     state.argumentArray = res?.data?.argument || [];
     state.topImg = res?.data?.detail?.firstImg || "";
-    state.leftBadge = res?.data?.detail?.top_name || "";
 
-    state.filterActivityTypeId = state.activityApplyInfo?.categorys[0]?.id;
+    state.filterActivityTypeId = state.spaceApplyInfo?.categorys[0]?.id;
   } catch (e) {
     console.log(e);
   }
 };
-const fetchGetActivityDetailInfo = async () => {
+const fetchGetSpaceDetailInfo = async () => {
   try {
     let params = {
       id: state.initQuerySpaceId,
     };
-    let res = await getActivityDetail(params);
+    let res = await getSpaceDetail(params);
     if (res.code != 0) return;
-    state.activityDetailInfo = { ...res?.data, type: "activity" } || {};
-    state.activityDetailInfoShow = true;
-    console.log(state.activityDetailInfo);
+    state.spaceDetailInfo = { ...res?.data, type: "space" } || {};
+    state.spaceDetailInfoShow = true;
+    console.log(state.spaceDetailInfo);
   } catch (e) {
     console.log(e);
   }
@@ -248,7 +137,7 @@ const fetchGetActivityDetailInfo = async () => {
 
 const onChangeSlide = (row) => {
   state.initQuerySpaceId = row?.id;
-  fetchGetActivityApply();
+  fetchGetSpaceApply();
   console.log(row);
 };
 
@@ -326,17 +215,33 @@ const onChangeTime = (v, item, type, index) => {
 const fileUpload = (data, type) => {
   console.log(data, type);
 };
+
+const onChangeDateAct = (date) => {
+  state.dateIndex = date;
+};
+
+const addPeople = () => {
+  state.addPeopleList.push(state.addPeople);
+  state.addPeople = "";
+};
+
+const removePeople = (index) => {
+  state.addPeopleList.splice(index, 1);
+};
 </script>
 <template>
-  <div class="apply" ref="containerRef">
-    <a-affix :offset-top="0" :target="() => containerRef">
+  <div class="apply">
+    <a-affix offset-top="0" :target="() => containerRef">
       <div class="header">
         <div class="leftTit">
           <a-breadcrumb>
             <template #separator
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
-            <a-breadcrumb-item @click="goToLink('/activity_application')"
+            <a-breadcrumb-item @click="goToLink('/space')"
+              >选择馆舍</a-breadcrumb-item
+            >
+            <a-breadcrumb-item @click="goToLink('/space/space', true)"
               >选择空间</a-breadcrumb-item
             >
             <a-breadcrumb-item>填写申请信息</a-breadcrumb-item>
@@ -350,24 +255,21 @@ const fileUpload = (data, type) => {
         <div class="left_top">
           <div class="left_top_left">
             <img style="width: 90%; height: 100%" :src="state.topImg" alt="" />
-            <div class="left_top_badge" :class="{ greenBadge: false }">
-              {{ state.leftBadge }}
-            </div>
           </div>
           <div class="left_top_right">
-            <ActivitySpaceSwipe
-              v-if="state.activityApplyInfo?.brother_area?.length"
-              :data="state.activityApplyInfo"
+            <SpaceApplySwipe
+              v-if="state.spaceApplyInfo?.brother_area?.length"
+              :data="state.spaceApplyInfo"
               :defaultId="state.initQuerySpaceId"
               @changeSlide="onChangeSlide"
-              @viewInfo="fetchGetActivityDetailInfo"
+              @viewInfo="fetchGetSpaceDetailInfo"
               @viewFloor="onViewFloor"
             />
           </div>
         </div>
         <div class="left_bottom">
           <div class="left_bottom_title">时间选择</div>
-          <van-row class="time_select_box">
+          <van-row v-if="state.type == 'more'" class="time_select_box">
             <van-col span="12">
               <div class="time_select_box_text">
                 <div class="time_select_box_text_left">
@@ -440,69 +342,86 @@ const fileUpload = (data, type) => {
             </van-col>
           </van-row>
 
-          <div v-if="state.selectSlideShow" style="margin-top: 12px">
-            <div class="sliderSlt">
-              <div style="margin-right: 40px">
-                已选日期：<span class="sltText">2024-11-26</span>
-              </div>
-              <div style="flex: 1">
-                已选时间：<span class="sltText">2024-11-26</span>
-              </div>
-              <div class="sltDot">
-                <span class="selectable">可选</span>
-                <span class="noselectable">不可选</span>
-              </div>
-            </div>
+          <a-row
+            v-if="state.calendarInfo.dateList?.length && state.type != 'more'"
+            :gutter="[15, 15]"
+          >
+            <template v-for="item in state.calendarInfo.dateList" :key="item">
+              <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
+                <div
+                  class="libraryItem cardItemBorTran"
+                  :class="{ activeItem: item == state.dateIndex }"
+                  @click="onChangeDateAct(item)"
+                >
+                  <span>{{ moment(item).format("MM-DD") }}</span>
+                  <span>{{ exchangeDateTime(item, 31) }}</span>
+                  <div v-if="item == state.dateIndex" class="check_icon">
+                    <img src="@/assets/event/checked.svg" />
+                  </div>
+                </div>
+              </a-col>
+            </template>
+          </a-row>
 
-            <div class="sliderCon">
-              <a-slider
-                autofocus
-                v-model:value="value"
-                range
-                :tip-formatter="null"
-                :marks="state.sliderConfig.marksList"
-                :min="state?.sliderConfig?.startTime"
-                :max="state?.sliderConfig?.endTime"
-                :step="state?.sliderConfig?.step"
-                @change="onChangeSlider"
-              >
-                <template #mark="{ label, point }">
-                  <span v-if="label == 'line'" class="longLine">{{
-                    convertMinutesToHHMM(point, 1)
-                  }}</span>
-                  <!-- <span v-if="label == 'line'" class="longLine"></span> -->
-                  <span v-if="label == 'short'" class="shortLine"></span>
-                </template>
-              </a-slider>
-            </div>
-          </div>
+          <div v-if="state.type != 'more'" style="margin-top: 20px">1</div>
         </div>
       </div>
       <div class="right">
-        <div class="right_top">
-          <div class="right_top_title">申请信息</div>
-          <!-- 活动类型 -->
-          <van-row class="right_top_item">
-            <van-col span="2" class="right_top_item_title"> 活动类型: </van-col>
-            <van-col span="22">
-              <a-radio-group v-model:value="state.filterActivityTypeId">
-                <a-radio
-                  v-for="item in state.activityApplyInfo?.categorys"
-                  :value="item?.id"
-                  :key="item?.id"
-                  >{{ item?.name }}</a-radio
-                >
-              </a-radio-group>
-            </van-col>
-          </van-row>
+        <div class="right_top" v-if="true">
+          <div class="add_people_box">
+            <div class="add_people_box_title">参与人员</div>
+            <div class="add_people_box_input">
+              <a-input
+                size="middle"
+                :bordered="false"
+                v-model:value="state.addPeople"
+                placeholder="请输入学工号"
+              />
+              <img
+                @click="addPeople"
+                class="add_people_box_input_icon"
+                src="@/assets/activity_application/add_one_time.svg"
+                alt=""
+              />
+            </div>
+          </div>
+
+          <a-row v-if="state.addPeopleList?.length > 0" :gutter="[15, 15]">
+            <template v-for="(item, index) in state.addPeopleList" :key="index">
+              <a-col :xs="12" :sm="12" :md="4" :lg="4" :xl="4" :xxl="4">
+                <div class="add_people_item">
+                  <span>{{ item }}</span>
+                  <img
+                    style="cursor: pointer"
+                    @click="removePeople(index)"
+                    src="@/assets/blue_remove_icon.svg"
+                    alt=""
+                  />
+                </div>
+              </a-col>
+            </template>
+          </a-row>
+          <div v-else style="display: flex; justify-content: center">
+            <img
+              style="width: 170px; height: 150px"
+              src="@/assets/no_add_people_icon.svg"
+              alt=""
+            />
+          </div>
+
+          <div class="right_top_right_text">
+            <div v-if="state.addPeopleList?.length < 1">还可添加1 ~ 12人</div>
+            <div v-else>还可添加{{ 12 - state.addPeopleList?.length }}人</div>
+          </div>
+        </div>
+        <div class="right_bottom">
+          <div class="right_bottom_title">完善信息</div>
           <!-- 申请主题 -->
-          <van-row
-            class="right_top_item"
-            align="center"
-            v-if="filterArguments('title')"
-          >
-            <van-col span="2" class="right_top_item_title"> 申请主题: </van-col>
-            <van-col span="22">
+          <van-row class="right_bottom_item" align="center">
+            <van-col span="2" class="right_bottom_item_title">
+              申请主题:
+            </van-col>
+            <van-col span="22" class="padding_left_10">
               <a-input
                 placeholder="填写后将在活动报名页面展示"
                 v-model:value="state.filterActivityTheme"
@@ -511,9 +430,11 @@ const fileUpload = (data, type) => {
             </van-col>
           </van-row>
           <!-- 申请内容 -->
-          <van-row class="right_top_item" v-if="filterArguments('content')">
-            <van-col span="2" class="right_top_item_title"> 申请内容: </van-col>
-            <van-col span="22">
+          <van-row class="right_bottom_item">
+            <van-col span="2" class="right_bottom_item_title">
+              申请内容:
+            </van-col>
+            <van-col span="22" class="padding_left_10">
               <a-textarea
                 placeholder="填写后将在活动报名页面展示"
                 v-model:value="state.filterActivityContent"
@@ -524,123 +445,54 @@ const fileUpload = (data, type) => {
               />
             </van-col>
           </van-row>
+          <!-- 联系电话 -->
+          <van-row class="right_bottom_item">
+            <van-col span="2" class="right_bottom_item_title">
+              联系电话:
+            </van-col>
+            <van-col span="22" class="padding_left_10">
+              <a-input
+                placeholder="请输入联系电话"
+                v-model:value="state.filterActivityMobile"
+                size="middle"
+              />
+            </van-col>
+          </van-row>
 
-          <van-row class="right_top_item">
-            <!-- 最多人数 -->
-            <van-col span="10" v-if="filterArguments('max')">
-              <van-row align="center">
-                <van-col span="5" class="right_top_item_title">
-                  最多人数:
-                </van-col>
-                <van-col span="19">
-                  <a-input
-                    placeholder="请输入最多人数"
-                    v-model:value="state.filterActivityMaxPeople"
-                    size="middle"
-                  />
-                </van-col>
-              </van-row>
+          <!-- 是否公开 -->
+          <van-row class="right_bottom_item">
+            <van-col span="2" class="right_bottom_item_title">
+              是否公开:
             </van-col>
-            <!-- 联系电话 -->
-            <van-col span="12" offset="2" v-if="filterArguments('mobile')">
-              <van-row align="center">
-                <van-col span="4" class="right_top_item_title">
-                  联系电话:
-                </van-col>
-                <van-col span="20">
-                  <a-input
-                    placeholder="请输入联系电话"
-                    v-model:value="state.filterActivityMaxPeople"
-                    size="middle"
-                  />
-                </van-col>
-              </van-row>
+            <van-col span="22" class="padding_left_10">
+              <a-radio-group v-model:value="state.isOpen">
+                <a-radio :value="0" :key="0">是</a-radio>
+                <a-radio :value="1" :key="1">否</a-radio>
+              </a-radio-group>
             </van-col>
           </van-row>
-        </div>
-        <div class="right_bottom">
-          <div class="right_bottom_title">上传活动资料</div>
+
+          <!-- 附件 -->
           <van-row class="upload_item">
-            <!-- 审批附件 -->
-            <van-col span="14" v-if="filterArguments('approve')">
-              <div class="upload_file_title">
-                <span style="color: #ff4d4f">*</span>审批附件:
-              </div>
-              <Uploader
-                filePath="activity"
-                :maxCount="1"
-                @onFileUpload="(v) => fileUpload(v, 'approve')"
-                accept="application/pdf,application/msword"
-              >
-                <div class="upload_file_box">
-                  <img
-                    src="@/assets/activity_application/upload_file.svg"
-                    alt=""
-                  />
-                  Word/PDF
-                </div>
-              </Uploader>
-            </van-col>
-            <!-- 活动海报 -->
-            <van-col span="10" v-if="filterArguments('poster')">
-              <div class="upload_file_title">
-                <span style="color: #ff4d4f">*</span>活动海报:
-              </div>
-              <div class="upload_file_box">
-                <img
-                  src="@/assets/activity_application/upload_file.svg"
-                  alt=""
-                />
-                jpg/jpeg/png
-              </div>
-            </van-col>
+            <van-col span="2" class="upload_item_title"> 上传附件: </van-col>
+            <Uploader
+              class="margin_left_10" 
+              filePath="seminar"
+              :maxCount="1"
+              @onFileUpload="(v) => fileUpload(v, 'approve')"
+              accept="application/pdf,application/msword"
+            >
+              <img src="@/assets/upload_file_square.svg" alt="" />
+            </Uploader>
           </van-row>
-          <van-row class="upload_item margin_top_50">
-            <!-- 活动策划案 -->
-            <van-col span="14" v-if="filterArguments('plan')">
-              <div class="upload_file_title">
-                <span style="color: #ff4d4f">*</span>活动策划案:
-              </div>
-              <div class="upload_file_box">
-                <img
-                  src="@/assets/activity_application/upload_file.svg"
-                  alt=""
-                />
-                Word/PDF
-              </div>
-            </van-col>
-            <!-- 宣传片 -->
-            <van-col span="10" v-if="filterArguments('publicize')">
-              <div class="upload_file_title">宣传片:</div>
-              <div class="upload_file_box">
-                <img
-                  src="@/assets/activity_application/upload_file.svg"
-                  alt=""
-                />
-                jpg/jpeg/png
-              </div>
-            </van-col>
-          </van-row>
-          <van-row class="upload_item margin_top_50">
-            <!-- 其他申请材料 -->
-            <van-col span="14" v-if="filterArguments('materials')">
-              <div class="upload_file_title">其他申请材料:</div>
-              <div class="upload_file_box">
-                <img
-                  src="@/assets/activity_application/upload_file.svg"
-                  alt=""
-                />
-                Word/PDF
-              </div>
-            </van-col>
-          </van-row>
+
           <div class="bottom_btn">
             <van-button
               :disabled="state.bottomBtnDisabled"
               round
               type="primary"
               style="width: 200px"
-              >立即申请</van-button
+              >立即预约</van-button
             >
           </div>
         </div>
@@ -716,18 +568,7 @@ const fileUpload = (data, type) => {
         border-radius: 16px;
         display: flex;
         .left_top_left {
-          position: relative;
           flex: 1;
-          .left_top_badge {
-            position: absolute;
-            top: 0;
-            left: 0;
-            padding: 3px 8px;
-            background: #1a49c0;
-            border-radius: 6px 0px 6px 0px;
-            font-size: 12px;
-            color: #ffffff;
-          }
         }
         .left_top_right {
           width: 350px;
@@ -742,12 +583,13 @@ const fileUpload = (data, type) => {
         border-radius: 16px;
         padding: 30px 30px 12px 30px;
         .left_bottom_title {
+          margin-bottom: 20px;
           font-size: 16px;
           color: rgba(32, 32, 32, 1);
           font-family: AliHeavy !important;
         }
         .time_select_box {
-          margin-top: 12px;
+          margin-top: 20px;
           flex: 1;
           .time_select_box_text {
             display: flex;
@@ -817,39 +659,17 @@ const fileUpload = (data, type) => {
             }
           }
         }
-      }
-      .sliderSlt {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        color: #616161;
-        font-size: 14px;
-        .sltText {
-          color: var(--primary-color);
-        }
-        .sltDot {
-          span {
-            position: relative;
-            &::after {
-              content: "";
-              width: 10px;
-              height: 8px;
-              background: #e0e0e0;
-              position: absolute;
-              left: -15px;
-              top: 50%;
-              transform: translateY(-50%);
-            }
-
-            &:first-child {
-              margin-right: 44px;
-            }
-
-            &.noselectable {
-              &::after {
-                background: #6f6f6f;
-              }
-            }
+        .libraryItem {
+          position: relative;
+          background-color: rgba(97, 97, 97, 0.05);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          .check_icon {
+            position: absolute;
+            right: 0;
+            bottom: 0;
           }
         }
       }
@@ -867,15 +687,69 @@ const fileUpload = (data, type) => {
         padding: 30px;
         background-color: #fff;
         border-radius: 16px;
-        .right_top_title {
+        position: relative;
+        .add_people_box {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 20px;
+          .add_people_box_title {
+            font-size: 16px;
+            color: rgba(32, 32, 32, 1);
+            font-family: AliHeavy !important;
+          }
+          .add_people_box_input {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #cecfd5;
+            border-radius: 18px;
+            .add_people_box_input_icon {
+              width: 20px;
+              height: 20px;
+              cursor: pointer;
+              margin-right: 10px;
+            }
+          }
+        }
+        .add_people_item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border: 1px solid rgba(26, 73, 192, 0.4);
+          border-radius: 6px;
+          padding: 7px 14px;
+          color: rgba(26, 73, 192, 1);
+          font-size: 14px;
+          background-color: rgba(26, 73, 192, 0.05);
+        }
+
+        .right_top_right_text {
+          color: rgba(243, 116, 0, 1);
+          font-size: 12px;
+          position: absolute;
+          bottom: 16px;
+          right: 30px;
+        }
+      }
+      .right_bottom {
+        position: relative;
+        flex: 3;
+        margin: 30px;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 16px;
+
+        .right_bottom_title {
           font-size: 16px;
           color: rgba(32, 32, 32, 1);
           font-family: AliHeavy !important;
         }
-        .right_top_item {
+        .right_bottom_item {
           margin-top: 20px;
-
-          .right_top_item_title {
+          .padding_left_10 {
+            padding-left: 10px;
+          }
+          .right_bottom_item_title {
             color: rgba(32, 32, 32, 1);
             font-size: 14px;
           }
@@ -883,32 +757,19 @@ const fileUpload = (data, type) => {
             margin-top: 50px;
           }
         }
-      }
-      .right_bottom {
-        position: relative;
-        flex: 1.3;
-        margin: 30px;
-        padding: 30px;
-        background-color: #fff;
-        border-radius: 16px;
-        .right_bottom_title {
-          font-size: 16px;
-          color: rgba(32, 32, 32, 1);
-          font-family: AliHeavy !important;
-        }
         .upload_item {
           margin-top: 20px;
-          .upload_file_title {
+          display: flex;
+          .upload_item_title {
+            margin-top: 12px;
             color: rgba(32, 32, 32, 1);
             font-size: 14px;
           }
-          .upload_file_box {
-            cursor: pointer;
-            margin-top: 12px;
-            color: rgba(134, 134, 134, 1);
-            font-size: 12px;
+          .margin_left_10 {
+            margin-left: 10px;
           }
         }
+
         .margin_top_50 {
           margin-top: 50px;
         }
@@ -918,68 +779,6 @@ const fileUpload = (data, type) => {
           right: 30px;
         }
       }
-    }
-  }
-}
-
-:deep(.ant-slider) {
-  .ant-slider-step {
-    display: none;
-  }
-  .ant-slider-mark {
-    top: 20px;
-  }
-  .ant-slider-rail {
-    background-color: #e0e0e0 !important;
-  }
-  .ant-slider-track {
-    background-color: var(--primary-color) !important;
-  }
-  .ant-slider-rail,
-  .ant-slider-track {
-    height: 14px !important;
-  }
-  .ant-slider-handle {
-    width: 12px !important;
-    height: 20px !important;
-    background-image: url("@/assets/common/sliderBtn.png");
-    background-size: 100%;
-    &::before {
-      display: none;
-    }
-    &::after {
-      display: none;
-    }
-  }
-  .ant-slider-mark-text {
-    padding-top: 12px;
-    > span {
-      padding-top: 12px;
-    }
-  }
-  .shortLine {
-    position: relative;
-    &::after {
-      content: "";
-      position: absolute;
-      top: -12px;
-      left: 0;
-      width: 1px;
-      height: 6px;
-      border-right: 1px solid #e7e7e7;
-    }
-  }
-  .longLine {
-    position: relative;
-    &::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 8px;
-      width: 1px;
-      height: 10px;
-      border-right: 1px solid #e7e7e7;
-      // background-color: #202020;
     }
   }
 }

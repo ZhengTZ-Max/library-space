@@ -44,6 +44,7 @@ const headers = {
       :data="{
         path: filePath || '',
       }"
+      :show-upload-list="false"
       :headers="headers"
       @change="handleChange"
     >

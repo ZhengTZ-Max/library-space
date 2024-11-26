@@ -57,13 +57,26 @@ const filterCategorys = (list) => {
         />
       </van-swipe-item>
     </van-swipe>
-
+    <van-swipe
+      v-if="systemMode != 'pc' && state.propsData?.type == 'space'"
+      :autoplay="3000"
+      indicator-color="white"
+    >
+      <van-swipe-item v-for="(item, index) in state.propsData?.img" :key="item">
+        <img
+          width="100%"
+          height="290px"
+          :src="item"
+          alt="Empty state illustration"
+        />
+      </van-swipe-item>
+    </van-swipe>
     <van-swipe
       v-if="state.propsData?.type == 'library' && systemMode != 'pc'"
       :autoplay="3000"
       indicator-color="white"
     >
-      <van-swipe-item >
+      <van-swipe-item>
         <img
           width="100%"
           height="290px"
@@ -75,7 +88,11 @@ const filterCategorys = (list) => {
 
     <!-- 标题 -->
     <p v-if="systemMode == 'pc'" class="title">
-      {{ state.propsData?.type == "space" ? state.propsData?.nameMerge || "-" : state.propsData?.name || "-" }}
+      {{
+        state.propsData?.type == "space"
+          ? state.propsData?.nameMerge || "-"
+          : state.propsData?.name || "-"
+      }}
     </p>
     <p v-else class="title_mobile">{{ state.propsData?.nameMerge || "-" }}</p>
 

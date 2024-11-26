@@ -6,8 +6,7 @@ import { useRouter } from "vue-router";
 import moment from "moment";
 
 import { exchangeDateTime } from "@/utils";
-import { getPcTopFor, getSpaceDetail } from "@/request/seat";
-import { getSeminarIndex } from "@/request/space";
+import { getSeminarIndex,getSpaceDetail } from "@/request/space";
 
 import LibraryInfo from "@/components/LibraryInfo.vue";
 const store = useStore();
@@ -15,7 +14,7 @@ const router = useRouter();
 const containerRef = ref();
 
 const state = reactive({
-  libraryInfoShow: false,
+
   libraryInfo: {},
   activeIndex: "",
   quickDate: "",
@@ -25,6 +24,7 @@ const state = reactive({
   floorList: [],
 
   spaceInfo: {},
+  spaceInfoShow: false,
 });
 
 onMounted(() => {
@@ -82,7 +82,7 @@ const handleShowInfo = (item) => {
 };
 
 const handleAppt = () => {
-  goToLink(state.libraryInfo?.id);
+  goToLink(state.spaceInfo?.id);
 };
 
 const onChangeAct = (i) => {
@@ -113,8 +113,8 @@ const fetchInfo = async (id) => {
     let res = await getSpaceDetail(params);
     if (res.code != 0) return;
     // state.spaceInfo = res?.data || {};
-    state.spaceInfo = { ...res?.data, type: "library" } || {};
-    state.libraryInfoShow = true;
+    state.spaceInfo = { ...res?.data, type: "space" } || {};
+    state.spaceInfoShow = true;
   } catch (e) {
     console.log(e);
   }
@@ -249,7 +249,7 @@ const onFloor = (row) => {
 
     <a-modal
       width="40%"
-      v-model:open="state.libraryInfoShow"
+      v-model:open="state.spaceInfoShow"
       title="馆舍详情"
       @ok="handleAppt"
       destroyOnClose
