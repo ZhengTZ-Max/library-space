@@ -53,7 +53,7 @@ watch(
 const onSelect = (date) => {
   state.selectedDate = date;
   console.log(date);
-//   showToast("预约~");
+  //   showToast("预约~");
 };
 
 const checkSelectDate = () => {
@@ -78,7 +78,6 @@ const checkSelectDate = () => {
   emits("onSelected", state.selectedDate);
 };
 
-
 const formatter = (day) => {
   try {
     // const month = day.date.getMonth() + 1;
@@ -92,13 +91,11 @@ const formatter = (day) => {
     if (findDate?.status == -1) {
       day.className = `day-disabled`;
       day.type = `disabled`;
-    } else if (
-      findDate?.status == 0 &&
-      findDate?.list?.length 
-    ) {
+    } else if (findDate?.status == 0 && findDate?.list?.length) {
+      console.log("findDate", findDate);
       day.className = `day-all`;
       day.type = `disabled`;
-    } 
+    }
     // else if (findDate?.status == 0 && props?.type == "single") {
     //   day.className = `day-disabled`;
     //   day.type = `disabled`;
@@ -124,7 +121,6 @@ const formatter = (day) => {
     console.log(e);
   }
 };
-
 </script>
 <template>
   <van-calendar
@@ -163,9 +159,7 @@ const formatter = (day) => {
     </van-calendar> -->
 </template>
 <style lang="less" scoped>
-
-
-.day-item() {
+.day-item {
   position: relative;
   z-index: 2;
   // border-radius: 50%;
@@ -238,7 +232,7 @@ const formatter = (day) => {
       width: 50%;
       height: 50%;
       left: 50%;
-      background-color: rgba(26, 73, 192, 0.10);
+      background-color: rgba(26, 73, 192, 0.1);
       z-index: -2;
     }
   }
@@ -259,7 +253,7 @@ const formatter = (day) => {
       width: 50%;
       height: 50%;
       right: 50%;
-      background-color: rgba(26, 73, 192, 0.10);
+      background-color: rgba(26, 73, 192, 0.1);
       z-index: -2;
     }
   }
@@ -284,8 +278,8 @@ const formatter = (day) => {
   }
 }
 :deep(.day-none) {
-//   height: 0;
-//   opacity: 0;
+  //   height: 0;
+  //   opacity: 0;
   margin-bottom: 0;
 }
 :deep(.day-all) {

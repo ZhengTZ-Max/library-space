@@ -3,6 +3,8 @@ import { ref, reactive, onMounted, watch, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { message } from "ant-design-vue";
+import _ from "lodash";
+import moment from "moment";
 
 import {
   getActivityApply,
@@ -13,25 +15,29 @@ import ActivitySpaceSwipe from "@/components/ActivityApplication/ActivitySpaceSw
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import Calendar from "@/components/ActivityApplication/Calendar.vue";
 import Uploader from "@/components/Uploader.vue";
+import SliderCom from "@/components/SliderCom.vue";
 
 const router = useRouter();
 const route = useRoute();
-const value = ref([20, 50]);
-const marks = ref({
-  0: "",
-  26: "",
-  37: "",
-  100: "",
-});
+
 const containerRef = ref();
 
 const state = reactive({
+  sliderVal: [],
   sliderConfig: {
     previousValue: [],
-    startTime: 45,
-    endTime: 1395,
+    minRange: 60,
+    maxRange: 240,
+    startTime: 15,
+    endTime: 1425,
     step: 15,
     marksList: {},
+    disabledArr: [
+      [60, 120],
+      [150, 270],
+      [360, 420],
+    ],
+    disabledHtml: "",
   },
 
   initQuerySpaceId: route?.query?.id || "",
@@ -71,108 +77,24 @@ const state = reactive({
 
 onMounted(() => {
   fetchGetActivityApply();
-  initMarks();
 });
 
-const onChangeSlider = (v) => {
-  console.log(v);
-  const [prevStart, prevEnd] = state.sliderConfig.previousValue;
-  const [newStart, newEnd] = v;
+const getCurrentTime = () => {
+  if (
+    exchangeDateTime(state.selectDateInfo[0], 2) ==
+    exchangeDateTime(new Date(), 2)
+  ) {
+    let h = moment(new Date()).get("hour") * 60;
+    let m = h + moment(new Date()).get("minute");
+    m = m + (15 - (m % 15));
 
-  let action = "";
-  // 判断滑动方向
-  if (newStart < prevStart) {
-    console.log("左滑块向左滑动");
-    action = "left";
-  } else if (newStart > prevStart) {
-    console.log("左滑块向右滑动");
-  }
-
-  if (newEnd < prevEnd) {
-    console.log("右滑块向左滑动");
-    action = "left";
-  } else if (newEnd > prevEnd) {
-    console.log("右滑块向右滑动");
-  }
-
-  // 更新上一次的值
-  state.sliderConfig.previousValue = [...v];
-
-  // 处理滑块的边界逻辑
-  adjustSliderValue(v, action);
-};
-
-// 调整滑块的值，确保范围限制
-const adjustSliderValue = ([start, end], type) => {
-  const maxRange = 180; // 最大范围
-  const minRange = 60; // 最小范围
-
-  // 判断范围是否超出限制
-  if (end - start > maxRange) {
-    // 如果超出最大范围，调整 `start`
-    if (type == "left") {
-      end = start + maxRange;
-    } else {
-      start = end - maxRange;
-    }
-  } else if (end - start < minRange) {
-    // 如果小于最小范围，调整 `end`
-    end = start + minRange;
-    // if (type == "left") {
-    //   end = start + minRange;
-    // } else {
-    //   end = start + minRange;
-    // }
-  }
-
-  // 边界检查
-  if (start < state.sliderConfig.startTime) {
-    // 如果 `start` 小于滑块最小值，固定 `end` 并调整 `start`
-    start = state.sliderConfig.startTime;
-    end = Math.min(start + minRange, state.sliderConfig.endTime); // 保持范围
-  }
-
-  if (end > state.sliderConfig.endTime) {
-    // 如果 `end` 大于滑块最大值，固定 `start` 并调整 `end`
-    end = state.sliderConfig.endTime;
-    start = Math.max(end - minRange, state.sliderConfig.startTime); // 保持范围
-  }
-
-  // 更新滑块值
-  value.value = [start, end];
-};
-const initMarks = () => {
-  let { startTime, endTime } = state.sliderConfig;
-
-  let step = 15;
-  let showNum = (endTime - startTime) / step;
-
-  // 生成标记对象
-  let marks = {};
-
-  // 循环生成标记
-  for (let i = 0; i <= showNum; i++) {
-    let value = i * step; // 每个标记的值
-    value += startTime;
-    let isLine = value % 60 == 0;
-    marks[value] = isLine ? "line" : "short"; // 使用下标作为 key，值为对应的数值
-  }
-  state.sliderConfig.marksList = marks;
-};
-
-const convertMinutesToHHMM = (minutes, type) => {
-  let hours = Math.floor(minutes / 60); // 计算小时数
-  let mins = minutes % 60; // 计算剩余的分钟数
-
-  if (type == 1) {
-    return `${String(hours).padStart(2, "0")}`;
-  } else if (type == 2) {
-    return `${String(mins).padStart(2, "0")}`;
+    state.sliderConfig.disabledArr = [
+      ...state.sliderConfig.disabledArr,
+      [state.sliderConfig.startTime, m],
+    ];
   } else {
-    return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+    state.sliderConfig.disabledArr = [];
   }
-
-  // 格式化为 HH:MM 格式，确保小时和分钟都是两位数
 };
 
 const goToLink = (link) => {
@@ -210,15 +132,15 @@ const fetchGetActivityApply = async () => {
     }
 
     // 模拟数据
-    state.calendarInfo.list[0].status = -1;
-    state.calendarInfo.list[1].status = 0;
-    state.calendarInfo.list[1].list.push({
-      date: "2024-11-23",
-      begin_timestamp: "2024-11-23 08:00:00",
-      end_timestamp: "2024-11-23 19:00:00",
-      begin_time: 480,
-      end_time: 540,
-    });
+    // state.calendarInfo.list[0].status = -1;
+    // state.calendarInfo.list[1].status = 0;
+    // state.calendarInfo.list[1].list.push({
+    //   date: "2024-11-23",
+    //   begin_timestamp: "2024-11-23 08:00:00",
+    //   end_timestamp: "2024-11-23 19:00:00",
+    //   begin_time: 480,
+    //   end_time: 540,
+    // });
 
     console.log(state.calendarInfo);
 
@@ -227,6 +149,7 @@ const fetchGetActivityApply = async () => {
     state.leftBadge = res?.data?.detail?.top_name || "";
 
     state.filterActivityTypeId = state.activityApplyInfo?.categorys[0]?.id;
+    // initMarks();
   } catch (e) {
     console.log(e);
   }
@@ -267,6 +190,7 @@ const onSelected = (date) => {
     if (state.selectDateInfo.length == 1) {
       state.selectSlideShow = true;
       state.selectChooseTime = false;
+      getCurrentTime();
     } else {
       state.selectSlideShow = false;
       state.selectChooseTime = true;
@@ -441,7 +365,12 @@ const fileUpload = (data, type) => {
           </van-row>
 
           <div v-if="state.selectSlideShow" style="margin-top: 12px">
-            <div class="sliderSlt">
+            <SliderCom
+              :options="state.sliderConfig"
+              v-model:value="state.sliderVal"
+            />
+            {{ state.sliderVal }}
+            <!-- <div class="sliderSlt">
               <div style="margin-right: 40px">
                 已选日期：<span class="sltText">2024-11-26</span>
               </div>
@@ -452,29 +381,7 @@ const fileUpload = (data, type) => {
                 <span class="selectable">可选</span>
                 <span class="noselectable">不可选</span>
               </div>
-            </div>
-
-            <div class="sliderCon">
-              <a-slider
-                autofocus
-                v-model:value="value"
-                range
-                :tip-formatter="null"
-                :marks="state.sliderConfig.marksList"
-                :min="state?.sliderConfig?.startTime"
-                :max="state?.sliderConfig?.endTime"
-                :step="state?.sliderConfig?.step"
-                @change="onChangeSlider"
-              >
-                <template #mark="{ label, point }">
-                  <span v-if="label == 'line'" class="longLine">{{
-                    convertMinutesToHHMM(point, 1)
-                  }}</span>
-                  <!-- <span v-if="label == 'line'" class="longLine"></span> -->
-                  <span v-if="label == 'short'" class="shortLine"></span>
-                </template>
-              </a-slider>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -918,68 +825,6 @@ const fileUpload = (data, type) => {
           right: 30px;
         }
       }
-    }
-  }
-}
-
-:deep(.ant-slider) {
-  .ant-slider-step {
-    display: none;
-  }
-  .ant-slider-mark {
-    top: 20px;
-  }
-  .ant-slider-rail {
-    background-color: #e0e0e0 !important;
-  }
-  .ant-slider-track {
-    background-color: var(--primary-color) !important;
-  }
-  .ant-slider-rail,
-  .ant-slider-track {
-    height: 14px !important;
-  }
-  .ant-slider-handle {
-    width: 12px !important;
-    height: 20px !important;
-    background-image: url("@/assets/common/sliderBtn.png");
-    background-size: 100%;
-    &::before {
-      display: none;
-    }
-    &::after {
-      display: none;
-    }
-  }
-  .ant-slider-mark-text {
-    padding-top: 12px;
-    > span {
-      padding-top: 12px;
-    }
-  }
-  .shortLine {
-    position: relative;
-    &::after {
-      content: "";
-      position: absolute;
-      top: -12px;
-      left: 0;
-      width: 1px;
-      height: 6px;
-      border-right: 1px solid #e7e7e7;
-    }
-  }
-  .longLine {
-    position: relative;
-    &::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 8px;
-      width: 1px;
-      height: 10px;
-      border-right: 1px solid #e7e7e7;
-      // background-color: #202020;
     }
   }
 }
