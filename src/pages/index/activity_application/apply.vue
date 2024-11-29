@@ -9,6 +9,7 @@ import moment from "moment";
 import {
   getActivityApply,
   getActivityDetail,
+  activityApply,
 } from "@/request/activity_application";
 import { exchangeDateTime } from "@/utils";
 import ActivitySpaceSwipe from "@/components/ActivityApplication/ActivitySpaceSwipe.vue";
@@ -78,6 +79,38 @@ const state = reactive({
 onMounted(() => {
   fetchGetActivityApply();
 });
+
+const onSubmit = () => {
+  try {
+    let { startDate, endDate } = state.calendarInfo;
+    let params = {
+      id: state.initQuerySpaceId,
+      cate_id: state.filterActivityTypeId,
+      start_date: startDate || "",
+      end_date: endDate || "",
+      title: state.filterActivityTheme || "",
+      content: state.filterActivityContent || "",
+      max: state.filterActivityMaxPeople || "",
+      mobile: state.filterActivityMaxPeople || "",
+      time: [],
+      poster: [],
+      approve: [],
+      publicize: [],
+      plan: [],
+      materials: [],
+    };
+    console.log(params);
+    // applyActivity(params)
+  } catch (e) {}
+};
+
+const applyActivity = async (data) => {
+  try {
+    const res = await activityApply(data);
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 const getCurrentTime = () => {
   if (
@@ -272,7 +305,7 @@ const fileUpload = (data, type) => {
     <div class="content">
       <div class="left">
         <div class="left_top">
-          <div class="left_top_left">
+          <div v-if="state?.topImg" class="left_top_left">
             <img style="width: 90%; height: 100%" :src="state.topImg" alt="" />
             <div class="left_top_badge" :class="{ greenBadge: false }">
               {{ state.leftBadge }}
@@ -291,7 +324,10 @@ const fileUpload = (data, type) => {
         </div>
         <div class="left_bottom">
           <div class="left_bottom_title">时间选择</div>
-          <van-row class="time_select_box">
+          <van-row
+            v-if="state?.calendarInfo?.list?.length"
+            class="time_select_box"
+          >
             <van-col span="12">
               <div class="time_select_box_text">
                 <div class="time_select_box_text_left">
@@ -365,23 +401,13 @@ const fileUpload = (data, type) => {
           </van-row>
 
           <div v-if="state.selectSlideShow" style="margin-top: 12px">
+            <div class="sliderSlt">
+              <div>已选日期：<span class="sltText">2024-11-26</span></div>
+            </div>
             <SliderCom
               :options="state.sliderConfig"
               v-model:value="state.sliderVal"
             />
-            {{ state.sliderVal }}
-            <!-- <div class="sliderSlt">
-              <div style="margin-right: 40px">
-                已选日期：<span class="sltText">2024-11-26</span>
-              </div>
-              <div style="flex: 1">
-                已选时间：<span class="sltText">2024-11-26</span>
-              </div>
-              <div class="sltDot">
-                <span class="selectable">可选</span>
-                <span class="noselectable">不可选</span>
-              </div>
-            </div> -->
           </div>
         </div>
       </div>
@@ -625,6 +651,10 @@ const fileUpload = (data, type) => {
         .left_top_left {
           position: relative;
           flex: 1;
+          img {
+            border-radius: 6px;
+            object-fit: cover;
+          }
           .left_top_badge {
             position: absolute;
             top: 0;

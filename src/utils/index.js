@@ -490,3 +490,18 @@ export const t = (key) => {
 
   return lang == "zh" ? findRow?.zh : findRow?.en || "";
 };
+
+export const checkOverlap = (target, ranges) => {
+  const [targetStart, targetEnd] = target;
+  const overlappingRanges = [];
+
+  ranges.forEach(([rangeStart, rangeEnd]) => {
+    // 判断目标区间是否和当前区间有重叠
+    if (targetStart < rangeEnd && targetEnd > rangeStart) {
+      // 如果有重叠，返回整个区间（而不是只返回重叠部分）
+      overlappingRanges.push([rangeStart, rangeEnd]);
+    }
+  });
+
+  return overlappingRanges || [];
+};

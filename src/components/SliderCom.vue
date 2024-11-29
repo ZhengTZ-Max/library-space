@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
-import { exchangeDateTime } from "@/utils";
+import { exchangeDateTime, checkOverlap } from "@/utils";
 
 const store = useStore();
 const sliderRef = ref();
@@ -216,18 +216,45 @@ const disabledCss = (arr) => {
     let leftPix = (arr[0] - startTime) * pix;
     let RightPix = (arr[1] - startTime) * pix;
     let eleWidth = RightPix - leftPix;
-    // console.log("leftPix ---- ", arr[0]);
-    // console.log("RightPix ---- ", arr[1] );
     return `width:${eleWidth}px;left:${leftPix}px`;
   }
   return "display:none";
 };
+
+const showErrTimes = () => {
+  let errArr = checkOverlap(state.value, state?.opt?.disabledArr);
+  console.log(errArr);
+  let str = "";
+  if (errArr?.length) {
+    let [start, end] = errArr[0];
+    str = `${convertMinutesToHHMM(start)} ~ ${convertMinutesToHHMM(end)}`;
+  }
+
+  return str;
+};
 </script>
 
 <template>
-  <div class="sliderCom">
+  <div
+    class="sliderCom"
+    :class="{
+      errorSlider: checkOverlap(state.value, state?.opt?.disabledArr)?.length,
+    }"
+  >
     <div class="sliderSlt">
-      <div>已选时间：<span class="sltText">2024-11-26</span></div>
+      <div>
+        已选时间：<span class="sltText">{{
+          `${convertMinutesToHHMM(state.value[0])} ~ ${convertMinutesToHHMM(
+            state.value[1]
+          )}`
+        }}</span>
+        <span
+          v-if="checkOverlap(state.value, state?.opt?.disabledArr)?.length"
+          class="sltText"
+          style="margin-left: 4px"
+          >(时段被占用：{{ showErrTimes() }})</span
+        >
+      </div>
       <div class="sltDot">
         <span class="selectable">可选</span>
         <span class="noselectable">不可选</span>
@@ -258,6 +285,7 @@ const disabledCss = (arr) => {
 </template>
 <style lang="less" scoped>
 .sliderCom {
+  margin-top: 8px;
   .sliderSlt {
     display: flex;
     align-items: center;
@@ -309,6 +337,17 @@ const disabledCss = (arr) => {
         height: 100%;
         background-color: #6f6f6f;
       }
+    }
+  }
+}
+.errorSlider {
+  .sltText {
+    color: #f37400 !important;
+  }
+  :deep(.ant-slider) {
+    .ant-slider-track {
+      z-index: 9;
+      background-color: #f37400 !important;
     }
   }
 }

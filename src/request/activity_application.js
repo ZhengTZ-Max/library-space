@@ -35,3 +35,13 @@ export function getActivityApply(data) {
     data,
   });
 }
+
+// 空间申请
+export function activityApply(data) {
+  return service({
+    url: "/v4/activity/should",
+    method: "POST",
+    isLoading: true,
+    data,
+  });
+}
