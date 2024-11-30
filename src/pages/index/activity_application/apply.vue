@@ -10,16 +10,22 @@ import {
   getActivityApply,
   getActivityDetail,
   activityApply,
+  fetchActivityShould,
 } from "@/request/activity_application";
-import { exchangeDateTime } from "@/utils";
+import { exchangeDateTime, checkOverlap, convertMinutesToHHMM } from "@/utils";
 import ActivitySpaceSwipe from "@/components/ActivityApplication/ActivitySpaceSwipe.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import Calendar from "@/components/ActivityApplication/Calendar.vue";
 import Uploader from "@/components/Uploader.vue";
 import SliderCom from "@/components/SliderCom.vue";
+import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
+import ShowInfoToast from "@/components/ShowInfoToast.vue";
+
+import { showToast, Toast } from "vant";
 
 const router = useRouter();
 const route = useRoute();
+const lang = computed(() => store.state.lang);
 
 const containerRef = ref();
 
@@ -33,11 +39,7 @@ const state = reactive({
     endTime: 1425,
     step: 15,
     marksList: {},
-    disabledArr: [
-      [60, 120],
-      [150, 270],
-      [360, 420],
-    ],
+    disabledArr: [],
     disabledHtml: "",
   },
 
@@ -71,48 +73,242 @@ const state = reactive({
   filterActivityMaxPeople: "",
   filterActivityMobile: "",
 
-  bottomBtnDisabled: true,
+  initApprove: [
+    // {
+    //   file_ext: "pdf",
+    //   file_name: "NKY2Pj2ipqIUQmFu1732951373143983.pdf",
+    //   file_origin_name: "Transactions Explanation.pdf",
+    //   file_path:
+    //     "/upload/activity/2024-11-30/NKY2Pj2ipqIUQmFu1732951373143983.pdf",
+    //   file_size: "524.64 KB",
+    // },
+  ],
+
+  poster: [],
+  approve: [],
+  publicize: [],
+  plan: [],
+  materials: [],
 
   chooseTimeList: [{ begin_time: "", end_time: "" }],
+
+  ruleShow: false,
+  ruleInfo: { content: "" },
+
+  submitData: {},
+
+  apptResult: {
+    show: false,
+    title: "预约成功~~",
+    type: "success",
+  },
 });
 
 onMounted(() => {
   fetchGetActivityApply();
+
+  // 回显测试
+  setTimeout(() => {
+    state.initApprove = [
+      {
+        file_ext: "pdf",
+        file_name: "NKY2Pj2ipqIUQmFu1732951373143983.pdf",
+        file_origin_name: "Transactions Explanation.pdf",
+        file_path:
+          "/upload/activity/2024-11-30/NKY2Pj2ipqIUQmFu1732951373143983.pdf",
+        file_size: "524.64 KB",
+      },
+    ];
+  }, 3000);
 });
 
-const onSubmit = () => {
+const bottomBtnDisabled = () => {
+  let submitErr = false;
+  if (checkOverlap(state.sliderVal, state.sliderConfig?.disabledArr)?.length) {
+    submitErr = true;
+  }
+
+  return submitErr;
+};
+
+const onSubmit = (type) => {
   try {
-    let { startDate, endDate } = state.calendarInfo;
+    // let placeholder = lang == "en" ? `placeholder_en` : `placeholder`;
+
+    let [startDate, endDate] = state.selectDateInfo;
+    let {
+      initQuerySpaceId,
+      filterActivityTypeId,
+      filterActivityTheme,
+      filterActivityContent,
+      filterActivityMaxPeople,
+      filterActivityMobile,
+
+      poster,
+      approve,
+      publicize,
+      plan,
+      materials,
+    } = state;
     let params = {
-      id: state.initQuerySpaceId,
-      cate_id: state.filterActivityTypeId,
-      start_date: startDate || "",
-      end_date: endDate || "",
-      title: state.filterActivityTheme || "",
-      content: state.filterActivityContent || "",
-      max: state.filterActivityMaxPeople || "",
-      mobile: state.filterActivityMaxPeople || "",
+      id: initQuerySpaceId,
+      cate_id: filterActivityTypeId,
+      start_date: (startDate && exchangeDateTime(startDate, 2)) || "",
+      end_date: (endDate && exchangeDateTime(endDate, 2)) || "",
+      title: filterActivityTheme || "",
+      content: filterActivityContent || "",
+      max: filterActivityMaxPeople || "",
+      mobile: filterActivityMobile || "",
       time: [],
-      poster: [],
-      approve: [],
-      publicize: [],
-      plan: [],
-      materials: [],
+      poster,
+      approve,
+      publicize,
+      plan,
+      materials,
     };
-    console.log(params);
-    // applyActivity(params)
+
+    if (!state.selectDateInfo?.length) {
+      showToast({ message: "请选择申请日期" });
+      return false;
+    }
+
+    if (state.selectDateInfo?.length == 1) {
+      params.end_date = exchangeDateTime(startDate, 2);
+
+      let [s, e] = state.sliderVal;
+      params.time = [
+        {
+          start_time: convertMinutesToHHMM(s),
+          end_time: convertMinutesToHHMM(e),
+        },
+      ];
+    }
+
+    if (!params?.title) {
+      let info = getArgInfo("title");
+      if (info?.is_must == 1) {
+        showToast({ message: "请填写申请主题" });
+        return false;
+      }
+    } else if (!params?.content) {
+      let info = getArgInfo("content");
+      if (info?.is_must == 1) {
+        showToast({ message: "请填写申请内容" });
+        return false;
+      }
+    } else if (!params?.max) {
+      let info = getArgInfo("max");
+      if (info?.is_must == 1) {
+        showToast({ message: "请输入最大人数" });
+        return false;
+      }
+    } else if (!params?.mobile) {
+      let info = getArgInfo("mobile");
+      if (info?.is_must == 1) {
+        showToast({ message: "请输入联系电话" });
+        return false;
+      }
+    } else if (!params?.approve?.length) {
+      let info = getArgInfo("approve");
+      if (info?.is_must == 1) {
+        showToast({ message: "请上传审批附件" });
+        return false;
+      }
+    } else if (!params?.poster?.length) {
+      let info = getArgInfo("poster");
+      if (info?.is_must == 1) {
+        showToast({ message: "请上传活动海报" });
+        return false;
+      }
+    } else if (!params?.plan?.length) {
+      let info = getArgInfo("plan");
+      if (info?.is_must == 1) {
+        showToast({ message: "请上传活动策划案" });
+        return false;
+      }
+    } else if (!params?.publicize?.length) {
+      let info = getArgInfo("publicize");
+      if (info?.is_must == 1) {
+        showToast({ message: "请上传宣传片" });
+        return false;
+      }
+    } else if (!params?.materials?.length) {
+      let info = getArgInfo("materials");
+      if (info?.is_must == 1) {
+        showToast({ message: "请上传其他申请材料" });
+        return false;
+      }
+    }
+
+    state.submitData = params;
+    if (type == "rule") {
+      applyActivity(params);
+    } else {
+      state.ruleInfo = { content: state.activityApplyInfo?.should };
+      state.ruleShow = true;
+      // getRuleInfo(params);
+    }
   } catch (e) {}
 };
 
+// const getRuleInfo = async (data) => {
+//   try {
+//     const res = await fetchActivityShould(data);
+//     if (res?.code != 0) {
+//       showToast({
+//         message: res?.message || "网络请求错误",
+//       });
+//       return false;
+//     }
+
+//     state.ruleInfo = res?.data;
+//     state.ruleShow = true;
+//     console.log(res);
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
 const applyActivity = async (data) => {
   try {
+    state.ruleShow = false;
+
     const res = await activityApply(data);
+
+    state.apptResult = {
+      show: true,
+      title: res.message,
+      type: res?.code == 0 ? "success" : "error",
+      msg: (res?.code != 0 && res?.message) || "",
+
+      ...res.data,
+    };
   } catch (e) {
     console.log(e);
   }
 };
 
 const getCurrentTime = () => {
+  let findDate = state.calendarInfo?.list?.find(
+    (e) => e?.day == exchangeDateTime(state?.selectDateInfo[0], 2)
+  );
+
+  if (findDate) {
+    let { day, start_time, end_time, min_time, max_time, list } = findDate;
+    state.sliderConfig.startTime = start_time;
+    state.sliderConfig.endTime = end_time;
+    state.sliderConfig.minRange = Number(min_time);
+    state.sliderConfig.maxRange = Number(max_time);
+
+    state.sliderConfig.disabledArr = list?.map((e) => {
+      return [e?.begin_time, e?.end_time];
+    });
+  }
+
+  // console.log(
+  //   "state.sliderConfig.disabledArr",
+  //   JSON.stringify(state.sliderConfig.disabledArr)
+  // );
   if (
     exchangeDateTime(state.selectDateInfo[0], 2) ==
     exchangeDateTime(new Date(), 2)
@@ -126,8 +322,10 @@ const getCurrentTime = () => {
       [state.sliderConfig.startTime, m],
     ];
   } else {
-    state.sliderConfig.disabledArr = [];
+    state.sliderConfig.disabledArr = [...state.sliderConfig.disabledArr];
   }
+
+  state.selectSlideShow = true;
 };
 
 const goToLink = (link) => {
@@ -216,12 +414,15 @@ const filterArguments = (key) => {
   return state.argumentArray?.some((e) => e.key == key) || false;
 };
 
+const getArgInfo = (key) => {
+  return state.argumentArray?.find((e) => e.key == key) || false;
+};
+
 const onSelected = (date) => {
   state.selectDateInfo = date;
-
+  state.selectSlideShow = false;
   if (state.selectDateInfo.length > 0) {
     if (state.selectDateInfo.length == 1) {
-      state.selectSlideShow = true;
       state.selectChooseTime = false;
       getCurrentTime();
     } else {
@@ -280,8 +481,65 @@ const onChangeTime = (v, item, type, index) => {
   }
 };
 
+const filterFileUpload = (files) => {
+  let list = files || [];
+
+  list = list.map((e) => {
+    let fileRow = {};
+    if (e?.status == "done" && e?.response?.code == 0) {
+      fileRow = e?.response?.data;
+    }
+    return fileRow;
+  });
+
+  return list;
+};
+
 const fileUpload = (data, type) => {
   console.log(data, type);
+  if (type == "poster") {
+    state.poster = filterFileUpload(data);
+  } else if (type == "approve") {
+    state.approve = filterFileUpload(data);
+  } else if (type == "publicize") {
+    state.publicize = filterFileUpload(data);
+  } else if (type == "plan") {
+    state.plan = filterFileUpload(data);
+  } else if (type == "materials") {
+    state.materials = filterFileUpload(data);
+  }
+
+  console.log(state);
+};
+
+const showAreaName = () => {
+  let { top_name, top_en_name, storey_name, storey_en_name, name, enname } =
+    state.activityApplyInfo;
+
+  return `${top_name}-${storey_name}-${name}`;
+};
+
+const showAreaType = () => {
+  let info = state.activityApplyInfo?.categorys?.find(
+    (e) => e?.id == state.submitData?.cate_id
+  );
+
+  return info?.name || "";
+};
+
+const showAreaTimes = () => {
+  let { time } = state.submitData;
+  let nTimes = time?.map((e) => {
+    return `${e?.start_time} ~ ${e?.end_time}`;
+  });
+
+  return nTimes?.length ? nTimes.join(", ") : "";
+};
+
+const handleShow = (v) => {
+  if (!v && state.apptResult?.type == "success") {
+    router.replace("/");
+  }
 };
 </script>
 <template>
@@ -416,7 +674,9 @@ const fileUpload = (data, type) => {
           <div class="right_top_title">申请信息</div>
           <!-- 活动类型 -->
           <van-row class="right_top_item">
-            <van-col span="2" class="right_top_item_title"> 活动类型: </van-col>
+            <van-col span="2" class="right_top_item_title">
+              <span class="required">*</span>活动类型:
+            </van-col>
             <van-col span="22">
               <a-radio-group v-model:value="state.filterActivityTypeId">
                 <a-radio
@@ -434,7 +694,9 @@ const fileUpload = (data, type) => {
             align="center"
             v-if="filterArguments('title')"
           >
-            <van-col span="2" class="right_top_item_title"> 申请主题: </van-col>
+            <van-col span="2" class="right_top_item_title"
+              ><span class="required">*</span>申请主题:
+            </van-col>
             <van-col span="22">
               <a-input
                 placeholder="填写后将在活动报名页面展示"
@@ -445,7 +707,9 @@ const fileUpload = (data, type) => {
           </van-row>
           <!-- 申请内容 -->
           <van-row class="right_top_item" v-if="filterArguments('content')">
-            <van-col span="2" class="right_top_item_title"> 申请内容: </van-col>
+            <van-col span="2" class="right_top_item_title"
+              ><span class="required">*</span>申请内容:
+            </van-col>
             <van-col span="22">
               <a-textarea
                 placeholder="填写后将在活动报名页面展示"
@@ -463,7 +727,7 @@ const fileUpload = (data, type) => {
             <van-col span="10" v-if="filterArguments('max')">
               <van-row align="center">
                 <van-col span="5" class="right_top_item_title">
-                  最多人数:
+                  <span class="required">*</span>最多人数:
                 </van-col>
                 <van-col span="19">
                   <a-input
@@ -478,12 +742,12 @@ const fileUpload = (data, type) => {
             <van-col span="12" offset="2" v-if="filterArguments('mobile')">
               <van-row align="center">
                 <van-col span="4" class="right_top_item_title">
-                  联系电话:
+                  <span class="required">*</span>联系电话:
                 </van-col>
                 <van-col span="20">
                   <a-input
                     placeholder="请输入联系电话"
-                    v-model:value="state.filterActivityMaxPeople"
+                    v-model:value="state.filterActivityMobile"
                     size="middle"
                   />
                 </van-col>
@@ -500,6 +764,7 @@ const fileUpload = (data, type) => {
                 <span style="color: #ff4d4f">*</span>审批附件:
               </div>
               <Uploader
+                :initFileList="state.initApprove"
                 filePath="activity"
                 :maxCount="1"
                 @onFileUpload="(v) => fileUpload(v, 'approve')"
@@ -519,13 +784,20 @@ const fileUpload = (data, type) => {
               <div class="upload_file_title">
                 <span style="color: #ff4d4f">*</span>活动海报:
               </div>
-              <div class="upload_file_box">
-                <img
-                  src="@/assets/activity_application/upload_file.svg"
-                  alt=""
-                />
-                jpg/jpeg/png
-              </div>
+              <Uploader
+                filePath="activity"
+                :maxCount="1"
+                @onFileUpload="(v) => fileUpload(v, 'poster')"
+                accept=".png, .jpg, .jpeg"
+              >
+                <div class="upload_file_box">
+                  <img
+                    src="@/assets/activity_application/upload_file.svg"
+                    alt=""
+                  />
+                  jpg/jpeg/png
+                </div>
+              </Uploader>
             </van-col>
           </van-row>
           <van-row class="upload_item margin_top_50">
@@ -534,45 +806,68 @@ const fileUpload = (data, type) => {
               <div class="upload_file_title">
                 <span style="color: #ff4d4f">*</span>活动策划案:
               </div>
-              <div class="upload_file_box">
-                <img
-                  src="@/assets/activity_application/upload_file.svg"
-                  alt=""
-                />
-                Word/PDF
-              </div>
+
+              <Uploader
+                filePath="activity"
+                :maxCount="1"
+                @onFileUpload="(v) => fileUpload(v, 'plan')"
+                accept="application/pdf,application/msword"
+              >
+                <div class="upload_file_box">
+                  <img
+                    src="@/assets/activity_application/upload_file.svg"
+                    alt=""
+                  />
+                  Word/PDF
+                </div>
+              </Uploader>
             </van-col>
             <!-- 宣传片 -->
             <van-col span="10" v-if="filterArguments('publicize')">
               <div class="upload_file_title">宣传片:</div>
-              <div class="upload_file_box">
-                <img
-                  src="@/assets/activity_application/upload_file.svg"
-                  alt=""
-                />
-                jpg/jpeg/png
-              </div>
+              <Uploader
+                filePath="activity"
+                :maxCount="1"
+                @onFileUpload="(v) => fileUpload(v, 'publicize')"
+                accept=".png, .jpg, .jpeg"
+              >
+                <div class="upload_file_box">
+                  <img
+                    src="@/assets/activity_application/upload_file.svg"
+                    alt=""
+                  />
+                  jpg/jpeg/png
+                </div>
+              </Uploader>
             </van-col>
           </van-row>
           <van-row class="upload_item margin_top_50">
             <!-- 其他申请材料 -->
             <van-col span="14" v-if="filterArguments('materials')">
               <div class="upload_file_title">其他申请材料:</div>
-              <div class="upload_file_box">
-                <img
-                  src="@/assets/activity_application/upload_file.svg"
-                  alt=""
-                />
-                Word/PDF
-              </div>
+              <Uploader
+                filePath="activity"
+                :maxCount="1"
+                @onFileUpload="(v) => fileUpload(v, 'v')"
+                accept="application/pdf,application/msword"
+              >
+                <div class="upload_file_box">
+                  <img
+                    src="@/assets/activity_application/upload_file.svg"
+                    alt=""
+                  />
+                  Word/PDF
+                </div>
+              </Uploader>
             </van-col>
           </van-row>
           <div class="bottom_btn">
             <van-button
-              :disabled="state.bottomBtnDisabled"
+              :disabled="bottomBtnDisabled()"
               round
               type="primary"
               style="width: 200px"
+              @click="onSubmit"
               >立即申请</van-button
             >
           </div>
@@ -604,6 +899,78 @@ const fileUpload = (data, type) => {
         :data="state.activityDetailInfo"
       />
     </a-modal>
+
+    <SpaceRuleConfirm
+      v-if="state.ruleShow"
+      v-model:open="state.ruleShow"
+      :content="state.ruleInfo?.content"
+      @onConfirm="() => onSubmit('rule')"
+    >
+      <template v-slot:content>
+        <div class="showArea">
+          <div class="tag">当前预约选择</div>
+          <div class="showCon">
+            <div class="item">
+              <p>
+                空间：<span>{{ showAreaName() }}</span>
+              </p>
+              <p>
+                类型：<span>{{ showAreaType() }}</span>
+              </p>
+            </div>
+            <div class="item">
+              <p>
+                日期：<span
+                  >{{
+                    state.selectDateInfo?.length == 2
+                      ? `${exchangeDateTime(
+                          state?.selectDateInfo[0],
+                          2
+                        )} ~ ${exchangeDateTime(state?.selectDateInfo[1], 2)}`
+                      : `${exchangeDateTime(state?.selectDateInfo[0], 2)}`
+                  }}
+                </span>
+              </p>
+              <p>
+                人数：<span>≤{{ state.filterActivityMaxPeople || "" }}</span>
+              </p>
+            </div>
+            <div class="item">
+              <p>
+                时间：<span>{{ showAreaTimes() }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </template>
+    </SpaceRuleConfirm>
+
+    <ShowInfoToast
+      v-if="state.apptResult.show"
+      :isShow="state.apptResult.show"
+      :type="state.apptResult.type"
+      :title="state.apptResult.title"
+      @handleShow="handleShow"
+    >
+      <template v-slot:content>
+        <div class="toastItem">
+          <span>申请人：</span>
+          <span>{{ state.apptResult?.name || "" }}</span>
+        </div>
+        <div class="toastItem">
+          <span>预约时间：</span>
+          <span>{{ state.apptResult?.show_date || "" }}</span>
+        </div>
+        <div class="toastItem">
+          <span>预约地点：</span>
+          <span>{{ state.apptResult?.nameMerge || "" }}</span>
+        </div>
+        <div v-if="state.apptResult?.msg" class="toastItem">
+          <span>预约提醒：</span>
+          <span>{{ state.apptResult?.msg }}</span>
+        </div>
+      </template>
+    </ShowInfoToast>
   </div>
 </template>
 <style lang="less" scoped>
@@ -736,7 +1103,7 @@ const fileUpload = (data, type) => {
             text-align: center;
             margin-bottom: 10px;
             color: rgba(97, 97, 97, 1);
-            font-size: 17px;
+            font-size: 14px;
             span {
               color: rgba(26, 73, 192, 1);
             }
@@ -811,7 +1178,9 @@ const fileUpload = (data, type) => {
         }
         .right_top_item {
           margin-top: 20px;
-
+          .required {
+            color: red;
+          }
           .right_top_item_title {
             color: rgba(32, 32, 32, 1);
             font-size: 14px;
@@ -853,6 +1222,54 @@ const fileUpload = (data, type) => {
           position: absolute;
           bottom: 30px;
           right: 30px;
+        }
+      }
+    }
+  }
+}
+.toastItem {
+  display: flex;
+  width: 100%;
+  font-size: 14px;
+  color: #616161;
+  margin-bottom: 10px;
+  span {
+    &:nth-child(2) {
+      flex: 1;
+    }
+  }
+}
+</style>
+<style lang="less">
+.showArea {
+  margin-bottom: 14px;
+  background: #f7f7f7;
+  border-radius: 8px;
+  .tag {
+    display: inline-block;
+    padding: 4px 14px;
+    font-size: 14px;
+    color: #202020;
+    background-color: #ececec;
+    border-radius: 8px 0 8px 0;
+  }
+  .showCon {
+    font-size: 13px;
+    padding: 12px 75px 16px 14px;
+    .item {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      &:last-child {
+        margin-bottom: 0;
+      }
+      p {
+        &:first-child {
+          flex: 1;
+        }
+        span {
+          color: #202020;
         }
       }
     }

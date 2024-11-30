@@ -37,6 +37,13 @@ watch(
   }
 );
 
+watch(
+  () => state.opt,
+  (v) => {
+    // initDisabledArr();
+  }
+);
+
 onMounted(() => {
   state.opt = props?.options;
   initMarks();
@@ -110,6 +117,7 @@ const adjustSliderValue = ([start, end], type) => {
 
   // 判断范围是否超出限制
   if (end - start > maxRange) {
+    console.log("超出最大范围");
     // 如果超出最大范围，调整 `start`
     if (type == "left") {
       end = start + maxRange;
@@ -118,7 +126,11 @@ const adjustSliderValue = ([start, end], type) => {
     }
   } else if (end - start < minRange) {
     // 如果小于最小范围，调整 `end`
-    end = start + minRange;
+    if (type == "left") {
+      start = end - minRange;
+    } else {
+      end = start + minRange;
+    }
   }
 
   // 边界检查

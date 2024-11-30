@@ -92,9 +92,10 @@ const formatter = (day) => {
       day.className = `day-disabled`;
       day.type = `disabled`;
     } else if (findDate?.status == 0 && findDate?.list?.length) {
-      console.log("findDate", findDate);
       day.className = `day-all`;
       day.type = `disabled`;
+    } else if (findDate?.status == 1 && findDate?.list?.length) {
+      day.className = `day-all`;
     }
     // else if (findDate?.status == 0 && props?.type == "single") {
     //   day.className = `day-disabled`;

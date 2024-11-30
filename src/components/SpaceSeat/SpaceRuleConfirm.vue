@@ -63,6 +63,7 @@ const handleConfirm = () => {
   >
     <div class="ruleCon">
       <van-list :finished="state.finished" @load="onLoad" :offset="10">
+        <slot name="content"></slot>
         <div class="propsCon" v-html="props?.content"></div>
       </van-list>
     </div>

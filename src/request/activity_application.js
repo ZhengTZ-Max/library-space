@@ -36,8 +36,19 @@ export function getActivityApply(data) {
   });
 }
 
+
 // 空间申请
 export function activityApply(data) {
+  return service({
+    url: "/v4/activity/confirm",
+    method: "POST",
+    isLoading: true,
+    data,
+  });
+}
+
+// 空间申请须知
+export function fetchActivityShould(data) {
   return service({
     url: "/v4/activity/should",
     method: "POST",

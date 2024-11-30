@@ -1,6 +1,11 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { message } from "ant-design-vue";
+import { getFileExtension } from "@/utils";
+
+import PDFICON from "@/assets/common/pdfIcon.png";
+import DOCICON from "@/assets/common/docIcon.png";
+
 const MODE = import.meta.env.MODE;
 const baseURL = MODE === "production" ? "/" : "/api/v4/Upload/index";
 
@@ -9,7 +14,32 @@ const emits = defineEmits(["onFileUpload"]);
 
 const props = defineProps({
   filePath: String,
+  initFileList: Array,
 });
+const fileList = ref([]);
+
+watch(
+  () => props.initFileList,
+  (v) => {
+    fileList.value = v?.map((e) => {
+      return {
+        ...e,
+        status: "done",
+        name: e?.file_name,
+      };
+    });
+    initFileList();
+    console.log(fileList);
+  },
+);
+
+watch(
+  () => fileList.value,
+  (v) => {
+    emits("onFileUpload", v);
+  }
+);
+
 const handleChange = (info) => {
   if (info.file.status !== "uploading") {
     console.log(info.file, info.fileList);
@@ -19,7 +49,7 @@ const handleChange = (info) => {
 
   if (status === "done" && response?.code == 0) {
     message.success(`文件上传成功~`);
-    emits("onFileUpload", response?.data);
+    // emits("onFileUpload", fileList?.value);
   } else if (info.file.status === "done" && response?.code != 0) {
     message.error(response?.message);
     fileList.value = [];
@@ -27,11 +57,29 @@ const handleChange = (info) => {
     message.error(`文件上传失败~`);
     fileList.value = [];
   }
+  initFileList();
 };
-const fileList = ref([]);
 
 const headers = {
   authorization: `bearer${token}`,
+};
+
+const initFileList = () => {
+  let list = fileList?.value;
+  list = list.map((e) => {
+    let type = getFileExtension(e?.name);
+    if (type == "PDF") {
+      e.url = PDFICON;
+      e.thumbUrl = PDFICON;
+    } else if (type == "WORD") {
+      e.url = DOCICON;
+      e.thumbUrl = DOCICON;
+    } else if (type == "IMG") {
+      e.url = DOCICON;
+    }
+    return e;
+  });
+  console.log("fileList", fileList?.value);
 };
 </script>
 <template>
@@ -44,7 +92,8 @@ const headers = {
       :data="{
         path: filePath || '',
       }"
-      :show-upload-list="false"
+      :show-upload-list="true"
+      list-type="picture"
       :headers="headers"
       @change="handleChange"
     >
@@ -54,5 +103,14 @@ const headers = {
 </template>
 <style lang="less" scoped>
 .uploader {
+  :deep(.ant-upload-list-item) {
+    height: 48px !important;
+    width: 75%;
+    .ant-upload-list-item-image,
+    .ant-upload-list-item-thumbnail {
+      width: 32px !important;
+      height: 32px !important;
+    }
+  }
 }
 </style>

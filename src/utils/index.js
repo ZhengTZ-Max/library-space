@@ -505,3 +505,50 @@ export const checkOverlap = (target, ranges) => {
 
   return overlappingRanges || [];
 };
+
+export const getFileExtension = (filename) => {
+  const fileExtension = filename?.slice(
+    ((filename.lastIndexOf(".") - 1) >>> 0) + 2
+  );
+  let fileType = "";
+  // 判断文件类型
+  if (
+    fileExtension === "jpg" ||
+    fileExtension === "jpeg" ||
+    fileExtension === "png" ||
+    fileExtension === "gif"
+  ) {
+    fileType = "IMG";
+  } else if (fileExtension === "mp3" || fileExtension === "wav") {
+    fileType = "AUDIO";
+  } else if (
+    fileExtension === "mp4" ||
+    fileExtension === "avi" ||
+    fileExtension === "mov"
+  ) {
+    fileType = "VIDEO";
+  } else if (fileExtension === "pdf") {
+    fileType = "PDF";
+  } else if (fileExtension === "doc" || fileExtension === "docx") {
+    fileType = "WORD";
+  } else if (fileExtension === "xls" || fileExtension === "xlsx") {
+    fileType = "EXCEL";
+  }
+
+  return fileType;
+};
+
+export const convertMinutesToHHMM = (minutes, type) => {
+  let hours = Math.floor(minutes / 60); // 计算小时数
+  let mins = minutes % 60; // 计算剩余的分钟数
+
+  if (type == 1) {
+    return `${String(hours).padStart(2, "0")}`;
+  } else if (type == 2) {
+    return `${String(mins).padStart(2, "0")}`;
+  } else {
+    return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+  }
+
+  // 格式化为 HH:MM 格式，确保小时和分钟都是两位数
+};
