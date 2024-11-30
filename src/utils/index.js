@@ -539,6 +539,7 @@ export const getFileExtension = (filename) => {
 };
 
 export const convertMinutesToHHMM = (minutes, type) => {
+  if (!minutes) return "";
   let hours = Math.floor(minutes / 60); // 计算小时数
   let mins = minutes % 60; // 计算剩余的分钟数
 

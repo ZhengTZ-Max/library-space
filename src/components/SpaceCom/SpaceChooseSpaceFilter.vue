@@ -17,17 +17,15 @@ const state = reactive({
   filterOptions: {},
 
   filterRows: {
-    premiseID: "",
-    floorID: "",
-    categoryID: "",
+    library: [],
+    floor: [],
+    category: "",
     date: "",
     time: "",
     num: "",
     boutiqueID: "",
     featureID: "",
   },
-  floors: [],
-  
 });
 
 onMounted(() => {
@@ -36,37 +34,49 @@ onMounted(() => {
 });
 
 watch(
-  () => state.filterRows.premiseID,
+  () => state.filterRows.library,
   (v) => {
-    if (!v) return;
-    const matchedStorey = state.filterOptions.storey.find((storey) =>
-      storey.list.some((item) => item.parentId === state.filterRows.premiseID)
-    );
-
-    state.floors.push(matchedStorey);
-    console.log(state.floors);
+    filterFloor();
   }
 );
+
+const filterFloor = () => {
+  let storey = state.filterOptions?.storey;
+  let libraryIds = state.filterRows?.library;
+  storey = storey?.filter((e) => {
+    let floorList = e?.list || [];
+    floorList = floorList?.filter((f) =>
+      libraryIds?.find((e) => e == f?.parentId)
+    );
+    return floorList?.length;
+  });
+  if (storey?.length) {
+    state.filterOptions.filterStorey = storey || [];
+  } else {
+    state.filterOptions.filterStorey = state.filterOptions.storey || [];
+  }
+};
 </script>
 <template>
   <div class="filterCon">
     <div class="filterScr">
       <div class="filterFilter">馆舍</div>
       <div class="fiterItem">
-        <a-radio-group v-model:value="state.filterRows.premiseID">
-          <a-radio
+        <a-checkbox-group v-model:value="state.filterRows.library">
+          <a-checkbox
+            :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.filterOptions?.premises"
             :value="item?.id"
             :key="item?.id"
-            >{{ item?.name }}</a-radio
+            >{{ item?.name }}</a-checkbox
           >
-        </a-radio-group>
+        </a-checkbox-group>
       </div>
-      <div v-if="state.floors?.length" class="filterFilter">楼层</div>
-      <div v-if="state.floors?.length" class="fiterItem">
-        <a-checkbox-group v-model:value="state.filterRows.floorID">
+      <div class="filterFilter">楼层</div>
+      <div class="fiterItem">
+        <a-checkbox-group v-model:value="state.filterRows.floor">
           <a-checkbox
-            v-for="item in state.floors"
+            v-for="item in state.filterOptions.filterStorey"
             :class="{ width_half: systemMode != 'pc' }"
             :value="item?.name"
             :key="item?.name"
@@ -76,7 +86,7 @@ watch(
       </div>
       <div class="filterFilter">空间类型</div>
       <div class="fiterItem">
-        <a-checkbox-group v-model:value="state.filterRows.categoryID">
+        <a-checkbox-group v-model:value="state.filterRows.category">
           <a-checkbox
             :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.filterOptions?.category"
@@ -88,15 +98,15 @@ watch(
       </div>
       <div class="filterFilter">日期</div>
       <div class="fiterItem">
-        <a-checkbox-group v-model:value="state.filterRows.date">
-          <a-checkbox
+        <a-radio-group v-model:value="state.filterRows.date">
+          <a-radio
             :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.filterOptions?.date"
             :value="item"
             :key="item"
-            >{{ item }}</a-checkbox
+            >{{ item }}</a-radio
           >
-        </a-checkbox-group>
+        </a-radio-group>
       </div>
       <div class="filterFilter">时间</div>
       <div>1</div>

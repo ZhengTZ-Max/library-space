@@ -17,7 +17,7 @@ import moment from "moment";
 
 import { getSpaceApply, getSpaceDetail } from "@/request/space";
 import { exchangeDateTime } from "@/utils";
-import SpaceApplySwipe from "@/components/SpaceApplySwipe.vue";
+import SpaceApplySwipe from "@/components/SpaceCom/SpaceApplySwipe.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import Calendar from "@/components/ActivityApplication/Calendar.vue";
 import Uploader from "@/components/Uploader.vue";

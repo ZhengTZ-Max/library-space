@@ -11,7 +11,7 @@ import {
   getSpaceApply,
 } from "@/request/space";
 import LibraryInfo from "@/components/LibraryInfo.vue";
-import SpaceChooseSpaceFilter from "@/components/SpaceChooseSpaceFilter.vue";
+import SpaceChooseSpaceFilter from "@/components/SpaceCom/SpaceChooseSpaceFilter.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -29,17 +29,24 @@ const state = reactive({
 
   filterOptions: {},
   filterSearch: {
-    premiseID: "",
-    floorID: "",
-    categoryID: "",
+    library: [],
+    floor: [],
+    category: [],
     date: "",
     time: "",
     num: "",
-    boutiqueID: "",
+    boutique: [],
   },
 
   quickDate: route?.query?.date || "",
   quickDateList: [],
+
+  initQuery: {
+    libraryId: route?.query?.id || "",
+    quickDate: route?.query?.date || "",
+    floorId: route?.query?.floor || "",
+    categoryType: route?.query?.categoryType || "",
+  },
 });
 
 const goToLink = (link) => {
@@ -49,7 +56,6 @@ const goToLink = (link) => {
 onMounted(() => {
   fetchGetSpaceSelectList();
   fetchGetSpaceFilterList();
-  fetchGetSpaceInfoList();
 });
 
 watch(
@@ -74,8 +80,10 @@ const fetchGetSpaceSelectList = async () => {
         const formattedDate = moment(date).format("MM-DD");
         // 判断是否为今天
         // return date === today ? `${formattedDate} 今天` : formattedDate;
-        return { value: date, label: date === today ? `${formattedDate} 今天` : formattedDate };
-
+        return {
+          value: date,
+          label: date === today ? `${formattedDate} 今天` : formattedDate,
+        };
       }) || [];
 
     console.log(state.quickDateList);
@@ -83,6 +91,24 @@ const fetchGetSpaceSelectList = async () => {
     state.quickDateList = [];
     console.log(error);
   }
+};
+
+const initQueryFn = () => {
+  let { libraryId, quickDate, floorId, categoryType } = state.initQuery;
+
+  let floorSelect = [];
+
+  state.filterSearch.library = (libraryId && [libraryId]) || [];
+  state.filterSearch.date = quickDate;
+  state.filterSearch.category = (categoryType && [categoryType]) || [];
+
+  state.filterOptions?.storey?.map((e) => {
+    if (e?.list?.find((f) => f?.id == floorId)) {
+      floorSelect.push(e);
+    }
+  });
+  console.log("floorSelect", floorSelect);
+  state.filterSearch.floor = floorSelect?.map((e) => e.name);
 };
 
 const fetchGetSpaceFilterList = async () => {
@@ -93,22 +119,55 @@ const fetchGetSpaceFilterList = async () => {
       return;
     }
     state.filterOptions = res?.data || {};
+
+    initQueryFn();
+    fetchGetSpaceInfoList();
   } catch (error) {
     state.filterOptions = {};
     console.log(error);
   }
 };
 
+const filterFloorIds = (ids) => {
+  try {
+    let list = state.filterOptions?.storey;
+    let library = state.filterSearch.library;
+    let floorIds = [];
+    list = list?.filter((e) => {
+      return ids?.includes(e?.name);
+    });
+
+    list.map((e) => {
+      let floorList = e?.list;
+      floorList?.map((fl) => {
+        if (library?.includes(fl?.parentId)) floorIds.push(fl?.id);
+      });
+    });
+
+    return floorIds || [];
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const fetchGetSpaceInfoList = async () => {
   try {
+    let { search, library, floor, date, boutique, category } =
+      state.filterSearch;
+
     let params = {
-      premiseID: state.filterSearch.premiseID,
+      premises: library,
       members: state.filterSearch.num,
-      date: state.quickDate,
-      floorID: state.filterSearch.floorID,
-      categoryID: state.filterSearch.categoryID,
-      boutiqueID: state.filterSearch.boutiqueID,
+      date,
+      floor: filterFloorIds(floor),
+      category: category,
+      boutique: boutique,
     };
+
+    // if (library?.length) {
+    //   params.premises = state.filterOptions?.library?.map((e) => e?.id);
+    // }
+
     let res = await getSpaceInfoList(params);
     if (res.code != 0) {
       state.spaceInfoList = [];
@@ -161,8 +220,9 @@ const handleAppt = (row) => {
 };
 
 const handleFilter = () => {
+  fetchGetSpaceInfoList();
+  state.quickDate = state.filterSearch?.date;
   state.spaceFilterShow = false;
-  // fetchGetSpaceInfoList();
 };
 
 const handleDateChange = (v) => {
@@ -229,7 +289,7 @@ const handleDateChange = (v) => {
               <div class="cardItemImgCon">
                 <a-image
                   class="cardItemImg"
-                  :src="item?.firstImg"
+                  :src="item?.firstimg"
                   :preview="false"
                 >
                   <template #placeholder>
@@ -409,6 +469,11 @@ const handleDateChange = (v) => {
     .libraryItem {
       position: relative;
       box-sizing: initial;
+      :deep(.cardItemImgCon) {
+        .ant-image {
+          width: 100%;
+        }
+      }
     }
     .basicsBadge {
       padding: 3px 8px;

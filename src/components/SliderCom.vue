@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
-import { exchangeDateTime, checkOverlap } from "@/utils";
+import { exchangeDateTime, checkOverlap, convertMinutesToHHMM } from "@/utils";
 
 const store = useStore();
 const sliderRef = ref();
@@ -94,21 +94,6 @@ const initMarks = () => {
     marks[value] = isLine ? "line" : "short"; // 使用下标作为 key，值为对应的数值
   }
   state.opt.marksList = marks;
-};
-
-const convertMinutesToHHMM = (minutes, type) => {
-  let hours = Math.floor(minutes / 60); // 计算小时数
-  let mins = minutes % 60; // 计算剩余的分钟数
-
-  if (type == 1) {
-    return `${String(hours).padStart(2, "0")}`;
-  } else if (type == 2) {
-    return `${String(mins).padStart(2, "0")}`;
-  } else {
-    return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
-  }
-
-  // 格式化为 HH:MM 格式，确保小时和分钟都是两位数
 };
 
 // 调整滑块的值，确保范围限制

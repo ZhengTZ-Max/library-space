@@ -23,7 +23,7 @@ import {
 } from "@/request/space";
 
 import LibraryInfo from "@/components/LibraryInfo.vue";
-import SpaceChooseSpaceFilter from "@/components/SpaceChooseSpaceFilter.vue";
+import SpaceChooseSpaceFilter from "@/components/SpaceCom/SpaceChooseSpaceFilter.vue";
 
 const router = useRouter();
 const state = reactive({
@@ -85,7 +85,10 @@ const fetchGetSpaceSelectList = async () => {
         // return {
         //   value: date === today ? `${formattedDate} 今天` : formattedDate,
         // };
-        return { value: date, label: date === today ? `${formattedDate} 今天` : formattedDate };
+        return {
+          value: date,
+          label: date === today ? `${formattedDate} 今天` : formattedDate,
+        };
       }) || [];
 
     console.log(state.quickDateList);
@@ -182,10 +185,9 @@ const handleDateChange = (v) => {
           placeholder="选择日期"
         >
           <template v-for="item in state.quickDateList" :key="index">
-            <a-select-option
-              :value="item?.value"
-              >{{ item?.label }}</a-select-option
-            >
+            <a-select-option :value="item?.value">{{
+              item?.label
+            }}</a-select-option>
           </template>
         </a-select>
       </div>
@@ -214,7 +216,7 @@ const handleDateChange = (v) => {
             <van-col span="9" class="img_col">
               <a-image
                 style="width: 100px; height: 100px; border-radius: 10px"
-                :src="item?.firstImg"
+                :src="item?.firstimg"
                 :preview="false"
               />
               <div class="basicsBadge" :class="{ greenBadge: false }">
