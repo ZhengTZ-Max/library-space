@@ -245,7 +245,7 @@ const formatter = (day) => {
     .day-item();
     &::before {
       background-color: rgba(26, 73, 192, 1);
-      border: 1px solid rgba(26, 73, 192, 1);
+      border: 2px solid rgba(26, 73, 192, 1);
     }
     &::after {
       content: "";

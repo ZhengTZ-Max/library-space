@@ -15,9 +15,11 @@ const emits = defineEmits(["onFileUpload"]);
 const props = defineProps({
   filePath: String,
   initFileList: Array,
+  showUploadList: Boolean,
 });
 const fileList = ref([]);
 
+console.log(props.showUploadList);
 watch(
   () => props.initFileList,
   (v) => {
@@ -92,7 +94,7 @@ const initFileList = () => {
       :data="{
         path: filePath || '',
       }"
-      :show-upload-list="true"
+      :show-upload-list="showUploadList"
       list-type="picture"
       :headers="headers"
       @change="handleChange"
