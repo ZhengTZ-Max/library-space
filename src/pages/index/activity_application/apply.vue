@@ -315,6 +315,7 @@ const getCurrentTime = () => {
     state.sliderConfig.minRange = Number(min_time);
     state.sliderConfig.maxRange = Number(max_time);
 
+
     state.sliderConfig.disabledArr = list?.map((e) => {
       return [e?.begin_time, e?.end_time];
     });
@@ -555,209 +556,7 @@ const onChangeTime = (v, item, type, index) => {
   if (v == "" || v == null) return;
   const value = convertHHMMToMinutes(v); // 转换为第几分钟的数值
   chooseTimeIsInRange(value, item, type, index);
-  // if (index == 0) {
-  //   if (type == "start") {
-  //     // 结束时间没有选择
-  //     if (
-  //       item.end_time == "" ||
-  //       item.end_time == null ||
-  //       item.begin_time == "" ||
-  //       item.begin_time == null
-  //     )
-  //       return;
 
-  //     // 开始时间大于结束时间
-  //     const [hoursS, minutesS] = item?.begin_time?.split(":").map(Number);
-  //     const [hoursE, minutesE] = item?.end_time?.split(":").map(Number);
-
-  //     const dateS = new Date(0, 0, 0, hoursS, minutesS);
-  //     const dateE = new Date(0, 0, 0, hoursE, minutesE);
-
-  //     if (dateS >= dateE) {
-  //       message.warning("开始时间不能大于结束时间");
-  //       item.begin_time = null; // 必须为null才能置空
-  //     }
-  //   } else {
-  //     const isInRange = state.rangeTimeCantSelectTime.some((range) => {
-  //       const { begin_time, end_time } = range;
-  //       return value > begin_time && value < end_time;
-  //     });
-  //     if (isInRange) {
-  //       message.warning("该时间段已被占用");
-  //       item.end_time = null;
-  //       return;
-  //     }
-  //     if (
-  //       item.end_time == "" ||
-  //       item.end_time == null ||
-  //       item.begin_time == "" ||
-  //       item.begin_time == null
-  //     )
-  //       return;
-  //     // 开始时间大于结束时间
-  //     const [hoursS, minutesS] = item?.begin_time?.split(":").map(Number);
-  //     const [hoursE, minutesE] = item?.end_time?.split(":").map(Number);
-
-  //     const dateS = new Date(0, 0, 0, hoursS, minutesS);
-  //     const dateE = new Date(0, 0, 0, hoursE, minutesE);
-
-  //     if (dateS >= dateE) {
-  //       message.warning("结束时间不能小于开始时间");
-  //       item.end_time = null; // 必须为null才能置空
-  //     }
-  //   }
-  // } else {
-  //   if (type == "start") {
-  //     // 先判断是否在已占用的时间段内
-  //     const isInRange = state.rangeTimeCantSelectTime.some((range) => {
-  //       const { begin_time, end_time } = range;
-  //       return value > begin_time && value < end_time;
-  //     });
-  //     if (isInRange) {
-  //       message.warning("该时间段已被占用");
-  //       item.end_time = null;
-  //       return;
-  //     }
-
-  //     // 再和当前已经选择的时间段进行比较
-  //     const isInCurrentChooseTimeRange = state.chooseTimeList.some(
-  //       (range, mIndex) => {
-  //         if (mIndex == index) return false;
-  //         const { begin_time, end_time } = range;
-  //         if (
-  //           begin_time == "" ||
-  //           begin_time == null ||
-  //           end_time == "" ||
-  //           end_time == null
-  //         )
-  //           return false;
-
-  //         let begin = convertHHMMToMinutes(begin_time);
-  //         let end = convertHHMMToMinutes(end_time);
-  //         return value > begin && value < end;
-  //       }
-  //     );
-  //     if (isInCurrentChooseTimeRange) {
-  //       message.warning("该时间段已被占用");
-  //       item.begin_time = null;
-  //       return;
-  //     }
-
-  //     // 结束时间没有选择
-  //     if (
-  //       item.end_time == "" ||
-  //       item.end_time == null ||
-  //       item.begin_time == "" ||
-  //       item.begin_time == null
-  //     )
-  //       return;
-
-  //     // 开始时间大于结束时间
-  //     const [hoursS, minutesS] = item?.begin_time?.split(":").map(Number);
-  //     const [hoursE, minutesE] = item?.end_time?.split(":").map(Number);
-
-  //     const dateS = new Date(0, 0, 0, hoursS, minutesS);
-  //     const dateE = new Date(0, 0, 0, hoursE, minutesE);
-
-  //     if (dateS >= dateE) {
-  //       message.warning("开始时间不能大于结束时间");
-  //       item.begin_time = null; // 必须为null才能置空
-  //     }
-  //   } else {
-  //     const isInRange = state.rangeTimeCantSelectTime.some((range) => {
-  //       const { begin_time, end_time } = range;
-  //       return value > begin_time && value < end_time;
-  //     });
-  //     if (isInRange) {
-  //       message.warning("该时间段已被占用");
-  //       item.end_time = null;
-  //       return;
-  //     }
-  //     // 再和当前已经选择的时间段进行比较
-  //     const isInCurrentChooseTimeRange = state.chooseTimeList.some(
-  //       (range, mIndex) => {
-  //         if (mIndex == index) return false;
-  //         const { begin_time, end_time } = range;
-  //         if (
-  //           begin_time == "" ||
-  //           begin_time == null ||
-  //           end_time == "" ||
-  //           end_time == null
-  //         )
-  //           return false;
-  //         let begin = convertHHMMToMinutes(begin_time);
-  //         let end = convertHHMMToMinutes(end_time);
-  //         return value > begin && value < end;
-  //       }
-  //     );
-
-  //     if (isInCurrentChooseTimeRange) {
-  //       message.warning("该时间段已被占用");
-  //       item.begin_time = null;
-  //       return;
-  //     }
-  //     if (
-  //       item.end_time == "" ||
-  //       item.end_time == null ||
-  //       item.begin_time == "" ||
-  //       item.begin_time == null
-  //     )
-  //       return;
-  //     // 开始时间大于结束时间
-  //     const [hoursS, minutesS] = item?.begin_time?.split(":").map(Number);
-  //     const [hoursE, minutesE] = item?.end_time?.split(":").map(Number);
-
-  //     const dateS = new Date(0, 0, 0, hoursS, minutesS);
-  //     const dateE = new Date(0, 0, 0, hoursE, minutesE);
-
-  //     if (dateS >= dateE) {
-  //       message.warning("结束时间不能小于开始时间");
-  //       item.end_time = null; // 必须为null才能置空
-  //     }
-  //   }
-  // }
-
-  // if (type == "start") {
-  //   // 结束时间没有选择
-  //   if (
-  //     item.end_time == "" ||
-  //     item.end_time == null ||
-  //     item.begin_time == "" ||
-  //     item.begin_time == null
-  //   )
-  //     return;
-  //   // 开始时间大于结束时间
-  //   const [hoursS, minutesS] = item?.begin_time?.split(":").map(Number);
-  //   const [hoursE, minutesE] = item?.end_time?.split(":").map(Number);
-
-  //   const dateS = new Date(0, 0, 0, hoursS, minutesS);
-  //   const dateE = new Date(0, 0, 0, hoursE, minutesE);
-
-  //   if (dateS >= dateE) {
-  //     message.warning("开始时间不能大于结束时间");
-  //     item.begin_time = null; // 必须为null才能置空
-  //   }
-  // } else {
-  //   // rowData.end_time = rowData.end_time * 60;
-  //   if (
-  //     item.end_time == "" ||
-  //     item.end_time == null ||
-  //     item.begin_time == "" ||
-  //     item.begin_time == null
-  //   )
-  //     return;
-  //   // 开始时间大于结束时间
-  //   const [hoursS, minutesS] = item?.begin_time?.split(":").map(Number);
-  //   const [hoursE, minutesE] = item?.end_time?.split(":").map(Number);
-
-  //   const dateS = new Date(0, 0, 0, hoursS, minutesS);
-  //   const dateE = new Date(0, 0, 0, hoursE, minutesE);
-
-  //   if (dateS >= dateE) {
-  //     message.warning("结束时间不能小于开始时间");
-  //     item.end_time = null; // 必须为null才能置空
-  //   }
-  // }
 };
 
 const filterFileUpload = (files) => {
@@ -941,7 +740,7 @@ const handleShow = (v) => {
 
           <div v-if="state.selectSlideShow" style="margin-top: 12px">
             <div class="sliderSlt">
-              <div>已选日期：<span class="sltText">2024-11-26</span></div>
+              <div>已选日期：<span class="sltText">{{ exchangeDateTime(state?.selectDateInfo[0], 2) }}</span></div>
             </div>
             <SliderCom
               :options="state.sliderConfig"
@@ -1047,6 +846,7 @@ const handleShow = (v) => {
               <Uploader
                 :initFileList="state.initApprove"
                 filePath="activity"
+                :showUploadList=true
                 :maxCount="1"
                 @onFileUpload="(v) => fileUpload(v, 'approve')"
                 accept="application/pdf,application/msword"
@@ -1068,6 +868,7 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
+                :showUploadList=true
                 @onFileUpload="(v) => fileUpload(v, 'poster')"
                 accept=".png, .jpg, .jpeg"
               >
@@ -1091,6 +892,7 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
+                :showUploadList=true
                 @onFileUpload="(v) => fileUpload(v, 'plan')"
                 accept="application/pdf,application/msword"
               >
@@ -1109,6 +911,7 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
+                :showUploadList=true
                 @onFileUpload="(v) => fileUpload(v, 'publicize')"
                 accept=".png, .jpg, .jpeg"
               >
@@ -1129,7 +932,8 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
-                @onFileUpload="(v) => fileUpload(v, 'v')"
+                :showUploadList=true
+                @onFileUpload="(v) => fileUpload(v, 'materials')"
                 accept="application/pdf,application/msword"
               >
                 <div class="upload_file_box">
