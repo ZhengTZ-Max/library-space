@@ -49,6 +49,7 @@ const state = reactive({
     seatType: [],
     date: "",
     boutique: [],
+    time: [0, 0],
   },
 
   floorMapOpt: {
@@ -62,7 +63,7 @@ onMounted(() => {
 
   fetchFilter();
   if (!state.initQuery?.quickDate) {
-    state.initQuery.quickDate = exchangeDateTime(new Date(),2)
+    state.initQuery.quickDate = exchangeDateTime(new Date(), 2);
     // router.go(-1);
   }
 });
@@ -80,10 +81,10 @@ const initQueryFn = () => {
   let { libraryId, quickDate, floorId, seatType } = state.initQuery;
 
   let floorSelect = [];
-  
-  state.filterSearch.library = libraryId && [libraryId] || [];
+
+  state.filterSearch.library = (libraryId && [libraryId]) || [];
   state.filterSearch.date = quickDate;
-  state.filterSearch.seatType = seatType && [seatType] || [];
+  state.filterSearch.seatType = (seatType && [seatType]) || [];
 
   state.filterOptions?.storey?.map((e) => {
     if (e?.list?.find((f) => f?.id == floorId)) {

@@ -1,10 +1,11 @@
 <script setup>
-import { reactive, onMounted, computed, watch } from "vue";
+import { reactive, onMounted, computed, watch, ref } from "vue";
 import { useStore } from "vuex";
 import { SearchOutlined } from "@ant-design/icons-vue";
 
 const store = useStore();
 const systemMode = computed(() => store.state.systemMode);
+const sliderPrimary1 = ref();
 const props = defineProps({
   data: {
     type: Object,
@@ -21,10 +22,10 @@ const state = reactive({
     floor: [],
     category: "",
     date: "",
-    time: "",
     num: "",
     boutiqueID: "",
     featureID: "",
+    time: [],
   },
 });
 
@@ -109,9 +110,31 @@ const filterFloor = () => {
         </a-radio-group>
       </div>
       <div class="filterFilter">时间</div>
-      <div>1</div>
+      <div class="filterTimes fiterItem">
+        <span>{{ state.filterOptions.time?.start_time }}</span>
+        <div class="sliderPrimary sliderSmall">
+          <a-slider
+            :min="state.filterOptions.time?.start_num"
+            :max="state.filterOptions.time?.end_num"
+            v-model:value="state.filterRows.time"
+            range
+          />
+          <div class="sltText">已选时间：{{ state.filterRows.time }}</div>
+        </div>
+        <span>{{ state.filterOptions.time?.end_time }}</span>
+      </div>
       <div class="filterFilter">人数</div>
-      <div>1</div>
+      <div class="filterTimes fiterItem">
+        <span>{{ state.filterOptions.members?.min }}</span>
+        <div class="sliderPrimary sliderSmall">
+          <a-slider
+            :max="state.filterOptions.members?.max"
+            v-model:value="state.filterRows.num"
+          />
+          <div class="sltText">已选人数：0 ~ {{ state.filterRows.num }}</div>
+        </div>
+        <span>{{ state.filterOptions.members?.max }}</span>
+      </div>
       <div class="filterFilter">特征</div>
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.boutiqueID">
@@ -145,6 +168,22 @@ const filterFloor = () => {
     border-radius: 0px 0px 0px 0px;
     padding: 2px 10px;
     color: rgba(97, 97, 97, 1);
+  }
+  .filterTimes {
+    display: flex;
+    align-items: center;
+    .sliderPrimary {
+      margin: 0 12px;
+      min-width: 300px;
+      width: 70%;
+      position: relative;
+      .sltText {
+        position: absolute;
+        top: 16px;
+        left: 0;
+        color: var(--primary-color);
+      }
+    }
   }
   .fiterItem {
     width: 100%;

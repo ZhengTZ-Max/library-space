@@ -34,7 +34,7 @@ const state = reactive({
     category: [],
     date: "",
     time: "",
-    num: "",
+    num: "1",
     boutique: [],
   },
 
@@ -109,6 +109,12 @@ const initQueryFn = () => {
   });
   console.log("floorSelect", floorSelect);
   state.filterSearch.floor = floorSelect?.map((e) => e.name);
+
+  state.filterSearch.time = [
+    state.filterOptions.time?.start_num,
+    state.filterOptions.time?.start_num + 60,
+  ];
+  console.log("state", state.filterSearch);
 };
 
 const fetchGetSpaceFilterList = async () => {
