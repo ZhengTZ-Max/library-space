@@ -56,3 +56,13 @@ export function fetchActivityShould(data) {
     data,
   });
 }
+
+// 草稿申请
+export function draftActivityApply(data) {
+  return service({
+    url: "/v4/activity/draft",
+    method: "POST",
+    isLoading: true,
+    data,
+  });
+}

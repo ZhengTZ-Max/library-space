@@ -11,6 +11,7 @@ import {
   getActivityDetail,
   activityApply,
   fetchActivityShould,
+  draftActivityApply
 } from "@/request/activity_application";
 import {
   exchangeDateTime,
@@ -109,6 +110,7 @@ const state = reactive({
   },
 
   rangeTimeCantSelectTime: [],
+  draftShow: false,
 });
 
 onMounted(() => {
@@ -256,7 +258,10 @@ const onSubmit = (type) => {
     }
 
     state.submitData = params;
-    if (type == "rule") {
+    if (type == "draft") {
+      state.draftShow = false;
+      draftActivity(params);
+    } else if (type == "rule") {
       applyActivity(params);
     } else {
       state.ruleInfo = { content: state.activityApplyInfo?.should };
@@ -303,6 +308,20 @@ const applyActivity = async (data) => {
   }
 };
 
+const draftActivity = async (data) => {
+  try {
+    state.draftShow = false;
+    const res = await draftActivityApply(data);
+    if (res?.code != 0) {
+      message.error(res?.message || "保存失败");
+      return false;
+    }
+    message.success(res?.message || "保存成功");
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const getCurrentTime = () => {
   let findDate = state.calendarInfo?.list?.find(
     (e) => e?.day == exchangeDateTime(state?.selectDateInfo[0], 2)
@@ -314,7 +333,6 @@ const getCurrentTime = () => {
     state.sliderConfig.endTime = end_time;
     state.sliderConfig.minRange = Number(min_time);
     state.sliderConfig.maxRange = Number(max_time);
-
 
     state.sliderConfig.disabledArr = list?.map((e) => {
       return [e?.begin_time, e?.end_time];
@@ -556,7 +574,6 @@ const onChangeTime = (v, item, type, index) => {
   if (v == "" || v == null) return;
   const value = convertHHMMToMinutes(v); // 转换为第几分钟的数值
   chooseTimeIsInRange(value, item, type, index);
-
 };
 
 const filterFileUpload = (files) => {
@@ -740,7 +757,11 @@ const handleShow = (v) => {
 
           <div v-if="state.selectSlideShow" style="margin-top: 12px">
             <div class="sliderSlt">
-              <div>已选日期：<span class="sltText">{{ exchangeDateTime(state?.selectDateInfo[0], 2) }}</span></div>
+              <div>
+                已选日期：<span class="sltText">{{
+                  exchangeDateTime(state?.selectDateInfo[0], 2)
+                }}</span>
+              </div>
             </div>
             <SliderCom
               :options="state.sliderConfig"
@@ -846,7 +867,7 @@ const handleShow = (v) => {
               <Uploader
                 :initFileList="state.initApprove"
                 filePath="activity"
-                :showUploadList=true
+                :showUploadList="true"
                 :maxCount="1"
                 @onFileUpload="(v) => fileUpload(v, 'approve')"
                 accept="application/pdf,application/msword"
@@ -868,7 +889,7 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
-                :showUploadList=true
+                :showUploadList="true"
                 @onFileUpload="(v) => fileUpload(v, 'poster')"
                 accept=".png, .jpg, .jpeg"
               >
@@ -892,7 +913,7 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
-                :showUploadList=true
+                :showUploadList="true"
                 @onFileUpload="(v) => fileUpload(v, 'plan')"
                 accept="application/pdf,application/msword"
               >
@@ -911,7 +932,7 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
-                :showUploadList=true
+                :showUploadList="true"
                 @onFileUpload="(v) => fileUpload(v, 'publicize')"
                 accept=".png, .jpg, .jpeg"
               >
@@ -932,7 +953,7 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
-                :showUploadList=true
+                :showUploadList="true"
                 @onFileUpload="(v) => fileUpload(v, 'materials')"
                 accept="application/pdf,application/msword"
               >
@@ -951,9 +972,18 @@ const handleShow = (v) => {
               :disabled="bottomBtnDisabled()"
               round
               type="primary"
-              style="width: 200px"
+              style="width: 100px"
               @click="onSubmit"
               >立即申请</van-button
+            >
+          </div>
+          <div class="bottom_btn_draft">
+            <van-button
+              round
+              type="primary"
+              style="width: 100px"
+              @click="state.draftShow = true"
+              >存草稿</van-button
             >
           </div>
         </div>
@@ -1056,6 +1086,30 @@ const handleShow = (v) => {
         </div>
       </template>
     </ShowInfoToast>
+
+    <van-dialog
+      v-model:show="state.draftShow"
+      title="提示"
+      message-align="center"
+      show-cancel-button
+      @cancel="state.draftShow = false"
+      @confirm="() => onSubmit('draft')"
+      confirmButtonText="保存"
+      cancelButtonText="不保存"
+      cancelButtonColor="#808080"
+    >
+      <div
+        style="
+          font-size: 16px;
+          color: rgba(32, 32, 32, 1);
+          text-align: center;
+          margin-top: 20px;
+          margin-bottom: 20px;
+        "
+      >
+        是否存为草稿?
+      </div>
+    </van-dialog>
   </div>
 </template>
 <style lang="less" scoped>
@@ -1307,6 +1361,11 @@ const handleShow = (v) => {
           position: absolute;
           bottom: 30px;
           right: 30px;
+        }
+        .bottom_btn_draft {
+          position: absolute;
+          bottom: 30px;
+          right: 140px;
         }
       }
     }

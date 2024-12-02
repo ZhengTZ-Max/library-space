@@ -17,6 +17,7 @@ import {
   getActivityApply,
   getActivityDetail,
   activityApply,
+  draftActivityApply,
 } from "@/request/activity_application";
 import {
   exchangeDateTime,
@@ -92,6 +93,7 @@ const state = reactive({
     type: "success",
   },
   rangeTimeCantSelectTime: [],
+  draftShow: false,
 });
 
 onMounted(() => {
@@ -504,7 +506,9 @@ const onSubmit = (type) => {
     }
 
     state.submitData = params;
-    if (type == "rule") {
+    if (type == "draft") {
+      draftActivity(params);
+    } else if (type == "rule") {
       applyActivity(params);
     } else {
       state.ruleInfo = { content: state.activityApplyInfo?.should };
@@ -530,6 +534,19 @@ const applyActivity = async (data) => {
 
       ...res.data,
     };
+  } catch (e) {
+    console.log(e);
+  }
+};
+const draftActivity = async (data) => {
+  try {
+    state.draftShow = false;
+    const res = await draftActivityApply(data);
+    if (res?.code != 0) {
+      message.error(res?.message || "保存失败");
+      return false;
+    }
+    message.success(res?.message || "保存成功");
   } catch (e) {
     console.log(e);
   }
@@ -899,6 +916,15 @@ const applyActivity = async (data) => {
       </template>
     </div>
 
+    <van-button
+      style="margin-top: 20px"
+      round
+      block
+      type="primary"
+      @click="state.draftShow = true"
+      >存草稿</van-button
+    >
+
     <!-- 底部按钮 -->
     <div class="bottomAction_box">
       <van-button round block type="default" @click="router.go(-1)">
@@ -1009,6 +1035,30 @@ const applyActivity = async (data) => {
         </div>
       </template>
     </ShowInfoToast>
+
+    <van-dialog
+      v-model:show="state.draftShow"
+      title="提示"
+      message-align="center"
+      show-cancel-button
+      @cancel="state.draftShow = false"
+      @confirm="() => onSubmit('draft')"
+      confirmButtonText="保存"
+      cancelButtonText="不保存"
+      cancelButtonColor="#808080"
+    >
+      <div
+        style="
+          font-size: 16px;
+          color: rgba(32, 32, 32, 1);
+          text-align: center;
+          margin-top: 20px;
+          margin-bottom: 20px;
+        "
+      >
+        是否存为草稿?
+      </div>
+    </van-dialog>
   </div>
 </template>
 
