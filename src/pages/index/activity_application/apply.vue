@@ -11,6 +11,7 @@ import {
   getActivityDetail,
   activityApply,
   fetchActivityShould,
+  draftActivityApply
 } from "@/request/activity_application";
 import {
   exchangeDateTime,
@@ -109,6 +110,7 @@ const state = reactive({
   },
 
   rangeTimeCantSelectTime: [],
+  draftShow: false,
 });
 
 onMounted(() => {
@@ -256,7 +258,10 @@ const onSubmit = (type) => {
     }
 
     state.submitData = params;
-    if (type == "rule") {
+    if (type == "draft") {
+      state.draftShow = false;
+      draftActivity(params);
+    } else if (type == "rule") {
       applyActivity(params);
     } else {
       state.ruleInfo = { content: state.activityApplyInfo?.should };
@@ -298,6 +303,20 @@ const applyActivity = async (data) => {
 
       ...res.data,
     };
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const draftActivity = async (data) => {
+  try {
+    state.draftShow = false;
+    const res = await draftActivityApply(data);
+    if (res?.code != 0) {
+      message.error(res?.message || "保存失败");
+      return false;
+    }
+    message.success(res?.message || "保存成功");
   } catch (e) {
     console.log(e);
   }
@@ -958,9 +977,18 @@ const handleShow = (v) => {
               :disabled="bottomBtnDisabled()"
               round
               type="primary"
-              style="width: 200px"
+              style="width: 100px"
               @click="onSubmit"
               >立即申请</van-button
+            >
+          </div>
+          <div class="bottom_btn_draft">
+            <van-button
+              round
+              type="primary"
+              style="width: 100px"
+              @click="state.draftShow = true"
+              >存草稿</van-button
             >
           </div>
         </div>
@@ -1063,6 +1091,30 @@ const handleShow = (v) => {
         </div>
       </template>
     </ShowInfoToast>
+
+    <van-dialog
+      v-model:show="state.draftShow"
+      title="提示"
+      message-align="center"
+      show-cancel-button
+      @cancel="state.draftShow = false"
+      @confirm="() => onSubmit('draft')"
+      confirmButtonText="保存"
+      cancelButtonText="不保存"
+      cancelButtonColor="#808080"
+    >
+      <div
+        style="
+          font-size: 16px;
+          color: rgba(32, 32, 32, 1);
+          text-align: center;
+          margin-top: 20px;
+          margin-bottom: 20px;
+        "
+      >
+        是否存为草稿?
+      </div>
+    </van-dialog>
   </div>
 </template>
 <style lang="less" scoped>
@@ -1314,6 +1366,11 @@ const handleShow = (v) => {
           position: absolute;
           bottom: 30px;
           right: 30px;
+        }
+        .bottom_btn_draft {
+          position: absolute;
+          bottom: 30px;
+          right: 140px;
         }
       }
     }
