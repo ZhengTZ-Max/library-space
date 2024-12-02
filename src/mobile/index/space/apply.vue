@@ -424,16 +424,18 @@ const removePeople = (index) => {
         <Uploader
           class="margin_left_10"
           filePath="seminar"
-          :maxCount="1"
+          :maxCount="2"
           @onFileUpload="(v) => fileUpload(v, 'approve')"
           accept="application/pdf,application/msword"
+          list-type="picture"
+          showUploadList
         >
-          <img
+          <!-- <img
             @click="addFile"
             class="add_people_box_input_icon"
             src="@/assets/activity_application/add_one_time.svg"
             alt=""
-          />
+          /> -->
         </Uploader>
       </div>
       <!-- 等待一个文件上传成功列表 做for循环 -->

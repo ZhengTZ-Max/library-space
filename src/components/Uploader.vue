@@ -32,7 +32,7 @@ watch(
     });
     initFileList();
     console.log(fileList);
-  },
+  }
 );
 
 watch(
@@ -77,7 +77,7 @@ const initFileList = () => {
       e.url = DOCICON;
       e.thumbUrl = DOCICON;
     } else if (type == "IMG") {
-      e.url = DOCICON;
+      e.url = e?.thumbUrl;
     }
     return e;
   });
@@ -85,7 +85,7 @@ const initFileList = () => {
 };
 </script>
 <template>
-  <div class="uploader">
+  <div class="uploader" :class="{ noShowList: !showUploadList }">
     <a-upload
       v-bind="$attrs"
       v-model:file-list="fileList"
@@ -95,7 +95,6 @@ const initFileList = () => {
         path: filePath || '',
       }"
       :show-upload-list="showUploadList"
-      list-type="picture"
       :headers="headers"
       @change="handleChange"
     >
@@ -105,13 +104,15 @@ const initFileList = () => {
 </template>
 <style lang="less" scoped>
 .uploader {
-  :deep(.ant-upload-list-item) {
-    height: 48px !important;
-    width: 75%;
-    .ant-upload-list-item-image,
-    .ant-upload-list-item-thumbnail {
-      width: 32px !important;
-      height: 32px !important;
+  &.noShowList {
+    :deep(.ant-upload-list-item) {
+      height: 48px !important;
+      width: 75%;
+      .ant-upload-list-item-image,
+      .ant-upload-list-item-thumbnail {
+        width: 32px !important;
+        height: 32px !important;
+      }
     }
   }
 }

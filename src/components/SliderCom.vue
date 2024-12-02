@@ -149,7 +149,12 @@ const initDisabledArr = () => {
       if (initEndTime > state.opt.endTime) {
         initEndTime = state.opt.endTime;
       }
-      state.value = [startTime, initEndTime];
+
+      if (state.opt?.endTime - startTime < minRange) {
+        state.value = [state.opt?.endTime - minRange, state.opt?.endTime];
+      } else {
+        state.value = [startTime, initEndTime];
+      }
     } else {
       state.value = [
         state.opt.startTime,

@@ -13,6 +13,8 @@ import {
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceChooseSpaceFilter from "@/components/SpaceCom/SpaceChooseSpaceFilter.vue";
 
+import { convertMinutesToHHMM } from "@/utils";
+
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
@@ -34,7 +36,7 @@ const state = reactive({
     category: [],
     date: "",
     time: "",
-    num: "1",
+    num: 0,
     boutique: [],
   },
 
@@ -112,7 +114,7 @@ const initQueryFn = () => {
 
   state.filterSearch.time = [
     state.filterOptions.time?.start_num,
-    state.filterOptions.time?.start_num + 60,
+    state.filterOptions.time?.end_num,
   ];
   console.log("state", state.filterSearch);
 };
@@ -158,7 +160,7 @@ const filterFloorIds = (ids) => {
 
 const fetchGetSpaceInfoList = async () => {
   try {
-    let { search, library, floor, date, boutique, category } =
+    let { search, library, floor, date, boutique, category, time } =
       state.filterSearch;
 
     let params = {
@@ -169,6 +171,23 @@ const fetchGetSpaceInfoList = async () => {
       category: category,
       boutique: boutique,
     };
+
+    if (!params.members) {
+      params.members = "";
+    }
+
+    if (time?.length) {
+      if (
+        time[0] == state.filterOptions?.time?.start_num &&
+        time[1] == state.filterOptions?.time?.end_num
+      ) {
+        params.start_time = "";
+        params.end_time = "";
+      } else {
+        params.start_time = convertMinutesToHHMM(time[0]);
+        params.end_time = convertMinutesToHHMM(time[1]);
+      }
+    }
 
     // if (library?.length) {
     //   params.premises = state.filterOptions?.library?.map((e) => e?.id);

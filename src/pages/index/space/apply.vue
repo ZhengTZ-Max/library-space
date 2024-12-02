@@ -4,13 +4,16 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { message } from "ant-design-vue";
 import moment from "moment";
+import { showToast } from "vant";
 
-import { getSpaceApply, getSpaceDetail } from "@/request/space";
-import { exchangeDateTime } from "@/utils";
+import { getSpaceApply, getSpaceDetail, getSpaceShould } from "@/request/space";
+import { exchangeDateTime, checkOverlap } from "@/utils";
 import SpaceApplySwipe from "@/components/SpaceCom/SpaceApplySwipe.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import Calendar from "@/components/ActivityApplication/Calendar.vue";
 import Uploader from "@/components/Uploader.vue";
+import SliderCom from "@/components/SliderCom.vue";
+import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -41,20 +44,71 @@ const state = reactive({
   },
 
   topImg: "",
-  filterActivityTypeId: "",
   filterActivityTheme: "",
   filterActivityContent: "",
-  filterActivityMaxPeople: "",
   filterActivityMobile: "",
 
   bottomBtnDisabled: true,
 
   chooseTimeList: [{ begin_time: "", end_time: "" }],
-  type: "more",
   addPeople: "",
   addPeopleList: [],
   isOpen: 0,
+
+  sliderShow: false,
+  sliderVal: [],
+  sliderConfig: {
+    previousValue: [],
+    minRange: 60,
+    maxRange: 240,
+    startTime: 15,
+    endTime: 1425,
+    step: 15,
+    marksList: {},
+    disabledArr: [],
+    disabledHtml: "",
+  },
+
+  ruleShow: false,
+  ruleInfo: { content: "" },
+
+  submitData: {},
 });
+
+watch(
+  () => state.dateIndex,
+  (v) => {
+    if (v) {
+      state.sliderShow = false;
+
+      let { start_time, end_time, min_time, max_time, list } = v?.info;
+      state.sliderConfig.startTime = start_time;
+      state.sliderConfig.endTime = end_time;
+      state.sliderConfig.minRange = Number(min_time);
+      state.sliderConfig.maxRange = Number(max_time);
+
+      state.sliderConfig.disabledArr = list?.map((e) => {
+        return [e?.begin_time, e?.end_time];
+      });
+
+      if (exchangeDateTime(v.date, 2) == exchangeDateTime(new Date(), 2)) {
+        let h = moment(new Date()).get("hour") * 60;
+        let m = h + moment(new Date()).get("minute");
+        m = m + (15 - (m % 15));
+
+        state.sliderConfig.disabledArr = [
+          ...state.sliderConfig.disabledArr,
+          [state.sliderConfig.startTime, m],
+        ];
+      } else {
+        state.sliderConfig.disabledArr = [...state.sliderConfig.disabledArr];
+      }
+      setTimeout(() => {
+        state.sliderShow = true;
+      }, 200);
+    }
+  }
+);
 
 onMounted(() => {
   fetchGetSpaceApply();
@@ -92,6 +146,9 @@ const fetchGetSpaceApply = async () => {
     state.spaceApplyInfo = res?.data?.detail || {};
     state.calendarInfo.dateList = res?.data?.axis?.date || [];
     state.calendarInfo.list = res?.data?.axis?.list || [];
+    if (state.spaceApplyInfo?.type_id == 2) {
+      state.dateIndex = state.calendarInfo.list[0];
+    }
 
     if (state.calendarInfo.list.length) {
       state.calendarInfo.startDate = state.calendarInfo.list[0].date;
@@ -99,23 +156,21 @@ const fetchGetSpaceApply = async () => {
         state.calendarInfo.list[state.calendarInfo.list.length - 1].date;
     }
 
-    // 模拟数据
-    state.calendarInfo.list[0].status = -1;
-    state.calendarInfo.list[1].status = 0;
-    state.calendarInfo.list[1].list.push({
-      date: "2024-11-23",
-      begin_timestamp: "2024-11-23 08:00:00",
-      end_timestamp: "2024-11-23 19:00:00",
-      begin_time: 480,
-      end_time: 540,
-    });
+    // // 模拟数据
+    // state.calendarInfo.list[0].status = -1;
+    // state.calendarInfo.list[1].status = 0;
+    // state.calendarInfo.list[1].list.push({
+    //   date: "2024-11-23",
+    //   begin_timestamp: "2024-11-23 08:00:00",
+    //   end_timestamp: "2024-11-23 19:00:00",
+    //   begin_time: 480,
+    //   end_time: 540,
+    // });
 
     console.log(state.calendarInfo);
 
     state.argumentArray = res?.data?.argument || [];
     state.topImg = res?.data?.detail?.firstImg || "";
-
-    state.filterActivityTypeId = state.spaceApplyInfo?.categorys[0]?.id;
   } catch (e) {
     console.log(e);
   }
@@ -127,7 +182,7 @@ const fetchGetSpaceDetailInfo = async () => {
     };
     let res = await getSpaceDetail(params);
     if (res.code != 0) return;
-    state.spaceDetailInfo = { ...res?.data, type: "space" } || {};
+    state.spaceDetailInfo = { ...res?.data } || {};
     state.spaceDetailInfoShow = true;
     console.log(state.spaceDetailInfo);
   } catch (e) {
@@ -152,17 +207,8 @@ const filterArguments = (key) => {
 const onSelected = (date) => {
   state.selectDateInfo = date;
 
-  if (state.selectDateInfo.length > 0) {
-    if (state.selectDateInfo.length == 1) {
-      state.selectSlideShow = true;
-      state.selectChooseTime = false;
-    } else {
-      state.selectSlideShow = false;
-      state.selectChooseTime = true;
-    }
-  } else {
-    state.selectSlideShow = false;
-    state.selectChooseTime = false;
+  if (state.selectDateInfo.length == 1) {
+    state.selectDateInfo = [date[0], date[0]];
   }
 };
 
@@ -228,6 +274,111 @@ const addPeople = () => {
 const removePeople = (index) => {
   state.addPeopleList.splice(index, 1);
 };
+
+const onSubmit = (type) => {
+  try {
+    // let placeholder = lang == "en" ? `placeholder_en` : `placeholder`;
+    let {
+      filterActivityTheme,
+      filterActivityContent,
+      filterActivityMobile,
+      isOpen,
+    } = state;
+    let params = {
+      area_id: state.initQuerySpaceId,
+      start_date: "",
+      end_date: "",
+      title: filterActivityTheme || "",
+      title_id: "",
+      content: filterActivityContent || "",
+      open: isOpen,
+      team: "",
+      mobile: filterActivityMobile || "",
+      time: [],
+    };
+
+    // if (!state.selectDateInfo?.length) {
+    //   showToast({ message: "请选择申请日期" });
+    //   return false;
+    // }
+
+    // if (state.selectDateInfo?.length == 1) {
+    //   params.end_date = exchangeDateTime(startDate, 2);
+
+    //   let [s, e] = state.sliderVal;
+    //   params.time = [
+    //     {
+    //       start_time: convertMinutesToHHMM(s),
+    //       end_time: convertMinutesToHHMM(e),
+    //     },
+    //   ];
+    // } else {
+    //   params.end_date = exchangeDateTime(endDate, 2);
+    //   state.chooseTimeList.forEach((e) => {
+    //     params.time.push({
+    //       start_time: e.begin_time,
+    //       end_time: e.end_time,
+    //     });
+    //   });
+    // }
+
+    if (!params?.title) {
+      showToast({ message: "请填写申请主题" });
+      return false;
+    } else if (!params?.content) {
+      showToast({ message: "请填写申请内容" });
+      return false;
+    } else if (!params?.mobile) {
+      showToast({ message: "请输入联系电话" });
+      return false;
+    }
+
+    state.submitData = params;
+    if (type == "rule") {
+      // applyActivity(params);
+    } else {
+      // state.ruleInfo = { content: state.activityApplyInfo?.should };
+      // state.ruleShow = true;
+      getRuleInfo();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const getRuleInfo = async () => {
+  try {
+    const res = await getSpaceShould({ id: state.initQuerySpaceId });
+    if (res?.code != 0) {
+      showToast({
+        message: res?.message || "网络请求错误",
+      });
+      return false;
+    }
+
+    state.ruleInfo.content = res?.data?.seat_rule;
+    state.ruleShow = true;
+    console.log(res);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const showAreaName = () => {
+  let { top_name, top_en_name, storey_name, storey_en_name, name, enname } =
+    state.spaceApplyInfo;
+
+  return `${top_name}-${storey_name}-${name}`;
+};
+
+const bottomBtnDisabled = () => {
+  let submitErr = false;
+  if (checkOverlap(state.sliderVal, state.sliderConfig?.disabledArr)?.length) {
+    submitErr = true;
+  }
+
+  return submitErr;
+};
 </script>
 <template>
   <div class="apply">
@@ -269,7 +420,10 @@ const removePeople = (index) => {
         </div>
         <div class="left_bottom">
           <div class="left_bottom_title">时间选择</div>
-          <van-row v-if="state.type == 'more'" class="time_select_box">
+          <van-row
+            v-if="state.spaceApplyInfo?.type_id == 5"
+            class="time_select_box"
+          >
             <van-col span="12">
               <div class="time_select_box_text">
                 <div class="time_select_box_text_left">
@@ -284,78 +438,91 @@ const removePeople = (index) => {
                 />
               </div>
             </van-col>
-            <van-col v-if="state.selectChooseTime" span="10" offset="2">
-              <div class="selected_time_text">
-                已选时间：<span
+            <van-col
+              v-if="state.spaceApplyInfo?.earlierPeriods == 0"
+              span="10"
+              offset="2"
+            >
+              <div
+                class="selected_time_text"
+                :style="{
+                  marginTop: !state.selectDateInfo?.length ? '70%' : '',
+                }"
+              >
+                已选时间：
+                <span v-if="state.selectDateInfo?.length"
                   >{{ exchangeDateTime(state.selectDateInfo[0], 2) }} ~
                   {{ exchangeDateTime(state.selectDateInfo[1], 2) }}</span
                 >
+                <span v-else>-</span>
               </div>
-              <div
-                class="choose_time_box"
-                v-for="(item, index) in state.chooseTimeList"
-                :key="index"
-              >
-                <div class="choose_time_item">
-                  <a-time-picker
-                    format="HH:mm"
-                    valueFormat="HH:mm"
-                    :bordered="false"
-                    style="width: 100%"
-                    hideDisabledOptions
-                    size="middle"
-                    :showNow="false"
-                    v-model:value="item.begin_time"
-                    placeholder="开始时间"
-                    @change="(v) => onChangeTime(v, item, 'start', index)"
-                  />
-                </div>
-                <div>~</div>
-                <div class="choose_time_item">
-                  <a-time-picker
-                    format="HH:mm"
-                    valueFormat="HH:mm"
-                    :bordered="false"
-                    style="width: 100%"
-                    hideDisabledOptions
-                    size="middle"
-                    :showNow="false"
-                    v-model:value="item.end_time"
-                    placeholder="结束时间"
-                    @change="(v) => onChangeTime(v, item, 'end', index)"
-                  />
-                </div>
+              <template v-if="state.selectDateInfo?.length">
+                <div
+                  class="choose_time_box"
+                  v-for="(item, index) in state.chooseTimeList"
+                  :key="index"
+                >
+                  <div class="choose_time_item">
+                    <a-time-picker
+                      format="HH:mm"
+                      valueFormat="HH:mm"
+                      :bordered="false"
+                      style="width: 100%"
+                      hideDisabledOptions
+                      size="middle"
+                      :showNow="false"
+                      v-model:value="item.begin_time"
+                      placeholder="开始时间"
+                      @change="(v) => onChangeTime(v, item, 'start', index)"
+                    />
+                  </div>
+                  <div>~</div>
+                  <div class="choose_time_item">
+                    <a-time-picker
+                      format="HH:mm"
+                      valueFormat="HH:mm"
+                      :bordered="false"
+                      style="width: 100%"
+                      hideDisabledOptions
+                      size="middle"
+                      :showNow="false"
+                      v-model:value="item.end_time"
+                      placeholder="结束时间"
+                      @change="(v) => onChangeTime(v, item, 'end', index)"
+                    />
+                  </div>
 
-                <img
-                  v-if="index == 0"
-                  @click="addTimeSlot"
-                  src="@/assets/activity_application/add_one_time.svg"
-                  alt=""
-                />
-                <img
-                  v-if="index != 0"
-                  @click="removeTimeSlot"
-                  src="@/assets/activity_application/remove_one_time.svg"
-                  alt=""
-                />
-              </div>
+                  <img
+                    v-if="index == 0"
+                    @click="addTimeSlot"
+                    src="@/assets/activity_application/add_one_time.svg"
+                    alt=""
+                  />
+                  <img
+                    v-if="index != 0"
+                    @click="removeTimeSlot"
+                    src="@/assets/activity_application/remove_one_time.svg"
+                    alt=""
+                  />
+                </div>
+              </template>
             </van-col>
           </van-row>
 
-          <a-row
-            v-if="state.calendarInfo.dateList?.length && state.type != 'more'"
-            :gutter="[15, 15]"
-          >
-            <template v-for="item in state.calendarInfo.dateList" :key="item">
+          <a-row v-else :gutter="[15, 15]">
+            <template v-for="item in state.calendarInfo.list" :key="item">
               <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
                 <div
                   class="libraryItem cardItemBorTran"
-                  :class="{ activeItem: item == state.dateIndex }"
+                  :class="{ activeItem: item?.date == state.dateIndex?.date }"
                   @click="onChangeDateAct(item)"
                 >
-                  <span>{{ moment(item).format("MM-DD") }}</span>
-                  <span>{{ exchangeDateTime(item, 31) }}</span>
-                  <div v-if="item == state.dateIndex" class="check_icon">
+                  <span>{{ moment(item?.date).format("MM-DD") }}</span>
+                  <span>{{ exchangeDateTime(item?.date, 31) }}</span>
+                  <div
+                    v-if="item?.date == state.dateIndex?.date"
+                    class="check_icon"
+                  >
                     <img src="@/assets/event/checked.svg" />
                   </div>
                 </div>
@@ -363,11 +530,19 @@ const removePeople = (index) => {
             </template>
           </a-row>
 
-          <div v-if="state.type != 'more'" style="margin-top: 20px">1</div>
+          <div
+            v-if="state.spaceApplyInfo?.type_id != 5 && state.sliderShow"
+            style="margin-top: 20px"
+          >
+            <SliderCom
+              :options="state.sliderConfig"
+              v-model:value="state.sliderVal"
+            />
+          </div>
         </div>
       </div>
       <div class="right">
-        <div class="right_top" v-if="true">
+        <div class="right_top" v-if="state.spaceApplyInfo?.type_id == 5">
           <div class="add_people_box">
             <div class="add_people_box_title">参与人员</div>
             <div class="add_people_box_input">
@@ -476,11 +651,13 @@ const removePeople = (index) => {
           <van-row class="upload_item">
             <van-col span="2" class="upload_item_title"> 上传附件: </van-col>
             <Uploader
-              class="margin_left_10" 
+              class="margin_left_10"
               filePath="seminar"
-              :maxCount="1"
+              :maxCount="2"
               @onFileUpload="(v) => fileUpload(v, 'approve')"
-              accept="application/pdf,application/msword"
+              accept="image/jpeg,image/png,image/bmp"
+              list-type="picture-card"
+              showUploadList
             >
               <img src="@/assets/upload_file_square.svg" alt="" />
             </Uploader>
@@ -488,10 +665,11 @@ const removePeople = (index) => {
 
           <div class="bottom_btn">
             <van-button
-              :disabled="state.bottomBtnDisabled"
+              :disabled="bottomBtnDisabled()"
               round
               type="primary"
               style="width: 200px"
+              @click="onSubmit"
               >立即预约</van-button
             >
           </div>
@@ -523,6 +701,39 @@ const removePeople = (index) => {
         :data="state.activityDetailInfo"
       />
     </a-modal>
+
+    <SpaceRuleConfirm
+      v-if="state.ruleShow"
+      v-model:open="state.ruleShow"
+      :content="state.ruleInfo?.content"
+      @onConfirm="() => onSubmit('rule')"
+    >
+      <template v-slot:content>
+        <div class="showArea">
+          <div class="tag">当前预约选择</div>
+          <div class="showCon">
+            <div class="item">
+              <p>
+                空间：<span>{{ showAreaName() }}</span>
+              </p>
+              <p>
+                时间：<span>{{
+                  state.selectDateInfo?.length == 2
+                    ? `${exchangeDateTime(
+                        state?.selectDateInfo[0],
+                        2
+                      )} ~ ${exchangeDateTime(state?.selectDateInfo[1], 2)}`
+                    : `${exchangeDateTime(state?.selectDateInfo[0], 2)}`
+                }}</span>
+              </p>
+            </div>
+            <div class="item">
+              <p>成员：<span> VIP079</span></p>
+            </div>
+          </div>
+        </div>
+      </template>
+    </SpaceRuleConfirm>
   </div>
 </template>
 <style lang="less" scoped>
@@ -641,9 +852,10 @@ const removePeople = (index) => {
             text-align: center;
             margin-bottom: 10px;
             color: rgba(97, 97, 97, 1);
-            font-size: 17px;
+            font-size: 14px;
             span {
               color: rgba(26, 73, 192, 1);
+              // font-size: ;
             }
           }
           .choose_time_box {

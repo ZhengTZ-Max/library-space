@@ -315,7 +315,6 @@ const getCurrentTime = () => {
     state.sliderConfig.minRange = Number(min_time);
     state.sliderConfig.maxRange = Number(max_time);
 
-
     state.sliderConfig.disabledArr = list?.map((e) => {
       return [e?.begin_time, e?.end_time];
     });
@@ -556,7 +555,6 @@ const onChangeTime = (v, item, type, index) => {
   if (v == "" || v == null) return;
   const value = convertHHMMToMinutes(v); // 转换为第几分钟的数值
   chooseTimeIsInRange(value, item, type, index);
-
 };
 
 const filterFileUpload = (files) => {
@@ -740,7 +738,11 @@ const handleShow = (v) => {
 
           <div v-if="state.selectSlideShow" style="margin-top: 12px">
             <div class="sliderSlt">
-              <div>已选日期：<span class="sltText">{{ exchangeDateTime(state?.selectDateInfo[0], 2) }}</span></div>
+              <div>
+                已选日期：<span class="sltText">{{
+                  exchangeDateTime(state?.selectDateInfo[0], 2)
+                }}</span>
+              </div>
             </div>
             <SliderCom
               :options="state.sliderConfig"
@@ -846,10 +848,11 @@ const handleShow = (v) => {
               <Uploader
                 :initFileList="state.initApprove"
                 filePath="activity"
-                :showUploadList=true
+                :showUploadList="true"
                 :maxCount="1"
                 @onFileUpload="(v) => fileUpload(v, 'approve')"
                 accept="application/pdf,application/msword"
+                list-type="picture"
               >
                 <div class="upload_file_box">
                   <img
@@ -868,9 +871,10 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
-                :showUploadList=true
+                :showUploadList="true"
                 @onFileUpload="(v) => fileUpload(v, 'poster')"
                 accept=".png, .jpg, .jpeg"
+                list-type="picture"
               >
                 <div class="upload_file_box">
                   <img
@@ -892,9 +896,10 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
-                :showUploadList=true
+                :showUploadList="true"
                 @onFileUpload="(v) => fileUpload(v, 'plan')"
                 accept="application/pdf,application/msword"
+                list-type="picture"
               >
                 <div class="upload_file_box">
                   <img
@@ -911,9 +916,10 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
-                :showUploadList=true
+                :showUploadList="true"
                 @onFileUpload="(v) => fileUpload(v, 'publicize')"
                 accept=".png, .jpg, .jpeg"
+                list-type="picture"
               >
                 <div class="upload_file_box">
                   <img
@@ -932,9 +938,10 @@ const handleShow = (v) => {
               <Uploader
                 filePath="activity"
                 :maxCount="1"
-                :showUploadList=true
+                :showUploadList="true"
                 @onFileUpload="(v) => fileUpload(v, 'materials')"
                 accept="application/pdf,application/msword"
+                list-type="picture"
               >
                 <div class="upload_file_box">
                   <img

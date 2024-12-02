@@ -2,7 +2,7 @@
 import { reactive, onMounted, computed, watch, ref } from "vue";
 import { useStore } from "vuex";
 import { SearchOutlined } from "@ant-design/icons-vue";
-
+import { convertMinutesToHHMM } from "@/utils";
 const store = useStore();
 const systemMode = computed(() => store.state.systemMode);
 const sliderPrimary1 = ref();
@@ -117,9 +117,14 @@ const filterFloor = () => {
             :min="state.filterOptions.time?.start_num"
             :max="state.filterOptions.time?.end_num"
             v-model:value="state.filterRows.time"
+            step="15"
             range
+            :tip-formatter="null"
           />
-          <div class="sltText">已选时间：{{ state.filterRows.time }}</div>
+          <div class="sltText">
+            已选时间：{{ convertMinutesToHHMM(state.filterRows.time[0]) }} ~
+            {{ convertMinutesToHHMM(state.filterRows.time[1]) }}
+          </div>
         </div>
         <span>{{ state.filterOptions.time?.end_time }}</span>
       </div>

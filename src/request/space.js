@@ -61,3 +61,15 @@ export function getSpaceApply(data) {
   });
 }
 
+// 空间预约 - 预约规则
+export function getSpaceShould(data) {
+  return service({
+    url: "/v4/Help/should",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+

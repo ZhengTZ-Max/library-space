@@ -739,6 +739,7 @@ const applyActivity = async (data) => {
             :maxCount="1"
             @onFileUpload="(v) => fileUpload(v, 'poster')"
             accept=".png, .jpg, .jpeg"
+            list-type="picture"
           >
             <div class="item_for_file_title_right_upload">+图片</div>
           </Uploader>
@@ -774,6 +775,7 @@ const applyActivity = async (data) => {
             :showUploadList="false"
             @onFileUpload="(v) => fileUpload(v, 'approve')"
             accept="application/pdf,application/msword"
+            list-type="picture"
           >
             <div class="item_for_file_title_right_upload">+Word/PDF</div>
           </Uploader>
@@ -809,6 +811,7 @@ const applyActivity = async (data) => {
             :showUploadList="false"
             @onFileUpload="(v) => fileUpload(v, 'publicize')"
             accept=".png, .jpg, .jpeg"
+            list-type="picture"
           >
             <div class="item_for_file_title_right_upload">+视频</div>
           </Uploader>
@@ -842,6 +845,7 @@ const applyActivity = async (data) => {
             :showUploadList="false"
             @onFileUpload="(v) => fileUpload(v, 'plan')"
             accept="application/pdf,application/msword"
+            list-type="picture"
           >
             <div class="item_for_file_title_right_upload">+Word/PDF</div>
           </Uploader>
@@ -876,6 +880,7 @@ const applyActivity = async (data) => {
             :showUploadList="false"
             @onFileUpload="(v) => fileUpload(v, 'materials')"
             accept="application/pdf,application/msword"
+            list-type="picture"
           >
             <div class="item_for_file_title_right_upload">+Word/PDF</div>
           </Uploader>
