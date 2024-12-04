@@ -6,14 +6,21 @@ import { message } from "ant-design-vue";
 import moment from "moment";
 import { showToast } from "vant";
 
-import { getSpaceApply, getSpaceDetail, getSpaceShould } from "@/request/space";
-import { exchangeDateTime, checkOverlap } from "@/utils";
+import {
+  getSpaceApply,
+  getSpaceDetail,
+  getSpaceShould,
+  getSpaceGroup,
+  fetchSpaceSubmit,
+} from "@/request/space";
+import { exchangeDateTime, checkOverlap, convertMinutesToHHMM } from "@/utils";
 import SpaceApplySwipe from "@/components/SpaceCom/SpaceApplySwipe.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import Calendar from "@/components/ActivityApplication/Calendar.vue";
 import Uploader from "@/components/Uploader.vue";
 import SliderCom from "@/components/SliderCom.vue";
 import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
+import ShowInfoToast from "@/components/ShowInfoToast.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -54,6 +61,8 @@ const state = reactive({
   addPeople: "",
   addPeopleList: [],
   isOpen: 0,
+  initFileList: [],
+  fileList: [],
 
   sliderShow: false,
   sliderVal: [],
@@ -73,6 +82,12 @@ const state = reactive({
   ruleInfo: { content: "" },
 
   submitData: {},
+
+  apptResult: {
+    show: false,
+    title: "预约成功~~",
+    type: "success",
+  },
 });
 
 watch(
@@ -146,7 +161,7 @@ const fetchGetSpaceApply = async () => {
     state.spaceApplyInfo = res?.data?.detail || {};
     state.calendarInfo.dateList = res?.data?.axis?.date || [];
     state.calendarInfo.list = res?.data?.axis?.list || [];
-    if (state.spaceApplyInfo?.type_id == 2) {
+    if ([2, 6]?.includes(Number(state.spaceApplyInfo?.type_id))) {
       state.dateIndex = state.calendarInfo.list[0];
     }
 
@@ -171,6 +186,10 @@ const fetchGetSpaceApply = async () => {
 
     state.argumentArray = res?.data?.argument || [];
     state.topImg = res?.data?.detail?.firstImg || "";
+
+    if (state.spaceApplyInfo.maxPerson > 1) {
+      state.spaceApplyInfo.maxPerson = state.spaceApplyInfo.maxPerson - 1;
+    }
   } catch (e) {
     console.log(e);
   }
@@ -258,8 +277,9 @@ const onChangeTime = (v, item, type, index) => {
   }
 };
 
-const fileUpload = (data, type) => {
-  console.log(data, type);
+const fileUpload = (data) => {
+  console.log(data);
+  state.fileList = data;
 };
 
 const onChangeDateAct = (date) => {
@@ -267,8 +287,34 @@ const onChangeDateAct = (date) => {
 };
 
 const addPeople = () => {
-  state.addPeopleList.push(state.addPeople);
-  state.addPeople = "";
+  if (state.addPeopleList?.find((e) => e?.id == state.addPeople)) {
+    message.warning(`已添加该成员`);
+    return false;
+  }
+  addGroupPeople();
+};
+
+const addGroupPeople = async (id) => {
+  try {
+    let params = {
+      begin_time: "2024-04-02 09:15",
+      member_id: state.addPeople,
+      finish_time: "2024-04-02 09:45",
+      area_id: 66,
+    };
+
+    const res = await getSpaceGroup(params);
+    if (res?.code != 0) {
+      showToast({ message: res?.message });
+      return false;
+    }
+
+    state.addPeople = "";
+    state.addPeopleList.push(res?.data);
+    message.success(res?.message);
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const removePeople = (index) => {
@@ -284,6 +330,8 @@ const onSubmit = (type) => {
       filterActivityMobile,
       isOpen,
     } = state;
+
+    let { date: sliderDate, info: dateInfo } = state.dateIndex;
     let params = {
       area_id: state.initQuerySpaceId,
       start_date: "",
@@ -295,7 +343,30 @@ const onSubmit = (type) => {
       team: "",
       mobile: filterActivityMobile || "",
       time: [],
+      file: [],
     };
+
+    // 单日期逻辑处理
+    if (sliderDate) {
+      params.start_date = sliderDate;
+      params.end_date = sliderDate;
+      params.time = [
+        {
+          start_time: convertMinutesToHHMM(state.sliderVal[0]),
+          end_time: convertMinutesToHHMM(state.sliderVal[1]),
+        },
+      ];
+    }
+
+    // 添加参与人员逻辑处理
+    let peopleList = state?.addPeopleList;
+    if (!(peopleList?.length + 1 >= dateInfo?.min_person)) {
+      message.warning(`至少有${dateInfo?.min_person - 1}位参与人员`);
+      return false;
+    } else if (peopleList?.length) {
+      let arr = peopleList.map((e) => e?.id);
+      params.team = arr?.join(",");
+    }
 
     // if (!state.selectDateInfo?.length) {
     //   showToast({ message: "请选择申请日期" });
@@ -335,7 +406,7 @@ const onSubmit = (type) => {
 
     state.submitData = params;
     if (type == "rule") {
-      // applyActivity(params);
+      applySpace(params);
     } else {
       // state.ruleInfo = { content: state.activityApplyInfo?.should };
       // state.ruleShow = true;
@@ -364,11 +435,55 @@ const getRuleInfo = async () => {
   }
 };
 
+const applySpace = async (data) => {
+  try {
+    state.ruleShow = false;
+
+    const res = await fetchSpaceSubmit(data);
+
+    state.apptResult = {
+      show: true,
+      title: res.message,
+      type: res?.code == 0 ? "success" : "error",
+      msg: (res?.code != 0 && res?.message) || "",
+
+      ...res.data,
+    };
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const showAreaName = () => {
   let { top_name, top_en_name, storey_name, storey_en_name, name, enname } =
     state.spaceApplyInfo;
 
   return `${top_name}-${storey_name}-${name}`;
+};
+
+const showPeopleName = () => {
+  let nameArr = state.addPeopleList?.map((e) => {
+    return e?.name;
+  });
+
+  return nameArr?.length ? nameArr.join(", ") : "";
+};
+
+const showApplyDate = () => {
+  let date = "";
+  if ([2, 6]?.includes(Number(state.spaceApplyInfo?.type_id))) {
+    date = state.dateIndex?.date;
+  } else if (state.selectDateInfo?.length) {
+    date =
+      state.selectDateInfo?.length == 2
+        ? `${exchangeDateTime(
+            state?.selectDateInfo[0],
+            2
+          )} ~ ${exchangeDateTime(state?.selectDateInfo[1], 2)}`
+        : `${exchangeDateTime(state?.selectDateInfo[0], 2)}`;
+  }
+
+  return date;
 };
 
 const bottomBtnDisabled = () => {
@@ -378,6 +493,12 @@ const bottomBtnDisabled = () => {
   }
 
   return submitErr;
+};
+
+const handleShow = (v) => {
+  if (!v && state.apptResult?.type == "success") {
+    // router.replace("/");
+  }
 };
 </script>
 <template>
@@ -542,7 +663,10 @@ const bottomBtnDisabled = () => {
         </div>
       </div>
       <div class="right">
-        <div class="right_top" v-if="state.spaceApplyInfo?.type_id == 5">
+        <div
+          class="right_top"
+          v-if="[5, 6]?.includes(Number(state.spaceApplyInfo?.type_id))"
+        >
           <div class="add_people_box">
             <div class="add_people_box_title">参与人员</div>
             <div class="add_people_box_input">
@@ -565,7 +689,7 @@ const bottomBtnDisabled = () => {
             <template v-for="(item, index) in state.addPeopleList" :key="index">
               <a-col :xs="12" :sm="12" :md="4" :lg="4" :xl="4" :xxl="4">
                 <div class="add_people_item">
-                  <span>{{ item }}</span>
+                  <span>{{ item?.name }}</span>
                   <img
                     style="cursor: pointer"
                     @click="removePeople(index)"
@@ -585,8 +709,14 @@ const bottomBtnDisabled = () => {
           </div>
 
           <div class="right_top_right_text">
-            <div v-if="state.addPeopleList?.length < 1">还可添加1 ~ 12人</div>
-            <div v-else>还可添加{{ 12 - state.addPeopleList?.length }}人</div>
+            <div v-if="state.addPeopleList?.length < 1">
+              还可添加{{ state.spaceApplyInfo?.maxPerson }}人
+            </div>
+            <div v-else>
+              还可添加{{
+                state.spaceApplyInfo?.maxPerson - state.addPeopleList?.length
+              }}人
+            </div>
           </div>
         </div>
         <div class="right_bottom">
@@ -653,13 +783,14 @@ const bottomBtnDisabled = () => {
             <Uploader
               class="margin_left_10"
               filePath="seminar"
-              :maxCount="2"
-              @onFileUpload="(v) => fileUpload(v, 'approve')"
+              :maxCount="1"
+              @onFileUpload="(v) => fileUpload(v)"
               accept="image/jpeg,image/png,image/bmp"
               list-type="picture-card"
               showUploadList
+              :initFileList="state.initFileList"
             >
-              <img src="@/assets/upload_file_square.svg" alt="" />
+              <img src="@/assets/upload_file_plus.svg" alt="" />
             </Uploader>
           </van-row>
 
@@ -714,26 +845,54 @@ const bottomBtnDisabled = () => {
           <div class="showCon">
             <div class="item">
               <p>
-                空间：<span>{{ showAreaName() }}</span>
+                空间：<span>{{ showAreaName() || "" }}</span>
               </p>
               <p>
-                时间：<span>{{
-                  state.selectDateInfo?.length == 2
-                    ? `${exchangeDateTime(
-                        state?.selectDateInfo[0],
-                        2
-                      )} ~ ${exchangeDateTime(state?.selectDateInfo[1], 2)}`
-                    : `${exchangeDateTime(state?.selectDateInfo[0], 2)}`
-                }}</span>
+                时间：<span>{{ showApplyDate() || "" }}</span>
               </p>
             </div>
             <div class="item">
-              <p>成员：<span> VIP079</span></p>
+              <p>
+                成员：<span> {{ showPeopleName() || "" }}</span>
+              </p>
             </div>
           </div>
         </div>
       </template>
     </SpaceRuleConfirm>
+
+    <ShowInfoToast
+      v-if="state.apptResult.show"
+      :isShow="state.apptResult.show"
+      :type="state.apptResult.type"
+      :title="state.apptResult.title"
+      @handleShow="handleShow"
+    >
+      <template v-slot:content>
+        <div class="toastItem">
+          <span>申请人：</span>
+          <span>{{ state.apptResult?.name || "" }}</span>
+        </div>
+        <div class="toastItem">
+          <span>预约时间：</span>
+          <span>
+            <span>{{ showApplyDate() || "" }}</span>
+          </span>
+        </div>
+        <div class="toastItem">
+          <span>预约地点：</span>
+          <span>{{ showAreaName() || "" }}</span>
+        </div>
+        <div class="toastItem">
+          <span>参与人员：</span>
+          <span>{{ showPeopleName() || "" }}</span>
+        </div>
+        <div v-if="state.apptResult?.msg" class="toastItem">
+          <span>预约提醒：</span>
+          <span>{{ state.apptResult?.msg }}</span>
+        </div>
+      </template>
+    </ShowInfoToast>
   </div>
 </template>
 <style lang="less" scoped>
@@ -991,6 +1150,18 @@ const bottomBtnDisabled = () => {
           right: 30px;
         }
       }
+    }
+  }
+}
+.toastItem {
+  display: flex;
+  width: 100%;
+  font-size: 14px;
+  color: #616161;
+  margin-bottom: 10px;
+  span {
+    &:nth-child(2) {
+      flex: 1;
     }
   }
 }

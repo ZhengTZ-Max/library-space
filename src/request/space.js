@@ -73,3 +73,29 @@ export function getSpaceShould(data) {
   });
 }
 
+// 空间预约 - 添加成员
+export function getSpaceGroup(data) {
+  return service({
+    url: "/v4/seminar/group",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+
+// 空间预约 - 空间预约提交
+export function fetchSpaceSubmit(data) {
+  return service({
+    url: "/v4/seminar/submit",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+
+
+
