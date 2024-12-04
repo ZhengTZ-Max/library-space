@@ -4,8 +4,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { message } from "ant-design-vue";
 import moment from "moment";
-import { showToast } from "vant";
-
+import { showToast, showImagePreview } from "vant";
 import {
   getSpaceApply,
   getSpaceDetail,
@@ -14,6 +13,7 @@ import {
   fetchSpaceSubmit,
 } from "@/request/space";
 import { exchangeDateTime, checkOverlap, convertMinutesToHHMM } from "@/utils";
+
 import SpaceApplySwipe from "@/components/SpaceCom/SpaceApplySwipe.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import Calendar from "@/components/ActivityApplication/Calendar.vue";
@@ -35,6 +35,7 @@ const state = reactive({
   spaceDetailInfoShow: false,
 
   calendarInfo: {
+    timeList: [],
     dateList: [],
     list: [],
     startDate: "",
@@ -57,6 +58,7 @@ const state = reactive({
 
   bottomBtnDisabled: true,
 
+  chooseRadioTime: "",
   chooseTimeList: [{ begin_time: "", end_time: "" }],
   addPeople: "",
   addPeopleList: [],
@@ -166,9 +168,13 @@ const fetchGetSpaceApply = async () => {
     }
 
     if (state.calendarInfo.list.length) {
-      state.calendarInfo.startDate = state.calendarInfo.list[0].date;
+      state.calendarInfo.startDate = state.calendarInfo.dateList[0];
       state.calendarInfo.endDate =
-        state.calendarInfo.list[state.calendarInfo.list.length - 1].date;
+        state.calendarInfo.list[state.calendarInfo.dateList.length - 1];
+    }
+
+    if (state?.spaceApplyInfo?.earlierPeriods == 3) {
+      state.calendarInfo.timeList = res?.data?.axis?.category || [];
     }
 
     // // 模拟数据
@@ -185,7 +191,7 @@ const fetchGetSpaceApply = async () => {
     console.log(state.calendarInfo);
 
     state.argumentArray = res?.data?.argument || [];
-    state.topImg = res?.data?.detail?.firstImg || "";
+    state.topImg = res?.data?.detail?.firstimg || "";
 
     if (state.spaceApplyInfo.maxPerson > 1) {
       state.spaceApplyInfo.maxPerson = state.spaceApplyInfo.maxPerson - 1;
@@ -215,8 +221,13 @@ const onChangeSlide = (row) => {
   console.log(row);
 };
 
-const onViewFloor = (row) => {
-  console.log(row);
+const onViewFloor = () => {
+  state.spaceApplyInfo?.image_url &&
+    showImagePreview({
+      images: [state.spaceApplyInfo?.image_url],
+      closeable: true,
+      closeIconPosition: "top-left",
+    });
 };
 
 const filterArguments = (key) => {
@@ -332,6 +343,8 @@ const onSubmit = (type) => {
     } = state;
 
     let { date: sliderDate, info: dateInfo } = state.dateIndex;
+
+    let { type_id, earlierPeriods, minPerson } = state.spaceApplyInfo;
     let params = {
       area_id: state.initQuerySpaceId,
       start_date: "",
@@ -358,10 +371,27 @@ const onSubmit = (type) => {
       ];
     }
 
+    let min_person = "";
+    if (type_id == 5 && earlierPeriods == 3) {
+      min_person = minPerson;
+      if (!state.selectDateInfo?.length) {
+        message.warning(`请选择预约日期`);
+        return false;
+      } else if (!state.chooseRadioTime) {
+        message.warning(`请选择预约时间`);
+        return false;
+      }
+      params.cate_id = state.chooseRadioTime;
+      params.start_date = exchangeDateTime(state.selectDateInfo[0], 2);
+      params.end_date = exchangeDateTime(state.selectDateInfo[1], 2);
+    } else {
+      min_person = dateInfo?.min_person;
+    }
+
     // 添加参与人员逻辑处理
     let peopleList = state?.addPeopleList;
-    if (!(peopleList?.length + 1 >= dateInfo?.min_person)) {
-      message.warning(`至少有${dateInfo?.min_person - 1}位参与人员`);
+    if (!(peopleList?.length + 1 >= min_person)) {
+      message.warning(`至少有${min_person - 1}位参与人员`);
       return false;
     } else if (peopleList?.length) {
       let arr = peopleList.map((e) => e?.id);
@@ -474,13 +504,17 @@ const showApplyDate = () => {
   if ([2, 6]?.includes(Number(state.spaceApplyInfo?.type_id))) {
     date = state.dateIndex?.date;
   } else if (state.selectDateInfo?.length) {
-    date =
-      state.selectDateInfo?.length == 2
-        ? `${exchangeDateTime(
-            state?.selectDateInfo[0],
-            2
-          )} ~ ${exchangeDateTime(state?.selectDateInfo[1], 2)}`
-        : `${exchangeDateTime(state?.selectDateInfo[0], 2)}`;
+    if (state.selectDateInfo[0] == state.selectDateInfo[1]) {
+      date = exchangeDateTime(state?.selectDateInfo[0], 2);
+    } else {
+      date =
+        state.selectDateInfo?.length == 2
+          ? `${exchangeDateTime(
+              state?.selectDateInfo[0],
+              2
+            )} ~ ${exchangeDateTime(state?.selectDateInfo[1], 2)}`
+          : `${exchangeDateTime(state?.selectDateInfo[0], 2)}`;
+    }
   }
 
   return date;
@@ -497,7 +531,9 @@ const bottomBtnDisabled = () => {
 
 const handleShow = (v) => {
   if (!v && state.apptResult?.type == "success") {
-    // router.replace("/");
+    router.replace("/");
+  } else {
+    state.apptResult.show = false;
   }
 };
 </script>
@@ -525,7 +561,8 @@ const handleShow = (v) => {
     <div class="content">
       <div class="left">
         <div class="left_top">
-          <div class="left_top_left">
+          <div v-if="state.topImg" class="left_top_left">
+            <span class="tag">{{ state?.spaceApplyInfo?.top_name || "" }}</span>
             <img style="width: 90%; height: 100%" :src="state.topImg" alt="" />
           </div>
           <div class="left_top_right">
@@ -550,13 +587,20 @@ const handleShow = (v) => {
                 <div class="time_select_box_text_left">
                   点击您想要选择的日期<span>（可选择多天）</span>
                 </div>
-                <span class="can_book">有预约:</span>
               </div>
               <div class="calendar_box">
                 <Calendar
                   :calendarInfo="state.calendarInfo"
                   @onSelected="onSelected"
                 />
+              </div>
+              <div style="margin-top: 8px" class="timeStatus">
+                <span class="can_book">有预约:</span>
+                <span class="allCir"></span>
+                <span style="margin-right: 30px">全天</span>
+                <span class="allCir topCir"></span>
+                <span class="allCir botCir"></span>
+                <span>半天</span>
               </div>
             </van-col>
             <van-col
@@ -572,9 +616,8 @@ const handleShow = (v) => {
               >
                 已选时间：
                 <span v-if="state.selectDateInfo?.length"
-                  >{{ exchangeDateTime(state.selectDateInfo[0], 2) }} ~
-                  {{ exchangeDateTime(state.selectDateInfo[1], 2) }}</span
-                >
+                  >{{ showApplyDate() }}
+                </span>
                 <span v-else>-</span>
               </div>
               <template v-if="state.selectDateInfo?.length">
@@ -627,6 +670,44 @@ const handleShow = (v) => {
                   />
                 </div>
               </template>
+            </van-col>
+            <van-col
+              v-if="
+                state.spaceApplyInfo?.earlierPeriods == 3 &&
+                state.calendarInfo.timeList?.length
+              "
+              span="10"
+              offset="2"
+            >
+              <div
+                class="selected_time_text"
+                :style="{
+                  marginTop: '30%',
+                  textAlign: 'left',
+                }"
+              >
+                已选时间：
+                <span v-if="state.selectDateInfo?.length">{{
+                  showApplyDate()
+                }}</span>
+                <span v-else>-</span>
+              </div>
+              <a-radio-group
+                v-if="state.selectDateInfo?.length"
+                v-model:value="state.chooseRadioTime"
+              >
+                <a-radio
+                  v-for="item in state.calendarInfo.timeList"
+                  :value="item?.id"
+                  :style="{
+                    display: 'flex',
+                    height: '40px',
+                    lineHeight: '40px',
+                  }"
+                  >{{ item?.name }}
+                  {{ `(${item?.start_time} ~ ${item?.end_time})` }}</a-radio
+                >
+              </a-radio-group>
             </van-col>
           </van-row>
 
@@ -722,24 +803,20 @@ const handleShow = (v) => {
         <div class="right_bottom">
           <div class="right_bottom_title">完善信息</div>
           <!-- 申请主题 -->
-          <van-row class="right_bottom_item" align="center">
-            <van-col span="2" class="right_bottom_item_title">
-              申请主题:
-            </van-col>
-            <van-col span="22" class="padding_left_10">
+          <a-flex class="right_bottom_item" gap="middle" align="center">
+            <div>申请主题:</div>
+            <div style="flex: 1">
               <a-input
                 placeholder="填写后将在活动报名页面展示"
                 v-model:value="state.filterActivityTheme"
                 size="middle"
               />
-            </van-col>
-          </van-row>
+            </div>
+          </a-flex>
           <!-- 申请内容 -->
-          <van-row class="right_bottom_item">
-            <van-col span="2" class="right_bottom_item_title">
-              申请内容:
-            </van-col>
-            <van-col span="22" class="padding_left_10">
+          <a-flex class="right_bottom_item" gap="middle" align="start">
+            <div>申请内容:</div>
+            <div style="flex: 1">
               <a-textarea
                 placeholder="填写后将在活动报名页面展示"
                 v-model:value="state.filterActivityContent"
@@ -748,51 +825,53 @@ const handleShow = (v) => {
                 :autoSize="{ minRows: 3, maxRows: 5 }"
                 :maxlength="200"
               />
-            </van-col>
-          </van-row>
+            </div>
+          </a-flex>
           <!-- 联系电话 -->
-          <van-row class="right_bottom_item">
-            <van-col span="2" class="right_bottom_item_title">
-              联系电话:
-            </van-col>
-            <van-col span="22" class="padding_left_10">
+          <a-flex class="right_bottom_item" gap="middle" align="center">
+            <div>联系电话:</div>
+            <div style="flex: 1">
               <a-input
                 placeholder="请输入联系电话"
                 v-model:value="state.filterActivityMobile"
                 size="middle"
               />
-            </van-col>
-          </van-row>
-
+            </div>
+          </a-flex>
           <!-- 是否公开 -->
-          <van-row class="right_bottom_item">
-            <van-col span="2" class="right_bottom_item_title">
-              是否公开:
-            </van-col>
-            <van-col span="22" class="padding_left_10">
+          <a-flex class="right_bottom_item" gap="middle" align="center">
+            <div>是否公开:</div>
+            <div style="flex: 1">
               <a-radio-group v-model:value="state.isOpen">
                 <a-radio :value="0" :key="0">是</a-radio>
                 <a-radio :value="1" :key="1">否</a-radio>
               </a-radio-group>
-            </van-col>
-          </van-row>
+            </div>
+          </a-flex>
 
           <!-- 附件 -->
-          <van-row class="upload_item">
-            <van-col span="2" class="upload_item_title"> 上传附件: </van-col>
-            <Uploader
-              class="margin_left_10"
-              filePath="seminar"
-              :maxCount="1"
-              @onFileUpload="(v) => fileUpload(v)"
-              accept="image/jpeg,image/png,image/bmp"
-              list-type="picture-card"
-              showUploadList
-              :initFileList="state.initFileList"
-            >
-              <img src="@/assets/upload_file_plus.svg" alt="" />
-            </Uploader>
-          </van-row>
+          <a-flex
+            v-if="state.spaceApplyInfo?.isMouldShow == 1"
+            class="right_bottom_item"
+            gap="middle"
+            align="start"
+          >
+            <div>上传附件:</div>
+            <div style="flex: 1">
+              <Uploader
+                class="margin_left_10"
+                filePath="seminar"
+                :maxCount="1"
+                @onFileUpload="(v) => fileUpload(v)"
+                accept="image/jpeg,image/png,image/bmp"
+                list-type="picture-card"
+                showUploadList
+                :initFileList="state.initFileList"
+              >
+                <img src="@/assets/upload_file_plus.svg" alt="" />
+              </Uploader>
+            </div>
+          </a-flex>
 
           <div class="bottom_btn">
             <van-button
@@ -810,9 +889,9 @@ const handleShow = (v) => {
 
     <a-modal
       width="40%"
-      v-model:open="state.activityDetailInfoShow"
+      v-model:open="state.spaceDetailInfoShow"
       title="空间详情"
-      @ok="state.activityDetailInfoShow = false"
+      @ok="state.spaceDetailInfoShow = false"
       destroyOnClose
       okText="确认"
       cancelText="关闭"
@@ -828,8 +907,8 @@ const handleShow = (v) => {
       centered
     >
       <LibraryInfo
-        v-if="state.activityDetailInfo?.id"
-        :data="state.activityDetailInfo"
+        v-if="state.spaceDetailInfo?.id"
+        :data="state.spaceDetailInfo"
       />
     </a-modal>
 
@@ -851,7 +930,7 @@ const handleShow = (v) => {
                 时间：<span>{{ showApplyDate() || "" }}</span>
               </p>
             </div>
-            <div class="item">
+            <div v-if="showPeopleName()" class="item">
               <p>
                 成员：<span> {{ showPeopleName() || "" }}</span>
               </p>
@@ -883,7 +962,7 @@ const handleShow = (v) => {
           <span>预约地点：</span>
           <span>{{ showAreaName() || "" }}</span>
         </div>
-        <div class="toastItem">
+        <div v-if="showPeopleName()" class="toastItem">
           <span>参与人员：</span>
           <span>{{ showPeopleName() || "" }}</span>
         </div>
@@ -939,6 +1018,18 @@ const handleShow = (v) => {
         display: flex;
         .left_top_left {
           flex: 1;
+          position: relative;
+          img {
+            border-radius: 6px;
+          }
+          .tag {
+            position: absolute;
+            padding: 4px 12px;
+            background-color: var(--primary-color);
+            font-size: 14px;
+            color: #ffffff;
+            border-radius: 6px 0 6px 0;
+          }
         }
         .left_top_right {
           width: 350px;
@@ -975,21 +1066,6 @@ const handleShow = (v) => {
             }
             span {
               position: relative;
-              &.can_book {
-                font-size: 14px;
-                color: rgba(97, 97, 97, 1);
-                padding-right: 18px;
-                &::after {
-                  content: "";
-                  position: absolute;
-                  top: calc(50% - 7px);
-                  right: 0;
-                  width: 14px;
-                  height: 14px;
-                  border-radius: 50%;
-                  background-color: rgba(245, 181, 68, 1);
-                }
-              }
             }
           }
           .calendar_box {
@@ -1027,6 +1103,46 @@ const handleShow = (v) => {
               width: 150px;
               border: 1px solid #cecfd5;
               border-radius: 18px;
+            }
+          }
+        }
+        .timeStatus {
+          font-size: 14px;
+          color: #616161;
+          display: flex;
+          align-items: center;
+          .allCir {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #f5b544;
+            border: 2px solid #f5b544;
+            margin: 0 4px;
+            overflow: hidden;
+            &.topCir {
+              position: relative;
+              background-color: #f5b544;
+              &::after {
+                position: absolute;
+                content: "";
+                width: 100%;
+                height: 100%;
+                background-color: #fff;
+                transform: translateY(50%);
+              }
+            }
+
+            &.botCir {
+              position: relative;
+              background-color: #f5b544;
+              &::after {
+                position: absolute;
+                content: "";
+                width: 100%;
+                height: 100%;
+                background-color: #fff;
+                transform: translateY(-50%);
+              }
             }
           }
         }

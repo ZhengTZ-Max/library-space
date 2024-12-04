@@ -9,6 +9,7 @@ import { t } from "./utils";
 import PlaceImg from "@/assets/login/headerBg.png";
 
 import "ant-design-vue/dist/reset.css";
+import '@vant/touch-emulator';
 import "./style.css";
 import "./common.less";
 
