@@ -574,3 +574,9 @@ export const getDates = (startDate, endDate) => {
 
   return dates;
 };
+
+export const getUserInfo = () => {
+  let userInfo = sessionStorage?.getItem("UserInfo");
+  if (userInfo) userInfo = JSON.parse(userInfo);
+  return userInfo || {};
+};

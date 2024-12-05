@@ -39,6 +39,7 @@ const store = createStore({
     },
     setLoginInfo(state, info) {
       state.loginInfo = info;
+      sessionStorage.setItem("UserInfo",JSON.stringify(info))
     },
     setApiConfig(state, info) {
       state.apiConfig = info;

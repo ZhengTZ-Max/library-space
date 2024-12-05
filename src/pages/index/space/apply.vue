@@ -17,6 +17,7 @@ import {
   checkOverlap,
   convertMinutesToHHMM,
   getDates,
+  getUserInfo,
 } from "@/utils";
 
 import SpaceApplySwipe from "@/components/SpaceCom/SpaceApplySwipe.vue";
@@ -31,6 +32,8 @@ const router = useRouter();
 const route = useRoute();
 
 const state = reactive({
+  UserInfo: getUserInfo(),
+
   initQuerySpaceId: route?.query?.id || "",
 
   argumentArray: [],
@@ -377,7 +380,7 @@ const onSubmit = (type) => {
     }
 
     let min_person = "";
-    if (type_id == 5 && earlierPeriods == 3) {
+    if (type_id == 5) {
       min_person = minPerson;
       if (!state.selectDateInfo?.length) {
         message.warning(`请选择预约日期`);
@@ -386,7 +389,9 @@ const onSubmit = (type) => {
         message.warning(`请选择预约时间`);
         return false;
       }
-      params.cate_id = state.chooseRadioTime;
+      if (earlierPeriods == 3) {
+        params.cate_id = state.chooseRadioTime;
+      }
       params.start_date = exchangeDateTime(state.selectDateInfo[0], 2);
       params.end_date = exchangeDateTime(state.selectDateInfo[1], 2);
     } else {
@@ -1010,7 +1015,7 @@ const getDateStatus = () => {
       <template v-slot:content>
         <div class="toastItem">
           <span>申请人：</span>
-          <span>{{ state.apptResult?.name || "" }}</span>
+          <span>{{ state?.UserInfo?.name || "" }}</span>
         </div>
         <div class="toastItem">
           <span>预约时间：</span>
@@ -1336,6 +1341,10 @@ const getDateStatus = () => {
   color: #616161;
   margin-bottom: 10px;
   span {
+    &:nth-child(1) {
+      min-width: 75px;
+      text-align: right;
+    }
     &:nth-child(2) {
       flex: 1;
     }

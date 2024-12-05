@@ -925,10 +925,12 @@ const onViewMap = () => {
   font-size: 14px;
   color: #616161;
   margin-bottom: 10px;
-  span {
-    &:nth-child(2) {
-      flex: 1;
-    }
+  &:nth-child(1) {
+    min-width: 75px;
+    text-align: right;
+  }
+  &:nth-child(2) {
+    flex: 1;
   }
 }
 .captureArea {
