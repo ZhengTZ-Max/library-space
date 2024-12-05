@@ -558,3 +558,19 @@ export const convertHHMMToMinutes = (time) => {
   const [hours, minutes] = time.split(":").map(Number);
   return hours * 60 + minutes;
 };
+
+// 获取开始时间 - 结束时间 区间范围数组[xxx,xxx,xxx]
+export const getDates = (startDate, endDate) => {
+  const dates = [];
+  const start = moment(startDate);
+  const end = moment(endDate);
+
+  // 处理日期范围
+  let currentDate = start.clone();
+  while (currentDate <= end) {
+    dates.push(currentDate.format("YYYY-MM-DD"));
+    currentDate.add(1, "days");
+  }
+
+  return dates;
+};

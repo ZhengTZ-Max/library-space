@@ -12,7 +12,12 @@ import {
   getSpaceGroup,
   fetchSpaceSubmit,
 } from "@/request/space";
-import { exchangeDateTime, checkOverlap, convertMinutesToHHMM } from "@/utils";
+import {
+  exchangeDateTime,
+  checkOverlap,
+  convertMinutesToHHMM,
+  getDates,
+} from "@/utils";
 
 import SpaceApplySwipe from "@/components/SpaceCom/SpaceApplySwipe.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
@@ -35,12 +40,12 @@ const state = reactive({
   spaceDetailInfoShow: false,
 
   calendarInfo: {
-    timeList: [],
     dateList: [],
     list: [],
     startDate: "",
     endDate: "",
   },
+  axisTimeList: [],
   dateIndex: "",
   selectDateInfo: [],
   selectSlideShow: false,
@@ -167,14 +172,16 @@ const fetchGetSpaceApply = async () => {
       state.dateIndex = state.calendarInfo.list[0];
     }
 
+    // 获取日历 开始时间 结束时间
     if (state.calendarInfo.list.length) {
       state.calendarInfo.startDate = state.calendarInfo.dateList[0];
       state.calendarInfo.endDate =
-        state.calendarInfo.list[state.calendarInfo.dateList.length - 1];
+        state.calendarInfo.dateList[state.calendarInfo.dateList.length - 1];
     }
 
+    // 大型空间 半日预约
     if (state?.spaceApplyInfo?.earlierPeriods == 3) {
-      state.calendarInfo.timeList = res?.data?.axis?.category || [];
+      state.axisTimeList = res?.data?.axis?.category || [];
     }
 
     // // 模拟数据
@@ -187,8 +194,6 @@ const fetchGetSpaceApply = async () => {
     //   begin_time: 480,
     //   end_time: 540,
     // });
-
-    console.log(state.calendarInfo);
 
     state.argumentArray = res?.data?.argument || [];
     state.topImg = res?.data?.detail?.firstimg || "";
@@ -235,10 +240,10 @@ const filterArguments = (key) => {
 };
 
 const onSelected = (date) => {
-  state.selectDateInfo = date;
+  getDateStatus();
 
-  if (state.selectDateInfo.length == 1) {
-    state.selectDateInfo = [date[0], date[0]];
+  if (state.axisTimeList?.length) {
+    state.chooseRadioTime = "";
   }
 };
 
@@ -536,6 +541,58 @@ const handleShow = (v) => {
     state.apptResult.show = false;
   }
 };
+
+const getDateStatus = () => {
+  let [startDate, endDate] = state.selectDateInfo;
+
+  let dates = getDates(startDate, endDate);
+  let { list } = state?.calendarInfo;
+
+  let statusArr = [];
+  let newTimeList = [...state.axisTimeList];
+  if (state?.axisTimeList?.length) {
+    if (dates?.length) {
+      list.map((e) => {
+        if (dates?.includes(e?.date)) {
+          if (e?.status != 1) {
+            statusArr.push(e?.status);
+          }
+        }
+      });
+    }
+
+    if (
+      statusArr?.find((e) => e == "-1") ||
+      (statusArr?.find((e) => e == "-2") && statusArr?.find((e) => e == "-3"))
+    ) {
+      message.warning("日期范围已被预约，请重新选择日期。");
+      setTimeout(() => {
+        state.selectDateInfo = [startDate, startDate];
+      }, 500);
+
+      return false;
+    } else {
+      newTimeList = newTimeList?.map((e) => {
+        if (
+          statusArr?.find((e) => e == "-2") &&
+          [1, 3]?.includes(Number(e?.id))
+        ) {
+          e["status"] = "disabled";
+        } else if (
+          statusArr?.find((e) => e == "-3") &&
+          [2, 3]?.includes(Number(e?.id))
+        ) {
+          e["status"] = "disabled";
+        } else {
+          e["status"] = "";
+        }
+        return e;
+      });
+    }
+    state.axisTimeList = newTimeList;
+  }
+  console.log("newTimeList", newTimeList, state.selectDateInfo);
+};
 </script>
 <template>
   <div class="apply">
@@ -590,7 +647,9 @@ const handleShow = (v) => {
               </div>
               <div class="calendar_box">
                 <Calendar
+                  v-model:selectedDate="state.selectDateInfo"
                   :calendarInfo="state.calendarInfo"
+                  :axisTimeList="state.axisTimeList"
                   @onSelected="onSelected"
                 />
               </div>
@@ -674,7 +733,7 @@ const handleShow = (v) => {
             <van-col
               v-if="
                 state.spaceApplyInfo?.earlierPeriods == 3 &&
-                state.calendarInfo.timeList?.length
+                state.axisTimeList?.length
               "
               span="10"
               offset="2"
@@ -697,8 +756,9 @@ const handleShow = (v) => {
                 v-model:value="state.chooseRadioTime"
               >
                 <a-radio
-                  v-for="item in state.calendarInfo.timeList"
+                  v-for="item in state.axisTimeList"
                   :value="item?.id"
+                  :disabled="item?.status == 'disabled'"
                   :style="{
                     display: 'flex',
                     height: '40px',

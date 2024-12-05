@@ -4,13 +4,21 @@ import { useStore } from "vuex";
 import { exchangeDateTime, getAllDate } from "@/utils";
 import { showToast } from "vant";
 const store = useStore();
-const emits = defineEmits(["onSelected"]);
+const emits = defineEmits(["onSelected", "update:selectedDate"]);
 const systemMode = computed(() => store.state.systemMode);
 
 const props = defineProps({
   calendarInfo: {
     type: Object,
     default: {},
+  },
+  selectedDate: {
+    type: Array,
+    default: [],
+  },
+  axisTimeList: {
+    type: Array,
+    default: [],
   },
 });
 
@@ -25,8 +33,19 @@ const state = reactive({
 });
 
 onMounted(() => {
-  state.selectedDate = [];
+  state.selectedDate = props?.selectedDate || [];
 });
+
+watch(
+  () => props.selectedDate,
+  (newVal) => {
+    state.selectedDate = newVal;
+  },
+  {
+    immediate: true,
+    deep: true,
+  }
+);
 
 watch(
   () => props.calendarInfo,
@@ -51,8 +70,8 @@ watch(
 
 const onSelect = (date) => {
   state.selectedDate = date;
+  emits("update:selectedDate", date);
   console.log(date);
-  //   showToast("预约~");
 };
 
 const checkSelectDate = () => {
@@ -97,13 +116,13 @@ const formatter = (day) => {
       day.className = `day-all`;
     }
 
-    // if (
-    //   (state.selectedDate?.length == 1 &&
-    //     date == exchangeDateTime(state.selectedDate[0], 2)) ||
-    //   state.selectedDate?.length == 0
-    // ) {
-    //   day.className += ` day-afterN`;
-    // }
+    if (
+      (state.selectedDate?.length == 1 &&
+        date == exchangeDateTime(state.selectedDate[0], 2)) ||
+      state.selectedDate?.length == 0
+    ) {
+      day.className += ` day-afterN`;
+    }
 
     if (
       date < exchangeDateTime(state.minDate, 2) ||
@@ -112,8 +131,8 @@ const formatter = (day) => {
       day.className = `day-none`;
       day.type = `disabled`;
     }
-    console.log("findDate", findDate);
-    if (props?.calendarInfo?.timeList?.length) {
+
+    if (props?.axisTimeList?.length) {
       // 下午被预约
       if (findDate?.status == -3) {
         day.className = `day-bot`;
@@ -313,7 +332,7 @@ const formatter = (day) => {
   }
 }
 :deep(.day-top) {
-  color: #333;
+  color: #333 !important;
   .day-item();
   &::before {
     background-color: #fff !important;
