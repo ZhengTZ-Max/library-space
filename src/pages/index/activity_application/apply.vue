@@ -503,7 +503,11 @@ const chooseTimeIsInRange = (value, item, type, index) => {
   // 先判断是否在已占用的时间段内
   const isInRange = state.rangeTimeCantSelectTime.some((range) => {
     const { begin_time, end_time } = range;
-    return value > begin_time && value < end_time;
+    if (type == "start") {
+      return value >= begin_time && value < end_time;
+    } else {
+      return value > begin_time && value <= end_time;
+    }
   });
   if (isInRange) {
     message.warning("该时间段已被占用");
@@ -531,7 +535,11 @@ const chooseTimeIsInRange = (value, item, type, index) => {
 
       let begin = convertHHMMToMinutes(begin_time);
       let end = convertHHMMToMinutes(end_time);
-      return value > begin && value < end;
+      if (type == "start") {
+        return value >= begin && value < end;
+      } else {
+        return value > begin && value <= end;
+      }
     }
   );
   if (isInCurrentChooseTimeRange) {
@@ -774,11 +782,9 @@ const handleShow = (v) => {
         <div class="right_top">
           <div class="right_top_title">申请信息</div>
           <!-- 活动类型 -->
-          <van-row class="right_top_item">
-            <van-col span="2" class="right_top_item_title">
-              <span class="required">*</span>活动类型:
-            </van-col>
-            <van-col span="22">
+          <a-flex class="right_top_item" gap="middle" align="center">
+            <div><span class="required">*</span>活动类型:</div>
+            <div style="flex: 1">
               <a-radio-group v-model:value="state.filterActivityTypeId">
                 <a-radio
                   v-for="item in state.activityApplyInfo?.categorys"
@@ -787,31 +793,34 @@ const handleShow = (v) => {
                   >{{ item?.name }}</a-radio
                 >
               </a-radio-group>
-            </van-col>
-          </van-row>
+            </div>
+          </a-flex>
           <!-- 申请主题 -->
-          <van-row
+          <a-flex
             class="right_top_item"
+            gap="middle"
             align="center"
             v-if="filterArguments('title')"
           >
-            <van-col span="2" class="right_top_item_title"
-              ><span class="required">*</span>申请主题:
-            </van-col>
-            <van-col span="22">
+            <div><span class="required">*</span>申请主题:</div>
+            <div style="flex: 1">
               <a-input
                 placeholder="填写后将在活动报名页面展示"
                 v-model:value="state.filterActivityTheme"
                 size="middle"
               />
-            </van-col>
-          </van-row>
+            </div>
+          </a-flex>
+
           <!-- 申请内容 -->
-          <van-row class="right_top_item" v-if="filterArguments('content')">
-            <van-col span="2" class="right_top_item_title"
-              ><span class="required">*</span>申请内容:
-            </van-col>
-            <van-col span="22">
+          <a-flex
+            class="right_top_item"
+            gap="middle"
+            align="top"
+            v-if="filterArguments('content')"
+          >
+            <div><span class="required">*</span>申请内容:</div>
+            <div style="flex: 1">
               <a-textarea
                 placeholder="填写后将在活动报名页面展示"
                 v-model:value="state.filterActivityContent"
@@ -820,41 +829,46 @@ const handleShow = (v) => {
                 :autoSize="{ minRows: 3, maxRows: 5 }"
                 :maxlength="200"
               />
-            </van-col>
-          </van-row>
+            </div>
+          </a-flex>
 
-          <van-row class="right_top_item">
-            <!-- 最多人数 -->
-            <van-col span="10" v-if="filterArguments('max')">
-              <van-row align="center">
-                <van-col span="5" class="right_top_item_title">
-                  <span class="required">*</span>最多人数:
-                </van-col>
-                <van-col span="19">
+          <a-flex gap="middle" align="center">
+            <div>
+              <a-flex
+                class="right_top_item"
+                gap="middle"
+                align="top"
+                v-if="filterArguments('max')"
+              >
+                <div><span class="required">*</span>最多人数:</div>
+                <div style="flex: 1">
                   <a-input
                     placeholder="请输入最多人数"
                     v-model:value="state.filterActivityMaxPeople"
                     size="middle"
                   />
-                </van-col>
-              </van-row>
-            </van-col>
-            <!-- 联系电话 -->
-            <van-col span="12" offset="2" v-if="filterArguments('mobile')">
-              <van-row align="center">
-                <van-col span="4" class="right_top_item_title">
-                  <span class="required">*</span>联系电话:
-                </van-col>
-                <van-col span="20">
+                </div>
+              </a-flex>
+            </div>
+            <div>
+              <a-flex
+                class="right_top_item"
+                gap="middle"
+                align="top"
+                v-if="filterArguments('mobile')"
+              >
+                <div><span class="required">*</span>联系电话:</div>
+                <div style="flex: 1">
                   <a-input
                     placeholder="请输入联系电话"
                     v-model:value="state.filterActivityMobile"
                     size="middle"
                   />
-                </van-col>
-              </van-row>
-            </van-col>
-          </van-row>
+                </div>
+              </a-flex>
+            </div>
+          </a-flex>
+
         </div>
         <div class="right_bottom">
           <div class="right_bottom_title">上传活动资料</div>

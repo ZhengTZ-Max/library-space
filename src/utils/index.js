@@ -554,6 +554,7 @@ export const convertMinutesToHHMM = (minutes, type) => {
   // 格式化为 HH:MM 格式，确保小时和分钟都是两位数
 };
 
+// 将HH:MM格式的时间转换为当天的第几分钟  比如1:15 转换为 60*1+15=75
 export const convertHHMMToMinutes = (time) => {
   const [hours, minutes] = time.split(":").map(Number);
   return hours * 60 + minutes;

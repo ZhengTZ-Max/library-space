@@ -18,6 +18,7 @@ import {
   convertMinutesToHHMM,
   getDates,
   getUserInfo,
+  convertHHMMToMinutes,
 } from "@/utils";
 
 import SpaceApplySwipe from "@/components/SpaceCom/SpaceApplySwipe.vue";
@@ -90,6 +91,12 @@ const state = reactive({
 
   ruleShow: false,
   ruleInfo: { content: "" },
+
+  rangeTimeCantSelectTime: [],
+  CalendarMin_time: 0,
+  CalendarMax_time: 0,
+  CalendarStartTime: "",
+  CalendarEndTime: "",
 
   submitData: {},
 
@@ -199,7 +206,7 @@ const fetchGetSpaceApply = async () => {
     // });
 
     state.argumentArray = res?.data?.argument || [];
-    state.topImg = res?.data?.detail?.firstimg || "";
+    state.topImg = res?.data?.detail?.image_url || "";
 
     if (state.spaceApplyInfo.maxPerson > 1) {
       state.spaceApplyInfo.maxPerson = state.spaceApplyInfo.maxPerson - 1;
@@ -215,7 +222,7 @@ const fetchGetSpaceDetailInfo = async () => {
     };
     let res = await getSpaceDetail(params);
     if (res.code != 0) return;
-    state.spaceDetailInfo = { ...res?.data } || {};
+    state.spaceDetailInfo = { ...res?.data , type:"space"} || {};
     state.spaceDetailInfoShow = true;
     console.log(state.spaceDetailInfo);
   } catch (e) {
@@ -242,56 +249,195 @@ const filterArguments = (key) => {
   return state.argumentArray?.some((e) => e.key == key) || false;
 };
 
-const onSelected = (date) => {
-  getDateStatus();
+const onDisabledTime = (date) => {
+  let startHour = state.CalendarStartTime;
+  let endHour = state.CalendarEndTime;
+  return {
+    disabledHours: () => {
+      // 获取要禁用的小时
+      const disabledHours = [];
 
-  if (state.axisTimeList?.length) {
-    state.chooseRadioTime = "";
+      // 禁用 0 到 startHour 之前的所有小时
+      for (let i = 0; i < startHour; i++) {
+        disabledHours.push(i);
+      }
+
+      // 禁用 endHour 之后的所有小时
+      for (let i = endHour + 1; i <= 23; i++) {
+        disabledHours.push(i);
+      }
+
+      return disabledHours;
+    },
+  };
+};
+
+const onSelected = (date) => {
+  if (state.spaceApplyInfo?.earlierPeriods == 0) {
+    // 获取当前选择时间范围中 后端返回的已经占用的时间段
+
+    getCurrentChooseTimeHaveSelectTime();
+  } else {
+    getDateStatus();
+
+    if (state.axisTimeList?.length) {
+      state.chooseRadioTime = "";
+    }
   }
+};
+
+const getCurrentChooseTimeHaveSelectTime = () => {
+  if (!state.selectDateInfo?.length) return;
+  let startIndex = -1;
+  let endIndex = -1;
+
+  if (state.selectDateInfo?.length == 1) {
+    endIndex = startIndex = state.calendarInfo.list.findIndex(
+      (item) => item.date === exchangeDateTime(state.selectDateInfo[0], 2)
+    );
+  } else {
+    let [startDate, endDate] = state.selectDateInfo;
+
+    startIndex = state.calendarInfo.list.findIndex(
+      (item) => item.date === exchangeDateTime(startDate, 2)
+    );
+    endIndex = state.calendarInfo.list.findIndex(
+      (item) => item.date === exchangeDateTime(endDate, 2)
+    );
+  }
+
+  if (startIndex === -1 || endIndex === -1) {
+    return []; // 如果没有找到日期，返回空数组
+  }
+
+  // 确保 startIndex 小于 endIndex
+  const [minIndex, maxIndex] =
+    startIndex < endIndex ? [startIndex, endIndex] : [endIndex, startIndex];
+
+  const list = state.calendarInfo.list.slice(minIndex, maxIndex + 1); // 包含 endDate
+  list.forEach((e) => {
+    e.info.list.forEach((item) => {
+      state.rangeTimeCantSelectTime.push({
+        begin_time: item.begin_num,
+        end_time: item.end_num,
+      });
+    });
+  });
+
+  state.CalendarMin_time = list?.length ? list[0]?.info?.min_time : 0;
+  state.CalendarMax_time = list?.length ? list[0]?.info?.max_time : 0;
+  let mStartTime = list?.length ? list[0]?.info?.start_timestamp : "";
+  let mEndTime = list?.length ? list[0]?.info?.end_timestamp : "";
+
+  let startTime = moment(mStartTime, "YYYY-MM-DD HH:mm:ss").format("HH:mm");
+  let endTime = moment(mEndTime, "YYYY-MM-DD HH:mm:ss").format("HH:mm");
+
+  const [startHour, startMinute] = startTime.split(":").map(Number);
+  const [endHour, endMinute] = endTime.split(":").map(Number);
+  state.CalendarStartTime = startHour;
+  state.CalendarEndTime = endHour;
 };
 
 const onChangeTime = (v, item, type, index) => {
   // let rowData = { ...item };
+  if (v == "" || v == null) return;
+  const value = convertHHMMToMinutes(v); // 转换为第几分钟的数值
+  chooseTimeIsInRange(value, item, type, index);
+};
 
-  if (type == "start") {
-    // 结束时间没有选择
-    if (
-      item.end_time == "" ||
-      item.end_time == null ||
-      item.begin_time == "" ||
-      item.begin_time == null
-    )
-      return;
-    // 开始时间大于结束时间
-    const [hoursS, minutesS] = item?.begin_time?.split(":").map(Number);
-    const [hoursE, minutesE] = item?.end_time?.split(":").map(Number);
-
-    const dateS = new Date(0, 0, 0, hoursS, minutesS);
-    const dateE = new Date(0, 0, 0, hoursE, minutesE);
-
-    if (dateS >= dateE) {
-      message.warning("开始时间不能大于结束时间");
-      item.begin_time = null; // 必须为null才能置空
+const chooseTimeIsInRange = (value, item, type, index) => {
+  // 先判断是否在已占用的时间段内
+  const isInRange = state.rangeTimeCantSelectTime.some((range) => {
+    const { begin_time, end_time } = range;
+    if (type == "start") {
+      return value >= begin_time && value < end_time;
+    } else {
+      return value > begin_time && value <= end_time;
     }
-  } else {
-    // rowData.end_time = rowData.end_time * 60;
-    if (
-      item.end_time == "" ||
-      item.end_time == null ||
-      item.begin_time == "" ||
-      item.begin_time == null
-    )
-      return;
-    // 开始时间大于结束时间
-    const [hoursS, minutesS] = item?.begin_time?.split(":").map(Number);
-    const [hoursE, minutesE] = item?.end_time?.split(":").map(Number);
+  });
+  if (isInRange) {
+    message.warning("该时间段已被占用");
 
-    const dateS = new Date(0, 0, 0, hoursS, minutesS);
-    const dateE = new Date(0, 0, 0, hoursE, minutesE);
+    if (type == "start") {
+      item.begin_time = null;
+    } else {
+      item.end_time = null;
+    }
+    return;
+  }
 
-    if (dateS >= dateE) {
-      message.warning("结束时间不能小于开始时间");
-      item.end_time = null; // 必须为null才能置空
+  // 再和当前已经选择的时间段进行比较
+  const isInCurrentChooseTimeRange = state.chooseTimeList.some(
+    (range, mIndex) => {
+      if (mIndex == index) return false;
+      const { begin_time, end_time } = range;
+      if (
+        begin_time == "" ||
+        begin_time == null ||
+        end_time == "" ||
+        end_time == null
+      )
+        return false;
+
+      let begin = convertHHMMToMinutes(begin_time);
+      let end = convertHHMMToMinutes(end_time);
+      if (type == "start") {
+        return value >= begin && value < end;
+      } else {
+        return value > begin && value <= end;
+      }
+    }
+  );
+  if (isInCurrentChooseTimeRange) {
+    message.warning("该时间段已被占用");
+    if (type == "start") {
+      item.begin_time = null;
+    } else {
+      item.end_time = null;
+    }
+    return;
+  }
+
+  if (
+    item.end_time == "" ||
+    item.end_time == null ||
+    item.begin_time == "" ||
+    item.begin_time == null
+  )
+    return;
+
+  // 开始时间大于结束时间
+  const [hoursS, minutesS] = item?.begin_time?.split(":").map(Number);
+  const [hoursE, minutesE] = item?.end_time?.split(":").map(Number);
+
+  const dateS = new Date(0, 0, 0, hoursS, minutesS);
+  const dateE = new Date(0, 0, 0, hoursE, minutesE);
+
+  if (dateS >= dateE) {
+    message.warning("开始时间不能大于结束时间");
+    if (type == "start") {
+      item.begin_time = null; // 必须为null才能置空
+    } else {
+      item.end_time = null;
+    }
+    return;
+  }
+  // 计算时间差（以分钟为单位）
+  const timeDifference = (dateE.getTime() - dateS.getTime()) / (1000 * 60);
+  // 判断时间差
+  if (timeDifference > state.max_time) {
+    message.warning(`预约时间最长时间不能超过${state.max_time}分钟`);
+    if (type == "start") {
+      item.begin_time = null;
+    } else {
+      item.end_time = null;
+    }
+  } else if (timeDifference < state.min_time) {
+    message.warning(`预约时间最短时间不能低于${state.min_time}分钟`);
+    if (type == "start") {
+      item.begin_time = null;
+    } else {
+      item.end_time = null;
     }
   }
 };
@@ -382,15 +528,33 @@ const onSubmit = (type) => {
     let min_person = "";
     if (type_id == 5) {
       min_person = minPerson;
-      if (!state.selectDateInfo?.length) {
-        message.warning(`请选择预约日期`);
-        return false;
-      } else if (!state.chooseRadioTime) {
-        message.warning(`请选择预约时间`);
-        return false;
-      }
+      console.log(!state.selectDateInfo?.length);
+      // if (!state.selectDateInfo?.length) {
+      //   message.warning(`请选择预约日期`);
+      //   return false;
+      // } else if (!state.chooseRadioTime) {
+      //   message.warning(`请选择预约时间`);
+      //   return false;
+      // }
       if (earlierPeriods == 3) {
+        if (!state.chooseRadioTime) {
+          message.warning(`请选择预约时间3`);
+          return false;
+        }
         params.cate_id = state.chooseRadioTime;
+      }
+      if (earlierPeriods == 0) {
+        if (!state.selectDateInfo?.length) {
+          message.warning(`请选择预约日期`);
+          return false;
+        }
+        // 大型空间自定义时间段
+        state.chooseTimeList.forEach((e) => {
+          params.time.push({
+            start_time: e.begin_time,
+            end_time: e.end_time,
+          });
+        });
       }
       params.start_date = exchangeDateTime(state.selectDateInfo[0], 2);
       params.end_date = exchangeDateTime(state.selectDateInfo[1], 2);
@@ -698,6 +862,8 @@ const getDateStatus = () => {
                       style="width: 100%"
                       hideDisabledOptions
                       size="middle"
+                      :disabledTime="onDisabledTime"
+                      :minuteStep="60"
                       :showNow="false"
                       v-model:value="item.begin_time"
                       placeholder="开始时间"
@@ -713,7 +879,9 @@ const getDateStatus = () => {
                       style="width: 100%"
                       hideDisabledOptions
                       size="middle"
+                      :minuteStep="60"
                       :showNow="false"
+                      :disabledTime="onDisabledTime"
                       v-model:value="item.end_time"
                       placeholder="结束时间"
                       @change="(v) => onChangeTime(v, item, 'end', index)"

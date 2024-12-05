@@ -52,10 +52,19 @@ const state = reactive({
 });
 
 onMounted(() => {
+  initQuickDateList();
+
   fetchGetSpaceSelectList();
   fetchGetSpaceFilterList();
   fetchGetSpaceInfoList();
 });
+
+const initQuickDateList = () => {
+  const formattedDate = moment().format("MM-DD");
+  state.quickDateList = [
+    { label: `${formattedDate} 今天`, value: moment().format("YYYY-MM-DD") },
+  ];
+};
 
 const onRefresh = () => {
   fetchGetSpaceInfoList();
@@ -402,8 +411,8 @@ const handleDateChange = (v) => {
         width: 90%;
         align-items: center;
         justify-content: center;
-        // color: rgba(255, 255, 255, 1);
-        color: #000;
+        color: rgba(255, 255, 255, 1);
+        // color: #000;
         font-size: 12px;
       }
     }
