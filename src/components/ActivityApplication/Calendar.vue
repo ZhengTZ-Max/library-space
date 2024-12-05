@@ -35,7 +35,6 @@ watch(
     state.minDate = new Date(props.calendarInfo.startDate);
     state.maxDate = new Date(props.calendarInfo.endDate);
     state.dayData = props?.calendarInfo?.list || [];
-
     // state.dayData[0].status = 0;
   },
   {
@@ -85,7 +84,7 @@ const formatter = (day) => {
 
     let findDate; // 1可预约，0已被预约，-1节假日或未开放
     if (state.dayData?.length) {
-      findDate = state.dayData.find((e) => e.day == date);
+      findDate = state.dayData.find((e) => e.date == date);
     }
     // console.log(date, findDate);
     if (findDate?.status == -1) {
@@ -97,18 +96,14 @@ const formatter = (day) => {
     } else if (findDate?.status == 1 && findDate?.list?.length) {
       day.className = `day-all`;
     }
-    // else if (findDate?.status == 0 && props?.type == "single") {
-    //   day.className = `day-disabled`;
-    //   day.type = `disabled`;
-    // }
 
-    if (
-      (state.selectedDate?.length == 1 &&
-        date == exchangeDateTime(state.selectedDate[0], 2)) ||
-      state.selectedDate?.length == 0
-    ) {
-      day.className += ` day-afterN`;
-    }
+    // if (
+    //   (state.selectedDate?.length == 1 &&
+    //     date == exchangeDateTime(state.selectedDate[0], 2)) ||
+    //   state.selectedDate?.length == 0
+    // ) {
+    //   day.className += ` day-afterN`;
+    // }
 
     if (
       date < exchangeDateTime(state.minDate, 2) ||
@@ -116,6 +111,24 @@ const formatter = (day) => {
     ) {
       day.className = `day-none`;
       day.type = `disabled`;
+    }
+    console.log("findDate", findDate);
+    if (props?.calendarInfo?.timeList?.length) {
+      // 下午被预约
+      if (findDate?.status == -3) {
+        day.className = `day-bot`;
+      } else if (findDate?.status == -2) {
+        // 上午被预约
+        day.className = `day-top`;
+      } else if (findDate?.status == -1) {
+        // 全天
+        day.className = `day-all`;
+        day.type = `disabled`;
+      } else if (findDate?.status == 0) {
+        // 未开放
+        day.className = `day-none`;
+        day.type = `disabled`;
+      }
     }
     return day;
   } catch (e) {
@@ -196,7 +209,6 @@ const formatter = (day) => {
 
 :deep(.van-calendar__day) {
   font-size: 13px;
-
   //   &.van-calendar__day--disabled {
   //     // color: #333;
   //     // height: 0;
@@ -289,6 +301,24 @@ const formatter = (day) => {
   &::before {
     background: rgba(245, 181, 68, 1) !important;
     border: 2px solid rgba(245, 181, 68, 1);
+  }
+}
+:deep(.day-bot) {
+  color: #333 !important;
+  .day-item();
+  &::before {
+    background-color: #fff !important;
+    background-image: url("@/assets/space/dayBot.png");
+    background-size: 100%;
+  }
+}
+:deep(.day-top) {
+  color: #333;
+  .day-item();
+  &::before {
+    background-color: #fff !important;
+    background-image: url("@/assets/space/dayTop.png");
+    background-size: 100%;
   }
 }
 :deep(.day-disabled) {
