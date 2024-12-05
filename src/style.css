@@ -18,6 +18,8 @@
   --van-primary-color: #1a49c0 !important;
 
   --van-calendar-day-height: 46px !important;
+
+  --van-calendar-range-middle-background-opacity: 0.2 !important;
 }
 
 /* 常规字体 */

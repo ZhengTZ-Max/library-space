@@ -264,7 +264,7 @@ const formatter = (day) => {
       width: 50%;
       height: 50%;
       left: 50%;
-      background-color: rgba(26, 73, 192, 0.1);
+      background-color: rgba(26, 73, 192, 0.2);
       z-index: -2;
     }
   }
@@ -285,7 +285,7 @@ const formatter = (day) => {
       width: 50%;
       height: 50%;
       right: 50%;
-      background-color: rgba(26, 73, 192, 0.1);
+      background-color: rgba(26, 73, 192, 0.2);
       z-index: -2;
     }
   }

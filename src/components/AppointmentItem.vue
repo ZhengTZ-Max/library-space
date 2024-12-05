@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, computed, ref } from "vue";
 import { useStore } from "vuex";
-import { showToast, showConfirmDialog } from "vant";
+import { showToast, showConfirmDialog, showImagePreview } from "vant";
 
 import { exchangeDateTime } from "@/utils";
 
@@ -12,6 +12,8 @@ import {
   fetchCancelStudyCancel,
   fetchSeatleave,
   fetchSeatCheckout,
+  SpaceSignOut,
+  SpaceCancel,
 } from "@/request/home";
 
 import { getSpaceMap, getSpaceSeat } from "@/request/seat";
@@ -38,6 +40,14 @@ const state = reactive({
   showSpaceMap: false,
 });
 
+const onViewFloor = (data) => {
+  data?.image_url &&
+    showImagePreview({
+      images: [data?.image_url],
+      closeable: true,
+      closeIconPosition: "top-left",
+    });
+};
 const fetchReviewPosition = async (row) => {
   try {
     let infoParams = {
@@ -105,6 +115,8 @@ const onCancel = (row) => {
           res = await fetchCancelSeat(params);
         } else if (row?.type == 3 || row?.type == 4) {
           res = await fetchCancelStudyCancel(params);
+        } else if (row?.type == 2) {
+          res = await SpaceCancel(params);
         }
 
         if (res.code != 0) {
@@ -301,6 +313,37 @@ const handleClick = () => {
     state.showSpaceMap = false;
   }
 };
+
+const handleSignOut = async (data) => {
+  try {
+    let title = store?.state?.lang?.currentLang?.leave || "结束使用";
+    let message = `${
+      store?.state?.lang?.currentLang?.popup_window_Confirm || "是否确认"
+    } ${title}？`;
+    showConfirmDialog({
+      title,
+      message,
+    })
+      .then(async () => {
+        const res = await SpaceSignOut({ id: data.id });
+        if (res.code != 0) {
+          showToast({
+            message: res.message,
+          });
+          return false;
+        }
+        showToast({
+          message: res.message,
+        });
+        resetSubscribeList();
+      })
+      .catch(() => {
+        // on cancel
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
 </script>
 <template>
   <div class="AppointmentItem">
@@ -329,14 +372,6 @@ const handleClick = () => {
         </div>
         <div class="seatCon">
           <span>座位：{{ data?.no }}</span>
-          <span
-            v-if="
-              (data?.type == 3 || data?.type == 4) && data?.earlierPeriods > 0
-            "
-            class="statusText"
-            :style="{ color: showStudyText(data)?.color }"
-            >({{ showStudyText(data)?.str }})</span
-          >
           <span class="viewPosition" @click="fetchReviewPosition(data)"
             >查看位置</span
           >
@@ -428,6 +463,91 @@ const handleClick = () => {
       </div>
     </template>
 
+    <template v-if="[2]?.includes(data?.type)">
+      <div class="header">
+        <img
+          style="transform: translateY(-2px)"
+          src="@/assets/home/appSpaceIcon.svg"
+          alt=""
+          srcset=""
+        />
+        <span>已约空间</span>
+        <div class="seatType spaceType">
+          {{
+            data?.type == 2
+              ? "研讨室"
+              : data?.type == 3
+              ? "研习座位"
+              : "考研座位"
+          }}
+        </div>
+      </div>
+
+      <div class="intro">
+        <!-- <div class="introFirst">
+          <p>地点：{{ data?.areaName }}</p>
+        </div> -->
+        <div class="seatCon">
+          <span>地点：{{ data?.areaName }}</span>
+
+          <span class="viewPosition" @click="onViewFloor(data)">查看位置</span>
+        </div>
+        <div class="applyTime"><span>时间：</span>{{ data?.showTime }}</div>
+        <div class="action">
+          <div
+            v-if="
+              data.flag_in == 1 &&
+              data.flag_leave == 0 &&
+              [1, 2, 5, 6, 7].includes(Number(data.type))
+            "
+            class="tips"
+          >
+            <!-- {{ `${$t("Please")} ${data.signintime} ${$t("Sign_in_before")}` }} -->
+          </div>
+          <div class="actionBtn">
+            <!-- <button
+            v-else-if="item?.status == '3'"
+            class="btn cancel-appointment"
+            style="background: #e58100"
+            @click.stop="handleSignOut(item)"
+          >
+            {{ store?.state?.lang?.lang == "zh" ? "结束使用" : "End use" }}
+          </button> -->
+            <van-button
+              v-if="[3, 11, 12]?.includes(Number(data?.status))"
+              class="btn cancel"
+              plain
+              type="primary"
+              color="#e58100"
+              @click.stop="handleSignOut(data)"
+            >
+              {{ store?.state?.lang?.currentLang?.signin || "结束使用" }}
+            </van-button>
+            <van-button
+              v-else-if="data?.earlierPeriods > 0"
+              class="btn cancel"
+              plain
+              type="primary"
+              color="#F28800"
+              @click.stop="onCancel(data)"
+            >
+              {{ store?.state?.lang?.currentLang?.signin || "取消" }}
+            </van-button>
+            <van-button
+              v-else-if="checkShow(data, 'cancel')"
+              class="btn cancel"
+              plain
+              type="primary"
+              color="#F28800"
+              @click.stop="onCancel(data)"
+            >
+              {{ store?.state?.lang?.currentLang?.signin || "取消" }}
+            </van-button>
+          </div>
+        </div>
+      </div>
+    </template>
+
     <van-overlay
       :show="state.showSpaceMap"
       @click="handleClick"
@@ -472,6 +592,10 @@ const handleClick = () => {
       font-weight: normal;
       font-size: 13px;
       color: #1a49c0;
+      &.spaceType {
+        color: #4ec95b;
+        background: rgba(78, 201, 91, 0.1);
+      }
     }
   }
   .intro {
@@ -491,6 +615,12 @@ const handleClick = () => {
       display: flex;
       align-items: center;
       justify-content: space-between;
+    }
+    .applyTime {
+      display: flex;
+      span {
+        flex-shrink: 0;
+      }
     }
     .areaView {
       white-space: nowrap;

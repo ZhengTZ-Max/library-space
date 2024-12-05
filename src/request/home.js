@@ -94,3 +94,27 @@ export function fetchSeatCheckout(data) {
     data,
   });
 }
+
+// 空间预约 结束使用
+export function SpaceSignOut(data) {
+  return service({
+    url: "/v4/seminar/leave",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+
+// 空间预约 取消预约
+export function SpaceCancel(data) {
+  return service({
+    url: "/v4/seminar/cancel",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
