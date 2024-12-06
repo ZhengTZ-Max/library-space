@@ -146,6 +146,16 @@ const onChangeQMode = (row) => {
   fetch();
 };
 
+// 计算属性，根据 activeKey 动态返回 quickModeList
+const filteredQuickModeList = computed(() => {
+  if (state.activeKey === "1") {
+    // 如果 activeKey 为 1，返回前两条数据
+    return state.quickModeList.slice(0, 2);
+  }
+  // 否则返回全部数据
+  return state.quickModeList;
+});
+
 onMounted(() => {
   fetch();
 });
@@ -235,9 +245,12 @@ const onChangePage = (pagination) => {
       <a-tab-pane key="3" tab="研习座位"></a-tab-pane>
       <a-tab-pane key="4" tab="考研座位"></a-tab-pane>
     </a-tabs>
-    <div class="quickBtns" style="width: 380px">
+    <div class="quickBtns" :class="{
+        width_230: state.activeKey == '1',
+        width_380: state.activeKey != '1',
+      }">
       <div
-        v-for="item in state.quickModeList"
+        v-for="item in filteredQuickModeList"
         :key="item.label"
         class="item activeBtn"
         :class="{ itemActive: item?.value == state.quickMode }"
@@ -412,6 +425,12 @@ const onChangePage = (pagination) => {
   .toggleLangPc {
     top: 65px;
     left: 30px;
+  }
+  .width_380 {
+    width: 380px;
+  }
+  .width_230 {
+    width: 230px;
   }
 }
 

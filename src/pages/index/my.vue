@@ -3,8 +3,8 @@ import { CheckCircleFilled } from "@ant-design/icons-vue";
 import { reactive, onMounted, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { Modal } from "ant-design-vue";
-import { getMyInfo } from "@/request/my";
+import { message } from "ant-design-vue";
+import { getMyInfo, updatePassword } from "@/request/my";
 
 const store = useStore();
 const router = useRouter();
@@ -97,7 +97,6 @@ watch(
   { immediate: true }
 );
 
-
 const fetchMyInfo = async () => {
   try {
     const res = await getMyInfo();
@@ -131,6 +130,51 @@ const userStatusText = computed(() => {
       return "未知状态";
   }
 });
+
+const onSubmit = async () => {
+  try {
+    if (
+      !formState.studentId ||
+      !formState.name ||
+      !formState.oldPassword ||
+      !formState.newPassword ||
+      !formState.confirmPassword
+    ) {
+      message.error("请填写完整信息");
+      return;
+    }
+
+    if (formState.newPassword !== formState.confirmPassword) {
+      message.error("新密码和确认密码不一致");
+      return;
+    }
+    const passwordPattern =
+      /^(?=[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%.*?&])[A-Za-z\d@$!%.*?&]{8,12}$/;
+    if (!passwordPattern.test(formState.newPassword)) {
+      message.error(
+        "密码必须在8-12位之间,首位为大写字母,且包含大小写字母、数字和特殊字符(@$!%.*?&)"
+      );
+      return;
+    }
+
+    let params = {
+      card: formState.studentId,
+      Oldpassword: formState.oldPassword,
+      password: formState.newPassword,
+      repassword: formState.confirmPassword,
+    };
+
+    const res = await updatePassword(params);
+    if (res.code === 0) {
+      message.success("修改成功");
+      onHideDrawer();
+    } else {
+      message.error(res.msg);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 </script>
 <template>
   <div class="my">

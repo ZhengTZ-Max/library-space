@@ -52,8 +52,13 @@ const onCancelReservation = () => {
       {{ state.selectedRecord.name }}
     </p>
     <a-divider dashed />
-    <p v-if="state.selectedRecord.status_name !== '预约成功'">
-      签到时间：{{ state.selectedRecord.signInTime }}
+    <p v-if="state.selectedRecord.status_name !== '预约成功'"> 
+      <p v-if="state.selectedRecord.status_name == '未签到'">
+        违约时间：{{ state.selectedRecord.renegeTime }}
+      </p>
+      <p v-else>
+        签到时间：{{ state.selectedRecord.signInTime }}
+      </p>
     </p>
     <div
       class="modal-footer"

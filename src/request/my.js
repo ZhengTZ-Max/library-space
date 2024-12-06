@@ -21,3 +21,13 @@ export function getHelpList(data) {
     data,
   });
 }
+
+export function updatePassword(data) {
+  return service({
+    url: "/v4/member/resetpass",
+    method: "POST",
+    isLoading: true,
+    isCrypto: true,
+    data,
+  });
+}

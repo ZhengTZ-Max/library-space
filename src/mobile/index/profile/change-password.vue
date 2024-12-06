@@ -12,49 +12,98 @@
 import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
+import { updatePassword } from "@/request/my";
+import { message } from "ant-design-vue";
 
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
-const state = reactive({
+const formState = reactive({
   userId: "",
   username: "",
   oldPassword: "",
   newPassword: "",
   confirmPassword: "",
 });
+
+
+const onSubmit = async () => {
+  try {
+    if (
+      !formState.userId ||
+      !formState.username ||
+      !formState.oldPassword ||
+      !formState.newPassword ||
+      !formState.confirmPassword
+    ) {
+      message.error("请填写完整信息");
+      return;
+    }
+
+    if (formState.newPassword !== formState.confirmPassword) {
+      message.error("新密码和确认密码不一致");
+      return;
+    }
+    const passwordPattern =
+      /^(?=[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%.*?&])[A-Za-z\d@$!%.*?&]{8,12}$/;
+    if (!passwordPattern.test(formState.newPassword)) {
+      message.error(
+        "密码必须在8-12位之间,首位为大写字母,且包含大小写字母、数字和特殊字符(@$!%.*?&)"
+      );
+      return;
+    }
+
+    let params = {
+      card: formState.userId,
+      Oldpassword: formState.oldPassword,
+      password: formState.newPassword,
+      repassword: formState.confirmPassword,
+    };
+
+    const res = await updatePassword(params);
+    if (res.code === 0) {
+      message.success("修改成功");
+      onHideDrawer();
+    } else {
+      message.error(res.msg);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 </script>
 <template>
   <div class="change-password">
     <div class="top_info height_calc">
       <van-cell-group>
         <van-field
-          v-model="state.userId"
+          v-model="formState.userId"
           label="学工号"
           placeholder="请输入学工号"
           input-align="right"
         />
         <van-field
-          v-model="state.username"
+          v-model="formState.username"
           label="姓名"
           placeholder="请输入姓名"
           input-align="right"
         />
         <van-field
-          v-model="state.oldPassword"
+          v-model="formState.oldPassword"
           label="原密码"
           placeholder="请输入原密码"
           input-align="right"
         />
         <van-field
-          v-model="state.newPassword"
+          v-model="formState.newPassword"
           label="新密码"
           placeholder="请输入新密码"
           input-align="right"
         />
         <van-field
-          v-model="state.confirmPassword"
+          v-model="formState.confirmPassword"
           label="确认密码"
           placeholder="请在此输入新密码"
           input-align="right"
