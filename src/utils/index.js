@@ -265,7 +265,7 @@ export const tabType = [
     id: "4",
     name: "大型空间",
     enname: "big seminar Room",
-    path: "",
+    path: "/space/space?categoryType=5",
   },
   {
     id: "5",
@@ -331,7 +331,7 @@ export const tabType = [
     id: "15",
     name: "帮助与反馈",
     enname: "Feedback and Repair Request",
-    path: "",
+    path: "/feedback",
   },
 ];
 
