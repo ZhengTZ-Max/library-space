@@ -301,7 +301,7 @@ export const tabType = [
     id: "10",
     name: "存书柜预约",
     enname: "Bookcase Reservation",
-    path: "",
+    path: "/bookcase",
   },
   {
     id: "11",
