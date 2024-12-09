@@ -10,3 +10,14 @@ export function getLockerList(data) {
     data,
   });
 }
+
+export function getLockerFilter(data) {
+  return service({
+    url: "/reserve/locker/index",
+    method: "GET",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}

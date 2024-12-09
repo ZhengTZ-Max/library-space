@@ -8,7 +8,7 @@ import { SearchOutlined } from "@ant-design/icons-vue";
 
 import { exchangeDateTime } from "@/utils";
 import { getSpacePick, getSpaceDetail, getSpaceIndex } from "@/request/seat";
-import { getLockerList } from "@/request/bookcase";
+import { getLockerList, getLockerFilter } from "@/request/bookcase";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceFilter from "@/components/SpaceSeat/SpaceFilterCom.vue";
 import SpaceMap from "@/components/SpaceSeat/SpaceMap.vue";
@@ -60,8 +60,6 @@ const state = reactive({
 });
 
 onMounted(() => {
-  initQuickDateList();
-
   fetchFilter();
   if (!state.initQuery?.quickDate) {
     state.initQuery.quickDate = exchangeDateTime(new Date(), 2);
@@ -96,49 +94,15 @@ const initQueryFn = () => {
   state.filterSearch.floor = floorSelect?.map((e) => e.name);
 };
 
-const initQuickDateList = (list) => {
-  state.quickDateList = [
-    { label: "今天", value: moment().format("YYYY-MM-DD") },
-    { label: "明天", value: moment().add(1, "days").format("YYYY-MM-DD") },
-  ];
-
-  if (list?.length) {
-    state.quickDateList = list?.map((e) => {
-      let label = "";
-      if (moment().format("YYYY-MM-DD") == e) {
-        label = "今天";
-      } else if (exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == e) {
-        label = "明天";
-      } else {
-        label = exchangeDateTime(e, 4);
-      }
-      return {
-        label,
-        value: moment(e).format("YYYY-MM-DD"),
-      };
-    });
-  }
-  if (!state?.quickDate) state.quickDate = state.quickDateList[0]?.value;
-};
-
-const handleShowInfo = (item) => {
-  state.libraryInfo = {
-    id: item.id,
-    type: "library",
-  };
-  // fetchInfo(item.id);
-};
-
 const onChangeAct = (i) => {
   state.activeIndex = i.id;
 };
 
 const fetchFilter = async () => {
   try {
-    let res = await getSpaceIndex();
+    let res = await getLockerFilter();
     state.filterOptions = res?.data;
-    initQuickDateList(res?.data?.date);
-    initQueryFn();
+    // initQueryFn();
     fetchLibrary();
   } catch (e) {
     console.log(e);
@@ -181,10 +145,9 @@ const goToLink = (link) => {
 
 const handleAppt = (row) => {
   router.push({
-    path: "/seat/appointment",
+    path: "/bookcase/appointment",
     query: {
       id: row?.id,
-      date: state.filterSearch.date,
     },
   });
   console.log(row);
@@ -265,13 +228,6 @@ const handleAppt = (row) => {
                   </template>
                 </a-image>
                 <div class="leftBadge basicsBadge">{{ item?.atName }}</div>
-                <!-- <div
-                  class="rightBadge viewMore clickBox"
-                  @click.stop="handleShowInfo(item)"
-                >
-                  <span> 查看详情 </span>
-                  <img src="@/assets/home/rightIconW.svg" alt="" />
-                </div> -->
                 <div class="posBot">
                   <span>- {{ item?.atName }} -</span>
                 </div>
@@ -279,13 +235,12 @@ const handleAppt = (row) => {
               <div class="bottomItem">
                 <div class="title">
                   <span>{{ item?.name }}</span>
-                  <span>{{item?.storeyName}}</span>
+                  <span>{{ item?.storeyName }}</span>
                 </div>
                 <div class="num">
                   总数 <span>{{ item?.total_num || "-" }}</span> 空闲
                   <span>{{ item?.free_num || "-" }}</span>
                 </div>
-                <!-- <p class="boutiqueList">{{ filterBoutique(item?.boutique) }}</p> -->
               </div>
               <div
                 v-if="item?.id == state.activeIndex"
