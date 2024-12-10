@@ -15,15 +15,16 @@ import {
   getCheckStudyOpenTime,
   fetchStudyConfirm,
 } from "@/request/seat";
-import LibraryInfo from "@/components/LibraryInfo.vue";
+
+import { getLockerMap, getLockerDetail } from "@/request/bookcase";
 import SpaceFilterDate from "@/components/SpaceSeat/SpaceFilterDate.vue";
 import SpaceSeatStudy from "@/components/SpaceSeat/SpaceSeatStudy.vue";
 
-import SpaceSeatMap from "@/components/SpaceSeat/SpaceSeatMap.vue";
-import SeatAreaSwipe from "@/components/SpaceSeat/SeatAreaSwipe.vue";
-import SeatAreaList from "@/components/SpaceSeat/SeatAreaList.vue";
+import BookMap from "@/components/BookcaseCom/BookMap.vue";
+import BookAreaSwipe from "@/components/BookcaseCom/BookAreaSwipe.vue";
+import BookAreaList from "@/components/BookcaseCom/BookAreaList.vue";
 import SeatFilterLabel from "@/components/SpaceSeat/SpaceSltLabel.vue";
-import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
+// import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
 import ShowInfoToast from "@/components/ShowInfoToast.vue";
 
 const store = useStore();
@@ -36,30 +37,28 @@ const captureArea = ref();
 
 const state = reactive({
   isShowFloorPlane: false,
-  libraryInfoShow: false,
-  libraryInfo: {},
   spaceFilterShow: false,
   activeIndex: "",
 
   initQuery: {
-    spaceId: route?.query?.id || "",
+    BookId: route?.query?.id || "",
     quickDate: route?.query?.date || "",
   },
 
   quickDate: route?.query?.date || "",
   quickDateList: [],
 
-  quickMode: "1",
+  quickMode: "0",
   quickModeList: [
     { value: 0, label: "地图模式" },
     { value: 1, label: "列表模式" },
   ],
 
-  spaceSelected: {},
-  spaceList: [],
-  spaceInfo: {},
-  spaceLabelList: [],
-  spaceLabelVal: [],
+  bookSelected: {},
+  bookList: [],
+  bookInfo: {},
+  bookLabelList: [],
+  bookLabelVal: [],
 
   filterSearch: {
     library: [],
@@ -92,8 +91,9 @@ const state = reactive({
 });
 
 onMounted(() => {
-  if (state.initQuery?.spaceId) {
+  if (state.initQuery?.BookId) {
     fetchInfo();
+    fetchBookInfo();
     state.filterSearch.date = state.initQuery.quickDate;
     state.filterDate.date = state.initQuery.quickDate;
   } else {
@@ -101,15 +101,8 @@ onMounted(() => {
   }
 });
 
-// const handleShowInfo = (item) => {
-//   state.libraryInfo = {
-//     id: item.id,
-//     type: "library",
-//   };
-//   fetchInfo();
-// };
 const getStudyPermission = ({ index, id }) => {
-  if (state?.spaceInfo?.type == 1) {
+  if (state?.bookInfo?.type == 1) {
     return true;
   }
   let findRow;
@@ -125,67 +118,21 @@ const getStudyPermission = ({ index, id }) => {
   return false;
 };
 
-const fetchLibraryInfo = async () => {
+const fetchBookInfo = async () => {
   try {
     let params = {
-      id: state.initQuery.spaceId,
+      id: state.initQuery?.BookId,
     };
-    let res = await getSpaceDetail(params);
-    if (res.code != 0) return;
-    // state.libraryInfo = res?.data || {};
-    state.libraryInfo = { ...res?.data, type: "library" } || {};
-    state.libraryInfoShow = true;
-  } catch (e) {
-    console.log(e);
-  }
-};
 
-const fetchSpace = async () => {
-  try {
-    state.spaceList = [];
-
-    let { date, times, time, begdate, enddate } = state.filterSearch;
-    let dateType = state.spaceInfo?.date?.reserveType;
-
-    let params = {
-      id: state.initQuery?.spaceId,
-      day: "",
-      label_id: state.spaceLabelVal,
-      start_time: times?.start || "",
-      end_time: times?.end || "",
-      begdate: begdate || "",
-      enddate: enddate || "",
-    };
-    if (!params?.begdate) {
-      params.day = date;
-      if (dateType == 2) {
-        params.start_time = time;
-        params.end_time = time;
-      } else if (dateType == 3) {
-        params.start_time = time[0];
-        params.end_time = time[1];
-      }
-    }
-
-    let res = await getSpaceSeat(params);
+    let res = await getLockerDetail(params);
 
     if (res.code != 0) {
       return false;
     }
-
-    state.spaceList = res?.data?.list || [];
-    state.spaceSelected = {};
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-const fetchLabel = async () => {
-  try {
-    let res = await getSpaceLabel({ id: state.initQuery?.spaceId });
-    if (res.code != 0) return;
-    state.spaceLabelList = res?.data || {};
-    // state.libraryInfoShow = true;
+    state.bookList = res?.data?.lockerInfo || [];
+    state.bookLabelList = res?.data?.labelInfo || [];
+    state.bookInfo = { ...state.bookInfo, ...(res?.data?.areaInfo || {}) };
+    state.bookSelected = {};
   } catch (e) {
     console.log(e);
   }
@@ -194,33 +141,24 @@ const fetchLabel = async () => {
 const fetchInfo = async () => {
   try {
     let params = {
-      id: state.initQuery?.spaceId,
+      id: state.initQuery?.BookId,
     };
-    let res = await getSpaceMap(params);
+    let res = await getLockerMap(params);
     if (res.code != 0) return;
-    state.spaceInfo = res?.data || {};
-    fetchRule();
-    fetchLabel();
-
-    if (state.spaceInfo?.type != "1") {
-      fetchCheckStudyOpenTime();
-    } else {
-      initSltTimes();
-      fetchSpace();
-    }
+    state.bookInfo = { ...state.bookInfo, map: res?.data || {} };
   } catch (e) {
     console.log(e);
   }
 };
 
 const initSltTimes = () => {
-  let curDate = state.spaceInfo?.date?.list?.find(
+  let curDate = state.bookInfo?.date?.list?.find(
     (e) => e?.day == state.filterSearch?.date
   );
-  let dateType = state.spaceInfo?.date?.reserveType;
+  let dateType = state.bookInfo?.date?.reserveType;
 
   if (!curDate) {
-    let firstDate = state.spaceInfo?.date?.list[0];
+    let firstDate = state.bookInfo?.date?.list[0];
     state.filterSearch.date = firstDate?.day;
     state.filterDate.date = firstDate?.day;
     curDate = firstDate;
@@ -258,7 +196,7 @@ const initSltTimes = () => {
 const fetchCheckStudyOpenTime = async () => {
   try {
     let params = {
-      area: state.initQuery?.spaceId,
+      area: state.initQuery?.BookId,
     };
     let res = await getCheckStudyOpenTime(params);
     if (res.code != 0) return;
@@ -281,7 +219,7 @@ const fetchCheckStudyOpenTime = async () => {
       begdate: findCurDate?.startDay,
       enddate: findCurDate?.endDay,
     };
-    fetchSpace();
+    fetchBookInfo();
   } catch (e) {
     console.log(e);
   }
@@ -290,7 +228,7 @@ const fetchCheckStudyOpenTime = async () => {
 const fetchRule = async () => {
   try {
     let params = {
-      id: state.initQuery?.spaceId,
+      id: state.initQuery?.BookId,
     };
     let res = await getSpaceRule(params);
     if (res.code != 0) return;
@@ -320,7 +258,7 @@ const handleFilter = (type) => {
     return false;
   }
 
-  if (state.spaceInfo?.type != 1) {
+  if (state.bookInfo?.type != 1) {
     console.log(state.filterDate);
     let findCurDate = state.studyOpenTime?.find(
       (e) => e?.id == state.filterDate?.date
@@ -333,7 +271,7 @@ const handleFilter = (type) => {
       dateId: findCurDate?.id,
     };
   } else {
-    let dateType = state.spaceInfo?.date?.reserveType;
+    let dateType = state.bookInfo?.date?.reserveType;
     if (dateType == 1) {
       state.filterSearch = {
         ...state.filterSearch,
@@ -352,17 +290,17 @@ const handleFilter = (type) => {
     }
   }
 
-  fetchSpace();
+  fetchBookInfo();
 };
 
 const onSelected = (v) => {
-  state.spaceSelected = v;
+  state.bookSelected = v;
 };
 
 const onFilterLabel = (v) => {
-  if (areArraysDifferent(state.spaceLabelVal, v)) {
-    state.spaceLabelVal = v;
-    fetchSpace();
+  if (areArraysDifferent(state.bookLabelVal, v)) {
+    state.bookLabelVal = v;
+    fetchBookInfo();
   }
 };
 
@@ -373,21 +311,21 @@ const handleAppt = () => {
 
 const confirmAppt = async () => {
   try {
-    let dateType = state.spaceInfo?.date?.reserveType;
+    let dateType = state.bookInfo?.date?.reserveType;
 
     let res;
-    if (state.spaceInfo?.type != 1) {
+    if (state.bookInfo?.type != 1) {
       let { begdate, enddate } = state.filterSearch;
 
       let params = {
-        seat_id: state.spaceSelected?.id,
+        seat_id: state.bookSelected?.id,
         begdate: begdate,
         enddate: enddate,
       };
       res = await fetchStudyConfirm(params);
     } else {
       let params = {
-        seat_id: state.spaceSelected?.id,
+        seat_id: state.bookSelected?.id,
         segment: "",
         day: state.filterSearch.date,
         start_time: "",
@@ -418,7 +356,7 @@ const confirmAppt = async () => {
 };
 
 const ShowSelectedDateTime = () => {
-  if (state.spaceInfo?.type != 1) {
+  if (state.bookInfo?.type != 1) {
     let findCurDate = state.studyOpenTime?.find(
       (e) => e?.id == state.filterSearch?.dateId
     );
@@ -428,7 +366,7 @@ const ShowSelectedDateTime = () => {
       return ``;
     }
   } else {
-    let dateType = state.spaceInfo?.date?.reserveType;
+    let dateType = state.bookInfo?.date?.reserveType;
     let { times, time, date } = state.filterSearch;
     if (dateType == 1) {
       return `${date} ${times?.start}~${times?.end}`;
@@ -441,16 +379,16 @@ const ShowSelectedDateTime = () => {
 };
 
 const ShowArea = () => {
-  let { premise_name, storey_name, name } = state.spaceInfo;
+  let { premise_name, storey_name, name } = state.bookInfo;
   return `${premise_name} ${storey_name} ${name}`;
 };
 
 const onChangeSlide = (row) => {
-  state.initQuery.spaceId = row.id;
-  state.spaceList = [];
-  state.spaceLabelList = [];
-  state.spaceLabelVal = [];
-  state.spaceSelected = "";
+  state.initQuery.BookId = row.id;
+  state.bookList = [];
+  state.bookLabelList = [];
+  state.bookLabelVal = [];
+  state.bookSelected = "";
 
   fetchInfo();
 };
@@ -474,13 +412,10 @@ const onViewMap = () => {
             <template #separator
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
-            <a-breadcrumb-item @click="goToLink('/seat')"
-              >选择馆舍</a-breadcrumb-item
+            <a-breadcrumb-item @click="goToLink('/bookcase')"
+              >选择存书柜</a-breadcrumb-item
             >
-            <a-breadcrumb-item @click="goToLink(-1)"
-              >选择空间</a-breadcrumb-item
-            >
-            <a-breadcrumb-item>选择座位</a-breadcrumb-item>
+            <a-breadcrumb-item>选择柜格</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         <div class="rightAction">
@@ -497,9 +432,9 @@ const onViewMap = () => {
           </div>
 
           <SeatFilterLabel
-            v-if="state.spaceLabelList?.length"
-            :list="state.spaceLabelList"
-            :selected="state.spaceLabelVal"
+            v-if="state.bookLabelList?.length"
+            :list="state.bookLabelList"
+            :selected="state.bookLabelVal"
             @handleSlt="onFilterLabel"
           />
         </div>
@@ -507,12 +442,12 @@ const onViewMap = () => {
     </a-affix>
     <div class="showCon">
       <div class="leftBox">
-        <template v-if="state.spaceList?.length">
+        <template v-if="state.bookList?.length">
           <div v-if="state.quickMode == '1'" class="librarySlt">
-            <SeatAreaList
-              :list="state.spaceList"
-              :data="state.spaceInfo"
-              :seatSelected="state.spaceSelected"
+            <BookAreaList
+              :list="state.bookList"
+              :data="state.bookInfo"
+              :seatSelected="state.bookSelected"
               @selected="onSelected"
             />
           </div>
@@ -522,75 +457,30 @@ const onViewMap = () => {
             class="spaceMapSlt"
             ref="captureArea"
           >
-            <SpaceSeatMap
-              :list="state.spaceList"
-              :data="state.spaceInfo"
-              :seatSelected="state.spaceSelected"
+            <BookMap
+              :list="state.bookList"
+              :data="state.bookInfo"
+              :seatSelected="state.bookSelected"
               @selected="onSelected"
             />
           </div>
-          <!-- <div
-            
-            class="captureArea"
-            
-            style="
-              width: 1920px;
-              height: 1080px;
-              position: absolute;
-              top: -9999px;
-              left: -9999px;
-              z-index: -2;
-              display: inline-block;
-            "
-          >
-            <SpaceSeatMap :list="state.spaceList" :data="state.spaceInfo" />
-          </div> -->
         </template>
         <a-skeleton v-else :paragraph="{ rows: 12 }" active />
       </div>
 
       <div class="rightBox">
-        <template v-if="state.spaceInfo?.name">
-          <SeatAreaSwipe
-            v-if="state.spaceInfo?.brother_area?.length"
-            :data="state.spaceInfo"
-            :defaultId="state.initQuery.spaceId"
-            @viewInfo="fetchLibraryInfo"
+        <template v-if="state.bookInfo?.name">
+          <BookAreaSwipe
+            v-if="state.bookInfo?.brother_area?.length"
+            :data="state.bookInfo"
+            :defaultId="state.initQuery.BookId"
             @changeSlide="onChangeSlide"
             @viewFloor="onViewMap"
           />
 
           <div class="reservation">
-            <div v-if="state.spaceInfo?.type != 1" class="studyPermission">
-              <p class="studyTitle">预约权限</p>
-              <div class="studyBox">
-                <p>
-                  本期：<span
-                    :class="{
-                      success: getStudyPermission({ index: 0 }),
-                      fail: !getStudyPermission({ index: 0 }),
-                    }"
-                    class="success"
-                    >{{
-                      getStudyPermission({ index: 0 }) ? "已获得" : "未获得"
-                    }}</span
-                  >
-                </p>
-                <p>
-                  下期：<span
-                    :class="{
-                      success: getStudyPermission({ index: 1 }),
-                      fail: !getStudyPermission({ index: 1 }),
-                    }"
-                    >{{
-                      getStudyPermission({ index: 1 }) ? "已获得" : "未获得"
-                    }}</span
-                  >
-                </p>
-              </div>
-            </div>
             <div class="selectDate">
-              <span v-if="state?.spaceInfo?.type == 1">今天</span>
+              <span v-if="state?.bookInfo?.type == 1">今天</span>
               <span v-else>{{
                 state.studyOpenTime?.find(
                   (e) => e?.id == state.filterSearch?.dateId
@@ -605,7 +495,7 @@ const onViewMap = () => {
               />
             </div>
             <p class="selectSeat">
-              已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
+              已选座位： <span>{{ state.bookSelected?.no || "-" }}</span>
             </p>
           </div>
           <a-button
@@ -613,42 +503,13 @@ const onViewMap = () => {
             shape="round"
             type="primary"
             block
-            @click="state.spaceRuleShow = true"
-            :disabled="
-              !state.spaceSelected?.id ||
-              !getStudyPermission({ id: state.filterSearch?.dateId })
-            "
-            >{{
-              !getStudyPermission({ id: state.filterSearch?.dateId })
-                ? "无预约权限"
-                : "立即预约"
-            }}</a-button
+            :disabled="!state.bookSelected?.id"
+            >立即预约</a-button
           >
         </template>
         <a-skeleton v-else :paragraph="{ rows: 4 }" active />
       </div>
     </div>
-
-    <a-modal
-      width="40%"
-      v-model:open="state.libraryInfoShow"
-      title="空间详情"
-      @ok="handleAppt"
-      destroyOnClose
-      cancelText="关闭"
-      :cancelButtonProps="{
-        size: 'middle',
-        style: {
-          color: '#8C8F9E',
-          background: '#F3F4F7',
-          borderColor: '#CECFD5',
-        },
-      }"
-      :okButtonProps="{ size: 'middle', style: { display: 'none' } }"
-      centered
-    >
-      <LibraryInfo v-if="state.libraryInfo?.id" :data="state.libraryInfo" />
-    </a-modal>
 
     <a-modal
       width="35%"
@@ -671,21 +532,21 @@ const onViewMap = () => {
         size: 'middle',
         style: {
           background:
-            state.spaceInfo?.type != 1
+            state.bookInfo?.type != 1
               ? (!state?.filterDate?.date && 'rgba(26,73,192,0.3)') || ''
               : (!state?.filterDate?.time && 'rgba(26,73,192,0.3)') || '',
           pointerEvents:
-            state.spaceInfo?.type != 1
+            state.bookInfo?.type != 1
               ? (!state?.filterDate?.date && 'none') || ''
               : (!state?.filterDate?.time && 'none') || '',
         },
       }"
       centered
     >
-      <template v-if="state.spaceInfo?.date?.list?.length">
+      <template v-if="state.bookInfo?.date?.list?.length">
         <SpaceFilterDate
-          v-if="state.spaceInfo?.type == 1"
-          :date="state.spaceInfo?.date"
+          v-if="state.bookInfo?.type == 1"
+          :date="state.bookInfo?.date"
           :initSearch="state.filterDate"
         />
         <SpaceSeatStudy
@@ -696,12 +557,12 @@ const onViewMap = () => {
       </template>
     </a-modal>
 
-    <SpaceRuleConfirm
+    <!-- <SpaceRuleConfirm
       v-if="state.spaceRuleShow"
       v-model:open="state.spaceRuleShow"
       :content="state.ruleInfo?.content"
       @onConfirm="handleAppt"
-    />
+    /> -->
 
     <ShowInfoToast
       v-if="state.apptResult.show"
@@ -721,7 +582,7 @@ const onViewMap = () => {
         </div>
         <div class="toastItem">
           <span>座位：</span>
-          <span>{{ state.spaceSelected?.no || "-" }}</span>
+          <span>{{ state.bookSelected?.no || "-" }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
           <span>提醒：</span>
@@ -735,26 +596,15 @@ const onViewMap = () => {
       @click="state.isShowFloorPlane = false"
     >
       <div class="wrapper captureArea">
-        <SpaceSeatMap
+        <BookMap
           @click.stop
           review
-          :list="state.spaceList"
-          :data="state.spaceInfo"
-          :seatSelected="state.spaceSelected"
+          :list="state.bookList"
+          :data="state.bookInfo"
+          :seatSelected="state.bookSelected"
         />
       </div>
     </van-overlay>
-    <!-- <a-image
-      :width="200"
-      :style="{ display: 'none' }"
-      :preview="{
-        visible: state.isShowFloorPlane,
-        onVisibleChange: (v) => {
-          state.isShowFloorPlane = v;
-        },
-      }"
-      :src="state.floorPlaneMapSrc"
-    /> -->
   </div>
 </template>
 <style lang="less" scoped>

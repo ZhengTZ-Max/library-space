@@ -43,13 +43,6 @@ watch(
   }
 );
 
-watch(
-  () => state.filterRows.library,
-  (library) => {
-    filterFloor();
-  }
-);
-
 const filterFloor = () => {
   let storey = state.filterOptions?.storey;
   let libraryIds = state.filterRows?.library;

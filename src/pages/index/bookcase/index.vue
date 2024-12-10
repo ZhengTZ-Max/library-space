@@ -4,27 +4,20 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
 
-import { SearchOutlined } from "@ant-design/icons-vue";
-
 import { exchangeDateTime } from "@/utils";
-import { getSpacePick, getSpaceDetail, getSpaceIndex } from "@/request/seat";
 import { getLockerList, getLockerFilter } from "@/request/bookcase";
-import LibraryInfo from "@/components/LibraryInfo.vue";
-import SpaceFilter from "@/components/SpaceSeat/SpaceFilterCom.vue";
-import SpaceMap from "@/components/SpaceSeat/SpaceMap.vue";
+import BookFilter from "@/components/BookcaseCom/BookFilterCom.vue";
 
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 const containerRef = ref();
 const state = reactive({
-  libraryInfoShow: false,
-  libraryInfo: {},
-  spaceFilterShow: false,
+  BookFilterShow: false,
   activeIndex: "",
 
   initQuery: {
-    libraryId: route?.query?.id || "",
+    bookcaseId: route?.query?.id || "",
     quickDate: route?.query?.date || "",
     floorId: route?.query?.floor || "",
     seatType: route?.query?.seatType || "",
@@ -32,25 +25,17 @@ const state = reactive({
 
   quickDate: route?.query?.date || "",
   quickDateList: [],
-  quickMode: "1",
-  quickModeList: [
-    { value: 0, label: "地图模式" },
-    { value: 1, label: "列表模式" },
-  ],
+
   bookcaseList: [],
   floorList: [],
 
   spaceInfo: {},
 
-  filterOptions: {},
+  filterOptions: [],
   filterSearch: {
-    search: "",
-    library: [],
-    floor: [],
-    seatType: [],
-    date: "",
-    boutique: [],
-    time: [0, 0],
+    library: '',
+    floor: '',
+    bookType: [],
   },
 
   floorMapOpt: {
@@ -77,21 +62,21 @@ watch(
 );
 
 const initQueryFn = () => {
-  let { libraryId, quickDate, floorId, seatType } = state.initQuery;
+  let { bookcaseId, quickDate, floorId, seatType } = state.initQuery;
 
   let floorSelect = [];
 
-  state.filterSearch.library = (libraryId && [libraryId]) || [];
+  state.filterSearch.library = (bookcaseId && [bookcaseId]) || [];
   state.filterSearch.date = quickDate;
   state.filterSearch.seatType = (seatType && [seatType]) || [];
 
-  state.filterOptions?.storey?.map((e) => {
-    if (e?.list?.find((f) => f?.id == floorId)) {
-      floorSelect.push(e);
-    }
-  });
+  // state.filterOptions?.storey?.map((e) => {
+  //   if (e?.list?.find((f) => f?.id == floorId)) {
+  //     floorSelect.push(e);
+  //   }
+  // });
 
-  state.filterSearch.floor = floorSelect?.map((e) => e.name);
+  // state.filterSearch.floor = floorSelect?.map((e) => e.name);
 };
 
 const onChangeAct = (i) => {
@@ -120,7 +105,7 @@ const fetchLibrary = async () => {
       // boutiqueIds: boutique,
       // date,
     };
-    console.log("state.filterOptions", state.filterOptions, library);
+    // console.log("state.filterOptions", state.filterOptions, library);
     // if (!library?.length) {
     //   params.premisesIds = state.filterOptions?.premises?.map((e) => e?.id);
     // }
@@ -168,34 +153,7 @@ const handleAppt = (row) => {
           </a-breadcrumb>
         </div>
         <div class="rightAction">
-          <!-- <div class="quickDate">
-            <div class="quickBtns" style="margin-right: 40px">
-              <div
-                v-for="item in state.quickDateList"
-                :key="item.label"
-                class="item activeBtn"
-                :class="{ itemActive: item?.value == state.quickDate }"
-                @click="onChangeQDate(item)"
-              >
-                {{ exchangeDateTime(item?.value, 40) }}
-                {{ item?.label }}
-              </div>
-            </div>
-          </div> -->
-
-          <!-- <div class="quickBtns">
-            <div
-              v-for="item in state.quickModeList"
-              :key="item.label"
-              class="item activeBtn"
-              :class="{ itemActive: item?.value == state.quickMode }"
-              @click="state.quickMode = item?.value"
-            >
-              {{ item?.label }}
-            </div>
-          </div> -->
-
-          <div class="filters activeBtn" @click="state.spaceFilterShow = true">
+          <div class="filters activeBtn" @click="state.BookFilterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
             筛选
           </div>
@@ -203,7 +161,7 @@ const handleAppt = (row) => {
       </div>
     </a-affix>
 
-    <div v-if="state.quickMode == '1'" class="librarySlt">
+    <div class="librarySlt">
       <a-row v-if="state.bookcaseList?.length" :gutter="[60, 80]">
         <template v-for="item in state.bookcaseList" :key="item?.id">
           <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
@@ -256,38 +214,9 @@ const handleAppt = (row) => {
       <a-empty v-else />
     </div>
 
-    <div v-else class="spaceMapSlt">
-      <SpaceMap
-        v-if="state.floorMapOpt.list?.length"
-        :options="state.floorMapOpt"
-      />
-    </div>
-
-    <a-modal
-      width="40%"
-      v-model:open="state.libraryInfoShow"
-      title="空间详情"
-      @ok="handleAppt(state.spaceInfo)"
-      destroyOnClose
-      okText="预约"
-      cancelText="关闭"
-      :cancelButtonProps="{
-        size: 'middle',
-        style: {
-          color: '#8C8F9E',
-          background: '#F3F4F7',
-          borderColor: '#CECFD5',
-        },
-      }"
-      :okButtonProps="{ size: 'middle' }"
-      centered
-    >
-      <LibraryInfo v-if="state.spaceInfo?.id" :data="state.spaceInfo" />
-    </a-modal>
-
     <a-modal
       width="50%"
-      v-model:open="state.spaceFilterShow"
+      v-model:open="state.BookFilterShow"
       title="空间筛选"
       @ok="handleFilter"
       destroyOnClose
@@ -304,8 +233,8 @@ const handleAppt = (row) => {
       :okButtonProps="{ size: 'middle' }"
       centered
     >
-      <SpaceFilter
-        v-if="state.filterOptions?.premises?.length"
+      <BookFilter
+        v-if="state.filterOptions?.length"
         :data="state.filterOptions"
         :initSearch="state.filterSearch"
       />
@@ -453,11 +382,6 @@ const handleAppt = (row) => {
       box-sizing: initial;
       z-index: 1;
     }
-  }
-
-  .spaceMapSlt {
-    display: flex;
-    justify-content: center;
   }
 
   .quickFloor {
