@@ -81,7 +81,7 @@ const initFileList = () => {
     }
     return e;
   });
-  console.log("fileList", fileList?.value);
+  // console.log("fileList", fileList?.value);
 };
 </script>
 <template>

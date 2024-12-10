@@ -280,8 +280,8 @@ const onSubmit = async () => {
     <a-form
       :model="formState"
       layout="horizontal"
-      :label-col="{ span: 6 }"
-      :wrapper-col="{ span: 18 }"
+      :label-col="{ span: 6, offset: 1 }"
+      :wrapper-col="{ span: 16,}"
     >
       <a-form-item label="学工号：" name="studentId">
         <a-input
