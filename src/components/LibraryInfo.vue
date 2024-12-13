@@ -43,7 +43,7 @@ const filterCategorys = (list) => {
   <div class="libraryInfo">
     <!-- 轮播图 -->
 
-    <van-swipe
+    <!-- <van-swipe
       v-if="systemMode != 'pc' && state.propsData?.type == 'activity'"
       :autoplay="3000"
       indicator-color="white"
@@ -56,35 +56,37 @@ const filterCategorys = (list) => {
           alt="Empty state illustration"
         />
       </van-swipe-item>
-    </van-swipe>
-    <van-swipe
-      v-if="systemMode != 'pc' && state.propsData?.type == 'space'"
-      :autoplay="3000"
-      indicator-color="white"
-    >
-      <van-swipe-item v-for="(item, index) in state.propsData?.img" :key="item">
-        <img
-          width="100%"
-          height="290px"
-          :src="item"
-          alt="Empty state illustration"
-        />
-      </van-swipe-item>
-    </van-swipe>
-    <van-swipe
-      v-if="state.propsData?.type == 'library' && systemMode != 'pc'"
-      :autoplay="3000"
-      indicator-color="white"
-    >
-      <van-swipe-item>
-        <img
-          width="100%"
-          height="290px"
-          :src="state.propsData?.firstImg"
-          alt="Empty state illustration"
-        />
-      </van-swipe-item>
-    </van-swipe>
+    </van-swipe> -->
+
+    <a-carousel autoplay>
+      <div
+        class="reviewImg"
+        v-if="systemMode != 'pc' && state.propsData?.type == 'activity'"
+        v-for="item in state.propsData?.img"
+        :key="item"
+      >
+        <img :src="item" alt="" />
+      </div>
+    </a-carousel>
+    <a-carousel autoplay>
+      <div
+        class="reviewImg"
+        v-if="systemMode != 'pc' && state.propsData?.type == 'space'"
+        v-for="item in state.propsData?.img"
+        :key="item"
+      >
+        <img :src="item" alt="" />
+      </div>
+    </a-carousel>
+
+    <a-carousel autoplay>
+      <div
+        class="reviewImg"
+        v-if="systemMode != 'pc' && state.propsData?.type == 'library'"
+      >
+        <img :src="state.propsData?.firstImg" alt="" />
+      </div>
+    </a-carousel>
 
     <!-- 标题 -->
     <p v-if="systemMode == 'pc'" class="title">
@@ -141,6 +143,14 @@ const filterCategorys = (list) => {
 </template>
 <style lang="less" scoped>
 .libraryInfo {
+  .reviewImg {
+    width: 100%;
+    img {
+      width: 100%;
+      height: 300px;
+    }
+  }
+
   .my_swipe .van-swipe-item {
     color: #fff;
     font-size: 20px;

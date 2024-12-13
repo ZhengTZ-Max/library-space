@@ -828,6 +828,7 @@ const fetchSubmit = async (params) => {
     color: rgba(32, 32, 32, 1);
   }
   .indicator_title {
+    margin-left: 10px;
     width: 4px;
     height: 16px;
     background-color: rgba(26, 73, 192, 1);
@@ -844,12 +845,14 @@ const fetchSubmit = async (params) => {
   .submit_btn {
     width: 80px;
     font-size: 14px;
+    margin-right: 10px;
   }
 }
 
 .feedback_item {
   margin-top: 30px;
   margin-left: 30px;
+  margin-right: 30px;
   color: rgba(97, 97, 97, 1);
   font-size: 14px;
   div {

@@ -148,6 +148,6 @@ const onClickItem = (item) => {
   }
 }
 :deep(.van-pull-refresh) {
-  height: 50% !important;
+  height: 100% !important;
 }
 </style>

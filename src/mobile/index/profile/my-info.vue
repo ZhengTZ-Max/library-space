@@ -12,6 +12,8 @@
 import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
+import { getMyInfo, updateMyInfo } from "@/request/my";
+import { message } from "ant-design-vue";
 
 const store = useStore();
 const router = useRouter();
@@ -19,11 +21,84 @@ const route = useRoute();
 
 const state = reactive({
   id: route?.query?.id || "",
-  status: "预约成功",
+  status: "",
   isEdit: false,
-  mobile: "12345678901",
-  email: "12345678901@qq.com",
+  mobile: "",
+  email: "",
 });
+
+onMounted(() => {
+  fetchMyInfo();
+});
+
+watch(
+  () => state.userInfo,
+  (v) => {
+    if (v) {
+      state.mobile = v.mobile;
+      state.email = v.email;
+    }
+  }
+);
+watch(
+  () => state.userInfo?.status,
+  (v) => {
+    if (v == "1") {
+      state.status = "正常";
+    } else if (v == "0") {
+      state.status = "注销";
+    } else if (v == "2") {
+      state.status = "挂失";
+    } else if (v == "3") {
+      state.status = "临时禁止";
+    } else {
+      state.status = "未知状态";
+    }
+  }
+);
+
+const fetchMyInfo = async () => {
+  try {
+    const res = await getMyInfo();
+    if (res.code === 0) {
+      state.userInfo = res.data || {};
+      // if (state.userInfo.name) {
+      //   store.dispatch("setUserName", res.data.name);
+      // }
+    }
+    console.log(res);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const onApply = () => {
+  if (!state.mobile) {
+    message.error("请输入手机号");
+    return;
+  }
+  if (!state.email) {
+    message.error("请输入邮箱");
+    return;
+  }
+  fetchUpdateMyInfo();
+};
+
+const fetchUpdateMyInfo = async () => {
+  try {
+    let params = {
+      mobile: state.mobile,
+      email: state.email,
+    };
+    const res = await updateMyInfo(params);
+    if (res.code === 0) {
+      message.success("修改成功");
+      state.isEdit = false;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 </script>
 <template>
   <div class="my-info">
@@ -41,7 +116,7 @@ const state = reactive({
             size="small"
           />
           <img
-            v-if="state.mobile"
+            v-if="!state.isEdit"
             @click="state.isEdit = !state.isEdit"
             src="@/assets/my/activity-record/comments_edit.svg"
             alt=""
@@ -62,7 +137,7 @@ const state = reactive({
             size="small"
           />
           <img
-            v-if="state.email"
+            v-if="!state.isEdit"
             @click="state.isEdit = !state.isEdit"
             src="@/assets/my/activity-record/comments_edit.svg"
             alt=""
@@ -70,10 +145,26 @@ const state = reactive({
         </div>
       </div>
       <van-cell-group>
-        <van-cell class="info_item" title="学工号" value="内容" />
-        <van-cell class="info_item" title="部门/专业" value="内容" />
-        <van-cell class="info_item" title="当前状态" value="内容" />
-        <van-cell class="info_item" title="卡有效期" value="内容" />
+        <van-cell
+          class="info_item"
+          title="学工号"
+          :value="state.userInfo?.card"
+        />
+        <van-cell
+          class="info_item"
+          title="部门/专业"
+          :value="state.userInfo?.deptName"
+        />
+        <van-cell
+          class="info_item"
+          title="当前状态"
+          :value="state.status"
+        />
+        <van-cell
+          class="info_item"
+          title="卡有效期"
+          :value="state.userInfo?.date"
+        />
       </van-cell-group>
     </div>
 
@@ -103,20 +194,18 @@ const state = reactive({
   .top_info {
     overflow-y: auto;
 
-
     .mobile_email_info {
       display: flex;
       justify-content: space-between;
       padding: 10px 16px;
       background-color: #fff;
-      .mobile_email_title{
+      .mobile_email_title {
         font-size: 14px;
         color: #616161;
       }
       .mobile_email_input {
         color: #616161;
         text-align: right;
-        
       }
     }
     .divider {

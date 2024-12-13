@@ -20,13 +20,16 @@ const router = useRouter();
 const route = useRoute();
 
 const formState = reactive({
-  userId: "",
-  username: "",
+  userId: store.state.userId,
+  username: store.state.userName,
   oldPassword: "",
   newPassword: "",
   confirmPassword: "",
 });
 
+
+const userId = computed(() => store.state.userId);
+const userName = computed(() => store.state.userName);
 
 const onSubmit = async () => {
   try {

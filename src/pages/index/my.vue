@@ -4,7 +4,8 @@ import { reactive, onMounted, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { message } from "ant-design-vue";
-import { getMyInfo, updatePassword } from "@/request/my";
+import { getMyInfo, updatePassword, updateMyInfo } from "@/request/my";
+import { OutLogin } from "@/utils";
 
 const store = useStore();
 const router = useRouter();
@@ -24,6 +25,10 @@ const state = reactive({
   isShowDrawer: false,
   userInfo: {},
   filterRightNavs: [],
+  isEditEmailAndMobile: false,
+
+  email: "",
+  mobile: "",
 });
 
 const formState = reactive({
@@ -83,6 +88,22 @@ watch(
   (v) => {
     if (v) {
       // toggleLang(v === "1" ? "zh" : "en");
+    }
+  }
+);
+watch(
+  () => state.userInfo?.id,
+  (v) => {
+    if (v) {
+      formState.studentId = v;
+    }
+  }
+);
+watch(
+  () => state.userInfo?.name,
+  (v) => {
+    if (v) {
+      formState.name = v;
     }
   }
 );
@@ -175,6 +196,41 @@ const onSubmit = async () => {
     console.log(error);
   }
 };
+
+const onLogout = () => {
+  OutLogin();
+};
+
+const onSaveEmailAndMobile = () => {
+  if (!state.mobile) {
+    message.error("请输入手机号");
+    return;
+  }
+  if (!state.email) {
+    message.error("请输入邮箱");
+    return;
+  }
+
+  fetchUpdateMyInfo();
+};
+
+const fetchUpdateMyInfo = async () => {
+  try {
+    let params = {
+      mobile: state.mobile,
+      email: state.email,
+    };
+    const res = await updateMyInfo(params);
+    if (res.code === 0) {
+      message.success("修改成功");
+      state.isEditEmailAndMobile = false;
+      state.userInfo.mobile = state.mobile;
+      state.userInfo.email = state.email;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 </script>
 <template>
   <div class="my">
@@ -193,17 +249,74 @@ const onSubmit = async () => {
 
         <div class="infoItem" style="border-top: 1px solid #f5f5f5">
           <div class="itemLabel">手机号</div>
-          <div class="itemRight">
+          <div v-if="!state.isEditEmailAndMobile">
             <span>{{ state.userInfo?.mobile }}</span>
-            <img class="activeBtn" src="@/assets/my/edit.svg" alt="" />
+            <img
+              class="activeBtn"
+              src="@/assets/my/edit.svg"
+              @click="state.isEditEmailAndMobile = true"
+              alt=""
+            />
+          </div>
+          <div v-else>
+            <div class="itemRight">
+              <a-input
+                :bordered="false"
+                style="text-align: right"
+                v-model:value="state.mobile"
+                placeholder="请输入手机号"
+              />
+              <img
+                @click="state.isEditEmailAndMobile = false"
+                class="activeBtn"
+                src="@/assets/my/activity-record/comments_cancel.svg"
+                alt=""
+              />
+              <img
+                @click="onSaveEmailAndMobile"
+                class="activeBtn"
+                src="@/assets/my/activity-record/comments_ok.svg"
+                alt=""
+              />
+            </div>
           </div>
         </div>
         <div class="infoItem">
           <div class="itemLabel">邮箱</div>
-          <div class="itemRight">
+          <div v-if="!state.isEditEmailAndMobile">
             <span>{{ state.userInfo?.email }}</span>
-            <img class="activeBtn" src="@/assets/my/edit.svg" alt="" />
+            <img
+              class="activeBtn"
+              src="@/assets/my/edit.svg"
+              @click="state.isEditEmailAndMobile = true"
+              alt=""
+            />
           </div>
+          <div v-else>
+            <div class="itemRight">
+              <a-input
+                :bordered="false"
+                style="text-align: right"
+                v-model:value="state.email"
+                placeholder="请输入邮箱"
+              />
+              <img
+                @click="state.isEditEmailAndMobile = false"
+                class="activeBtn"
+                src="@/assets/my/activity-record/comments_cancel.svg"
+                alt=""
+              />
+              <img
+                @click="onSaveEmailAndMobile"
+                class="activeBtn"
+                src="@/assets/my/activity-record/comments_ok.svg"
+                alt=""
+              />
+            </div>
+          </div>
+          <!-- <div class="itemRight">
+            
+          </div> -->
         </div>
         <div class="infoItem">
           <div class="itemLabel">学工号</div>
@@ -231,6 +344,7 @@ const onSubmit = async () => {
 
         <div class="actionBot">
           <a-button
+            @click="onLogout"
             shape="round"
             block
             style="margin-right: 20px; color: #868686"
@@ -281,7 +395,7 @@ const onSubmit = async () => {
       :model="formState"
       layout="horizontal"
       :label-col="{ span: 6, offset: 1 }"
-      :wrapper-col="{ span: 16,}"
+      :wrapper-col="{ span: 16 }"
     >
       <a-form-item label="学工号：" name="studentId">
         <a-input
@@ -384,15 +498,18 @@ const onSubmit = async () => {
         display: flex;
         align-items: center;
         border-bottom: 1px solid;
+        justify-content: space-between;
         border-color: #f5f5f5;
         font-size: 16px;
         color: #616161;
 
         .itemLabel {
-          flex: 1;
+          width: 100px;
+          // flex: 1;
         }
 
         .itemRight {
+          justify-content: flex-end;
           display: flex;
           align-items: center;
           img {

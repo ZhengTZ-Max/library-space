@@ -17,6 +17,7 @@ const store = createStore({
     lang: "en",
 
     userName: "",
+    userId: "",
   },
   mutations: {
     setCategoryList(state, list) {
@@ -53,6 +54,9 @@ const store = createStore({
     setUserName(state, name) {
       state.userName = name;
     },
+    setUserId(state, id) {
+      state.userId = id;
+    },
   },
   actions: {
     setCategoryList({ commit }, list) {
@@ -88,6 +92,9 @@ const store = createStore({
     setUserName({ commit }, name) {
       commit("setUserName", name);
     },
+    setUserId({ commit }, id) {
+      commit("setUserId", id);
+    },
   },
   getters: {
     isPageLoading(state) {
@@ -107,6 +114,9 @@ const store = createStore({
     },
     getUserName(state) {
       return state.userName;
+    },
+    getUserId(state) {
+      return state.userId;
     },
   },
 });

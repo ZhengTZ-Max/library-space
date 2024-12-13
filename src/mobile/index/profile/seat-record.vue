@@ -452,7 +452,7 @@ const fetchQuery = () => {
   margin-bottom: 0px !important;
 }
 :deep(.van-pull-refresh) {
-  height: 50% !important;
+  height: 100% !important;
 }
 :deep(.ant-btn-sm) {
   font-size: 12px !important;

@@ -120,6 +120,9 @@ const fetchMyInfo = async () => {
       if (state.userInfo.name) {
         store.dispatch("setUserName", res.data.name);
       }
+      if (state.userInfo.id) {
+        store.dispatch("setUserId", res.data.id);
+      }
     }
     console.log(res);
   } catch (error) {

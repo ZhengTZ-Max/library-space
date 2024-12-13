@@ -31,3 +31,13 @@ export function updatePassword(data) {
     data,
   });
 }
+
+export function updateMyInfo(data) {
+  return service({
+    url: "/v4/member/updateUserInfo",
+    method: "POST",
+    isLoading: true,
+    isCrypto: true,
+    data,
+  });
+}
