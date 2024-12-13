@@ -285,3 +285,8 @@ div {
 :where(.css-dev-only-do-not-override-gobucf).ant-slider .ant-slider-track {
   transition: 0.15s !important;
 }
+
+
+:where(.css-dev-only-do-not-override-gobucf).ant-checkbox+span{
+  min-width: 45px;
+}

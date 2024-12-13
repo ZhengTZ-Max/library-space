@@ -181,19 +181,9 @@ const onViewMap = () => {
   <div class="seatAppointment" ref="containerRef">
     <a-affix :offset-top="0" :target="() => containerRef">
       <div class="header">
-        <div class="leftTit">
-          <a-breadcrumb>
-            <template #separator
-              ><img src="@/assets/seat/titRightIcon.svg" alt=""
-            /></template>
-            <a-breadcrumb-item @click="goToLink('/bookcase')"
-              >选择存书柜</a-breadcrumb-item
-            >
-            <a-breadcrumb-item>选择柜格</a-breadcrumb-item>
-          </a-breadcrumb>
-        </div>
+        <div class="leftTit"></div>
         <div class="rightAction">
-          <div class="quickBtns">
+          <div class="quickMode">
             <div
               v-for="item in state.quickModeList"
               :key="item.label"
@@ -215,6 +205,18 @@ const onViewMap = () => {
       </div>
     </a-affix>
     <div class="showCon">
+      <div class="rightBox">
+        <template v-if="state.bookInfoList?.length">
+          <BookAreaSwipe
+            v-if="state.bookInfoList?.length"
+            :data="state.bookInfoList"
+            :defaultId="state.initQuery.BookId"
+            @changeSlide="onChangeSlide"
+            @viewFloor="onViewMap"
+          />
+        </template>
+        <a-skeleton v-else :paragraph="{ rows: 4 }" active />
+      </div>
       <div class="leftBox">
         <template v-if="state.bookList?.length">
           <div v-if="state.quickMode == '1'" class="librarySlt">
@@ -242,35 +244,26 @@ const onViewMap = () => {
         <a-skeleton v-else :paragraph="{ rows: 12 }" active />
       </div>
 
-      <div class="rightBox">
-        <template v-if="state.bookInfoList?.length">
-          <BookAreaSwipe
-            v-if="state.bookInfoList?.length"
-            :data="state.bookInfoList"
-            :defaultId="state.initQuery.BookId"
-            @changeSlide="onChangeSlide"
-            @viewFloor="onViewMap"
-          />
-
-          <div class="reservation">
-            <p class="selectSeat">
-              已选柜号： <span>{{ state.bookSelected?.no || "-" }}</span>
-            </p>
-          </div>
-          <a-button
-            class="reserve-btn"
-            shape="round"
-            type="primary"
-            block
-            :disabled="!state.bookSelected?.id"
-            @click="confirmAppt"
-            >立即预约</a-button
-          >
-        </template>
-        <a-skeleton v-else :paragraph="{ rows: 4 }" active />
+      <div class="reservation">
+        <p class="selectSeat">
+          已选柜号： <span>{{ state.bookSelected?.no || "-" }}</span>
+        </p>
       </div>
     </div>
-
+    <div class="bottomAction">
+      <van-button round block type="default" @click="router.go(-1)">
+        <img src="@/assets/seat/moBackBtn.svg" alt="" />
+        返回
+      </van-button>
+      <van-button
+        round
+        block
+        type="primary"
+        :disabled="!state.bookSelected?.id"
+        @click="confirmAppt"
+        >立即预约</van-button
+      >
+    </div>
     <ShowInfoToast
       v-if="state.apptResult.show"
       :isShow="state.apptResult.show"
@@ -322,8 +315,9 @@ const onViewMap = () => {
 .seatAppointment {
   height: 100%;
   overflow: auto;
+  background: #f7f8fa;
   .header {
-    padding: 20px 30px;
+    padding: 10px 30px 0 30px;
     color: #202020;
     display: flex;
     align-items: center;
@@ -339,7 +333,22 @@ const onViewMap = () => {
     .rightAction {
       flex: 1;
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      .quickMode {
+        display: flex;
+        .item {
+          padding-bottom: 10px;
+          font-size: 15px;
+          color: #616161;
+          &:first-child {
+            margin-right: 40px;
+          }
+          &.itemActive {
+            color: #202020;
+            border-bottom: 2px solid #1a49c0;
+          }
+        }
+      }
 
       .filters {
         margin-left: 20px;
@@ -357,80 +366,21 @@ const onViewMap = () => {
     }
   }
   .showCon {
-    height: calc(100% - 90px);
+    height: calc(100% - 112px);
+
     display: flex;
-    padding: 12px 30px;
+    flex-direction: column;
+    padding: 12px;
     .leftBox {
-      padding: 30px;
-      flex: 1;
-      background: #f7f9fb;
+      margin-top: 12px;
+      padding: 14px;
+      background: #ffffff;
+      box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
       border-radius: 10px;
       overflow-y: auto;
     }
-    .rightBox {
-      margin-left: 20px;
-      width: 320px;
-
-      .reservation {
-        background: #ffffff;
-        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
-        border-radius: 10px 10px 10px 10px;
-        border: 1px solid #e7e7e7;
-        padding: 20px 18px;
-        margin-top: 20px;
-        .studyPermission {
-          margin: 0 -18px;
-          padding: 0 18px;
-          padding-bottom: 14px;
-          margin-bottom: 14px;
-          border-bottom: 1px solid #e7e7e7;
-          .studyTitle {
-            font-size: 15px;
-            color: #202020;
-            margin-bottom: 10px;
-          }
-          .studyBox {
-            display: flex;
-            justify-content: space-between;
-            font-size: 15px;
-            color: #616161;
-            .success {
-              color: #56bb46;
-            }
-            .fail {
-              color: #202020;
-            }
-          }
-        }
-
-        .selectDate {
-          display: flex;
-          font-size: 15px;
-          color: #202020;
-          span {
-            &:nth-child(1) {
-              font-size: 15px;
-              color: #1a49c0;
-              margin-right: 6px;
-            }
-            &:nth-child(2) {
-              flex: 1;
-            }
-          }
-        }
-        .selectSeat {
-          font-size: 15px;
-          color: #616161;
-          span {
-            color: #202020;
-          }
-        }
-      }
-
-      .reserve-btn {
-        margin-top: 60px;
-        font-size: 16px;
-      }
+    .leftBoxMo {
+      padding: 0;
     }
   }
   .librarySlt {
@@ -441,7 +391,39 @@ const onViewMap = () => {
     display: flex;
     justify-content: center;
     .spaceMap {
-      max-width: 940px;
+      width: 100%;
+    }
+  }
+
+  .reservation {
+    background: #ffffff;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
+    border-radius: 10px 10px 10px 10px;
+    border: 1px solid #e7e7e7;
+    padding: 20px 18px;
+    margin-top: 20px;
+
+    .selectSeat {
+      font-size: 15px;
+      color: #616161;
+      span {
+        color: #202020;
+      }
+    }
+  }
+  .bottomAction {
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    & button {
+      &:nth-child(1) {
+        margin-right: 12px;
+      }
+      img {
+        margin-right: 4px;
+        transform: translateY(-2px);
+      }
     }
   }
 }

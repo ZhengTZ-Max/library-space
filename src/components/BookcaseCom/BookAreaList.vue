@@ -26,7 +26,7 @@ const state = reactive({
 });
 
 onMounted(() => {
-  state.list = props?.list?.filter((e) => e?.status == 1) || [];
+  state.list = props?.list?.filter((e) => e?.boxState == 1) || [];
 });
 
 const selectSeat = (seat) => {
@@ -42,17 +42,16 @@ const selectSeat = (seat) => {
             class="seatItem activeBtn"
             :class="{
               active: props?.seatSelected?.id == item?.id,
-              notSelected: item?.status != '1' || item?.in_label != '1',
             }"
             @click="selectSeat(item)"
           >
             <span>{{ item?.no }}</span>
-            <span
+            <!-- <span
               v-if="item?.status != '1' || item?.in_label != '1'"
               class="leftStatus"
             >
               {{ item?.in_label != "1" ? "不可用" : item?.status_name }}
-            </span>
+            </span> -->
             <img
               v-if="props?.seatSelected?.id == item?.id"
               class="selected"

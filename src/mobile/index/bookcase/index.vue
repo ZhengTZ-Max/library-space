@@ -1,3 +1,13 @@
+<route>
+  {
+    meta: {
+      showHead: false,
+      showLeftBack:true,
+      title:'V4_space_selection',
+      showTabbar:true
+    }
+  }
+  </route>
 <script setup>
 import { reactive, onMounted, watch, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -105,7 +115,7 @@ const goToLink = (link) => {
 
 const handleAppt = (row) => {
   router.push({
-    path: "/bookcase/appointment",
+    path: "/mo/bookcase/appointment",
     query: {
       id: row?.id,
     },
@@ -122,16 +132,7 @@ const handleFilter = () => {
   <div class="bookcase" ref="containerRef">
     <a-affix offset-top="0" :target="() => containerRef">
       <div class="header">
-        <div class="leftTit">
-          <a-breadcrumb>
-            <template #separator
-              ><img src="@/assets/seat/titRightIcon.svg" alt=""
-            /></template>
-            <a-breadcrumb-item
-              >选择存书柜<img src="@/assets/seat/titRightIcon.svg" alt=""
-            /></a-breadcrumb-item>
-          </a-breadcrumb>
-        </div>
+        <div class="leftTit"></div>
         <div class="rightAction">
           <div class="filters activeBtn" @click="state.BookFilterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
@@ -142,14 +143,10 @@ const handleFilter = () => {
     </a-affix>
 
     <div class="librarySlt">
-      <a-row v-if="state.bookcaseList?.length" :gutter="[60, 80]">
+      <a-row v-if="state.bookcaseList?.length" :gutter="[0, 12]">
         <template v-for="item in state.bookcaseList" :key="item?.id">
-          <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
-            <div
-              class="libraryItem cardItem"
-              :class="{ activeItem: item?.id == state.activeIndex }"
-              @click="onChangeAct(item)"
-            >
+          <a-col :xs="24" :sm="24">
+            <div class="libraryItem cardItem" @click="onChangeAct(item)">
               <div class="cardItemImgCon">
                 <a-image
                   class="cardItemImg"
@@ -179,13 +176,19 @@ const handleFilter = () => {
                   总数 <span>{{ item?.total_num || "-" }}</span> 空闲
                   <span>{{ item?.free_num || "-" }}</span>
                 </div>
-              </div>
-              <div
-                v-if="item?.id == state.activeIndex"
-                class="action clickBoxT"
-                @click="handleAppt(item)"
-              >
-                立即预约
+                <div class="actionApt">
+                  <p class="boutiqueList ellipsis-2"></p>
+                  <van-button
+                    style="padding: 0 15px"
+                    plain
+                    hairline
+                    size="small"
+                    round
+                    type="primary"
+                    @click="handleAppt(item)"
+                    >预约</van-button
+                  >
+                </div>
               </div>
             </div>
           </a-col>
@@ -194,38 +197,45 @@ const handleFilter = () => {
       <a-empty v-else />
     </div>
 
-    <a-modal
-      width="50%"
-      v-model:open="state.BookFilterShow"
-      title="空间筛选"
-      @ok="handleFilter"
-      okText="确认"
-      cancelText="取消"
-      :cancelButtonProps="{
-        size: 'middle',
-        style: {
-          color: '#8C8F9E',
-          background: '#F3F4F7',
-          borderColor: '#CECFD5',
-        },
-      }"
-      :okButtonProps="{ size: 'middle' }"
-      centered
+    <a-drawer
+      rootClassName="filterDrawer"
+      width="100%"
+      height="50%"
+      placement="bottom"
+      :open="state.BookFilterShow"
+      @close="state.BookFilterShow = false"
+      :closable="false"
     >
-      <BookFilter
-        v-if="state.filterOptions?.length"
-        :data="state.filterOptions"
-        :initSearch="state.filterSearch"
-      />
-    </a-modal>
+      <div class="drawerCon">
+        <BookFilter
+          v-if="state.filterOptions?.length"
+          :data="state.filterOptions"
+          :initSearch="state.filterSearch"
+        />
+        <div class="bottomAct">
+          <van-button
+            round
+            block
+            type="default"
+            @click="state.BookFilterShow = false"
+          >
+            取消
+          </van-button>
+          <van-button round block type="primary" @click="handleFilter"
+            >确认</van-button
+          >
+        </div>
+      </div>
+    </a-drawer>
   </div>
 </template>
 <style lang="less" scoped>
 .bookcase {
   height: 100%;
   overflow: auto;
+  background: #fafafa;
   .header {
-    padding: 20px 30px;
+    padding: 8px 16px;
     color: #202020;
     display: flex;
     align-items: center;
@@ -265,17 +275,29 @@ const handleFilter = () => {
   }
   .librarySlt {
     width: 100%;
-    margin: 38px 0 50px 0;
-    padding: 0 82px;
+    margin: 12px 0 50px 0;
+    padding: 0 12px;
     .libraryItem {
+      padding: 14px;
       position: relative;
       box-sizing: initial;
+      display: flex;
+      box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
+      border: none;
+      .cardItemImgCon {
+        width: 120px;
+        height: 90px;
+        img {
+          width: 100%;
+          height: 100%;
+        }
+      }
     }
     .basicsBadge {
       padding: 3px 8px;
       background: #1a49c0;
       border-radius: 6px 0px 6px 0px;
-      font-size: 14px;
+      font-size: 12px;
       color: #ffffff;
     }
     .viewMore {
@@ -298,52 +320,59 @@ const handleFilter = () => {
       }
     }
     .posBot {
+      padding: 10px 17px 7px 17px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #ffffff;
-      font-size: 16px;
+      font-size: 12px;
     }
     .bottomItem {
-      padding: 14px 10px 5px 10px;
+      flex: 1;
+      padding: 0 12px;
 
       .title {
-        margin-bottom: 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-size: 16px;
+        font-size: 14px;
         color: #616161;
         span {
           &:nth-child(1) {
-            font-size: 16px;
+            font-size: 14px;
             color: #202020;
           }
         }
       }
       .num {
-        margin-bottom: 6px;
-        font-size: 14px;
+        margin-top: 11px;
+        font-size: 12px;
         color: #616161;
         display: flex;
         align-items: center;
         span {
           &:nth-child(1) {
-            font-size: 16px;
+            font-size: 14px;
             color: #202020;
             margin-left: 2px;
-            margin-right: 40px;
+            margin-right: 20px;
           }
           &:nth-child(2) {
-            font-size: 16px;
+            font-size: 14px;
             color: #1a49c0;
             margin-left: 2px;
           }
         }
       }
-      .boutiqueList {
-        font-size: 14px;
-        color: #868686;
+      .actionApt {
+        margin-top: 4px;
+        display: flex;
+        align-items: flex-end;
+        .boutiqueList {
+          flex: 1;
+          font-size: 12px;
+          color: #868686;
+        }
       }
     }
     .action {
@@ -360,38 +389,6 @@ const handleFilter = () => {
       text-align: center;
       box-sizing: initial;
       z-index: 1;
-    }
-  }
-
-  .quickFloor {
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 180px;
-    background: linear-gradient(135deg, #f0f2f7 0%, #ffffff 100%);
-    border-radius: 20px;
-    box-shadow: 8px 10px 14px #e7ecf7;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.08);
-    }
-
-    .floorNum {
-      font-weight: 400;
-      font-size: 36px;
-      color: #1a49c0;
-      transform: skewX(-12deg);
-    }
-    .floorTotal {
-      font-size: 18px;
-      color: #616161;
-      span {
-        &:nth-child(1) {
-          color: #f28800;
-        }
-      }
     }
   }
 }
@@ -428,6 +425,27 @@ const handleFilter = () => {
     display: inline-flex;
     column-gap: 36px;
     row-gap: 20px;
+  }
+}
+
+.drawerCon {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .filterCon {
+    padding: 12px;
+    flex: 1;
+  }
+  .bottomAct {
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    & button {
+      &:nth-child(1) {
+        margin-right: 12px;
+      }
+    }
   }
 }
 </style>

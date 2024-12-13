@@ -491,7 +491,7 @@ const onViewMap = () => {
       </div>
       <div
         class="leftBox"
-        :class="{ leftBoxMo: systemMode != 'pc' && state.quickMode == '0' }"
+        :class="{ leftBoxMo: state.quickMode == '0' }"
       >
         <template v-if="state.spaceList?.length">
           <div v-if="state.quickMode == '1'" class="librarySlt">

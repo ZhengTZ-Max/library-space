@@ -8,7 +8,7 @@ const systemMode = computed(() => store.state.systemMode);
 
 const props = defineProps({
   data: {
-    type: Object,
+    type: Array,
   },
   defaultId: {
     type: [String, Number],
@@ -22,7 +22,7 @@ const state = reactive({
 const carouselRef = ref(null);
 
 onMounted(() => {
-  state.list = props.data.brother_area;
+  state.list = props.data;
   state.initId = props.defaultId;
   initFirst();
 });
@@ -47,13 +47,13 @@ const onChange = (v) => {
           :class="{ moCard: systemMode != 'pc' }"
         >
           <div class="header">
-            <div class="tag">{{ item?.premise_name }}</div>
-            <img :src="item?.firstImg" alt="Reading Room" class="image" />
+            <div class="tag">{{ item?.atName }}</div>
+            <img :src="item?.firstimg" alt="Reading Room" class="image" />
           </div>
           <div class="card-body">
             <div class="card-title">
               <h3>{{ item?.name }}</h3>
-              <p class="floor">{{ props?.data?.storey_name || "-" }}</p>
+              <p class="floor">{{ item?.storeyName || "-" }}</p>
             </div>
 
             <div class="info">
@@ -64,13 +64,13 @@ const onChange = (v) => {
             </div>
             <div class="links">
               <p class="activeBtn" @click="() => emits('viewFloor')">
-                查看平面图
+                查看所在位置
                 <img src="@/assets/home/rightIcon.svg" alt="" />
               </p>
-              <p class="activeBtn" @click="() => emits('viewInfo')">
+              <!-- <p class="activeBtn" @click="() => emits('viewInfo')">
                 查看详情
                 <img src="@/assets/home/rightIcon.svg" alt="" />
-              </p>
+              </p> -->
             </div>
           </div>
         </div>

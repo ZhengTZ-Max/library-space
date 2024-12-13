@@ -47,3 +47,15 @@ export function getLockerMap(data) {
     data,
   });
 }
+
+// 确认预约格口
+export function confirmLockBox(data) {
+  return service({
+    url: "/apiLocker/lock/bookBox",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}

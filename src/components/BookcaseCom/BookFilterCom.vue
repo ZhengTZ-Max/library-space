@@ -32,7 +32,7 @@ const state = reactive({
 onMounted(() => {
   state.filterOptions = props?.data || [];
   state.filterRows = props?.initSearch || {};
-  filterFloor();
+
 });
 
 watch(
@@ -166,7 +166,7 @@ const filterTypes = () => {
       margin-bottom: 0;
     }
     .width_half {
-      width: 40%;
+      width: 40vw;
     }
   }
   .ant-input,
