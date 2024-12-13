@@ -17,7 +17,6 @@ const state = reactive({
 
 onMounted(() => {
   state.propsData = props?.data || {};
-  console.log(state.propsData);
   //   fetchInfo();
 });
 
@@ -96,7 +95,9 @@ const filterCategorys = (list) => {
           : state.propsData?.name || "-"
       }}
     </p>
-    <p v-else class="title_mobile">{{ state.propsData?.nameMerge || "-" }}</p>
+    <p v-else class="title_mobile">
+      {{ state.propsData?.nameMerge || state.propsData?.name || "-" }}
+    </p>
 
     <!-- 座位数 -->
     <div class="seatNum" v-if="state.propsData?.type == 'library'">
@@ -132,7 +133,7 @@ const filterCategorys = (list) => {
     </template>
 
     <!-- 注意事项 -->
-    <template v-if="state.propsData?.sub_title && systemMode == 'pc'">
+    <template v-if="state.propsData?.sub_title">
       <p class="subtitle" style="margin-top: 20px">注意事项</p>
       <div
         class="notice libraryIntro"

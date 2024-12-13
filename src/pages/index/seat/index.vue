@@ -178,7 +178,11 @@ const onFloor = (row) => {
               @click="onChangeAct(item)"
             >
               <div class="cardItemImgCon">
-                <a-image class="cardItemImg" :src="item?.firstImg" :preview="false">
+                <a-image
+                  class="cardItemImg"
+                  :src="item?.firstImg"
+                  :preview="false"
+                >
                   <template #placeholder>
                     <a-image
                       class="cardItemImg"

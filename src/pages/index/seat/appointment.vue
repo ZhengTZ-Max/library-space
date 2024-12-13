@@ -14,6 +14,8 @@ import {
   getSpaceConfirm,
   getCheckStudyOpenTime,
   fetchStudyConfirm,
+  addCollect,
+  deleteCollect,
 } from "@/request/seat";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceFilterDate from "@/components/SpaceSeat/SpaceFilterDate.vue";
@@ -25,6 +27,7 @@ import SeatAreaList from "@/components/SpaceSeat/SeatAreaList.vue";
 import SeatFilterLabel from "@/components/SpaceSeat/SpaceSltLabel.vue";
 import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
 import ShowInfoToast from "@/components/ShowInfoToast.vue";
+import { showToast } from "vant";
 
 const store = useStore();
 const router = useRouter();
@@ -49,7 +52,7 @@ const state = reactive({
   quickDate: route?.query?.date || "",
   quickDateList: [],
 
-  quickMode: "1",
+  quickMode: "0",
   quickModeList: [
     { value: 0, label: "地图模式" },
     { value: 1, label: "列表模式" },
@@ -464,6 +467,43 @@ const handleShow = (v) => {
 const onViewMap = () => {
   state.isShowFloorPlane = true;
 };
+const fetchAddCollect = async () => {
+  try {
+    let params = {
+      spaceId: state.initQuery?.spaceId,
+    };
+    let res = await addCollect(params);
+    if (res.code != 0) {
+      showToast({
+        duration: 3000,
+        message: res.msg,
+      });
+      return false;
+    }
+    showToast({
+      message: res.msg,
+    });
+  } catch (e) {}
+};
+
+const fetchDeleteCollect = async () => {
+  try {
+    let params = {
+      spaceId: state.initQuery?.spaceId,
+    };
+    let res = await deleteCollect(params);
+    if (res.code != 0) {
+      showToast({
+        duration: 3000,
+        message: res.msg,
+      });
+      return false;
+    }
+    showToast({
+      message: res.msg,
+    });
+  } catch (e) {}
+};
 </script>
 <template>
   <div class="seatAppointment" ref="containerRef">
@@ -604,9 +644,26 @@ const onViewMap = () => {
                 alt=""
               />
             </div>
-            <p class="selectSeat">
-              已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
-            </p>
+            <div class="selectSeat">
+              <div class="leftText">
+                已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
+              </div>
+              <div class="collectBox">
+                <img
+                  class="activeBtn"
+                  @click="fetchAddCollect"
+                  src="@/assets/seat/collectIcon.svg"
+                  alt=""
+                />
+
+                <img
+                  class="activeBtn"
+                  @click="fetchDeleteCollect"
+                  src="@/assets/seat/collectedIcon.svg"
+                  alt=""
+                />
+              </div>
+            </div>
           </div>
           <a-button
             class="reserve-btn"
@@ -861,6 +918,9 @@ const onViewMap = () => {
           margin-top: 20px;
           font-size: 15px;
           color: #616161;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           span {
             color: #202020;
           }

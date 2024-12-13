@@ -14,6 +14,8 @@ import {
   getSpaceConfirm,
   getCheckStudyOpenTime,
   fetchStudyConfirm,
+  addCollect,
+  deleteCollect,
 } from "@/request/seat";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceFilterDate from "@/components/SpaceSeat/SpaceFilterDate.vue";
@@ -24,6 +26,7 @@ import SeatAreaList from "@/components/SpaceSeat/SeatAreaList.vue";
 import SeatFilterLabel from "@/components/SpaceSeat/SpaceSltLabel.vue";
 import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
 import ShowInfoToast from "@/components/ShowInfoToast.vue";
+import { showToast } from "vant";
 
 const store = useStore();
 const router = useRouter();
@@ -316,23 +319,39 @@ const handleFilter = (type) => {
     };
     return false;
   }
-  let dateType = state.spaceInfo?.date?.reserveType;
-  if (dateType == 1) {
+
+  if (state.spaceInfo?.type != 1) {
+    console.log(state.filterDate);
+    let findCurDate = state.studyOpenTime?.find(
+      (e) => e?.id == state.filterDate?.date
+    );
+
     state.filterSearch = {
       ...state.filterSearch,
-      ...state.filterDate,
+      begdate: findCurDate?.startDay,
+      enddate: findCurDate?.endDay,
+      dateId: findCurDate?.id,
     };
-  } else if (dateType == 2) {
-    state.filterSearch = {
-      ...state.filterSearch,
-      ...state.filterDate,
-    };
-  } else if (dateType == 3) {
-    state.filterSearch = {
-      ...state.filterSearch,
-      ...state.filterDate,
-    };
+  } else {
+    let dateType = state.spaceInfo?.date?.reserveType;
+    if (dateType == 1) {
+      state.filterSearch = {
+        ...state.filterSearch,
+        ...state.filterDate,
+      };
+    } else if (dateType == 2) {
+      state.filterSearch = {
+        ...state.filterSearch,
+        ...state.filterDate,
+      };
+    } else if (dateType == 3) {
+      state.filterSearch = {
+        ...state.filterSearch,
+        ...state.filterDate,
+      };
+    }
   }
+
   fetchSpace();
 };
 
@@ -447,6 +466,44 @@ const handleShow = (v) => {
 const onViewMap = () => {
   state.isShowFloorPlane = true;
 };
+
+const fetchAddCollect = async () => {
+  try {
+    let params = {
+      spaceId: state.initQuery?.spaceId,
+    };
+    let res = await addCollect(params);
+    if (res.code != 0) {
+      showToast({
+        duration: 3000,
+        message: res.msg,
+      });
+      return false;
+    }
+    showToast({
+      message: res.msg,
+    });
+  } catch (e) {}
+};
+
+const fetchDeleteCollect = async () => {
+  try {
+    let params = {
+      spaceId: state.initQuery?.spaceId,
+    };
+    let res = await deleteCollect(params);
+    if (res.code != 0) {
+      showToast({
+        duration: 3000,
+        message: res.msg,
+      });
+      return false;
+    }
+    showToast({
+      message: res.msg,
+    });
+  } catch (e) {}
+};
 </script>
 <template>
   <div class="seatAppointment" ref="containerRef">
@@ -489,10 +546,7 @@ const onViewMap = () => {
         </template>
         <a-skeleton v-else :paragraph="{ rows: 4 }" active />
       </div>
-      <div
-        class="leftBox"
-        :class="{ leftBoxMo: state.quickMode == '0' }"
-      >
+      <div class="leftBox" :class="{ leftBoxMo: state.quickMode == '0' }">
         <template v-if="state.spaceList?.length">
           <div v-if="state.quickMode == '1'" class="librarySlt">
             <SeatAreaList
@@ -578,9 +632,26 @@ const onViewMap = () => {
             alt=""
           />
         </div>
-        <p class="selectSeat">
-          已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
-        </p>
+        <div class="selectSeat">
+          <div class="leftText">
+            已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
+          </div>
+          <div class="collectBox">
+            <img
+              class="activeBtn"
+              @click="fetchAddCollect"
+              src="@/assets/seat/collectIcon.svg"
+              alt=""
+            />
+
+            <img
+              class="activeBtn"
+              @click="fetchDeleteCollect"
+              src="@/assets/seat/collectedIcon.svg"
+              alt=""
+            />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -908,6 +979,9 @@ const onViewMap = () => {
     margin-top: 20px;
     font-size: 15px;
     color: #616161;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     span {
       color: #202020;
     }

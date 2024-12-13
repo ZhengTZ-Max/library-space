@@ -17,7 +17,7 @@ import moment from "moment";
 import { SearchOutlined } from "@ant-design/icons-vue";
 
 import { exchangeDateTime } from "@/utils";
-import { getSpacePick, getSpaceIndex } from "@/request/seat";
+import { getSpacePick, getSpaceIndex, getSpaceDetail } from "@/request/seat";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceFilter from "@/components/SpaceSeat/SpaceFilterCom.vue";
 import SpaceMap from "@/components/SpaceSeat/SpaceMap.vue";
@@ -30,7 +30,6 @@ const state = reactive({
   libraryInfoShow: false,
   libraryInfo: {},
   spaceFilterShow: false,
-  activeIndex: "",
 
   initQuery: {
     libraryId: route?.query?.id || "",
@@ -77,23 +76,14 @@ onMounted(() => {
   }
 });
 
-watch(
-  () => state.spaceList,
-  (v) => {
-    if (v?.length) {
-      state.activeIndex = v[0]?.id;
-    }
-  }
-);
-
 const initQueryFn = () => {
   let { libraryId, quickDate, floorId, seatType } = state.initQuery;
 
   let floorSelect = [];
 
-  state.filterSearch.library = libraryId && [libraryId] || [];
+  state.filterSearch.library = (libraryId && [libraryId]) || [];
   state.filterSearch.date = quickDate;
-  state.filterSearch.seatType = seatType && [seatType] || [];
+  state.filterSearch.seatType = (seatType && [seatType]) || [];
 
   state.filterOptions?.storey?.map((e) => {
     if (e?.list?.find((f) => f?.id == floorId)) {
@@ -150,8 +140,8 @@ const onQuickDateAct = (type) => {
   fetchLibrary();
 };
 
-const onChangeAct = (i) => {
-  state.activeIndex = i.id;
+const onChangeAct = (row) => {
+  row?.id && fetchInfo(row?.id);
 };
 
 const fetchFilter = async () => {
@@ -248,6 +238,21 @@ const handleAppt = (row) => {
   });
   console.log(row);
 };
+
+const fetchInfo = async (id) => {
+  try {
+    let params = {
+      id,
+    };
+    let res = await getSpaceDetail(params);
+    if (res.code != 0) return;
+    state.spaceInfo = { ...res?.data, type: "library" } || {};
+
+    state.libraryInfoShow = true;
+  } catch (e) {
+    console.log(e);
+  }
+};
 </script>
 <template>
   <div class="seatLibrary" ref="containerRef">
@@ -293,8 +298,8 @@ const handleAppt = (row) => {
       <a-row v-if="state.spaceList?.length" :gutter="[0, 12]">
         <template v-for="item in state.spaceList" :key="item?.id">
           <a-col :xs="24" :sm="24">
-            <div class="libraryItem cardItem" @click="onChangeAct(item)">
-              <div class="cardItemImgCon">
+            <div class="libraryItem cardItem">
+              <div class="cardItemImgCon" @click="onChangeAct(item)">
                 <van-image
                   lazy-load
                   class="cardItemImg"
@@ -330,13 +335,6 @@ const handleAppt = (row) => {
                   >
                 </div>
               </div>
-              <!-- <div
-                v-if="item?.id == state.activeIndex"
-                class="action clickBoxT"
-                @click="handleAppt(item)"
-              >
-                立即预约
-              </div> -->
             </div>
           </a-col>
         </template>
@@ -351,7 +349,7 @@ const handleAppt = (row) => {
       />
     </div>
 
-    <a-modal
+    <!-- <a-modal
       width="40%"
       v-model:open="state.libraryInfoShow"
       title="空间详情"
@@ -371,7 +369,40 @@ const handleAppt = (row) => {
       centered
     >
       <LibraryInfo v-if="state.spaceInfo?.id" :data="state.spaceInfo" />
-    </a-modal>
+    </a-modal> -->
+
+    <a-drawer
+      rootClassName="filterDrawer"
+      width="100%"
+      height="100%"
+      placement="bottom"
+      :open="state.libraryInfoShow"
+      @close="state.libraryInfoShow = false"
+      :closable="false"
+    >
+      <div class="libraryPop">
+        <LibraryInfo v-if="state.spaceInfo?.id" :data="state.spaceInfo" />
+
+        <div class="bottomAction">
+          <van-button
+            round
+            block
+            type="default"
+            @click="state.libraryInfoShow = false"
+          >
+            <img src="@/assets/seat/moBackBtn.svg" alt="" />
+            返回
+          </van-button>
+          <van-button
+            round
+            block
+            type="primary"
+            @click="handleAppt(state.spaceInfo)"
+            >预约</van-button
+          >
+        </div>
+      </div>
+    </a-drawer>
 
     <a-drawer
       rootClassName="filterDrawer"
@@ -670,6 +701,33 @@ const handleAppt = (row) => {
     & button {
       &:nth-child(1) {
         margin-right: 12px;
+      }
+    }
+  }
+}
+
+.libraryPop {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+
+  :deep(.libraryInfo) {
+    flex: 1;
+    padding: 14px;
+  }
+  .bottomAction {
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    & button {
+      &:nth-child(1) {
+        margin-right: 12px;
+      }
+      img {
+        margin-right: 4px;
+        transform: translateY(-2px);
       }
     }
   }

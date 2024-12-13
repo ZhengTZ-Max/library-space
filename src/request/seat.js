@@ -125,3 +125,29 @@ export function fetchStudyConfirm(data) {
     data,
   });
 }
+
+// 添加收藏
+export function addCollect(data) {
+  return service({
+    url: "/api/space/addcollect",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+
+// 删除收藏
+export function deleteCollect(data) {
+  return service({
+    url: "/api/space/deletecollect",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+
+

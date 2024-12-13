@@ -1,6 +1,8 @@
 <script setup>
 import { reactive, onMounted, watch, computed } from "vue";
 import { useStore } from "vuex";
+import _ from "lodash";
+
 const store = useStore();
 const systemMode = computed(() => store.state.systemMode);
 
@@ -28,14 +30,15 @@ const onCheckAllChange = (e) => {
 };
 watch(
   () => state.selected,
-  (val) => {
+  _.debounce((val) => {
     state.indeterminate = !!val.length && val.length < state.list?.length;
     state.checkAll = val.length === state.list?.length;
-  }
+    emits("handleSlt", state.selected);
+  }, 500)
 );
 
 const handleClickChange = (v) => {
-  !v && emits("handleSlt", state.selected);
+  // !v && emits("handleSlt", state.selected);
 };
 </script>
 <template>

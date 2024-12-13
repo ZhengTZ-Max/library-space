@@ -251,6 +251,8 @@ const handleAppt = (row) => {
   });
   console.log(row);
 };
+
+
 </script>
 <template>
   <div class="seatLibrary" ref="containerRef">
@@ -368,6 +370,7 @@ const handleAppt = (row) => {
       <SpaceMap
         v-if="state.floorMapOpt.list?.length"
         :options="state.floorMapOpt"
+        @selected="handleAppt"
       />
     </div>
 
