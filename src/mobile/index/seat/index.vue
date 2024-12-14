@@ -72,7 +72,7 @@ const initQuickDateList = (list) => {
 const handleShowInfo = (item) => {
   state.libraryInfo = {
     id: item.id,
-    type: "library",
+    type: "space",
   };
   fetchInfo(item.id);
 };

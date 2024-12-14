@@ -71,7 +71,6 @@ service.interceptors.response.use(
       activeRequests--;
       ClearPageLoading();
     }
-
     if (response.config?.isCryptoPas) {
       let data = JSON.parse(encrypt("decrypt", response.data.data));
       response.data.data = data;

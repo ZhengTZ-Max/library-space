@@ -134,7 +134,7 @@ const fetchLibraryInfo = async () => {
     let res = await getSpaceDetail(params);
     if (res.code != 0) return;
     // state.libraryInfo = res?.data || {};
-    state.libraryInfo = { ...res?.data, type: "library" } || {};
+    state.libraryInfo = { ...res?.data, type: "space" } || {};
     state.libraryInfoShow = true;
   } catch (e) {
     console.log(e);
@@ -636,7 +636,7 @@ const fetchDeleteCollect = async () => {
           <div class="leftText">
             已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
           </div>
-          <div class="collectBox">
+          <div v-if="state?.spaceInfo?.type == 1" class="collectBox">
             <img
               class="activeBtn"
               @click="fetchAddCollect"

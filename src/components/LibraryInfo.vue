@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, defineProps, computed } from "vue";
+import { reactive, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 import { getSpaceDetail } from "@/request/seat";
 
@@ -67,7 +67,7 @@ const filterCategorys = (list) => {
         <img :src="item" alt="" />
       </div>
     </a-carousel>
-    <a-carousel autoplay>
+    <!-- <a-carousel autoplay>
       <div
         class="reviewImg"
         v-if="systemMode != 'pc' && state.propsData?.type == 'space'"
@@ -76,12 +76,16 @@ const filterCategorys = (list) => {
       >
         <img :src="item" alt="" />
       </div>
-    </a-carousel>
+    </a-carousel> -->
 
     <a-carousel autoplay>
       <div
         class="reviewImg"
-        v-if="systemMode != 'pc' && state.propsData?.type == 'library'"
+        v-if="
+          systemMode != 'pc' &&
+          (state.propsData?.type == 'library' ||
+            state.propsData?.type == 'space')
+        "
       >
         <img :src="state.propsData?.firstImg" alt="" />
       </div>
@@ -89,28 +93,29 @@ const filterCategorys = (list) => {
 
     <!-- 标题 -->
     <p v-if="systemMode == 'pc'" class="title">
-      {{
-        state.propsData?.type == "space"
-          ? state.propsData?.nameMerge || "-"
-          : state.propsData?.name || "-"
-      }}
+      {{ state.propsData?.nameMerge || state.propsData?.name || "-" }}
     </p>
     <p v-else class="title_mobile">
       {{ state.propsData?.nameMerge || state.propsData?.name || "-" }}
     </p>
 
     <!-- 座位数 -->
-    <div class="seatNum" v-if="state.propsData?.type == 'library'">
+    <div
+      class="seatNum"
+      v-if="
+        state.propsData?.type == 'library' || state.propsData?.type == 'space'
+      "
+    >
       座位 ( <span>空闲{{ state.propsData?.free_num || "-" }}</span
       ><span>/总数{{ state.propsData?.total_num || "-" }}</span> )
     </div>
-    <div class="seatNum" v-if="state.propsData?.type == 'space'">
+    <!-- <div class="seatNum" v-if="state.propsData?.type == 'space'">
       {{ state.propsData?.type_name }} (
       <span
         >可容纳{{ state.propsData?.minPerson }} ~
         {{ state.propsData?.maxPerson }}人</span
       >)
-    </div>
+    </div> -->
     <div class="seatNum" v-if="state.propsData?.type == 'activity'">
       {{ filterCategorys(state.propsData?.categorys || []) }} (
       <span
@@ -121,7 +126,7 @@ const filterCategorys = (list) => {
     <div class="libraryIntro" v-html="state.propsData?.contents || ''"></div>
 
     <!-- 馆舍特征 -->
-    <template v-if="state.propsData?.boutiques?.length && systemMode == 'pc'">
+    <template v-if="state.propsData?.boutiques?.length">
       <p class="subtitle">馆舍特征</p>
 
       <div class="features">
@@ -133,7 +138,9 @@ const filterCategorys = (list) => {
     </template>
 
     <!-- 注意事项 -->
-    <template v-if="state.propsData?.sub_title">
+    <template
+      v-if="state.propsData?.sub_title && state.propsData?.type != 'library'"
+    >
       <p class="subtitle" style="margin-top: 20px">注意事项</p>
       <div
         class="notice libraryIntro"

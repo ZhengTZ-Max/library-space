@@ -14,6 +14,7 @@ import {
   fetchSeatCheckout,
   SpaceSignOut,
   SpaceCancel,
+  cancelBook,
 } from "@/request/home";
 
 import { getSpaceMap, getSpaceSeat } from "@/request/seat";
@@ -82,7 +83,7 @@ const onCancel = (row) => {
     let message = `${row.areaName}:${row.no}`;
     if (row?.type == 2)
       message = `${row.areaName} ${lang == "zh" ? "的预约" : "Appointment"}？`;
-    if (row?.type == 14)
+    if ([14, 15, 16]?.includes(row?.type))
       message = `${row.nameMerge} ${lang == "zh" ? "的预约" : "Appointment"}？`;
     if (row?.type == 13)
       message = `${row.title} ${lang == "zh" ? "的预约" : "Appointment"}？`;
@@ -117,17 +118,22 @@ const onCancel = (row) => {
           res = await fetchCancelStudyCancel(params);
         } else if (row?.type == 2) {
           res = await SpaceCancel(params);
+        } else if ([14, 15, 16]?.includes(row?.type)) {
+          params = {
+            orderId: row?.id,
+          };
+          res = await cancelBook(params);
         }
 
         if (res.code != 0) {
           showToast({
             duration: 3000,
-            message: res.message,
+            message: res?.message || res?.msg,
           });
           return false;
         }
         showToast({
-          message: res.message,
+          message: res?.message || res?.msg,
         });
         resetSubscribeList();
       })
@@ -535,6 +541,66 @@ const handleSignOut = async (data) => {
             </van-button>
             <van-button
               v-else-if="checkShow(data, 'cancel')"
+              class="btn cancel"
+              plain
+              type="primary"
+              color="#F28800"
+              @click.stop="onCancel(data)"
+            >
+              {{ store?.state?.lang?.currentLang?.signin || "取消" }}
+            </van-button>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template v-if="[14, 15, 16]?.includes(data?.type)">
+      <div class="header">
+        <img
+          style="transform: translateY(-2px)"
+          src="@/assets/home/appSpaceIcon.svg"
+          alt=""
+          srcset=""
+        />
+        <span>已约书柜</span>
+        <div class="seatType spaceType">存书柜</div>
+      </div>
+
+      <div class="intro">
+        <!-- <div class="introFirst">
+          <p>地点：{{ data?.areaName }}</p>
+        </div> -->
+        <div class="seatCon">
+          <span>地点：{{ data?.nameMerge }}</span>
+
+          <span class="viewPosition" @click="onViewFloor(data)">查看位置</span>
+        </div>
+        <div class="seatCon">
+          <span>柜号：{{ data?.name }}</span>
+        </div>
+        <div class="applyTime"><span>时间：</span>{{ data?.showTime }}</div>
+        <div class="action">
+          <div class="tips">
+            <div class="clock" v-if="data?.use_time !== 0">
+              <img src="@/assets/home/useTime.svg" alt="" />
+              <span style="color: var(--primary-color)">
+                {{ `${$t("Already_used")} ${data?.use_time} ${$t("Minutes")}` }}
+              </span>
+            </div>
+            <!-- {{ `${$t("Please")} ${data.signintime} ${$t("Sign_in_before")}` }} -->
+          </div>
+          <div class="actionBtn">
+            <!-- <button
+            v-else-if="item?.status == '3'"
+            class="btn cancel-appointment"
+            style="background: #e58100"
+            @click.stop="handleSignOut(item)"
+          >
+            {{ store?.state?.lang?.lang == "zh" ? "结束使用" : "End use" }}
+          </button> -->
+
+            <van-button
+              v-if="data?.use_time == 0"
               class="btn cancel"
               plain
               type="primary"

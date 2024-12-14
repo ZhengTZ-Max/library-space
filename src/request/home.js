@@ -118,3 +118,17 @@ export function SpaceCancel(data) {
     data,
   });
 }
+
+
+// 存书柜预约 取消
+export function cancelBook(data) {
+  return service({
+    url: "/apiLocker/lock/cancelBook",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
+

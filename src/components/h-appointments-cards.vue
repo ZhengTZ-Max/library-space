@@ -11,24 +11,29 @@ const state = reactive({
   config: {
     seat: { type: [1, 3, 4], list: [] },
     space: { type: [2], list: [] },
+    book: { type: [14, 15, 16], list: [] },
   },
 
   showList: [],
 });
 
-// watch(
-//   () => state.tabActive,
-//   (v) => {
-//     let { seat, space } = state.config;
-//     if (v == "seat") {
-//       state.showList = seat?.list || [];
-//     } else if (v == "space") {
-//       state.showList = space?.list || [];
-//     } else {
-//       state.showList = [];
-//     }
-//   }
-// );
+watch(
+  () => state.tabActive,
+  (v) => {
+    let { seat, space, book } = state.config;
+    if (v == "seat") {
+      state.showList = seat?.list || [];
+    } else if (v == "space") {
+      state.showList = space?.list || [];
+    } else if (v == "book") {
+      state.showList = book?.list || [];
+    } else {
+      state.showList = [];
+    }
+
+    console.log(state.showList)
+  }
+);
 
 onMounted(() => {
   fetchSubscribe();
@@ -49,15 +54,19 @@ const fetchSubscribe = async () => {
 };
 
 const filterConfig = (list) => {
-  let { seat, space } = state.config;
+  let { seat, space, book } = state.config;
 
   state.config.seat.list = list.filter((e) => seat?.type?.includes(e?.type));
   state.config.space.list = list.filter((e) => space?.type?.includes(e?.type));
+  state.config.book.list = list.filter((e) => book?.type?.includes(e?.type));
+
   if (!state.tabActive) {
     if (state.config.seat.list?.length) {
       state.tabActive = "seat";
     } else if (state.config.space.list?.length) {
       state.tabActive = "space";
+    } else if (state.config.book.list?.length) {
+      state.tabActive = "book";
     }
   }
 
@@ -65,6 +74,8 @@ const filterConfig = (list) => {
     state.showList = seat?.list || [];
   } else if (state.tabActive == "space") {
     state.showList = space?.list || [];
+  } else if (state.tabActive == "book") {
+    state.showList = book?.list || [];
   } else {
     state.showList = [];
   }
@@ -77,6 +88,17 @@ const onToggleCard = (type) => {
     state.isUnfold = false;
   }
 };
+
+const isShowTabs = () => {
+  let isSeat = !!state.config.seat.list?.length;
+  let isSpace = !!state.config.space.list?.length;
+  let isBook = !!state.config.book.list?.length;
+
+  if (Number(isSeat) + Number(isSpace) + Number(isBook) >= 2) {
+    return true;
+  }
+  return false;
+};
 </script>
 <template>
   <div v-if="state.showList?.length" class="appointmentsCards">
@@ -86,14 +108,12 @@ const onToggleCard = (type) => {
         transform: !state.isUnfold ? 'translateX(440px)' : 'translateX(0)',
       }"
     >
-      <div
-        class="appointmentsTypes"
-        v-if="state.config.seat.list?.length && state.config.space.list?.length"
-      >
+      <div class="appointmentsTypes" v-if="isShowTabs()">
         <div
           class="itemTab"
           :class="{ active: state.tabActive == 'seat' }"
           v-if="state.config.seat.list?.length"
+          @click="state.tabActive = 'seat'"
         >
           座位
         </div>
@@ -101,8 +121,17 @@ const onToggleCard = (type) => {
           class="itemTab"
           :class="{ active: state.tabActive == 'space' }"
           v-if="state.config.space.list?.length"
+          @click="state.tabActive = 'space'"
         >
           空间
+        </div>
+        <div
+          class="itemTab"
+          :class="{ active: state.tabActive == 'book' }"
+          v-if="state.config.book.list?.length"
+          @click="state.tabActive = 'book'"
+        >
+          存书柜
         </div>
       </div>
       <Transition>
@@ -123,9 +152,7 @@ const onToggleCard = (type) => {
       <div
         class="CardCon"
         :class="{
-          hideTab: !(
-            state.config.seat.list?.length && state.config.space.list?.length
-          ),
+          hideTab: !isShowTabs(),
         }"
       >
         <Carousel>

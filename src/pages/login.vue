@@ -2,6 +2,8 @@
 import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { message } from "ant-design-vue";
+
 import { verify, login } from "@/request/login";
 
 const store = useStore();
@@ -60,8 +62,10 @@ const onLogin = async () => {
       open_id: "",
       ...formState,
     };
+    console.log("params",params)
     let res = await login(params);
     if (res?.code != 1) {
+      message.warning(res?.msg || "登录失败~");
       formState.code = "";
       getVerify();
       return false;
@@ -87,11 +91,11 @@ const toggleLang = (type) => {
 <template>
   <div
     class="login"
-    :style="{ overflow: systemMode != 'pc' ? 'auto' : 'hidden' }"
+    :style="{ overflow: systemMode == 'mobile' ? 'auto' : 'hidden' }"
   >
     <div class="header">
       <img
-        :style="{ width: systemMode != 'pc' ? '100%' : '70%' }"
+        :style="{ width: systemMode == 'mobile' ? '100%' : '70%' }"
         class="bg"
         src="@/assets/login/headerBg.svg"
         alt=""

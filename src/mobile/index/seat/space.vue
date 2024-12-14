@@ -246,7 +246,7 @@ const fetchInfo = async (id) => {
     };
     let res = await getSpaceDetail(params);
     if (res.code != 0) return;
-    state.spaceInfo = { ...res?.data, type: "library" } || {};
+    state.spaceInfo = { ...res?.data, type: "space" } || {};
 
     state.libraryInfoShow = true;
   } catch (e) {

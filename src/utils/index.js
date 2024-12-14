@@ -34,12 +34,12 @@ export function encrypt(type, data) {
   var encrypt_key = timestamp; //长度必须为16位
   //加密向量16位
   var iv = "ZZWBKJ_ZHIHUAWEI";
-
+  
   if (type == "encrypt") {
     return crypto.encrypt(JSON.stringify(data), encrypt_key, iv);
   } else if (type == "decrypt") {
     console.log("decrypt", data, encrypt_key, iv);
-    return crypto.decrypt(data, encrypt_key, iv);
+    // return crypto.decrypt(data, encrypt_key, iv);
   }
 }
 
