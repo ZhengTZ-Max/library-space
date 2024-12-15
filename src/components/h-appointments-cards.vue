@@ -21,17 +21,22 @@ watch(
   () => state.tabActive,
   (v) => {
     let { seat, space, book } = state.config;
+    state.showList = [];
+    let showList = [];
     if (v == "seat") {
-      state.showList = seat?.list || [];
+      showList = seat?.list || [];
     } else if (v == "space") {
-      state.showList = space?.list || [];
+      showList = space?.list || [];
     } else if (v == "book") {
-      state.showList = book?.list || [];
+      showList = book?.list || [];
     } else {
-      state.showList = [];
+      showList = [];
     }
 
-    console.log(state.showList);
+    setTimeout(() => {
+      state.showList = showList;
+    }, 0);
+    // console.log(state.showList);
   }
 );
 

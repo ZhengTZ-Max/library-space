@@ -90,6 +90,9 @@ const calcSeatLocation = (seat, height, weight) => {
 const statusBg = (seat) => {
   let backgroundImg = null;
   seat.status = Number(seat.status);
+  if (props?.review) {
+    return `url("${state?.backgroundMap?.free}")`;
+  }
   if (seat.in_label == 1) {
     if (seat.status == 1) {
       backgroundImg = state?.backgroundMap?.free;

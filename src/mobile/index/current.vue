@@ -14,6 +14,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import AppointmentItem from "@/components/AppointmentItem.vue";
 import Carousel from "@/components/CarouselCom.vue";
+import commonAppt from "@/components/moCommon/commonAppt.vue";
 
 import { getSubscribe } from "@/request/home";
 
@@ -24,7 +25,9 @@ const state = reactive({
   config: {
     seat: { type: [1, 3, 4], list: [] },
     space: { type: [2], list: [] },
+    book: { type: [14, 15, 16], list: [] },
   },
+  showList: [],
 });
 
 onMounted(() => {
@@ -41,22 +44,24 @@ const fetchSubscribe = async () => {
     }
 
     filterConfig(res?.data || []);
+    state.showList = res?.data;
   } catch (e) {
     console.log(e);
   }
 };
 
 const filterConfig = (list) => {
-  let { seat, space } = state.config;
+  let { seat, space, book } = state.config;
 
   state.config.seat.list = list.filter((e) => seat?.type?.includes(e?.type));
   state.config.space.list = list.filter((e) => space?.type?.includes(e?.type));
+  state.config.book.list = list.filter((e) => book?.type?.includes(e?.type));
 };
 
 const isEmpty = () => {
-  let { seat, space } = state.config;
+  // let { seat, space, book } = state.config;
   let show = false;
-  if (seat?.list?.length || space?.list?.length) {
+  if (state.showList?.length) {
     show = true;
   }
   return show;
@@ -69,7 +74,7 @@ const isEmpty = () => {
       <div class="CardCon">
         <Carousel>
           <template v-slot:content>
-            <template v-for="item in state.config.seat.list" :key="item?.id">
+            <template v-for="item in state.showList" :key="item?.id">
               <AppointmentItem :data="item" @getList="fetchSubscribe" />
             </template>
           </template>
@@ -80,6 +85,10 @@ const isEmpty = () => {
     <div v-else class="emptyCon">
       <img src="@/assets/home/emptyAppt.png" alt="" />
       <div class="apptBtn activeBtn" @click="router.push('/')">立即预约</div>
+    </div>
+
+    <div class="commonAppt">
+      <commonAppt />
     </div>
   </div>
 </template>
@@ -116,6 +125,13 @@ const isEmpty = () => {
     :deep(.carouseDots) {
       bottom: 20px;
     }
+  }
+
+  .commonAppt {
+    margin-top: 12px;
+    background: #ffffff;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.03);
+    border-radius: 10px;
   }
 }
 </style>

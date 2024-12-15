@@ -259,7 +259,7 @@ export const tabType = [
     id: "3",
     name: "常用预约",
     enname: "often Reservation",
-    path: "",
+    path: "/common",
   },
   {
     id: "4",

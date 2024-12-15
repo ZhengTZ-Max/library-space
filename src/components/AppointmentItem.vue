@@ -234,7 +234,9 @@ const handleCheckout = async (row) => {
 };
 
 const resetSubscribeList = () => {
-  emit("getList");
+  setTimeout(() => {
+    emit("getList");
+  }, 800);
 };
 
 const checkShow = (row, type) => {
@@ -421,16 +423,6 @@ const handleSignOut = async (data) => {
           </div>
           <div class="actionBtn">
             <van-button
-              v-if="checkShow(data, 'cancel')"
-              class="btn cancel"
-              plain
-              type="primary"
-              color="#F28800"
-              @click.stop="onCancel(data)"
-            >
-              {{ store?.state?.lang?.currentLang?.signin || "取消" }}
-            </van-button>
-            <van-button
               v-if="checkShow(data, 'sign')"
               class="btn sign"
               style="background-color: var(--primary-color)"
@@ -441,7 +433,7 @@ const handleSignOut = async (data) => {
 
             <van-button
               class="btn sign"
-              style="background: #e58100"
+              style="background: #35539e"
               v-if="checkShow(data, 'back-sign')"
               @click.stop="handleSign(data)"
             >
@@ -463,6 +455,17 @@ const handleSignOut = async (data) => {
               @click.stop="handleCheckout(data)"
             >
               {{ store?.state?.lang?.currentLang?.leave || "完全离开" }}
+            </van-button>
+
+            <van-button
+              v-if="checkShow(data, 'cancel')"
+              class="btn cancel"
+              plain
+              type="primary"
+              color="#F28800"
+              @click.stop="onCancel(data)"
+            >
+              {{ store?.state?.lang?.currentLang?.signin || "取消" }}
             </van-button>
           </div>
         </div>

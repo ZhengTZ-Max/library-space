@@ -53,6 +53,7 @@ const state = reactive({
   },
 
   floorMapOpt: {
+    activeId: "",
     list: [],
     background: "",
   },
@@ -231,7 +232,14 @@ const onChangeQDate = (row) => {
 const getFloorArea = () => {
   let list = state.floorList;
   let area = state.spaceList;
-  let firstFloor = list[0];
+  let firstFloor = {};
+
+  if (state.floorMapOpt?.activeId) {
+    firstFloor = list?.find((e) => e?.id == state.floorMapOpt?.activeId);
+  } else {
+    state.floorMapOpt.activeId = list[0]?.id;
+    firstFloor = list[0];
+  }
 
   area = area?.filter((e) => {
     return firstFloor?.id == e?.parentId;
@@ -251,8 +259,13 @@ const handleAppt = (row) => {
   });
   console.log(row);
 };
-
-
+const onFloor = (row) => {
+  state.floorMapOpt.activeId = row?.id;
+  state.floorMapOpt.list = [];
+  setTimeout(() => {
+    getFloorArea();
+  }, 100);
+};
 </script>
 <template>
   <div class="seatLibrary" ref="containerRef">
@@ -312,7 +325,7 @@ const handleAppt = (row) => {
             <div
               class="libraryItem cardItem"
               :class="{ activeItem: item?.id == state.activeIndex }"
-              @click="onChangeAct(item)"
+              @mousemove="onChangeAct(item)"
             >
               <div class="cardItemImgCon">
                 <a-image
@@ -350,7 +363,9 @@ const handleAppt = (row) => {
                   总数 <span>{{ item?.total_num || "-" }}</span> 空闲
                   <span>{{ item?.free_num || "-" }}</span>
                 </div>
-                <p class="boutiqueList ellipsis-2">{{ filterBoutique(item?.boutique) }}</p>
+                <p class="boutiqueList ellipsis-2">
+                  {{ filterBoutique(item?.boutique) }}
+                </p>
               </div>
               <div
                 v-if="item?.id == state.activeIndex"
@@ -372,6 +387,35 @@ const handleAppt = (row) => {
         :options="state.floorMapOpt"
         @selected="handleAppt"
       />
+    </div>
+
+    <div
+      v-if="state.floorList?.length && state.quickMode == 0"
+      class="floorSltMap"
+    >
+      <a-row :gutter="[25, 25]">
+        <a-col
+          v-for="item in state.floorList"
+          :xs="24"
+          :sm="24"
+          :md="24"
+          :lg="24"
+          :xl="24"
+          :xxl="24"
+        >
+          <div
+            class="quickFloor"
+            @click="onFloor(item)"
+            :class="{ activeItem: state.floorMapOpt.activeId == item?.id }"
+          >
+            <p class="floorNum">{{ item?.name }}</p>
+            <div class="floorTotal">
+              <span>空闲{{ item?.free_num }}</span>
+              <span>/总数{{ item?.total_num }}</span>
+            </div>
+          </div>
+        </a-col>
+      </a-row>
     </div>
 
     <a-modal
@@ -427,6 +471,7 @@ const handleAppt = (row) => {
 .seatLibrary {
   height: 100%;
   overflow: auto;
+  position: relative;
   .header {
     padding: 20px 30px;
     color: #202020;
@@ -570,38 +615,6 @@ const handleAppt = (row) => {
     display: flex;
     justify-content: center;
   }
-
-  .quickFloor {
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 180px;
-    background: linear-gradient(135deg, #f0f2f7 0%, #ffffff 100%);
-    border-radius: 20px;
-    box-shadow: 8px 10px 14px #e7ecf7;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.08);
-    }
-
-    .floorNum {
-      font-weight: 400;
-      font-size: 36px;
-      color: #1a49c0;
-      transform: skewX(-12deg);
-    }
-    .floorTotal {
-      font-size: 18px;
-      color: #616161;
-      span {
-        &:nth-child(1) {
-          color: #f28800;
-        }
-      }
-    }
-  }
 }
 
 .filterCon {
@@ -636,6 +649,53 @@ const handleAppt = (row) => {
     display: inline-flex;
     column-gap: 36px;
     row-gap: 20px;
+  }
+}
+.floorSltMap {
+  position: absolute;
+  right: 95px;
+  top: 6%;
+  width: 220px;
+  padding-right: 40px;
+  height: calc(100vh - 210px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  align-items: center;
+  .quickFloor {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+    background: linear-gradient(135deg, #f0f2f7 0%, #ffffff 100%);
+    background-color: #e4e4e4;
+
+    border-radius: 20px;
+    box-shadow: 8px 10px 14px #e7ecf7;
+    &.activeItem {
+      border: 2px solid var(--primary-color);
+    }
+    &:hover {
+      background: #e4e4e4;
+    }
+
+    .floorNum {
+      font-weight: 400;
+      font-size: 36px;
+      color: #1a49c0;
+      transform: skewX(-12deg);
+    }
+    .floorTotal {
+      font-size: 18px;
+      color: #616161;
+      span {
+        &:nth-child(1) {
+          color: #f28800;
+        }
+      }
+    }
   }
 }
 </style>
