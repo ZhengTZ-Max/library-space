@@ -47,6 +47,18 @@ watch(
   }
 );
 
+watch(
+  () => state.activeIndex,
+  (v) => {
+    if (v) {
+      let libraryListFindRow = state?.libraryList?.find((e) => e?.id == v);
+      if (libraryListFindRow) {
+        state.floorList = libraryListFindRow?.children;
+      }
+    }
+  }
+);
+
 const initQuickDateList = (list) => {
   state.quickDateList = [
     { label: "今天", value: moment().format("YYYY-MM-DD") },

@@ -14,7 +14,7 @@ const store = createStore({
     apiConfig: {},
     loginInfo: {},
     langData: {},
-    lang: "en",
+    lang: "zh",
 
     userName: "",
     userId: "",

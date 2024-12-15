@@ -250,7 +250,7 @@ const checkShow = (row, type) => {
     case "all-leave":
       {
         // isShow = notice?.leave == 1 && row.flag_out == 1;
-        isShow = row?.flag_out == 1;
+        isShow = row?.flag_leave == 1 || row?.flag_out == 1;
       }
       break;
     case "sign":

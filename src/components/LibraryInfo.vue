@@ -131,7 +131,7 @@ const filterCategorys = (list) => {
 
       <div class="features">
         <div v-for="item in state.propsData?.boutiques" class="item">
-          <img src="@/assets/seat/PowerSupply.svg" alt="" />
+          <img :src="item?.icon" alt="" />
           {{ item?.name }}
         </div>
       </div>
@@ -221,6 +221,8 @@ const filterCategorys = (list) => {
       margin-right: 12px;
       margin-bottom: 20px;
       img {
+        width: 36px;
+        height: 36px;
         margin-bottom: 7px;
       }
     }

@@ -350,7 +350,7 @@ const handleAppt = (row) => {
                   总数 <span>{{ item?.total_num || "-" }}</span> 空闲
                   <span>{{ item?.free_num || "-" }}</span>
                 </div>
-                <p class="boutiqueList">{{ filterBoutique(item?.boutique) }}</p>
+                <p class="boutiqueList ellipsis-2">{{ filterBoutique(item?.boutique) }}</p>
               </div>
               <div
                 v-if="item?.id == state.activeIndex"

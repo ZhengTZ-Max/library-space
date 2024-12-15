@@ -115,7 +115,7 @@ const fetchLangConfig = async () => {
 </script>
 <template>
   <a-config-provider
-    :locale="enUS"
+    :locale="zhCN"
     componentSize="large"
     :theme="{
       token: {

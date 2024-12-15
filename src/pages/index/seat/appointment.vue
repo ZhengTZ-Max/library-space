@@ -177,7 +177,15 @@ const fetchSpace = async () => {
     }
 
     state.spaceList = res?.data?.list || [];
-    state.spaceSelected = {};
+
+    let findRow = state.spaceList?.find(
+      (e) => e?.id == state.spaceSelected?.id
+    );
+    if (!findRow) {
+      state.spaceSelected = {};
+    } else {
+      state.spaceSelected = findRow;
+    }
   } catch (e) {
     console.log(e);
   }
@@ -445,7 +453,7 @@ const ShowSelectedDateTime = () => {
 
 const ShowArea = () => {
   let { premise_name, storey_name, name } = state.spaceInfo;
-  return `${premise_name} ${storey_name} ${name}`;
+  return `${premise_name} - ${storey_name} - ${name}`;
 };
 
 const onChangeSlide = (row) => {
@@ -470,7 +478,7 @@ const onViewMap = () => {
 const fetchAddCollect = async () => {
   try {
     let params = {
-      spaceId: state.initQuery?.spaceId,
+      spaceId: state.spaceSelected?.id,
     };
     let res = await addCollect(params);
     if (res.code != 0) {
@@ -480,7 +488,16 @@ const fetchAddCollect = async () => {
       });
       return false;
     }
+    state.spaceSelected.is_collect = 1;
+    state.spaceList = state.spaceList?.map((e) => {
+      let row = { ...e };
+      if (e?.id == state.spaceSelected.id) {
+        e.is_collect = 1;
+      }
+      return row;
+    });
     showToast({
+      duration: 800,
       message: res.msg,
     });
   } catch (e) {}
@@ -489,7 +506,7 @@ const fetchAddCollect = async () => {
 const fetchDeleteCollect = async () => {
   try {
     let params = {
-      spaceId: state.initQuery?.spaceId,
+      spaceId: state.spaceSelected?.id,
     };
     let res = await deleteCollect(params);
     if (res.code != 0) {
@@ -499,7 +516,16 @@ const fetchDeleteCollect = async () => {
       });
       return false;
     }
+    state.spaceSelected.is_collect = 0;
+    state.spaceList = state.spaceList?.map((e) => {
+      let row = { ...e };
+      if (e?.id == state.spaceSelected.id) {
+        e.is_collect = 0;
+      }
+      return row;
+    });
     showToast({
+      duration: 800,
       message: res.msg,
     });
   } catch (e) {}
@@ -648,8 +674,12 @@ const fetchDeleteCollect = async () => {
               <div class="leftText">
                 已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
               </div>
-              <div v-if="state?.spaceInfo?.type == 1" class="collectBox">
+              <div
+                v-if="state?.spaceInfo?.type == 1 && state.spaceSelected?.no"
+                class="collectBox"
+              >
                 <img
+                  v-if="state.spaceSelected?.is_collect == 0"
                   class="activeBtn"
                   @click="fetchAddCollect"
                   src="@/assets/seat/collectIcon.svg"
@@ -657,6 +687,7 @@ const fetchDeleteCollect = async () => {
                 />
 
                 <img
+                  v-else
                   class="activeBtn"
                   @click="fetchDeleteCollect"
                   src="@/assets/seat/collectedIcon.svg"

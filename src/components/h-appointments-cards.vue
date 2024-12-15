@@ -31,7 +31,7 @@ watch(
       state.showList = [];
     }
 
-    console.log(state.showList)
+    console.log(state.showList);
   }
 );
 
@@ -48,6 +48,10 @@ const fetchSubscribe = async () => {
       return false;
     }
     filterConfig(res?.data || []);
+
+    if (state?.showList?.length) {
+      state.isUnfold = true;
+    }
   } catch (e) {
     console.log(e);
   }
