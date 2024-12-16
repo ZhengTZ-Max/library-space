@@ -77,6 +77,7 @@ const filterCategoryList = () => {
       }
     })
     .filter((item) => item.existsInB);
+  router.replace(`/my/${state.filterRightNavs[0].link}`);
 };
 
 onMounted(() => {
@@ -113,7 +114,6 @@ watch(
     if (v) {
       state.categoryList = v;
       filterCategoryList();
-      router.replace(`/my/${state.filterRightNavs[0].link}`);
     }
   },
   { immediate: true }
