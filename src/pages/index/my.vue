@@ -26,6 +26,8 @@ const state = reactive({
   userInfo: {},
   filterRightNavs: [],
   isEditEmailAndMobile: false,
+  isEditMobile: false,
+  isEditEmail: false,
 
   email: "",
   mobile: "",
@@ -202,31 +204,49 @@ const onLogout = () => {
   OutLogin();
 };
 
-const onSaveEmailAndMobile = () => {
+
+const onSaveMobile = () => {
   if (!state.mobile) {
     message.error("请输入手机号");
     return;
   }
+  fetchUpdateMyInfo('mobile');
+};
+
+const onSaveEmail = () => {
   if (!state.email) {
     message.error("请输入邮箱");
     return;
   }
-
-  fetchUpdateMyInfo();
+  fetchUpdateMyInfo("email");
 };
 
-const fetchUpdateMyInfo = async () => {
+const fetchUpdateMyInfo = async (type) => {
   try {
-    let params = {
-      mobile: state.mobile,
-      email: state.email,
-    };
+    let params = {};
+    if (type == "mobile") {
+      params = {
+        mobile: state.mobile,
+        email: state.userInfo.email,
+      };
+    } else if (type == "email") {
+      params = {
+        email: state.email,
+        mobile: state.userInfo.mobile,
+      };
+    }
     const res = await updateMyInfo(params);
     if (res.code === 0) {
       message.success("修改成功");
-      state.isEditEmailAndMobile = false;
-      state.userInfo.mobile = state.mobile;
-      state.userInfo.email = state.email;
+      if (type == "mobile") {
+        state.isEditMobile = false;
+        state.userInfo.mobile = state.mobile;
+        state.mobile = "";
+      } else if (type == "email") {
+        state.isEditEmail = false;
+        state.userInfo.email = state.email;
+        state.email = "";
+      }
     }
   } catch (error) {
     console.log(error);
@@ -250,12 +270,12 @@ const fetchUpdateMyInfo = async () => {
 
         <div class="infoItem" style="border-top: 1px solid #f5f5f5">
           <div class="itemLabel">手机号</div>
-          <div v-if="!state.isEditEmailAndMobile">
+          <div v-if="!state.isEditMobile">
             <span>{{ state.userInfo?.mobile }}</span>
             <img
               class="activeBtn"
               src="@/assets/my/edit.svg"
-              @click="state.isEditEmailAndMobile = true"
+              @click="state.isEditMobile = true"
               alt=""
             />
           </div>
@@ -268,13 +288,13 @@ const fetchUpdateMyInfo = async () => {
                 placeholder="请输入手机号"
               />
               <img
-                @click="state.isEditEmailAndMobile = false"
+                @click="state.isEditMobile = false"
                 class="activeBtn"
                 src="@/assets/my/activity-record/comments_cancel.svg"
                 alt=""
               />
               <img
-                @click="onSaveEmailAndMobile"
+                @click="onSaveMobile"
                 class="activeBtn"
                 src="@/assets/my/activity-record/comments_ok.svg"
                 alt=""
@@ -284,12 +304,12 @@ const fetchUpdateMyInfo = async () => {
         </div>
         <div class="infoItem">
           <div class="itemLabel">邮箱</div>
-          <div v-if="!state.isEditEmailAndMobile">
+          <div v-if="!state.isEditEmail">
             <span>{{ state.userInfo?.email }}</span>
             <img
               class="activeBtn"
               src="@/assets/my/edit.svg"
-              @click="state.isEditEmailAndMobile = true"
+              @click="state.isEditEmail = true"
               alt=""
             />
           </div>
@@ -302,13 +322,13 @@ const fetchUpdateMyInfo = async () => {
                 placeholder="请输入邮箱"
               />
               <img
-                @click="state.isEditEmailAndMobile = false"
+                @click="state.isEditEmail = false"
                 class="activeBtn"
                 src="@/assets/my/activity-record/comments_cancel.svg"
                 alt=""
               />
               <img
-                @click="onSaveEmailAndMobile"
+                @click="onSaveEmail"
                 class="activeBtn"
                 src="@/assets/my/activity-record/comments_ok.svg"
                 alt=""
