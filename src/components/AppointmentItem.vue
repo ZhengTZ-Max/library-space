@@ -2,6 +2,7 @@
 import { reactive, computed, ref } from "vue";
 import { useStore } from "vuex";
 import { showToast, showConfirmDialog, showImagePreview } from "vant";
+import _ from "lodash";
 
 import { exchangeDateTime } from "@/utils";
 
@@ -17,9 +18,17 @@ import {
   cancelBook,
 } from "@/request/home";
 
-import { getSpaceMap, getSpaceSeat } from "@/request/seat";
+import {
+  getSpaceMap,
+  getSpaceSeat,
+  setLightStatus,
+  setLightBrightness,
+  setRelayStatus,
+} from "@/request/seat";
 
 import SpaceSeatMap from "@/components/SpaceSeat/SpaceSeatMap.vue";
+
+import LightCom from "./SpaceSeat/LightCom.vue";
 
 const store = useStore();
 const lang = computed(() => store.state.lang);
@@ -352,6 +361,67 @@ const handleSignOut = async (data) => {
     console.log(e);
   }
 };
+
+const onLight = _.debounce((v) => {
+  let { type, value } = v;
+  let { id, area_id } = props.data;
+  if (type == "toggle") {
+    toggleLight({ id, area_id, status: value ? 1 : 0 });
+  } else if (type == "line") {
+    toggleLine({ id, area_id, brightness: value });
+  } else if (type == "toggleRelay") {
+    toggleRelay({ id, area_id, status: value ? 1 : 0 });
+  }
+  console.log(v);
+}, 500);
+
+const toggleRelay = async (data) => {
+  try {
+    const res = await setRelayStatus(data);
+    showToast({
+      duration: 1500,
+      message: res?.message || res?.msg,
+    });
+  } catch (e) {
+    console.log(e);
+    showToast({
+      duration: 1500,
+      message: e?.message || e?.msg,
+    });
+  }
+};
+
+const toggleLight = async (data) => {
+  try {
+    const res = await setLightStatus(data);
+    showToast({
+      duration: 1500,
+      message: res?.message || res?.msg,
+    });
+  } catch (e) {
+    console.log(e);
+    showToast({
+      duration: 1500,
+      message: e?.message || e?.msg,
+    });
+  }
+};
+
+const toggleLine = async (data) => {
+  try {
+    const res = await setLightBrightness(data);
+    showToast({
+      duration: 1500,
+      message: res?.message || res?.msg,
+    });
+  } catch (e) {
+    console.log(e);
+    showToast({
+      duration: 1500,
+      message: e?.message || e?.msg,
+    });
+  }
+};
 </script>
 <template>
   <div class="AppointmentItem">
@@ -469,6 +539,18 @@ const handleSignOut = async (data) => {
             </van-button>
           </div>
         </div>
+      </div>
+
+      <div
+        class="lightCon"
+        v-if="data?.hasLight == '1' || data?.hasRelay == '1'"
+      >
+        <LightCom
+          @onChange="onLight"
+          :info="data"
+          :light="data?.lightStatus == 1"
+          :lightV="data?.brightness || 0"
+        />
       </div>
     </template>
 
@@ -752,6 +834,9 @@ const handleSignOut = async (data) => {
       color: var(--primary-color);
       cursor: pointer;
     }
+  }
+  .lightCon {
+    margin-top: 20px;
   }
 }
 

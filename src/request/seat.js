@@ -150,4 +150,35 @@ export function deleteCollect(data) {
   });
 }
 
+// 设置电灯开关
+export function setLightStatus(data) {
+  return service({
+    url: "/reserve/smartDevice/setLightStatus",
+    method: "POST",
+    isLoading: true,
+    // customLoading:true, //是否自定义loading
+    data,
+  });
+}
 
+// 设置电灯亮度
+export function setLightBrightness(data) {
+  return service({
+    url: "/reserve/smartDevice/setLightBrightness",
+    method: "POST",
+    isLoading: true,
+    // customLoading:true, //是否自定义loading
+    data,
+  });
+}
+
+// 设置插座亮度
+export function setRelayStatus(data) {
+  return service({
+    url: "/reserve/smartDevice/setRelayStatus",
+    method: "POST",
+    isLoading: true,
+    // customLoading:true, //是否自定义loading
+    data,
+  });
+}

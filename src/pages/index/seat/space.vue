@@ -161,6 +161,7 @@ const fetchLibrary = async () => {
       params.premisesIds = state.filterOptions?.premises?.map((e) => e?.id);
     }
     state.floorMapOpt.list = [];
+    state.floorMapOpt.activeId = ''
     let res = await getSpacePick(params);
 
     if (res.code != 0) {
@@ -668,6 +669,7 @@ const onFloor = (row) => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    min-width: 200px;
     height: 120px;
     background: linear-gradient(135deg, #f0f2f7 0%, #ffffff 100%);
     background-color: #e4e4e4;

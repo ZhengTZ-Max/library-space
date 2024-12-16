@@ -20,6 +20,9 @@
   --van-calendar-day-height: 46px !important;
 
   --van-calendar-range-middle-background-opacity: 0.2 !important;
+
+  --van-switch-toggle: 30px;
+
 }
 
 /* 常规字体 */
