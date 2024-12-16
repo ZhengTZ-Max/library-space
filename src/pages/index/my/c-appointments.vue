@@ -300,7 +300,7 @@ const onChangePage = (pagination) => {
 
       <div class="date-time-selector">
         <div class="date-selector">
-          <span>日期：</span>
+          <div>日期：</div>
           <a-radio-group v-model:value="state.dateValue" @change="onChangeDate">
             <a-radio
               v-for="item in state.datesSelectList"
@@ -311,7 +311,7 @@ const onChangePage = (pagination) => {
           </a-radio-group>
         </div>
         <div class="time-selector">
-          <span>时间：</span>
+          <div>时间：</div>
           <a-radio-group v-model:value="state.timeValue" @change="onChangeTime">
             <a-radio
               v-for="item in state.timesSelectList"
@@ -416,7 +416,7 @@ const onChangePage = (pagination) => {
     display: flex;
 
     .date-time-selector {
-      margin-left: 140px;
+      margin-left: 70px;
       display: flex;
       justify-content: space-between;
       margin-top: 10px;
