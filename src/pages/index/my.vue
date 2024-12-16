@@ -113,6 +113,7 @@ watch(
     if (v) {
       state.categoryList = v;
       filterCategoryList();
+      router.replace(`/my/${state.filterRightNavs[0].link}`);
     }
   },
   { immediate: true }

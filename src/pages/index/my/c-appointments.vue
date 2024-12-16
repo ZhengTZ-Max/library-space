@@ -1,58 +1,51 @@
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { useStore } from "vuex";
+import { showToast, showConfirmDialog, showImagePreview } from "vant";
+
 // import { format, addDays } from "date-fns"; // 引入日期工具
+import { message } from "ant-design-vue";
+import moment from "moment";
+import { exchangeDateTime } from "@/utils";
+import {
+  getSeatAreaDate,
+  getSeatOftenDate,
+  getSeatCollectList,
+  getSeatOftenList,
+  cancelSeatCollect,
+} from "@/request/common";
 
 const onCheckedForLocation = ref(true);
 const onCheckedForData = ref(false);
 const onCheckedForTime = ref(false);
 const store = useStore();
 const state = reactive({
+  currentPage: 1,
+  pageSize: 10,
+  total: 0,
+
   isModalVisible: false,
   selectLocationName: "",
-  activeKey: "seat",
-  dates: [
-    {
-      // 使用date utils
-      label: "2023-11-28 (今天)",
-      value: "2023-11-28 (今天)",
-    },
-    {
-      // 使用date utils
-      label: "2023-11-29 (明天)",
-      value: "2023-11-29 (明天)",
-    },
-    {
-      // 使用date utils
-      label: "2023-11-30 (后天)",
-      value: "2023-11-30 (后天)",
-    },
-  ],
-  dateValue: "2023-11-28 (今天)",
+  activeKey: "1",
 
-  times: [
-    {
-      // 使用date utils
-      label: "10:00~14:00",
-      value: "10:00~14:00",
-    },
-    {
-      // 使用date utils
-      label: "15:00~19:00",
-      value: "15:00~19:00",
-    },
+  quickMode: 1,
+  quickModeList: [
+    { value: 1, label: "收藏" },
+    { value: 2, label: "常用" },
   ],
-  timeValue: "15:00~19:00",
+
+  dates: [],
+  datesSelectList: [],
+  dateValue: "",
+
+  times: [],
+  timesSelectList: [],
+  timeValue: "",
+  timeSelectStart: "",
+  timeSelectEnd: "",
+
+  seatList: [],
 });
-
-const onShowModal = (record) => {
-  state.isModalVisible = true;
-  state.selectLocationName = record.location;
-};
-const onHideModal = () => {
-  state.isModalVisible = false;
-  state.selectLocationName = "";
-};
 
 const columns = [
   {
@@ -71,93 +64,293 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    key: "1",
-    location: "图书馆-2F-外文特藏阅览室",
-    seating: "015",
-  },
-  {
-    key: "2",
-    location: "图书馆-2F-外文特藏阅览室",
-    seating: "015",
-  },
-  {
-    key: "3",
-    location: "图书馆-2F-外文特藏阅览室",
-    seating: "015",
-  },
-];
+onMounted(() => {
+  fetch();
+});
 
-// 生成日期和时间选项
-// const generateDateAndTimeOptions = () => {
-//   const today = new Date();
-//   for (let i = 0; i < 3; i++) {
-//     const date = addDays(today, i);
-//     state.dates.push({
-//       label: format(date, 'yyyy-MM-dd (E)'),
-//       value: format(date, 'yyyy-MM-dd (E)'),
-//     });
-//     state.times.push({
-//       label: `${format(date, 'HH:mm')}~${format(date, 'HH:mm', { addHours: 8 })}`, // 假设时间范围
-//       value: `${format(date, 'HH:mm')}~${format(date, 'HH:mm', { addHours: 8 })}`,
-//     });
-//   }
-// };
+const fetch = () => {
+  console.log(state.activeKey, state.quickMode);
+  if (state.activeKey == 1) {
+    // 座位
+    // 获取开放日期
+    fetchSeatDate();
+  } else {
+    // 空间
+  }
+};
 
-// generateDateAndTimeOptions(); // 生成选项
+const fetchSeatDate = async () => {
+  try {
+    let res = null;
+    if (state.quickMode == 1) {
+      // 收藏
+      res = await getSeatAreaDate();
+    } else {
+      // 常用
+      res = await getSeatOftenDate();
+    }
+
+    if (res && res.code == 0 && res.data.length > 0) {
+      state.dates = res.data;
+
+      state.datesSelectList = res.data.map((item) => {
+        let label = "";
+        if (moment().format("YYYY-MM-DD") == item.day) {
+          label = "今天";
+        } else if (
+          exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == item.day
+        ) {
+          label = "明天";
+        } else if (moment().add(2, "days").format("YYYY-MM-DD") == item.day) {
+          label = "后天";
+        } else {
+          label = exchangeDateTime(item.day, 4);
+        }
+        return {
+          label,
+          value: moment(item.day).format("YYYY-MM-DD"),
+        };
+      });
+      console.log(state.datesSelectList);
+      state.dateValue = state.datesSelectList[0].value;
+
+      state.times = state.dates.find(
+        (item) => item.day == state.dateValue
+      ).opentimes;
+      state.timesSelectList = state.times.map((item) => {
+        return {
+          label: item.Times,
+          value: item.Times,
+          start: item.startTime,
+          end: item.endTime,
+        };
+      });
+      state.timeValue = state.timesSelectList[0].value;
+      state.timeSelectStart = state.timesSelectList[0].start;
+      state.timeSelectEnd = state.timesSelectList[0].end;
+
+      fetchSeatList();
+    } else {
+      console.log(res);
+      state.dates = [];
+      state.datesSelectList = [];
+      state.dateValue = "";
+
+      state.times = [];
+      state.timesSelectList = [];
+      state.timeValue = "";
+      state.timeSelectStart = "";
+      state.timeSelectEnd = "";
+
+      state.seatList = [];
+      message.error(res.msg);
+    }
+  } catch (error) {
+    state.dates = [];
+    state.datesSelectList = [];
+    state.dateValue = "";
+
+    state.times = [];
+    state.timesSelectList = [];
+    state.timeValue = "";
+    state.timeSelectStart = "";
+    state.timeSelectEnd = "";
+    console.log(error);
+  }
+};
+
+const fetchSeatList = async () => {
+  try {
+    let params = {
+      day: state.dateValue,
+      startTime: state.timeSelectStart,
+      endTime: state.timeSelectEnd,
+    };
+
+    let res = null;
+    if (state.quickMode == 1) {
+      // 收藏
+      res = await getSeatCollectList(params);
+    } else {
+      // 常用
+      res = await getSeatOftenList(params);
+    }
+
+    if (res.code == 0) {
+      state.seatList = res.data;
+    } else {
+      state.seatList = [];
+      message.error(res.msg);
+    }
+  } catch (error) {
+    state.seatList = [];
+    console.log(error);
+  }
+};
+
+const onCancelCollect = async (record) => {
+  showConfirmDialog({
+    title: $t("V4_remove_from_favorites"),
+    message: `${record.nameMerge}:${record.spacename}`,
+  }).then(async () => {
+    try {
+      let params = {
+        spaceId: record.spaceId,
+      };
+      let res = await cancelSeatCollect(params);
+      if (res.code == 0) {
+        message.success(res.msg);
+        if (state.activeKey == 1) {
+          // 座位
+          fetchSeatList();
+        }
+      } else {
+        message.error(res.msg);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  });
+};
+
+const onShowModal = (record) => {
+  state.isModalVisible = true;
+  state.selectLocationName = record.location;
+};
+const onHideModal = () => {
+  state.isModalVisible = false;
+  state.selectLocationName = "";
+};
+
+const onChangeTab = (key) => {
+  state.activeKey = key;
+  fetch();
+};
+
+const onChangeQMode = (item) => {
+  state.quickMode = item.value;
+  fetch();
+};
+
+const onChangeDate = (e) => {
+  state.times = state.dates.find(
+    (item) => item.day == state.dateValue
+  ).opentimes;
+  state.timesSelectList = state.times.map((item) => {
+    return {
+      label: item.Times,
+      value: item.Times,
+      start: item.startTime,
+      end: item.endTime,
+    };
+  });
+  state.timeValue = state.timesSelectList[0].value;
+  state.timeSelectStart = state.timesSelectList[0].start;
+  state.timeSelectEnd = state.timesSelectList[0].end;
+
+  if (state.activeKey == 1) {
+    fetchSeatList();
+  }
+};
+
+const onChangeTime = (e) => {
+  let item = state.timesSelectList.find((item) => item.value == e.target.value);
+  state.timeSelectStart = item.start;
+  state.timeSelectEnd = item.end;
+
+  console.log(state.timeSelectStart, state.timeSelectEnd);
+};
+
+const pagination = computed(() => ({
+  total: state.total,
+  current: state.currentPage,
+  showSizeChanger: false,
+}));
+
+const onChangePage = (pagination) => {
+  // pagination : {current: 2, pageSize: 10, total: 132, showSizeChanger: false}
+  let { current } = pagination;
+  state.currentPage = current;
+  fetch();
+};
 </script>
 
 <template>
   <div class="table">
-    <a-tabs v-model:activeKey="activeKey" size="middle">
-      <a-tab-pane key="seat" tab="座位"></a-tab-pane>
-      <a-tab-pane key="seminar" tab="空间"></a-tab-pane>
+    <a-tabs
+      v-model:activeKey="state.activeKey"
+      size="middle"
+      @change="onChangeTab"
+    >
+      <a-tab-pane key="1" tab="座位"></a-tab-pane>
+      <a-tab-pane key="2" tab="空间"></a-tab-pane>
     </a-tabs>
     <div class="header">
-      <div
-        class="toggleLang"
-        :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
-      >
-        <div class="langItem langActive activeBtn">收藏</div>
-        <div class="langItem activeBtn">常用</div>
+      <div class="quickBtns">
+        <div
+          v-for="item in state.quickModeList"
+          :key="item.label"
+          class="item activeBtn"
+          :class="{ itemActive: item?.value == state.quickMode }"
+          @click="onChangeQMode(item)"
+        >
+          {{ item?.label }}
+        </div>
       </div>
 
       <div class="date-time-selector">
         <div class="date-selector">
           <span>日期：</span>
-          <a-radio-group v-model:value="state.dateValue">
-            <template v-for="item in state.dates" :key="item.value">
-              <a-radio :value="item.value">{{ item.label }}</a-radio>
-            </template>
+          <a-radio-group v-model:value="state.dateValue" @change="onChangeDate">
+            <a-radio
+              v-for="item in state.datesSelectList"
+              :key="item.value"
+              :value="item.value"
+              >{{ item.value }}({{ item.label }})</a-radio
+            >
           </a-radio-group>
         </div>
         <div class="time-selector">
           <span>时间：</span>
-          <a-radio-group v-model:value="state.timeValue">
-            <template v-for="item in state.times" :key="item.value">
-              <a-radio :value="item.value">{{ item.label }}</a-radio>
-            </template>
+          <a-radio-group v-model:value="state.timeValue" @change="onChangeTime">
+            <a-radio
+              v-for="item in state.timesSelectList"
+              :key="item.value"
+              :value="item.value"
+              >{{ item.label }}</a-radio
+            >
           </a-radio-group>
         </div>
       </div>
     </div>
 
-    <div class="table_content">
-      <a-table :columns="columns" :data-source="data">
+    <div class="table_content" v-if="state.seatList.length > 0">
+      <a-table :columns="columns" :data-source="state.seatList">
         <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'location'">
+            {{ record.nameMerge }}
+          </template>
+          <template v-if="column.key === 'seating'">
+            {{ record.spacename }}
+          </template>
           <template v-if="column.key === 'action'">
             <span>
-              <a class="red" type="primary" @click="onShowModal(record)"
+              <a class="red" type="primary" @click="onCancelCollect(record)"
                 >取消收藏</a
               >
               <a-divider type="vertical" />
-              <a type="primary" @click="onShowModal(record)">预约</a>
+              <a-button
+                type="link"
+                :disabled="record.isValid != '1'"
+                @click="onShowModal(record)"
+                >预约</a-button
+              >
             </span>
           </template>
         </template>
       </a-table>
     </div>
+    <a-empty v-else class="empty" />
   </div>
   <a-modal
     v-model:open="state.isModalVisible"
@@ -223,46 +416,15 @@ const data = [
     display: flex;
 
     .date-time-selector {
-      margin-left: 240px;
+      margin-left: 140px;
       display: flex;
+      justify-content: space-between;
       margin-top: 10px;
 
       .date-selector,
       .time-selector {
         margin-left: 20px; /* 添加左侧间距 */
       }
-    }
-
-    .toggleLang {
-      position: absolute;
-      top: 36px;
-      left: 30px;
-      width: 240px;
-      height: 36px;
-      padding: 4px;
-      background: #f1f1f1;
-      border-radius: 21px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      .langItem {
-        color: #868686;
-        padding: 2px 34px;
-        min-width: 100px;
-        height: 28px;
-      }
-      .langActive {
-        background: #ffffff;
-        box-shadow: 0px 5px 10px 0px rgba(51, 102, 153, 0.1);
-        border-radius: 17px 17px 17px 17px;
-        font-weight: bold;
-        font-size: 14px;
-        color: #1f56e1;
-      }
-    }
-    .toggleLangPc {
-      top: 65px;
-      left: 30px;
     }
   }
 }
@@ -308,5 +470,9 @@ const data = [
 
 .confirm-button {
   margin-left: 10px;
+}
+
+.empty {
+  margin-top: 20px;
 }
 </style>
