@@ -49,3 +49,11 @@ export function cancelSeatCollect(data) {
   });
 }
 
+export function getSeatInfo(data) {
+  return service({
+    url: "/v4/member/often",
+    method: "POST",
+    isLoading: true,
+    data,
+  });
+}

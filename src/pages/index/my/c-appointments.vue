@@ -13,6 +13,7 @@ import {
   getSeatCollectList,
   getSeatOftenList,
   cancelSeatCollect,
+  getSeatInfo,
 } from "@/request/common";
 
 const onCheckedForLocation = ref(true);
@@ -52,21 +53,30 @@ const columns = [
     title: "地点",
     dataIndex: "location",
     key: "location",
+
   },
   {
     title: "座位",
     dataIndex: "seating",
     key: "seating",
+
   },
   {
     title: "操作",
     key: "action",
+
   },
 ];
 
 onMounted(() => {
   fetch();
+  fetchSeatInfo();
 });
+
+const fetchSeatInfo = async () => {
+  let res = await getSeatInfo();
+  console.log(res);
+};
 
 const fetch = () => {
   console.log(state.activeKey, state.quickMode);
@@ -178,12 +188,15 @@ const fetchSeatList = async () => {
 
     if (res.code == 0) {
       state.seatList = res.data;
+      state.total = state.seatList.length;
     } else {
       state.seatList = [];
+      state.total = 0;
       message.error(res.msg);
     }
   } catch (error) {
     state.seatList = [];
+    state.total = 0;
     console.log(error);
   }
 };
@@ -325,7 +338,13 @@ const onChangePage = (pagination) => {
     </div>
 
     <div class="table_content" v-if="state.seatList.length > 0">
-      <a-table :columns="columns" :data-source="state.seatList">
+      <a-table
+        :columns="columns"
+        :data-source="state.seatList"
+        :pagination="pagination"
+        @change="onChangePage"
+        :scroll="{ y: 500 }"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'location'">
             {{ record.nameMerge }}
@@ -418,18 +437,21 @@ const onChangePage = (pagination) => {
     .date-time-selector {
       margin-left: 70px;
       display: flex;
+      flex-direction: column;
       justify-content: space-between;
-      margin-top: 10px;
+
 
       .date-selector,
       .time-selector {
         margin-left: 20px; /* 添加左侧间距 */
+        margin-top: 10px;
       }
     }
   }
 }
 .table_content {
   margin-top: 60px;
+  height: 50vh;
 }
 
 :deep(.ant-table-thead > tr > th) {
