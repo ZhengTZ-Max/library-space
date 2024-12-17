@@ -88,7 +88,7 @@ const isEmpty = () => {
     </div>
 
     <div class="commonAppt">
-      <commonAppt />
+      <commonAppt @handleShow="fetchSubscribe" />
     </div>
   </div>
 </template>

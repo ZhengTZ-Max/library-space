@@ -12,9 +12,9 @@ onMounted(() => {});
 const onGoToLink = (row, t) => {
   console.log(row);
   if (t == "m") {
-    if (row?.path == "/common") {
-      row.path = "/current";
-    }
+    // if (row?.path == "/common") {
+    //   row.path = "/current";
+    // }
     router.push(`/mo${row?.path}`);
   } else {
     router.push(row?.path);
