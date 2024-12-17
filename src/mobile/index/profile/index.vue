@@ -22,7 +22,7 @@ const state = reactive({
     {
       id: "3",
       label: "常用预约",
-      link: "c-appointments",
+      link: "common",
       icon: "@/assets/my/mobile_profile_item.svg",
     },
     {
@@ -137,8 +137,12 @@ const toggleLang = (type) => {
 };
 
 const goToLink = (link) => {
-  // console.log(link);
-  router.push(`/mo/profile/${link}`);
+  console.log(link);
+  if (link == "common") {
+    router.push(`/mo/common`);
+  } else {
+    router.push(`/mo/profile/${link}`);
+  }
 };
 </script>
 <template>

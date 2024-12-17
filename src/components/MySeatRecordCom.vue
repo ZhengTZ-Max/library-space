@@ -22,7 +22,7 @@ onMounted(() => {
 });
 
 const onCancelReservation = () => {
-    state.selectedRecord.clickCancelReservation = true;
+  state.selectedRecord.clickCancelReservation = true;
 };
 </script>
 <template>
@@ -52,19 +52,23 @@ const onCancelReservation = () => {
       {{ state.selectedRecord.name }}
     </p>
     <a-divider dashed />
-    <p v-if="state.selectedRecord.status_name !== '预约成功'"> 
+    <div v-if="state.selectedRecord.status_name !== '预约成功'">
       <p v-if="state.selectedRecord.status_name == '未签到'">
         违约时间：{{ state.selectedRecord.renegeTime }}
       </p>
-      <p v-else>
-        签到时间：{{ state.selectedRecord.signInTime }}
+      <p v-else-if="state.selectedRecord.status_name == '已取消'">
+        取消时间：{{ state.selectedRecord.cancelTime }}
       </p>
-    </p>
+      <p v-else>签到时间：{{ state.selectedRecord.signInTime }}</p>
+    </div>
     <div
       class="modal-footer"
       v-if="state.selectedRecord.status_name === '预约成功'"
     >
-      <a-button type="primary" class="cancel-button" @click="onCancelReservation"
+      <a-button
+        type="primary"
+        class="cancel-button"
+        @click="onCancelReservation"
         >取消预约</a-button
       >
     </div>
@@ -94,7 +98,7 @@ const onCancelReservation = () => {
   .status-nosign {
     color: #ff4d4f;
   }
-  .status-success { 
+  .status-success {
     color: rgba(78, 201, 91, 1);
   }
 }

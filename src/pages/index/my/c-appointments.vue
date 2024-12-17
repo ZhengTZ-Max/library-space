@@ -280,10 +280,12 @@ const pagination = computed(() => ({
   showSizeChanger: false,
 }));
 
-const onChangePage = (pagination) => {
+const onChangePage = (page, pageSize) => {
   // pagination : {current: 2, pageSize: 10, total: 132, showSizeChanger: false}
-  let { current } = pagination;
-  state.currentPage = current;
+  // let { current } = pagination;
+
+  console.log(page, pageSize);
+  state.currentPage = page;
   fetch();
 };
 </script>
@@ -314,9 +316,13 @@ const onChangePage = (pagination) => {
       <div class="date-time-selector">
         <div class="date-selector">
           <span>日期：</span>
-          <a-radio-group v-model:value="state.dateValue" @change="onChangeDate">
+          <a-radio-group
+            v-model:value="state.dateValue"
+            @change="onChangeDate"
+            style="flex: 1"
+          >
             <a-radio
-              style="width: 150px;"
+              style="width: 150px"
               v-for="item in state.datesSelectList"
               :key="item.value"
               :value="item.value"
@@ -326,9 +332,13 @@ const onChangePage = (pagination) => {
         </div>
         <div class="time-selector">
           <span>时间：</span>
-          <a-radio-group v-model:value="state.timeValue" @change="onChangeTime">
+          <a-radio-group
+            v-model:value="state.timeValue"
+            @change="onChangeTime"
+            style="flex: 1"
+          >
             <a-radio
-              style="width: 150px;"
+              style="width: 150px"
               v-for="item in state.timesSelectList"
               :key="item.value"
               :value="item.value"
@@ -345,7 +355,6 @@ const onChangePage = (pagination) => {
           :columns="columns"
           :data-source="state.seatList"
           :pagination="false"
-          @change="onChangePage"
           sticky
           scrollToFirstRowOnChange
         >
@@ -375,10 +384,12 @@ const onChangePage = (pagination) => {
       </PageSizeCom>
     </div>
     <a-empty v-else class="empty" />
-    <div class="cPagination">
+    <div class="cPagination" v-if="state.seatList.length > 0">
       <a-pagination
         v-model:current="state.currentPage"
         :total="state.total"
+        @change="onChangePage"
+        :default-page-size="10"
         show-less-items
       />
     </div>
@@ -457,6 +468,7 @@ const onChangePage = (pagination) => {
 
       .date-selector,
       .time-selector {
+        display: flex;
         margin-left: 20px; /* 添加左侧间距 */
         margin-top: 10px;
       }

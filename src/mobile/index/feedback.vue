@@ -421,7 +421,7 @@ const fetchGetIlkAddress = async (id) => {
 
 <template>
   <div class="feedback">
-    <div v-if="!state.isOptionDetails">
+    <div v-if="!state.isOptionDetails" style="height: 100%; overflow-y: hidden">
       <a-tabs
         v-model:activeKey="state.activeKey"
         class="top_tabs"
@@ -895,7 +895,7 @@ const fetchGetIlkAddress = async (id) => {
             round
             block
             type="default"
-            @click="state.isShowIlkTypeDrawer = false"
+            @click="state.isShowIlkAreaDrawer = false"
           >
             取消
           </van-button>
@@ -917,6 +917,8 @@ const fetchGetIlkAddress = async (id) => {
     padding-left: 10px !important;
   }
   .feedback_list {
+    height: 100%;
+    overflow-y: auto;
     margin-top: 10px;
     .item {
       position: relative;

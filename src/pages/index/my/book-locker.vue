@@ -1,11 +1,15 @@
 <script setup>
 import { ref, reactive } from "vue";
 import { useStore } from "vuex";
+import PageSizeCom from "@/components/PageSizeCom.vue";
 
 const store = useStore();
 const onCheckedForLocation = ref(true);
 
 const state = reactive({
+  total: 0,
+  currentPage: 1,
+
   activeKey: "day",
   isModalVisible: false,
   selectedRecord: "",
@@ -120,6 +124,10 @@ const data = [
     checkInTime: "2023-11-29 15:58",
   },
 ];
+
+const onChangePage = (page, pageSize) => {
+  state.currentPage = page;
+};
 </script>
 
 <template>
@@ -129,7 +137,7 @@ const data = [
       <a-tab-pane key="week" tab="周柜"></a-tab-pane>
       <a-tab-pane key="long" tab="长期柜"></a-tab-pane>
     </a-tabs>
-    <div class="quickBtns" style="width: 220px;margin: 10px 10px;">
+    <div class="quickBtns" style="width: 220px; margin: 10px 10px">
       <div
         v-for="item in state.quickModeList"
         :key="item.label"
@@ -142,46 +150,64 @@ const data = [
     </div>
 
     <div class="table">
-      <a-table :columns="columns" :data-source="data">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'status'">
-            <span>
-              <a-tag
-                class="custom-tag"
-                :color="
-                  record.status === '预约成功'
-                    ? 'success'
-                    : record.status === '使用中'
-                    ? 'processing'
-                    : record.status === '未签到' ||
-                      record.result_info === '使用超时'
-                    ? 'error'
-                    : 'default'
-                "
-              >
-                {{ record.status }}
-              </a-tag>
-            </span>
-          </template>
-
-          <template v-if="column.key === 'action'">
-            <template v-if="record.status === '预约成功'">
+      <PageSizeCom v-if="data?.length > 0">
+        <a-table
+          :columns="columns"
+          :data-source="data"
+          :pagination="false"
+          sticky
+          scrollToFirstRowOnChange
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'status'">
               <span>
-                <a class="red" type="primary" @click="onShowModal(record)"
-                  >取消</a
+                <a-tag
+                  class="custom-tag"
+                  :color="
+                    record.status === '预约成功'
+                      ? 'success'
+                      : record.status === '使用中'
+                      ? 'processing'
+                      : record.status === '未签到' ||
+                        record.result_info === '使用超时'
+                      ? 'error'
+                      : 'default'
+                  "
                 >
-                <a-divider type="vertical" />
-                <a type="primary" @click="onShowModal(record)">查看</a>
+                  {{ record.status }}
+                </a-tag>
               </span>
             </template>
-            <template v-else>
-              <span>
-                <a type="primary" @click="onShowModal(record)">查看</a>
-              </span>
+
+            <template v-if="column.key === 'action'">
+              <template v-if="record.status === '预约成功'">
+                <span>
+                  <a class="red" type="primary" @click="onShowModal(record)"
+                    >取消</a
+                  >
+                  <a-divider type="vertical" />
+                  <a type="primary" @click="onShowModal(record)">查看</a>
+                </span>
+              </template>
+              <template v-else>
+                <span>
+                  <a type="primary" @click="onShowModal(record)">查看</a>
+                </span>
+              </template>
             </template>
           </template>
-        </template>
-      </a-table>
+        </a-table>
+      </PageSizeCom>
+      <a-empty v-else />
+    </div>
+    <div class="cPagination" v-if="data?.length > 0">
+      <a-pagination
+        v-model:current="state.currentPage"
+        :total="state.total"
+        @change="onChangePage"
+        :default-page-size="10"
+        show-less-items
+      />
     </div>
   </div>
   <a-modal
@@ -251,14 +277,18 @@ const data = [
 .record {
   padding-left: 30px;
   position: relative;
-
-
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 .custom-tag {
   border-radius: 12px;
 }
 .table {
   margin-top: 60px;
+  flex: 1;
+  overflow: auto;
 }
 :deep(.ant-table-thead > tr > th) {
   background-color: #f7f9fb;
@@ -270,27 +300,27 @@ const data = [
 
 .result-modal {
   .modal-content {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
 
-  p {
-    margin: 19px 0;
-  }
+    p {
+      margin: 19px 0;
+    }
 
-  .status-wait {
-    color: #ea9e4c;
+    .status-wait {
+      color: #ea9e4c;
+    }
+    .status-active {
+      color: #1890ff;
+    }
+    .status-nosign {
+      color: #ff4d4f;
+    }
+    .status-success {
+      color: #70bc89;
+    }
   }
-  .status-active {
-    color: #1890ff;
-  }
-  .status-nosign {
-    color: #ff4d4f;
-  }
-  .status-success {
-    color: #70bc89;
-  }
-}
   .modal-footer-success {
     text-align: center;
     margin-top: 20px;
@@ -299,6 +329,5 @@ const data = [
   .cancel-button-success {
     width: 120px;
   }
-
 }
 </style>

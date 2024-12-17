@@ -79,12 +79,13 @@ const filterCategoryList = () => {
       }
     })
     .filter((item) => item.existsInB);
+  if (state.filterRightNavs.length > 0) {
     router.replace(`/my/${state.filterRightNavs[0].link}`);
+  }
 };
 
 onMounted(() => {
   fetchMyInfo();
-  console.log(store.state.loginInfo);
 });
 
 watch(
@@ -121,7 +122,6 @@ watch(
   },
   { immediate: true }
 );
-
 
 const fetchMyInfo = async () => {
   try {

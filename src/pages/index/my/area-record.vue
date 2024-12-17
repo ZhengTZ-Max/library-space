@@ -2,11 +2,14 @@
 import { ref, reactive, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 
-import { getAreaRecordList } from "@/request/area-record";
+import { getAreaRecordList, getRenegesRecordList } from "@/request/area-record";
+import PageSizeCom from "@/components/PageSizeCom.vue";
+import { getUserInfo } from "@/utils";
 
 const store = useStore();
 const state = reactive({
   activeKey: "1",
+  UserInfo: getUserInfo(),
   currentPage: 1,
   pageSize: 10,
   total: 0,
@@ -20,80 +23,7 @@ const state = reactive({
   isModalVisibleForQuery: false,
   selectLocationName: "",
   selectedRecord: "",
-  queryResult: {
-    location: "基础馆-1F-自修A区(研习)",
-    currentPeriod: {
-      period: "2024-01-22至2024-01-28",
-      status: "已获得",
-    },
-    nextPeriod: {
-      period: "2024-01-29至2024-02-04",
-      status: "未获得",
-    },
-  },
 
-  room: [
-    {
-      label: "图书馆",
-      value: "图书馆",
-    },
-    {
-      label: "基础馆",
-      value: "基础馆",
-    },
-    {
-      label: "玉泉馆",
-      value: "玉泉馆",
-    },
-    {
-      label: "老馆",
-      value: "老馆",
-    },
-  ],
-  roomValue: "基础馆",
-
-  floor: [
-    {
-      label: "1F",
-      value: "1F",
-    },
-    {
-      label: "2F",
-      value: "2F",
-    },
-    {
-      label: "3F",
-      value: "3F",
-    },
-    {
-      label: "4F",
-      value: "4F",
-    },
-    {
-      label: "5F",
-      value: "5F",
-    },
-    {
-      label: "6F",
-      value: "6F",
-    },
-  ],
-  floorValue: "1F",
-  area: [
-    {
-      label: "自修A区",
-      value: "自修A区",
-    },
-    {
-      label: "自习B区",
-      value: "自习B区",
-    },
-    {
-      label: "自习C区",
-      value: "自习C区",
-    },
-  ],
-  areaValue: "自修A区",
 });
 
 const columns = [
@@ -121,13 +51,11 @@ const columns = [
 const onShowModal = (record) => {
   state.isModalVisible = true;
   state.selectedRecord = record;
+  console.log(state.selectedRecord);
 };
 const onHideModal = () => {
   state.isModalVisible = false;
   state.selectedRecord = "";
-};
-const onChangeQMode = (row) => {
-  state.quickMode = row?.value;
 };
 
 onMounted(() => {
@@ -140,6 +68,7 @@ const fetch = () => {
     fetchAreaRecordList();
   } else if (state.quickMode === 2) {
     // 违约记录
+    fetchRenegesRecordList();
   }
 };
 const fetchAreaRecordList = async () => {
@@ -159,6 +88,22 @@ const fetchAreaRecordList = async () => {
   }
 };
 
+const fetchRenegesRecordList = async () => {
+  try {
+    let params = {
+      page: state.currentPage,
+      limit: state.pageSize,
+    };
+    const res = await getRenegesRecordList(params);
+    if (res?.code === 0) {
+      state.data = res?.data?.data || [];
+      state.total = res?.data?.total;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // 空间 tab 切换
 const onChangeTab = (key) => {
   state.activeKey = key;
@@ -166,16 +111,21 @@ const onChangeTab = (key) => {
   fetch();
   console.log(key);
 };
+
+const onChangeQMode = (row) => {
+  state.quickMode = row?.value;
+  state.currentPage = 1;
+  fetch();
+};
+
 const pagination = computed(() => ({
   total: state.total,
   current: state.currentPage,
   showSizeChanger: false,
 }));
 
-const onChangePage = (pagination) => {
-  // pagination : {current: 2, pageSize: 10, total: 132, showSizeChanger: false}
-  let { current } = pagination;
-  state.currentPage = current;
+const onChangePage = (page, pageSize) => {
+  state.currentPage = page;
   fetch();
 };
 </script>
@@ -202,65 +152,75 @@ const onChangePage = (pagination) => {
     </div>
 
     <div class="table">
-      <a-table
-        v-if="state.data?.length"
-        :columns="columns"
-        :data-source="state.data"
-        :pagination="pagination"
-        @change="onChangePage"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'area'">
-            <span>{{ record.nameMerge }}</span>
-          </template>
-          <template v-if="column.key === 'time'">
-            <span>{{ record.begin_time }}</span>
-          </template>
-          <template v-if="column.key === 'status_name'">
-            <span>
-              <a-tag
-                class="custom-tag"
-                :color="
+      <PageSizeCom v-if="state.data?.length > 0">
+        <a-table
+          :columns="columns"
+          :data-source="state.data"
+          :pagination="false"
+          sticky
+          scrollToFirstRowOnChange
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'area'">
+              <span>{{ record.nameMerge }}</span>
+            </template>
+            <template v-if="column.key === 'time'">
+              <span>{{ record.begin_time }}</span>
+            </template>
+            <template v-if="column.key === 'status_name'">
+              <span>
+                <a-tag
+                  class="custom-tag"
+                  :color="
+                    record.status_name === '预约成功'
+                      ? 'success'
+                      : record.status_name === '使用中'
+                      ? 'processing'
+                      : record.status_name === '未签到'
+                      ? 'error'
+                      : record.status_name === '预约待审核'
+                      ? 'warning'
+                      : 'default'
+                  "
+                >
+                  {{ record.status_name }}
+                </a-tag>
+              </span>
+            </template>
+
+            <template v-if="column.key === 'action'">
+              <template
+                v-if="
+                  record.status_name === '预约待确认' ||
                   record.status_name === '预约成功'
-                    ? 'success'
-                    : record.status_name === '使用中'
-                    ? 'processing'
-                    : record.status_name === '未签到'
-                    ? 'error'
-                    : record.status_name === '状态异常'
-                    ? 'warning'
-                    : 'default'
                 "
               >
-                {{ record.status_name }}
-              </a-tag>
-            </span>
-          </template>
-
-          <template v-if="column.key === 'action'">
-            <template
-              v-if="
-                record.status_name === '预约待确认' ||
-                record.status_name === '预约成功'
-              "
-            >
-              <span>
-                <a class="red" type="primary" @click="onShowModal(record)"
-                  >取消</a
-                >
-                <a-divider type="vertical" />
-                <a type="primary" @click="onShowModal(record)">查看</a>
-              </span>
-            </template>
-            <template v-else>
-              <span>
-                <a type="primary" @click="onShowModal(record)">查看</a>
-              </span>
+                <span>
+                  <a class="red" type="primary" @click="onShowModal(record)"
+                    >取消</a
+                  >
+                  <a-divider type="vertical" />
+                  <a type="primary" @click="onShowModal(record)">查看</a>
+                </span>
+              </template>
+              <template v-else>
+                <span>
+                  <a type="primary" @click="onShowModal(record)">查看</a>
+                </span>
+              </template>
             </template>
           </template>
-        </template>
-      </a-table>
+        </a-table>
+      </PageSizeCom>
       <a-empty v-else />
+    </div>
+    <div class="cPagination" v-if="state.data?.length > 0">
+      <a-pagination
+        v-model:current="state.currentPage"
+        :total="state.total"
+        @change="onChangePage"
+        show-less-items
+      />
     </div>
     <a-modal
       class="result-modal"
@@ -274,43 +234,54 @@ const onChangePage = (pagination) => {
         <p>
           预约状态：<span
             :class="
-              state.selectedRecord.result_info === '预约待确认'
+              state.selectedRecord.status_name === '预约待审核'
                 ? 'status-wait'
-                : state.selectedRecord.result_info === '预约成功'
+                : state.selectedRecord.status_name === '预约成功'
                 ? 'status-success'
-                : state.selectedRecord.result_info === '使用中'
+                : state.selectedRecord.status_name === '使用中'
                 ? 'status-active'
-                : state.selectedRecord.result_info === '未签到'
+                : state.selectedRecord.status_name === '未签到'
                 ? 'status-nosign'
                 : ''
             "
-            >{{ state.selectedRecord.result_info }}</span
+            >{{ state.selectedRecord.status_name }}</span
           >
         </p>
-        <p>预约用户：{{ state.selectedRecord.user }}</p>
-        <p>预约时间：{{ state.selectedRecord.reservationTime }}</p>
-        <p>开始时间：{{ state.selectedRecord.startTime }}</p>
-        <p>结束时间：{{ state.selectedRecord.endTime }}</p>
-        <p>预约地点：{{ state.selectedRecord.area }}</p>
-        <p>预约信息：{{ state.selectedRecord.info }}</p>
+        <p>
+          预约用户：{{ state.selectedRecord.member_name }}({{
+            state.selectedRecord.member_id
+          }})
+        </p>
+        <p>预约时间：{{ state.selectedRecord.create_time }}</p>
+        <p>开始时间：{{ state.selectedRecord.begin_time }}</p>
+        <p>结束时间：{{ state.selectedRecord.end_time }}</p>
+        <p>预约地点：{{ state.selectedRecord.nameMerge }}</p>
+        <p>预约信息：{{ state.selectedRecord.title }}</p>
         <div class="members-row">
           <span>全部成员：</span>
           <div class="members">
             <div
-              v-for="member in state.selectedRecord.members"
-              :key="member.id"
+              v-for="member in state.selectedRecord.teams"
+              :key="member.member_id"
               class="member"
             >
-              <span :class="{ isMySelf: member.isMySelf }"
-                >{{ member.name }}
+              <span
+                :class="{ isMySelf: member.member_id === state.UserInfo.id }"
+                >{{ member.member_name }} ({{ member.member_id }})
               </span>
-              <span :class="member.statusClass" class="member-status"
+              <span
+                :class="{
+                  statusPending: member.isAuthorized === '0',
+                  statusAgreed: member.isAuthorized === '1',
+                  statusRejected: member.isAuthorized === '2',
+                }"
+                class="memberStatus"
                 >{{
-                  member.statusClass === "status-pending"
+                  member.isAuthorized === "0"
                     ? "待确认"
-                    : member.statusClass === "status-agreed"
+                    : member.isAuthorized === "1"
                     ? "同意邀请"
-                    : member.statusClass === "status-rejected"
+                    : member.isAuthorized === "2"
                     ? "拒绝邀请"
                     : ""
                 }}
@@ -319,10 +290,18 @@ const onChangePage = (pagination) => {
           </div>
         </div>
         <a-divider dashed />
-
-        <div
+        <div class="modal-footer-success">
+          <a-button
+            type="primary"
+            v-if="state.selectedRecord.status != '21'"
+            class="cancel-button-success"
+            @click="onHideModal"
+            >确定</a-button
+          >
+        </div>
+        <!-- <div
           class="modal-footer"
-          v-if="state.selectedRecord.result_info === '预约待确认'"
+          v-if="state.selectedRecord.status_name === '预约待确认'"
         >
           <a-button class="cancel-button" @click="onHideModal">拒绝</a-button>
           <a-button type="primary" class="confirm-button" @click="onHideModal"
@@ -331,10 +310,18 @@ const onChangePage = (pagination) => {
         </div>
         <div
           class="modal-footer-success"
-          v-else-if="state.selectedRecord.result_info === '预约成功'"
+          v-else-if="
+            state.selectedRecord.status_name === '预约成功' ||
+            state.selectedRecord.status_name === '预约待审核'
+          "
         >
           <a-button
             type="primary"
+            :disabled="
+              state.selectedRecord.cancel_ok === '1'
+                ? false
+                : true
+            "
             class="cancel-button-success"
             @click="onHideModal"
             >取消预约</a-button
@@ -346,7 +333,7 @@ const onChangePage = (pagination) => {
         <p v-else-if="state.selectedRecord.result_info === '已取消'">
           取消时间：{{ state.selectedRecord.checkInTime }}
         </p>
-        <p v-else>签到时间：{{ state.selectedRecord.checkInTime }}</p>
+        <p v-else>签到时间：{{ state.selectedRecord.checkInTime }}</p> -->
       </div>
     </a-modal>
   </div>
@@ -356,6 +343,10 @@ const onChangePage = (pagination) => {
 .record {
   padding-left: 30px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 .red {
@@ -367,6 +358,8 @@ const onChangePage = (pagination) => {
 }
 .table {
   margin-top: 60px;
+  flex: 1;
+  overflow: auto;
 }
 :deep(.ant-table-thead > tr > th) {
   background-color: #f7f9fb;
@@ -450,19 +443,19 @@ const onChangePage = (pagination) => {
     color: #1f56e1;
   }
 
-  .member-status {
-    margin-left: 10px;
+  .memberStatus {
+    margin-left: 3px;
   }
 
-  .status-rejected {
+  .statusRejected {
     color: #ff4d4f;
   }
 
-  .status-agreed {
+  .statusAgreed {
     color: #52c41a;
   }
 
-  .status-pending {
+  .statusPending {
     color: #d9d9d9;
   }
 }

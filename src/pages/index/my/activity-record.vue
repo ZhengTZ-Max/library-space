@@ -7,6 +7,7 @@ import {
   saveComments,
 } from "@/request/activity-record";
 import Carousel from "@/components/CarouselCom.vue";
+import PageSizeCom from "@/components/PageSizeCom.vue";
 
 const store = useStore();
 const onCheckedForLocation = ref(true);
@@ -173,10 +174,8 @@ const pagination = computed(() => ({
   showSizeChanger: false,
 }));
 
-const onChangePage = (pagination) => {
-  // pagination : {current: 2, pageSize: 10, total: 132, showSizeChanger: false}
-  let { current } = pagination;
-  state.currentPage = current;
+const onChangePage = (page, pageSize) => {
+  state.currentPage = page;
   fetch();
 };
 
@@ -238,81 +237,96 @@ const onSelectDate = (item) => {
     </a-tabs>
 
     <div class="table" v-if="state.activeKey !== '3'">
-      <a-table
-        :columns="columns"
-        :data-source="state.data"
-        :pagination="pagination"
-        @change="onChangePage"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'image'">
-            <a-image
-              :src="record.poster[0].file_path"
-              :width="100"
-              :preview="false"
-            />
-          </template>
-          <template v-if="column.key === 'status_name'">
-            <span>
-              <a-tag
-                class="custom-tag"
-                :color="
-                  record.status_name === '报名成功'
-                    ? 'success'
-                    : record.status_name === '报名中'
-                    ? 'processing'
-                    : record.status_name === '等待审核'
-                    ? 'warning'
-                    : 'default'
-                "
-              >
-                {{ record.status_name }}
-              </a-tag>
-            </span>
-          </template>
-
-          <template v-if="column.key === 'action'">
-            <template v-if="record.status_name === '等待审核'">
+      <PageSizeCom v-if="state.data?.length > 0">
+        <a-table
+          :columns="columns"
+          :data-source="state.data"
+          :pagination="false"
+          sticky
+          scrollToFirstRowOnChange
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'image'">
+              <a-image
+                :src="record.poster[0].file_path"
+                :width="100"
+                :preview="false"
+              />
+            </template>
+            <template v-if="column.key === 'status_name'">
               <span>
-                <a class="red" type="primary" @click="onShowDrawer(record)"
-                  >取消</a
+                <a-tag
+                  class="custom-tag"
+                  :color="
+                    record.status_name === '报名成功'
+                      ? 'success'
+                      : record.status_name === '报名中'
+                      ? 'processing'
+                      : record.status_name === '等待审核'
+                      ? 'warning'
+                      : 'default'
+                  "
                 >
-                <a-divider type="vertical" />
-                <a type="primary" @click="onShowDrawer(record)">修改</a>
+                  {{ record.status_name }}
+                </a-tag>
               </span>
             </template>
-            <template v-else>
-              <span>
-                <a type="primary" @click="onShowDrawer(record)">查看</a>
-              </span>
+
+            <template v-if="column.key === 'action'">
+              <template v-if="record.status_name === '等待审核'">
+                <span>
+                  <a class="red" type="primary" @click="onShowDrawer(record)"
+                    >取消</a
+                  >
+                  <a-divider type="vertical" />
+                  <a type="primary" @click="onShowDrawer(record)">修改</a>
+                </span>
+              </template>
+              <template v-else>
+                <span>
+                  <a type="primary" @click="onShowDrawer(record)">查看</a>
+                </span>
+              </template>
             </template>
           </template>
-        </template>
-      </a-table>
+        </a-table>
+      </PageSizeCom>
+      <a-empty v-else />
     </div>
 
     <div class="table" v-if="state.activeKey === '3'">
-      <a-table
-        :columns="columnsForDraft"
-        :data-source="data"
-        :pagination="pagination"
+      <PageSizeCom v-if="state.data?.length > 0">
+        <a-table
+          :columns="columnsForDraft"
+          :data-source="data"
+          :pagination="pagination"
+          @change="onChangePage"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'image'">
+              <a-image
+                :src="record.image || 'default-poster-url.jpg'"
+                :width="100"
+                :preview="false"
+              />
+            </template>
+            <template v-if="column.key === 'action'">
+              <span>
+                <a type="primary" @click="onShowModal(record)">编辑</a>
+              </span>
+            </template>
+          </template>
+        </a-table>
+      </PageSizeCom>
+      <a-empty v-else />
+    </div>
+    <div class="cPagination" v-if="state.data?.length > 0">
+      <a-pagination
+        v-model:current="state.currentPage"
+        :total="state.total"
         @change="onChangePage"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'image'">
-            <a-image
-              :src="record.image || 'default-poster-url.jpg'"
-              :width="100"
-              :preview="false"
-            />
-          </template>
-          <template v-if="column.key === 'action'">
-            <span>
-              <a type="primary" @click="onShowModal(record)">编辑</a>
-            </span>
-          </template>
-        </template>
-      </a-table>
+        show-less-items
+      />
     </div>
 
     <a-drawer
@@ -540,12 +554,18 @@ const onSelectDate = (item) => {
 .record {
   padding-left: 30px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 .custom-tag {
   border-radius: 12px;
 }
 .table {
   margin-top: 10px;
+  flex: 1;
+  overflow: auto;
 }
 :deep(.ant-table-thead > tr > th) {
   background-color: #f7f9fb;

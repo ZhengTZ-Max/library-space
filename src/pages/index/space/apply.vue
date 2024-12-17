@@ -285,7 +285,7 @@ const onDisabledTime = (date) => {
 const onSelected = (date) => {
   if (state.spaceApplyInfo?.earlierPeriods == 0) {
     // 获取当前选择时间范围中 后端返回的已经占用的时间段
-
+    chooseTimeList: [{ begin_time: "", end_time: "" }],
     getCurrentChooseTimeHaveSelectTime();
   } else {
     getDateStatus();

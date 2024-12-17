@@ -1,11 +1,14 @@
 <script setup>
 import { ref, reactive } from "vue";
 import { useStore } from "vuex";
+import PageSizeCom from "@/components/PageSizeCom.vue";
 
 const store = useStore();
 const onCheckedForLocation = ref(true);
 
 const state = reactive({
+  total: 0,
+  currentPage: 1,
   activeKey: "apply",
   isModalVisible: false,
   selectedRecord: "",
@@ -18,6 +21,10 @@ const onShowModal = (record) => {
 const onHideModal = () => {
   state.isModalVisible = false;
   state.selectedRecord = "";
+};
+
+const onChangePage = (page, pageSize) => {
+  state.currentPage = page;
 };
 
 const columns = [
@@ -57,17 +64,36 @@ const data = [
     </div>
 
     <div class="table">
-      <a-table :columns="columns" :data-source="data">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'image'">
-            <a-image
-              :src="record.image || 'default-poster-url.jpg'"
-              :width="100"
-              :preview="false"
-            />
+      <PageSizeCom v-if="data?.length > 0">
+        <a-table
+          :columns="columns"
+          :data-source="data"
+          :pagination="false"
+          sticky
+          scrollToFirstRowOnChange
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'image'">
+              <a-image
+                :src="record.image || 'default-poster-url.jpg'"
+                :width="100"
+                :preview="false"
+              />
+            </template>
           </template>
-        </template>
-      </a-table>
+        </a-table>
+      </PageSizeCom>
+      <a-empty v-else />
+    </div>
+
+    <div class="cPagination" v-if="data?.length > 0">
+      <a-pagination
+        v-model:current="state.currentPage"
+        :total="state.total"
+        @change="onChangePage"
+        :default-page-size="10"
+        show-less-items
+      />
     </div>
   </div>
 </template>
@@ -76,6 +102,10 @@ const data = [
 .record {
   padding-left: 30px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 .my-appointment {
   margin-top: 20px;
@@ -101,6 +131,8 @@ const data = [
 }
 .table {
   margin-top: 30px;
+  flex: 1;
+  overflow: auto;
 }
 :deep(.ant-table-thead > tr > th) {
   background-color: #f7f9fb;

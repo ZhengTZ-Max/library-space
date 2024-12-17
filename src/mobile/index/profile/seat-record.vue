@@ -13,10 +13,15 @@ import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 
+import SeatRecordDetails from "@/mobile/index/profile/seat-record-details.vue";
+// import MySeatRecordCom from "@/components/MySeatRecordCom.vue";
 import { getSeatRecordList, getSeatRenegeList } from "@/request/sear-record";
 
 const router = useRouter();
 const state = reactive({
+  showItemDetails: false,
+  itemDetails: {},
+
   activeKey: "1",
   currentPage: 1,
   pageSize: 10,
@@ -152,11 +157,11 @@ const fetchSeatRenegeList = async () => {
   }
 };
 
-const onClickItem = (id) => {
-  router.push({
-    path: "/mo/profile/seat-record-details",
-    query: { id },
-  });
+const onClickItem = (item) => {
+  state.showItemDetails = true;
+
+  state.itemDetails = item;
+  console.log(state.itemDetails);
 };
 
 const fetchQuery = () => {
@@ -205,8 +210,13 @@ const fetchQuery = () => {
         finished-text="没有更多了"
         @load="onLoad"
       >
-        <div v-for="item in state.data" :key="item?.id" class="item_list">
-          <div class="info_item margin_bottom" @click="onClickItem(item.id)">
+        <div
+          v-for="item in state.data"
+          :key="item?.id"
+          class="item_list"
+          @click="onClickItem(item)"
+        >
+          <div class="info_item margin_bottom">
             <img src="@/assets/my/mobile_seat_record_seat.svg" alt="Location" />
             <span>{{ item.nameMerge }} : {{ item.name }}</span>
           </div>
@@ -291,12 +301,36 @@ const fetchQuery = () => {
           </div>
         </div>
       </div>
-      <div style="margin: 10px">
+      <div style="margin: 15px 10px">
         <a-button type="primary" shape="round" block @click="fetchQuery"
           >立即查询</a-button
         >
       </div>
     </div>
+
+    <a-drawer
+      width="100%"
+      height="100%"
+      placement="bottom"
+      :closable="false"
+      :open="state.showItemDetails"
+      destroyOnClose
+    >
+      <div class="libraryPop" >
+        <SeatRecordDetails :data="state.itemDetails" />
+        <div class="bottomAction">
+          <van-button
+            round
+            block
+            type="default"
+            @click="state.showItemDetails = false"
+          >
+            <img src="@/assets/seat/moBackBtn.svg" alt="" />
+            返回
+          </van-button>
+        </div>
+      </div>
+    </a-drawer>
   </div>
 </template>
 <style lang="less" scoped>
@@ -440,9 +474,36 @@ const fetchQuery = () => {
           //   margin-bottom: 0;
           // }
           .width_half {
-            width: 40%;
+            width: 100px;
           }
         }
+      }
+    }
+  }
+}
+
+.libraryPop {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+
+  :deep(.area-record-details) {
+    flex: 1;
+    padding: 14px;
+  }
+  .bottomAction {
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    & button {
+      &:nth-child(1) {
+        margin-right: 12px;
+      }
+      img {
+        margin-right: 4px;
+        transform: translateY(-2px);
       }
     }
   }

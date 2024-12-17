@@ -4,6 +4,7 @@ import { useStore } from "vuex";
 import { SearchOutlined } from "@ant-design/icons-vue";
 import { getSeatRecordList, getSeatRenegeList } from "@/request/sear-record";
 import MySeatRecordCom from "@/components/MySeatRecordCom.vue";
+import PageSizeCom from "@/components/PageSizeCom.vue";
 
 const store = useStore();
 const state = reactive({
@@ -34,68 +35,6 @@ const state = reactive({
     },
   },
 
-  room: [
-    {
-      label: "图书馆",
-      value: "图书馆",
-    },
-    {
-      label: "基础馆",
-      value: "基础馆",
-    },
-    {
-      label: "玉泉馆",
-      value: "玉泉馆",
-    },
-    {
-      label: "老馆",
-      value: "老馆",
-    },
-  ],
-  roomValue: "基础馆",
-
-  floor: [
-    {
-      label: "1F",
-      value: "1F",
-    },
-    {
-      label: "2F",
-      value: "2F",
-    },
-    {
-      label: "3F",
-      value: "3F",
-    },
-    {
-      label: "4F",
-      value: "4F",
-    },
-    {
-      label: "5F",
-      value: "5F",
-    },
-    {
-      label: "6F",
-      value: "6F",
-    },
-  ],
-  floorValue: "1F",
-  area: [
-    {
-      label: "自修A区",
-      value: "自修A区",
-    },
-    {
-      label: "自习B区",
-      value: "自习B区",
-    },
-    {
-      label: "自习C区",
-      value: "自习C区",
-    },
-  ],
-  areaValue: "自修A区",
 });
 
 const userName = computed(() => store.state.loginInfo?.name);
@@ -226,10 +165,9 @@ const pagination = computed(() => ({
   showSizeChanger: false,
 }));
 
-const onChangePage = (pagination) => {
+const onChangePage = (page, pageSize) => {
   // pagination : {current: 2, pageSize: 10, total: 132, showSizeChanger: false}
-  let { current } = pagination;
-  state.currentPage = current;
+  state.currentPage = page;
   fetch();
 };
 </script>
@@ -244,10 +182,13 @@ const onChangePage = (pagination) => {
       <a-tab-pane key="3" tab="研习座位"></a-tab-pane>
       <a-tab-pane key="4" tab="考研座位"></a-tab-pane>
     </a-tabs>
-    <div class="quickBtns" :class="{
+    <div
+      class="quickBtns"
+      :class="{
         width_230: state.activeKey == '1',
         width_380: state.activeKey != '1',
-      }">
+      }"
+    >
       <div
         v-for="item in filteredQuickModeList"
         :key="item.label"
@@ -259,70 +200,80 @@ const onChangePage = (pagination) => {
       </div>
     </div>
     <div v-if="state.quickMode != 3" class="table">
-      <a-table
-        v-if="state.data?.length"
-        :columns="columns"
-        :data-source="state.data"
-        :pagination="pagination"
-        @change="onChangePage"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'seat'">
-            <span>{{ record.nameMerge }} : {{ record.name }}</span>
-          </template>
-          <template v-if="column.key === 'time'">
-            <span>{{ record.beginTime }}</span>
-          </template>
-          <template v-if="column.key === 'status_name'">
-            <span>
-              <a-tag
-                class="custom-tag"
-                :color="
-                  record.status_name === '预约成功'
-                    ? 'success'
-                    : record.status_name === '使用中'
-                    ? 'processing'
-                    : record.status_name === '未签到'
-                    ? 'error'
-                    : record.status_name === '状态异常'
-                    ? 'warning'
-                    : 'default'
-                "
-              >
-                {{ record.status_name }}
-              </a-tag>
-            </span>
-          </template>
-
-          <template v-if="column.key === 'action'">
-            <template v-if="record.status_name === '预约成功'">
+      <PageSizeCom v-if="state.data?.length > 0">
+        <a-table
+          :columns="columns"
+          :data-source="state.data"
+          :pagination="false"
+          sticky
+          scrollToFirstRowOnChange
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'seat'">
+              <span>{{ record.nameMerge }} : {{ record.name }}</span>
+            </template>
+            <template v-if="column.key === 'time'">
+              <span>{{ record.beginTime }}</span>
+            </template>
+            <template v-if="column.key === 'status_name'">
               <span>
-                <a class="red" type="primary" @click="onShowModal(record)"
-                  >取消</a
+                <a-tag
+                  class="custom-tag"
+                  :color="
+                    record.status_name === '预约成功'
+                      ? 'success'
+                      : record.status_name === '使用中'
+                      ? 'processing'
+                      : record.status_name === '未签到'
+                      ? 'error'
+                      : record.status_name === '状态异常'
+                      ? 'warning'
+                      : 'default'
+                  "
                 >
-                <a-divider type="vertical" />
-                <a type="primary" @click="onShowModal(record)">查看</a>
+                  {{ record.status_name }}
+                </a-tag>
               </span>
             </template>
-            <template v-else>
-              <span>
-                <a type="primary" @click="onShowModal(record)">查看</a>
-              </span>
-              <!-- <template
-                v-if="
-                  record.status_name === '已超时' ||
-                  record.status_name === '审核未通过'
-                "
-              >
+
+            <template v-if="column.key === 'action'">
+              <template v-if="record.status_name === '预约成功'">
+                <span>
+                  <a class="red" type="primary" @click="onShowModal(record)"
+                    >取消</a
+                  >
+                  <a-divider type="vertical" />
+                  <a type="primary" @click="onShowModal(record)">查看</a>
+                </span>
+              </template>
+              <template v-else>
                 <span>
                   <a type="primary" @click="onShowModal(record)">查看</a>
                 </span>
-              </template> -->
+                <!-- <template
+                  v-if="
+                    record.status_name === '已超时' ||
+                    record.status_name === '审核未通过'
+                  "
+                >
+                  <span>
+                    <a type="primary" @click="onShowModal(record)">查看</a>
+                  </span>
+                </template> -->
+              </template>
             </template>
           </template>
-        </template>
-      </a-table>
+        </a-table>
+      </PageSizeCom>
       <a-empty v-else />
+    </div>
+    <div class="cPagination" v-if="state.data?.length > 0">
+      <a-pagination
+        v-model:current="state.currentPage"
+        :total="state.total"
+        @change="onChangePage"
+        show-less-items
+      />
     </div>
     <a-modal
       class="result-modal"
@@ -420,6 +371,10 @@ const onChangePage = (pagination) => {
 .record {
   padding-left: 30px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 
   .toggleLangPc {
     top: 65px;
@@ -442,6 +397,8 @@ const onChangePage = (pagination) => {
 }
 .table {
   margin-top: 30px;
+  flex: 1;
+  overflow: auto;
 }
 :deep(.ant-table-thead > tr > th) {
   background-color: #f7f9fb;
