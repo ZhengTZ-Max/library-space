@@ -110,8 +110,13 @@ const filterFloor = () => {
         </a-radio-group>
       </div>
       <div class="filterFilter">时间</div>
-      <div class="filterTimes fiterItem">
-        <span>{{ state.filterOptions.time?.start_time }}</span>
+      <div
+        class="filterTimes fiterItem"
+        :class="{ filterTimes_mobile: systemMode != 'pc' }"
+      >
+        <span :class="{ filterTimes_mobile_starttime: systemMode != 'pc' }">{{
+          state.filterOptions.time?.start_time
+        }}</span>
         <div class="sliderPrimary sliderSmall">
           <a-slider
             :min="state.filterOptions.time?.start_num"
@@ -126,19 +131,28 @@ const filterFloor = () => {
             {{ convertMinutesToHHMM(state.filterRows.time[1]) }}
           </div>
         </div>
-        <span>{{ state.filterOptions.time?.end_time }}</span>
+        <span :class="{ filterTimes_mobile_endtime: systemMode != 'pc' }">{{
+          state.filterOptions.time?.end_time
+        }}</span>
       </div>
       <div class="filterFilter">人数</div>
-      <div class="filterTimes fiterItem">
-        <span>{{ state.filterOptions.members?.min }}</span>
+      <div
+        class="filterTimes fiterItem"
+        :class="{ filterTimes_mobile: systemMode != 'pc' }"
+      >
+        <span :class="{ filterTimes_mobile_starttime: systemMode != 'pc' }">{{
+          state.filterOptions.members?.min
+        }}</span>
         <div class="sliderPrimary sliderSmall">
           <a-slider
             :max="state.filterOptions.members?.max"
             v-model:value="state.filterRows.num"
           />
-          <div class="sltText">已选人数：0 ~ {{ state.filterRows.num }}</div>
+          <div class="sltText">已选人数:0 ~ {{ state.filterRows.num }}</div>
         </div>
-        <span>{{ state.filterOptions.members?.max }}</span>
+        <span :class="{ filterTimes_mobile_endtime: systemMode != 'pc' }">{{
+          state.filterOptions.members?.max
+        }}</span>
       </div>
       <div class="filterFilter">特征</div>
       <div class="fiterItem">
@@ -189,6 +203,19 @@ const filterFloor = () => {
         color: var(--primary-color);
       }
     }
+  }
+  .filterTimes_mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .filterTimes_mobile_starttime {
+    color: #8c8f9e;
+    // align-self: flex-start;
+  }
+  .filterTimes_mobile_endtime {
+    color: #8c8f9e;
+    align-self: flex-end;
   }
   .fiterItem {
     width: 100%;

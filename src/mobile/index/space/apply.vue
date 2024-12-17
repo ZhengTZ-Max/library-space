@@ -179,6 +179,14 @@ watch(
   }
 );
 
+watch(
+  () => state.UserInfo,
+  (v) => {
+    state.filterActivityMobile = v?.mobile;
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   fetchGetSpaceApply();
 });
@@ -214,9 +222,9 @@ const fetchGetSpaceApply = async () => {
 
     // 获取日历 开始时间 结束时间
     if (state.calendarInfo.list.length) {
-      state.calendarInfo.startDate = state.calendarInfo.list[0].date;
+      state.calendarInfo.startDate = state.calendarInfo.dateList[0];
       state.calendarInfo.endDate =
-        state.calendarInfo.list[state.calendarInfo.list.length - 1].date;
+        state.calendarInfo.dateList[state.calendarInfo.dateList.length - 1];
     }
 
     // 大型空间 半日预约
@@ -924,16 +932,19 @@ const getDateStatus = () => {
       </template>
 
       <a-row v-else :gutter="[15, 15]">
-        <template v-for="item in state.calendarInfo.dateList" :key="item">
+        <template v-for="item in state.calendarInfo.list" :key="item">
           <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
             <div
               class="libraryItem cardItemBorTran"
-              :class="{ activeItem: item == state.dateIndex }"
+              :class="{ activeItem: item?.date == state.dateIndex?.date }"
               @click="onChangeDateAct(item)"
             >
-              <span>{{ moment(item).format("MM-DD") }}</span>
-              <span>{{ exchangeDateTime(item, 31) }}</span>
-              <div v-if="item == state.dateIndex" class="check_icon">
+              <span>{{ moment(item?.date).format("MM-DD") }}</span>
+              <span>{{ exchangeDateTime(item?.date, 31) }}</span>
+              <div
+                v-if="item?.date == state.dateIndex?.date"
+                class="check_icon"
+              >
                 <img src="@/assets/event/checked.svg" />
               </div>
             </div>
@@ -952,7 +963,10 @@ const getDateStatus = () => {
       </div>
     </div>
 
-    <div class="add_people_box">
+    <div
+      class="add_people_box"
+      v-if="[5, 6]?.includes(Number(state.spaceApplyInfo?.type_id))"
+    >
       <div class="add_people_box_content">
         <div class="add_people_box_title">参与人员</div>
         <div class="add_people_box_input">

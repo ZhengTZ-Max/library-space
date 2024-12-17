@@ -98,9 +98,8 @@ const state = reactive({
   areaValue: "自修A区",
 });
 
-const userName = computed(() => store.state.userName);
+const userName = computed(() => store.state.loginInfo?.name);
 
-console.log(userName.value);
 const columns = [
   {
     title: "座位",

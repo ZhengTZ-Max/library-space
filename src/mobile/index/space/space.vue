@@ -26,6 +26,7 @@ import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceChooseSpaceFilter from "@/components/SpaceCom/SpaceChooseSpaceFilter.vue";
 
 const router = useRouter();
+const route = useRoute();
 const state = reactive({
   spaceInfo: {},
   spaceInfoShow: false,
@@ -38,17 +39,24 @@ const state = reactive({
   quickDateList: [],
   filterOptions: {},
   filterSearch: {
-    premiseID: "",
-    floorID: "",
-    categoryID: "",
+    library: [],
+    floor: [],
+    category: [],
     date: "",
     time: "",
-    num: "",
-    boutiqueID: "",
+    num: 0,
+    boutique: [],
   },
 
   searchValue: "",
   spaceInfoList: [],
+
+  initQuery: {
+    libraryId: route?.query?.id || "",
+    quickDate: route?.query?.date || "",
+    floorId: route?.query?.floor || "",
+    categoryType: route?.query?.categoryType || "",
+  },
 });
 
 onMounted(() => {
@@ -56,7 +64,7 @@ onMounted(() => {
 
   fetchGetSpaceSelectList();
   fetchGetSpaceFilterList();
-  fetchGetSpaceInfoList();
+  
 });
 
 const initQuickDateList = () => {
@@ -115,22 +123,91 @@ const fetchGetSpaceFilterList = async () => {
       return;
     }
     state.filterOptions = res?.data || {};
+
+    initQueryFn();
+    fetchGetSpaceInfoList();
   } catch (error) {
     state.filterOptions = {};
     console.log(error);
   }
 };
 
+const initQueryFn = () => {
+  let { libraryId, quickDate, floorId, categoryType } = state.initQuery;
+
+  let floorSelect = [];
+
+  state.filterSearch.library = (libraryId && [libraryId]) || [];
+  state.filterSearch.date = quickDate;
+  state.filterSearch.category = (categoryType && [categoryType]) || [];
+
+  state.filterOptions?.storey?.map((e) => {
+    if (e?.list?.find((f) => f?.id == floorId)) {
+      floorSelect.push(e);
+    }
+  });
+  console.log("floorSelect", floorSelect);
+  state.filterSearch.floor = floorSelect?.map((e) => e.name);
+
+  state.filterSearch.time = [
+    state.filterOptions.time?.start_num,
+    state.filterOptions.time?.end_num,
+  ];
+  console.log("state", state.filterSearch);
+};
+
+const filterFloorIds = (ids) => {
+  try {
+    let list = state.filterOptions?.storey;
+    let library = state.filterSearch.library;
+    let floorIds = [];
+    list = list?.filter((e) => {
+      return ids?.includes(e?.name);
+    });
+
+    list.map((e) => {
+      let floorList = e?.list;
+      floorList?.map((fl) => {
+        if (library?.includes(fl?.parentId)) floorIds.push(fl?.id);
+      });
+    });
+
+    return floorIds || [];
+  } catch (e) {
+    console.log(e);
+  }
+};
 const fetchGetSpaceInfoList = async () => {
   try {
+    let { search, library, floor, date, boutique, category, time } =
+    state.filterSearch;
+
     let params = {
-      premiseID: state.filterSearch.premiseID,
+      premises: library,
       members: state.filterSearch.num,
-      date: state.quickDate,
-      floorID: state.filterSearch.floorID,
-      categoryID: state.filterSearch.categoryID,
-      boutiqueID: state.filterSearch.boutiqueID,
+      date,
+      floor: filterFloorIds(floor),
+      category: category,
+      boutique: boutique,
     };
+
+    if (!params.members) {
+      params.members = "";
+    }
+
+    if (time?.length) {
+      if (
+        time[0] == state.filterOptions?.time?.start_num &&
+        time[1] == state.filterOptions?.time?.end_num
+      ) {
+        params.start_time = "";
+        params.end_time = "";
+      } else {
+        params.start_time = convertMinutesToHHMM(time[0]);
+        params.end_time = convertMinutesToHHMM(time[1]);
+      }
+    }
+
     let res = await getSpaceInfoList(params);
 
     state.refreshing = false;
@@ -174,6 +251,8 @@ const onApply = (id) => {
 };
 
 const handleFilter = () => {
+  fetchGetSpaceInfoList();
+  state.quickDate = state.filterSearch?.date;
   state.filterShow = false;
   //   fetchGetSpaceInfoList();
 };

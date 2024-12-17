@@ -309,7 +309,7 @@ const handleDateChange = (v) => {
             <div
               class="libraryItem cardItem"
               :class="{ activeItem: item?.id == state.activeIndex }"
-              @click="onChangeAct(item)"
+              @mousemove="onChangeAct(item)"
             >
               <div class="cardItemImgCon">
                 <a-image

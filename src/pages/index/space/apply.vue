@@ -105,6 +105,8 @@ const state = reactive({
     title: "预约成功~~",
     type: "success",
   },
+
+
 });
 
 watch(
@@ -140,6 +142,14 @@ watch(
       }, 200);
     }
   }
+);
+
+watch(
+  () => state.UserInfo,
+  (v) => {
+    state.filterActivityMobile = v?.mobile;
+  },
+  { immediate: true }
 );
 
 onMounted(() => {
@@ -222,7 +232,7 @@ const fetchGetSpaceDetailInfo = async () => {
     };
     let res = await getSpaceDetail(params);
     if (res.code != 0) return;
-    state.spaceDetailInfo = { ...res?.data , type:"space"} || {};
+    state.spaceDetailInfo = { ...res?.data, type: "space" } || {};
     state.spaceDetailInfoShow = true;
     console.log(state.spaceDetailInfo);
   } catch (e) {
@@ -1511,7 +1521,7 @@ const getDateStatus = () => {
   span {
     &:nth-child(1) {
       min-width: 75px;
-      text-align: right;
+      text-align: left;
     }
     &:nth-child(2) {
       flex: 1;
