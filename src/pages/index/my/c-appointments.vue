@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useStore } from "vuex";
 import { showToast, showConfirmDialog, showImagePreview } from "vant";
 
@@ -16,10 +16,13 @@ import {
   getSeatInfo,
 } from "@/request/common";
 
+import PageSizeCom from "@/components/PageSizeCom.vue";
+
 const onCheckedForLocation = ref(true);
 const onCheckedForData = ref(false);
 const onCheckedForTime = ref(false);
 const store = useStore();
+
 const state = reactive({
   currentPage: 1,
   pageSize: 10,
@@ -53,18 +56,15 @@ const columns = [
     title: "地点",
     dataIndex: "location",
     key: "location",
-
   },
   {
     title: "座位",
     dataIndex: "seating",
     key: "seating",
-
   },
   {
     title: "操作",
     key: "action",
-
   },
 ];
 
@@ -340,38 +340,48 @@ const onChangePage = (pagination) => {
     </div>
 
     <div class="table_content" v-if="state.seatList.length > 0">
-      <a-table
-        :columns="columns"
-        :data-source="state.seatList"
-        :pagination="pagination"
-        @change="onChangePage"
-        :scroll="{ y: 500 }"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'location'">
-            {{ record.nameMerge }}
+      <PageSizeCom>
+        <a-table
+          :columns="columns"
+          :data-source="state.seatList"
+          :pagination="false"
+          @change="onChangePage"
+          sticky
+          scrollToFirstRowOnChange
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'location'">
+              {{ record.nameMerge }}
+            </template>
+            <template v-if="column.key === 'seating'">
+              {{ record.spacename }}
+            </template>
+            <template v-if="column.key === 'action'">
+              <span>
+                <a class="red" type="primary" @click="onCancelCollect(record)"
+                  >取消收藏</a
+                >
+                <a-divider type="vertical" />
+                <a-button
+                  type="link"
+                  :disabled="record.isValid != '1'"
+                  @click="onShowModal(record)"
+                  >预约</a-button
+                >
+              </span>
+            </template>
           </template>
-          <template v-if="column.key === 'seating'">
-            {{ record.spacename }}
-          </template>
-          <template v-if="column.key === 'action'">
-            <span>
-              <a class="red" type="primary" @click="onCancelCollect(record)"
-                >取消收藏</a
-              >
-              <a-divider type="vertical" />
-              <a-button
-                type="link"
-                :disabled="record.isValid != '1'"
-                @click="onShowModal(record)"
-                >预约</a-button
-              >
-            </span>
-          </template>
-        </template>
-      </a-table>
+        </a-table>
+      </PageSizeCom>
     </div>
     <a-empty v-else class="empty" />
+    <div class="cPagination">
+      <a-pagination
+        v-model:current="state.currentPage"
+        :total="state.total"
+        show-less-items
+      />
+    </div>
   </div>
   <a-modal
     v-model:open="state.isModalVisible"
@@ -429,7 +439,10 @@ const onChangePage = (pagination) => {
 .table {
   padding-left: 30px;
   position: relative;
-
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
   .red {
     color: red;
   }
@@ -442,7 +455,6 @@ const onChangePage = (pagination) => {
       flex-direction: column;
       justify-content: space-between;
 
-
       .date-selector,
       .time-selector {
         margin-left: 20px; /* 添加左侧间距 */
@@ -453,7 +465,8 @@ const onChangePage = (pagination) => {
 }
 .table_content {
   margin-top: 60px;
-  height: 50vh;
+  flex: 1;
+  overflow: auto;
 }
 
 :deep(.ant-table-thead > tr > th) {

@@ -206,13 +206,12 @@ const onLogout = () => {
   OutLogin();
 };
 
-
 const onSaveMobile = () => {
   if (!state.mobile) {
     message.error("请输入手机号");
     return;
   }
-  fetchUpdateMyInfo('mobile');
+  fetchUpdateMyInfo("mobile");
 };
 
 const onSaveEmail = () => {
@@ -459,6 +458,7 @@ const fetchUpdateMyInfo = async (type) => {
 
 <style scoped lang="less">
 .my {
+  width: 100%;
   height: 100%;
   padding: 20px;
   background-color: #eef1f7;
@@ -580,6 +580,7 @@ const fetchUpdateMyInfo = async (type) => {
       flex: 1;
       background: #fff;
       border-radius: 0 10px 10px 10px;
+      overflow: hidden;
     }
   }
 }

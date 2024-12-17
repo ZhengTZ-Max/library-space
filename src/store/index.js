@@ -18,6 +18,8 @@ const store = createStore({
 
     userName: "",
     userId: "",
+
+    pageResizing: false,
   },
   mutations: {
     setCategoryList(state, list) {
@@ -40,7 +42,7 @@ const store = createStore({
     },
     setLoginInfo(state, info) {
       state.loginInfo = info;
-      sessionStorage.setItem("UserInfo",JSON.stringify(info))
+      sessionStorage.setItem("UserInfo", JSON.stringify(info));
     },
     setApiConfig(state, info) {
       state.apiConfig = info;
@@ -57,8 +59,14 @@ const store = createStore({
     setUserId(state, id) {
       state.userId = id;
     },
+    setPageResizing(state, v) {
+      state.pageResizing = v;
+    },
   },
   actions: {
+    setPageResizing({ commit }, val) {
+      commit("setPageResizing", val);
+    },
     setCategoryList({ commit }, list) {
       commit("setCategoryList", list);
     },

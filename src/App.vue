@@ -1,6 +1,6 @@
 <script setup>
 import _ from "lodash";
-import { computed, watch, onMounted } from "vue";
+import { computed, watch, onMounted, reactive } from "vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import enUS from "ant-design-vue/es/locale/en_US";
@@ -26,6 +26,10 @@ const hasClass = (className) => {
 const addClassToBody = (className) => {
   document.body.classList.add(className);
 };
+
+const state = reactive({
+  resizing: false,
+});
 
 watch(
   () => store.state.systemMode,
@@ -112,6 +116,16 @@ const fetchLangConfig = async () => {
     console.log(e);
   }
 };
+
+const onReset = (v) => {
+  state.resizing = false;
+  store.dispatch("setPageResizing", state.resizing);
+};
+
+const onResizing = (v) => {
+  state.resizing = true;
+  store.dispatch("setPageResizing", state.resizing);
+};
 </script>
 <template>
   <a-config-provider
@@ -123,7 +137,7 @@ const fetchLangConfig = async () => {
       },
     }"
   >
-    <router-view />
+    <router-view v-onReset:150="onReset" v-resizing="onResizing" />
   </a-config-provider>
 </template>
 

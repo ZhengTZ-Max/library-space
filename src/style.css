@@ -293,3 +293,9 @@ div {
 :where(.css-dev-only-do-not-override-gobucf).ant-checkbox+span{
   min-width: 45px;
 }
+
+.cPagination{
+  padding: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
