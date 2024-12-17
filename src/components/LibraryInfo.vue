@@ -151,6 +151,7 @@ const filterCategorys = (list) => {
 </template>
 <style lang="less" scoped>
 .libraryInfo {
+  overflow: auto;
   .reviewImg {
     width: 100%;
     img {

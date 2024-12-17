@@ -632,6 +632,10 @@ const onFloor = (row) => {
     user-select: none;
     padding: 0 20px;
     margin-bottom: 40px;
+    .ant-checkbox-group,
+    .ant-radio-group {
+      width: 100%;
+    }
     &:last-child {
       margin-bottom: 0;
     }

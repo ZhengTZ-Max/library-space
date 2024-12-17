@@ -466,6 +466,7 @@ const onChangeSlide = (row) => {
 };
 
 const handleShow = (v) => {
+  state.apptResult.show = v;
   if (!v && state.apptResult?.type == "success") {
     router.replace("/mo/current");
   }
@@ -938,6 +939,10 @@ const fetchDeleteCollect = async () => {
     user-select: none;
     padding: 0 20px;
     margin-bottom: 40px;
+    .ant-checkbox-group,
+    .ant-radio-group {
+      width: 100%;
+    }
     &:last-child {
       margin-bottom: 0;
     }

@@ -46,6 +46,9 @@ watch(
 const filterFloor = () => {
   let storey = state.filterOptions?.storey;
   let libraryIds = state.filterRows?.library;
+  if (!Array.isArray(libraryIds)) {
+    libraryIds = [state.filterRows?.library];
+  }
   storey = storey?.filter((e) => {
     let floorList = e?.list || [];
     floorList = floorList?.filter((f) =>
@@ -75,21 +78,43 @@ const filterFloor = () => {
     <div class="filterScr">
       <div class="filterFilter">馆舍</div>
       <div class="fiterItem">
-        <a-checkbox-group v-model:value="state.filterRows.library">
+        <a-checkbox-group
+          v-if="systemMode != 'pc'"
+          v-model:value="state.filterRows.library"
+        >
           <a-checkbox
-          :class="{ width_half: systemMode != 'pc' }"
+            :class="{
+              width_half: systemMode != 'pc',
+              width_halfPc: systemMode == 'pc',
+            }"
             v-for="item in state.filterOptions?.premises"
             :value="item?.id"
             :key="item?.id"
             >{{ item?.name }}</a-checkbox
           >
         </a-checkbox-group>
+
+        <a-radio-group v-else v-model:value="state.filterRows.library">
+          <a-radio
+            :class="{
+              width_half: systemMode != 'pc',
+              width_halfPc: systemMode == 'pc',
+            }"
+            v-for="item in state.filterOptions?.premises"
+            :value="item?.id"
+            :key="item?.id"
+            >{{ item?.name }}</a-radio
+          >
+        </a-radio-group>
       </div>
       <div class="filterFilter">楼层</div>
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.floor">
           <a-checkbox
-          :class="{ width_half: systemMode != 'pc' }"
+            :class="{
+              width_half: systemMode != 'pc',
+              width_halfPc: systemMode == 'pc',
+            }"
             v-for="item in state.filterOptions?.filterStorey"
             :value="item?.name"
             :key="item?.id"
@@ -101,7 +126,10 @@ const filterFloor = () => {
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.seatType">
           <a-checkbox
-          :class="{ width_half: systemMode != 'pc' }"
+            :class="{
+              width_half: systemMode != 'pc',
+              width_halfPc: systemMode == 'pc',
+            }"
             v-for="item in state.filterOptions?.category"
             :value="item?.id"
             :key="item?.id"
@@ -113,6 +141,10 @@ const filterFloor = () => {
       <div class="fiterItem">
         <a-radio-group v-model:value="state.filterRows.date">
           <a-radio
+            :class="{
+              width_half: systemMode != 'pc',
+              width_halfPc: systemMode == 'pc',
+            }"
             v-for="item in state.filterOptions?.date"
             :value="item"
             :key="item"
@@ -124,7 +156,10 @@ const filterFloor = () => {
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.boutique">
           <a-checkbox
-            :class="{ width_half: systemMode != 'pc' }"
+            :class="{
+              width_half: systemMode != 'pc',
+              width_halfPc: systemMode == 'pc',
+            }"
             v-for="item in state.filterOptions?.boutique"
             :value="item?.id"
             :key="item?.id"
@@ -157,11 +192,18 @@ const filterFloor = () => {
     user-select: none;
     padding: 0 20px;
     margin-bottom: 40px;
+    .ant-checkbox-group,
+    .ant-radio-group {
+      width: 100%;
+    }
     &:last-child {
       margin-bottom: 0;
     }
     .width_half {
       width: 40%;
+    }
+    .width_halfPc {
+      width: 29%;
     }
   }
   .ant-input,

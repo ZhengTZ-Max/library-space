@@ -22,7 +22,6 @@
   --van-calendar-range-middle-background-opacity: 0.2 !important;
 
   --van-switch-toggle: 30px;
-
 }
 
 /* 常规字体 */
@@ -289,12 +288,11 @@ div {
   transition: 0.15s !important;
 }
 
-
-:where(.css-dev-only-do-not-override-gobucf).ant-checkbox+span{
+:where(.css-dev-only-do-not-override-gobucf).ant-checkbox + span {
   min-width: 45px;
 }
 
-.cPagination{
+.cPagination {
   padding: 12px;
   display: flex;
   justify-content: flex-end;
@@ -313,4 +311,8 @@ div {
   &:nth-child(2) {
     flex: 1;
   }
+}
+
+.ant-radio-wrapper {
+  margin-inline-end: 0;
 }
