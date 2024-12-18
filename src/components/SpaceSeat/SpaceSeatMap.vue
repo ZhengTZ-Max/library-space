@@ -49,12 +49,13 @@ const initMap = (e) => {
       zoommap.value &&
         Panzoom(zoommap.value, {
           minScale: 1,
-          maxScale: 5,
+          maxScale: 4,
           step: 0.5,
           maxZoom: 5,
           minZoom: 1,
           bounds: true,
           boundsPadding: 1,
+          contain: "inside",
         });
     });
   }, 100);

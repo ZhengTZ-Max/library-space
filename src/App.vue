@@ -52,6 +52,7 @@ onMounted(() => {
   fetchLangConfig();
   fetchNotice();
   fetchCategory();
+  window.$computedWidth();
 });
 
 const fetchCategory = async () => {

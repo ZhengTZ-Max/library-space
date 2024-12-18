@@ -82,6 +82,8 @@ function computedWidth() {
 }
 
 // 注册全局函数
+window.$computedWidth  = computedWidth;
+
 app.config.globalProperties.$t = t;
 window.$t = t;
 app.config.globalProperties.PlaceImg = PlaceImg;

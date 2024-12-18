@@ -16,6 +16,7 @@ router.beforeEach((to, from, next) => {
   let userToken = sessionStorage.getItem("token");
 
   let systemMode = store.state?.systemMode;
+  window.$computedWidth();
 
   console.log(to);
 

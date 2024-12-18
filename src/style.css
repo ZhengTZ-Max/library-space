@@ -316,3 +316,7 @@ div {
 .ant-radio-wrapper {
   margin-inline-end: 0;
 }
+
+img {
+  will-change: transform;
+}
