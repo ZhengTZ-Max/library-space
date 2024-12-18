@@ -77,15 +77,20 @@ const filterCategorys = (list) => {
         <img :src="item" alt="" />
       </div>
     </a-carousel> -->
-
     <a-carousel autoplay>
       <div
         class="reviewImg"
-        v-if="
-          systemMode != 'pc' &&
-          (state.propsData?.type == 'library' ||
-            state.propsData?.type == 'space')
-        "
+        v-if="systemMode != 'pc' && state.propsData?.type == 'space'"
+        v-for="item in state.propsData?.img"
+        :key="item"
+      >
+        <img :src="item" alt="" />
+      </div>
+    </a-carousel>
+    <a-carousel autoplay>
+      <div
+        class="reviewImg"
+        v-if="systemMode != 'pc' && state.propsData?.type == 'library'"
       >
         <img :src="state.propsData?.firstImg" alt="" />
       </div>
@@ -100,22 +105,13 @@ const filterCategorys = (list) => {
     </p>
 
     <!-- 座位数 -->
-    <div
-      class="seatNum"
-      v-if="
-        state.propsData?.type == 'library' || state.propsData?.type == 'space'
-      "
-    >
+    <div class="seatNum" v-if="state.propsData?.type == 'library'">
       座位 ( <span>空闲{{ state.propsData?.free_num || "-" }}</span
       ><span>/总数{{ state.propsData?.total_num || "-" }}</span> )
     </div>
-    <!-- <div class="seatNum" v-if="state.propsData?.type == 'space'">
-      {{ state.propsData?.type_name }} (
-      <span
-        >可容纳{{ state.propsData?.minPerson }} ~
-        {{ state.propsData?.maxPerson }}人</span
-      >)
-    </div> -->
+    <div class="seatNum" v-if="state.propsData?.type == 'space'">
+      <span>研讨间总数{{ state.propsData?.total_num || "-" }}</span>
+    </div>
     <div class="seatNum" v-if="state.propsData?.type == 'activity'">
       {{ filterCategorys(state.propsData?.categorys || []) }} (
       <span
@@ -123,7 +119,7 @@ const filterCategorys = (list) => {
         {{ state.propsData?.maxPerson }}人</span
       >)
     </div>
-    <div class="libraryIntro" v-html="state.propsData?.contents || ''"></div>
+    <div class="libraryIntro" v-html="state.propsData?.sub_title || ''"></div>
 
     <!-- 馆舍特征 -->
     <template v-if="state.propsData?.boutiques?.length">

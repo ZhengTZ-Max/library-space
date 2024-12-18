@@ -57,3 +57,21 @@ export function getSeatInfo(data) {
     data,
   });
 }
+
+export function getOftenTime(data) {
+  return service({
+    url: "/v4/member/oftentime",
+    method: "POST",
+    isLoading: true,
+    data,
+  });
+}
+
+export function getOftenTableList(data) {
+  return service({
+    url: "/v4/member/often",
+    method: "POST",
+    isLoading: true,
+    data,
+  });
+}

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { showToast, showConfirmDialog, showImagePreview } from "vant";
 
@@ -14,14 +15,17 @@ import {
   getSeatOftenList,
   cancelSeatCollect,
   getSeatInfo,
+  getOftenTime,
+  getOftenTableList,
 } from "@/request/common";
+import { getSpaceConfirm } from "@/request/seat.js";
 
 import PageSizeCom from "@/components/PageSizeCom.vue";
+import ShowInfoToast from "@/components/ShowInfoToast.vue";
 
-const onCheckedForLocation = ref(true);
-const onCheckedForData = ref(false);
-const onCheckedForTime = ref(false);
 const store = useStore();
+const router = useRouter();
+const route = useRoute();
 
 const state = reactive({
   currentPage: 1,
@@ -45,10 +49,14 @@ const state = reactive({
   times: [],
   timesSelectList: [],
   timeValue: "",
-  timeSelectStart: "",
-  timeSelectEnd: "",
 
   seatList: [],
+
+  apptResult: {
+    show: false,
+    title: "预约成功~~",
+    type: "success",
+  },
 });
 
 const columns = [
@@ -67,124 +75,172 @@ const columns = [
     key: "action",
   },
 ];
+const columnsForSpace = [
+  {
+    title: "地点",
+    dataIndex: "location",
+    key: "location",
+  },
+
+  {
+    title: "操作",
+    key: "action",
+  },
+];
 
 onMounted(() => {
   fetch();
-  fetchSeatInfo();
 });
 
-const fetchSeatInfo = async () => {
-  let res = await getSeatInfo();
-  console.log(res);
-};
+watch(
+  () => [state.activeKey, state.quickMode],
+  () => {
+    fetch();
+  }
+);
+
+watch(
+  () => state.dateValue,
+  (v) => {
+    let findDate = state.dates.find((item) => item.day == state.dateValue);
+    if (findDate) {
+      state.times = findDate.times;
+      state.timesSelectList = state.times.map((item) => {
+        return {
+          label: item.show_time,
+          value: item.show_time,
+          start: item.start,
+          end: item.end,
+        };
+      });
+      state.timeValue = state.timesSelectList[0].value;
+    }
+  }
+);
 
 const fetch = () => {
+  initTime();
   console.log(state.activeKey, state.quickMode);
   if (state.activeKey == 1) {
     // 座位
     // 获取开放日期
-    fetchSeatDate();
+
+    if (state.quickMode == 1) {
+      // 收藏
+    } else {
+      // 常用
+      fetchOftenTime();
+    }
   } else {
     // 空间
+
+    if (state.quickMode == 1) {
+      // 收藏
+    } else {
+      // 常用
+      fetchOftenTableList();
+    }
   }
 };
 
-const fetchSeatDate = async () => {
+const initTime = () => {
+  state.dates = [];
+  state.datesSelectList = [];
+  state.dateValue = "";
+
+  state.times = [];
+  state.timesSelectList = [];
+  state.timeValue = "";
+
+  state.seatList = [];
+  state.total = 0;
+};
+
+const fetchOftenTime = async () => {
   try {
-    let res = null;
-    if (state.quickMode == 1) {
-      // 收藏
-      res = await getSeatAreaDate();
-    } else {
-      // 常用
-      res = await getSeatOftenDate();
-    }
+    let params = {
+      type: state.activeKey,
+    };
+    let res = await getOftenTime(params);
+    console.log(res);
 
-    if (res && res.code == 0 && res.data.length > 0) {
-      state.dates = res.data;
-
-      state.datesSelectList = res.data.map((item) => {
-        let label = "";
-        if (moment().format("YYYY-MM-DD") == item.day) {
-          label = "今天";
-        } else if (
-          exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == item.day
-        ) {
-          label = "明天";
-        } else if (moment().add(2, "days").format("YYYY-MM-DD") == item.day) {
-          label = "后天";
-        } else {
-          label = exchangeDateTime(item.day, 4);
-        }
-        return {
-          label,
-          value: moment(item.day).format("YYYY-MM-DD"),
-        };
-      });
-      console.log(state.datesSelectList);
-      state.dateValue = state.datesSelectList[0].value;
-
-      state.times = state.dates.find(
-        (item) => item.day == state.dateValue
-      ).opentimes;
-      state.timesSelectList = state.times.map((item) => {
-        return {
-          label: item.Times,
-          value: item.Times,
-          start: item.startTime,
-          end: item.endTime,
-        };
-      });
-      state.timeValue = state.timesSelectList[0].value;
-      state.timeSelectStart = state.timesSelectList[0].start;
-      state.timeSelectEnd = state.timesSelectList[0].end;
-
-      fetchSeatList();
-    } else {
-      console.log(res);
-      state.dates = [];
-      state.datesSelectList = [];
-      state.dateValue = "";
-
-      state.times = [];
-      state.timesSelectList = [];
-      state.timeValue = "";
-      state.timeSelectStart = "";
-      state.timeSelectEnd = "";
-
-      state.seatList = [];
-      message.error(res.msg);
-    }
+    dealwitchTime(res);
   } catch (error) {
-    state.dates = [];
-    state.datesSelectList = [];
-    state.dateValue = "";
-
-    state.times = [];
-    state.timesSelectList = [];
-    state.timeValue = "";
-    state.timeSelectStart = "";
-    state.timeSelectEnd = "";
+    initTime();
     console.log(error);
   }
 };
 
-const fetchSeatList = async () => {
-  try {
-    let params = {
-      day: state.dateValue,
-      startTime: state.timeSelectStart,
-      endTime: state.timeSelectEnd,
-    };
+const dealwitchTime = (res) => {
+  if (res && res.code == 0 && res.data.length > 0) {
+    state.dates = res.data;
 
-    let res = null;
-    if (state.quickMode == 1) {
-      // 收藏
-      res = await getSeatCollectList(params);
+    state.datesSelectList = res.data.map((item) => {
+      let label = "";
+      if (moment().format("YYYY-MM-DD") == item.day) {
+        label = "今天";
+      } else if (
+        exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == item.day
+      ) {
+        label = "明天";
+      } else if (moment().add(2, "days").format("YYYY-MM-DD") == item.day) {
+        label = "后天";
+      } else {
+        label = exchangeDateTime(item.day, 4);
+      }
+      return {
+        label,
+        value: moment(item.day).format("YYYY-MM-DD"),
+      };
+    });
+    console.log(state.datesSelectList);
+    state.dateValue = state.datesSelectList[0].value;
+
+    // state.times = state.dates.find((item) => item.day == state.dateValue).times;
+    // state.timesSelectList = state.times.map((item) => {
+    //   return {
+    //     label: item.show_time,
+    //     value: item.show_time,
+    //     start: item.start,
+    //     end: item.end,
+    //   };
+    // });
+    // state.timeValue = state.timesSelectList[0].value;
+    // state.timeSelectStart = state.timesSelectList[0].start;
+    // state.timeSelectEnd = state.timesSelectList[0].end;
+
+    // fetchSeatList();
+    setTimeout(() => {
+      fetchOftenTableList();
+    }, 1);
+  } else {
+    console.log(res);
+    initTime();
+    message.error(res.msg);
+  }
+};
+
+const fetchOftenTableList = async () => {
+  try {
+    let params = null;
+    if (state.activeKey == 1) {
+      // 座位
+      let findTimeRow = state.times?.find(
+        (e) => e?.show_time == state.timeValue
+      );
+      params = {
+        type: state.activeKey,
+        day: state.dateValue,
+        begin_time: findTimeRow?.start,
+        end_time: findTimeRow?.end,
+      };
     } else {
-      // 常用
-      res = await getSeatOftenList(params);
+      // 空间
+      params = {
+        type: state.activeKey,
+      };
     }
+    let res = await getOftenTableList(params);
 
     if (res.code == 0) {
       state.seatList = res.data;
@@ -192,11 +248,11 @@ const fetchSeatList = async () => {
     } else {
       state.seatList = [];
       state.total = 0;
-      message.error(res.msg);
+      if (res && res.msg) {
+        message.error(res.msg);
+      }
     }
   } catch (error) {
-    state.seatList = [];
-    state.total = 0;
     console.log(error);
   }
 };
@@ -213,10 +269,6 @@ const onCancelCollect = async (record) => {
       let res = await cancelSeatCollect(params);
       if (res.code == 0) {
         message.success(res.msg);
-        if (state.activeKey == 1) {
-          // 座位
-          fetchSeatList();
-        }
       } else {
         message.error(res.msg);
       }
@@ -226,52 +278,88 @@ const onCancelCollect = async (record) => {
   });
 };
 
-const onShowModal = (record) => {
-  state.isModalVisible = true;
-  state.selectLocationName = record.location;
-};
-const onHideModal = () => {
-  state.isModalVisible = false;
-  state.selectLocationName = "";
-};
-
-const onChangeTab = (key) => {
-  state.activeKey = key;
-  fetch();
-};
-
-const onChangeQMode = (item) => {
-  state.quickMode = item.value;
-  fetch();
-};
-
-const onChangeDate = (e) => {
-  state.times = state.dates.find(
-    (item) => item.day == state.dateValue
-  ).opentimes;
-  state.timesSelectList = state.times.map((item) => {
-    return {
-      label: item.Times,
-      value: item.Times,
-      start: item.startTime,
-      end: item.endTime,
-    };
-  });
-  state.timeValue = state.timesSelectList[0].value;
-  state.timeSelectStart = state.timesSelectList[0].start;
-  state.timeSelectEnd = state.timesSelectList[0].end;
-
+const onApplyOrJumpDetail = (record) => {
   if (state.activeKey == 1) {
-    fetchSeatList();
+    // 座位
+    // 只有reserve_type=1的可以直接调用预约接口，等于其他值的跳转到座位详情
+    if (record.reserve_type == 1) {
+      // 预约
+
+      onSeatAppt(record);
+    } else {
+      // 跳转到座位详情
+      router.push({
+        path: "/seat/appointment",
+        query: {
+          id: record?.area_id,
+          date: state.dateValue,
+        },
+      });
+    }
+  } else {
+    // 空间
+    // 跳转到空间详情
+    router.push({
+      path: "/space/apply",
+      query: {
+        id: record?.area_id,
+      },
+    });
   }
 };
 
-const onChangeTime = (e) => {
-  let item = state.timesSelectList.find((item) => item.value == e.target.value);
-  state.timeSelectStart = item.start;
-  state.timeSelectEnd = item.end;
+const onSeatAppt = async (record) => {
+  try {
+    let params = {
+      seat_id: record?.space_id,
+      segment: record?.segment,
+      day: state.dateValue,
+      startTime: state.timeSelectStart,
+      endTime: state.timeSelectEnd,
+    };
+    showConfirmDialog({
+      title: `确认预约`,
+      message: `地点：${record.name_merge}\n座位:${record.space_name}\n时间:${params.day} ${params.startTime} - ${params.endTime}`,
+      messageAlign: "left",
+    })
+      .then(async () => {
+        const res = await getSpaceConfirm(params);
 
-  console.log(state.timeSelectStart, state.timeSelectEnd);
+        // showToast({
+        //   duration: 1500,
+        //   message: res.message,
+        //   forbidClick: true,
+        // });
+
+        state.apptResult = {
+          seatInfo: res?.data,
+          show: true,
+          title: res?.code == 0 ? "预约成功" : "预约失败",
+          type: res?.code == 0 ? "success" : "error",
+          msg: (res?.code != 0 && res?.message) || "",
+        };
+      })
+      .catch(() => {
+        // on cancel
+      });
+  } catch (e) {}
+};
+
+
+
+
+const onChangeDateOrTime = (e) => {
+  if (state.activeKey == 1) {
+    if (state.quickMode == 1) {
+      // 收藏
+      // fetchSeatList();
+    } else {
+      // 常用
+      fetchOftenTableList();
+    }
+  } else {
+    // 空间
+  }
 };
 
 const pagination = computed(() => ({
@@ -288,6 +376,10 @@ const onChangePage = (page, pageSize) => {
   state.currentPage = page;
   fetch();
 };
+
+const handleShow = (v) => {
+  state.apptResult.show = v;
+};
 </script>
 
 <template>
@@ -295,7 +387,6 @@ const onChangePage = (page, pageSize) => {
     <a-tabs
       v-model:activeKey="state.activeKey"
       size="middle"
-      @change="onChangeTab"
     >
       <a-tab-pane key="1" tab="座位"></a-tab-pane>
       <a-tab-pane key="2" tab="空间"></a-tab-pane>
@@ -307,18 +398,21 @@ const onChangePage = (page, pageSize) => {
           :key="item.label"
           class="item activeBtn"
           :class="{ itemActive: item?.value == state.quickMode }"
-          @click="onChangeQMode(item)"
+          @click="state.quickMode = item?.value"
         >
           {{ item?.label }}
         </div>
       </div>
 
-      <div class="date-time-selector">
+      <div
+        v-if="!(state.activeKey === '2' && state.quickMode === 2)"
+        class="date-time-selector"
+      >
         <div class="date-selector">
           <span>日期：</span>
           <a-radio-group
             v-model:value="state.dateValue"
-            @change="onChangeDate"
+            @change="onChangeDateOrTime"
             style="flex: 1"
           >
             <a-radio
@@ -334,7 +428,7 @@ const onChangePage = (page, pageSize) => {
           <span>时间：</span>
           <a-radio-group
             v-model:value="state.timeValue"
-            @change="onChangeTime"
+            @change="onChangeDateOrTime"
             style="flex: 1"
           >
             <a-radio
@@ -352,6 +446,7 @@ const onChangePage = (page, pageSize) => {
     <div class="table_content" v-if="state.seatList.length > 0">
       <PageSizeCom>
         <a-table
+          v-if="state.activeKey === '1'"
           :columns="columns"
           :data-source="state.seatList"
           :pagination="false"
@@ -360,23 +455,50 @@ const onChangePage = (page, pageSize) => {
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'location'">
-              {{ record.nameMerge }}
+              {{ record.name_merge }}
             </template>
             <template v-if="column.key === 'seating'">
-              {{ record.spacename }}
+              {{ record.space_name }}
             </template>
             <template v-if="column.key === 'action'">
               <span>
-                <a class="red" type="primary" @click="onCancelCollect(record)"
+                <a
+                  v-if="state.quickMode == 1"
+                  class="red"
+                  type="primary"
+                  @click="onCancelCollect(record)"
                   >取消收藏</a
                 >
-                <a-divider type="vertical" />
-                <a-button
-                  type="link"
-                  :disabled="record.isValid != '1'"
-                  @click="onShowModal(record)"
-                  >预约</a-button
+                <a-divider v-if="state.quickMode == 1" type="vertical" />
+                <a type="primary" @click="onApplyOrJumpDetail(record)">预约</a>
+              </span>
+            </template>
+          </template>
+        </a-table>
+        <a-table
+          v-if="state.activeKey === '2'"
+          :columns="columnsForSpace"
+          :data-source="state.seatList"
+          :pagination="false"
+          sticky
+          scrollToFirstRowOnChange
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'location'">
+              {{ record.name_merge }}
+            </template>
+
+            <template v-if="column.key === 'action'">
+              <span>
+                <a
+                  v-if="state.quickMode == 1"
+                  class="red"
+                  type="primary"
+                  @click="onCancelCollect(record)"
+                  >取消收藏</a
                 >
+                <a-divider v-if="state.quickMode == 1" type="vertical" />
+                <a type="primary" @click="onApplyOrJumpDetail(record)">预约</a>
               </span>
             </template>
           </template>
@@ -394,56 +516,32 @@ const onChangePage = (page, pageSize) => {
       />
     </div>
   </div>
-  <a-modal
-    v-model:open="state.isModalVisible"
-    title="快速预约"
-    :footer="null"
-    @ok="onHideModal"
+  <ShowInfoToast
+    v-if="state.apptResult.show"
+    :isShow="state.apptResult.show"
+    :type="state.apptResult.type"
+    :title="state.apptResult.title"
+    @handleShow="handleShow"
   >
-    <!-- <template #footer>
-      <a-button key="cancel" @click="onHideModal">取消</a-button>
-      <a-button key="submit" type="primary" @click="onHideModal">确认</a-button>
-    </template> -->
-    <a-divider />
-    <div>
-      <div class="dialog-title">地点</div>
-      <div class="checkboxItem">
-        <a-radio v-model:checked="onCheckedForLocation">{{
-          state.selectLocationName
-        }}</a-radio>
+    <template v-slot:content>
+      <div class="toastItem">
+        <span>时间：</span>
+        <span>{{ state.apptResult?.seatInfo?.time }}</span>
       </div>
-    </div>
-    <div>
-      <div class="dialog-title">日期</div>
-      <div class="checkboxItem">
-        <!-- <a-checkbox-group v-model:value="state.dateValue" :options="state.dates" /> -->
-        <a-radio-group v-model:value="state.dateValue">
-          <template v-for="item in state.dates" :key="state.dates.value">
-            <a-radio :value="item.value">{{ item.label }}</a-radio>
-          </template>
-        </a-radio-group>
+      <div class="toastItem">
+        <span>地点：</span>
+        <span>{{ state.apptResult?.seatInfo?.seat }}</span>
       </div>
-    </div>
-    <div>
-      <div class="dialog-title">时间</div>
-      <div class="checkboxItem">
-        <!-- <a-checkbox-group v-model:value="state.dateValue" :options="state.dates" /> -->
-        <a-radio-group v-model:value="state.tiemValue">
-          <template v-for="item in state.times" :key="state.times.value">
-            <a-radio :value="item.value">{{ item.label }}</a-radio>
-          </template>
-        </a-radio-group>
+      <div class="toastItem">
+        <span>座位：</span>
+        <span>{{ state.apptResult?.seatInfo?.no }}</span>
       </div>
-
-      <a-divider />
-      <div class="modal-footer">
-        <a-button class="cancel-button" @click="onHideModal">取消</a-button>
-        <a-button type="primary" class="confirm-button" @click="onHideModal"
-          >确认</a-button
-        >
+      <div v-if="state.apptResult?.msg" class="toastItem">
+        <span>提醒：</span>
+        <span>{{ state.apptResult?.msg }}</span>
       </div>
-    </div>
-  </a-modal>
+    </template>
+  </ShowInfoToast>
 </template>
 
 <style scoped lang="less">

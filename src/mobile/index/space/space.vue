@@ -363,6 +363,7 @@ const handleDateChange = (v) => {
       :open="state.spaceInfoShow"
       @close="state.spaceInfoShow = false"
       :closable="false"
+      destroyOnClose
     >
       <div class="libraryPop">
         <LibraryInfo v-if="state.spaceInfo?.id" :data="state.spaceInfo" />
