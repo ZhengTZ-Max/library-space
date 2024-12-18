@@ -85,7 +85,6 @@ const filterFloor = () => {
           <a-checkbox
             :class="{
               width_half: systemMode != 'pc',
-              width_halfPc: systemMode == 'pc',
             }"
             v-for="item in state.filterOptions?.premises"
             :value="item?.id"
@@ -98,7 +97,6 @@ const filterFloor = () => {
           <a-radio
             :class="{
               width_half: systemMode != 'pc',
-              width_halfPc: systemMode == 'pc',
             }"
             v-for="item in state.filterOptions?.premises"
             :value="item?.id"
@@ -113,7 +111,6 @@ const filterFloor = () => {
           <a-checkbox
             :class="{
               width_half: systemMode != 'pc',
-              width_halfPc: systemMode == 'pc',
             }"
             v-for="item in state.filterOptions?.filterStorey"
             :value="item?.name"
@@ -128,7 +125,6 @@ const filterFloor = () => {
           <a-checkbox
             :class="{
               width_half: systemMode != 'pc',
-              width_halfPc: systemMode == 'pc',
             }"
             v-for="item in state.filterOptions?.category"
             :value="item?.id"
@@ -143,7 +139,6 @@ const filterFloor = () => {
           <a-radio
             :class="{
               width_half: systemMode != 'pc',
-              width_halfPc: systemMode == 'pc',
             }"
             v-for="item in state.filterOptions?.date"
             :value="item"
@@ -158,7 +153,6 @@ const filterFloor = () => {
           <a-checkbox
             :class="{
               width_half: systemMode != 'pc',
-              width_halfPc: systemMode == 'pc',
             }"
             v-for="item in state.filterOptions?.boutique"
             :value="item?.id"
@@ -195,15 +189,16 @@ const filterFloor = () => {
     .ant-checkbox-group,
     .ant-radio-group {
       width: 100%;
+      .ant-radio-wrapper,
+      .ant-checkbox-wrapper {
+        width: 29%;
+      }
     }
     &:last-child {
       margin-bottom: 0;
     }
     .width_half {
-      width: 40%;
-    }
-    .width_halfPc {
-      width: 29%;
+      width: 42% !important;
     }
   }
   .ant-input,

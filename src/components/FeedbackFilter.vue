@@ -70,14 +70,14 @@ const handleFloorChange = (e) => {
 };
 </script>
 <template>
-  <div
-    class="filterCon"
-
-  >
+  <div class="filterCon">
     <div class="filterScr">
       <div class="filterFilter">馆舍</div>
       <div class="fiterItem">
-        <a-radio-group v-model:value="state.filterRows.ilkAreaID" @change="handleAreaChange">
+        <a-radio-group
+          v-model:value="state.filterRows.ilkAreaID"
+          @change="handleAreaChange"
+        >
           <a-radio
             :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.filterOptions?.ilkAreaList"
@@ -89,7 +89,10 @@ const handleFloorChange = (e) => {
       </div>
       <div class="filterFilter">楼层</div>
       <div class="fiterItem">
-        <a-radio-group v-model:value="state.filterRows.ilkFloorID" @change="handleFloorChange">
+        <a-radio-group
+          v-model:value="state.filterRows.ilkFloorID"
+          @change="handleFloorChange"
+        >
           <a-radio
             :class="{ width_half: systemMode != 'pc' }"
             v-for="item in state.showFloorList"
@@ -140,12 +143,16 @@ const handleFloorChange = (e) => {
     .ant-checkbox-group,
     .ant-radio-group {
       width: 100%;
+      .ant-radio-wrapper,
+      .ant-checkbox-wrapper {
+        width: 29%;
+      }
     }
     &:last-child {
       margin-bottom: 0;
     }
     .width_half {
-      width: 40%;
+      width: 42% !important;
     }
   }
   .ant-input,
@@ -165,5 +172,4 @@ const handleFloorChange = (e) => {
     row-gap: 20px;
   }
 }
-
 </style>

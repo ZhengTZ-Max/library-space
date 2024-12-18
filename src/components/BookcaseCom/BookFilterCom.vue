@@ -165,12 +165,16 @@ const filterTypes = () => {
     .ant-checkbox-group,
     .ant-radio-group {
       width: 100%;
+      .ant-radio-wrapper,
+      .ant-checkbox-wrapper {
+        width: 29%;
+      }
     }
     &:last-child {
       margin-bottom: 0;
     }
     .width_half {
-      width: 40vw;
+      width: 42% !important;
     }
   }
   .ant-input,

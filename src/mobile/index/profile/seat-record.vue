@@ -316,7 +316,7 @@ const fetchQuery = () => {
       :open="state.showItemDetails"
       destroyOnClose
     >
-      <div class="libraryPop" >
+      <div class="libraryPop">
         <SeatRecordDetails :data="state.itemDetails" />
         <div class="bottomAction">
           <van-button
@@ -470,11 +470,19 @@ const fetchQuery = () => {
           user-select: none;
           padding: 0 20px;
           margin-bottom: 20px;
-          // &:last-child {
-          //   margin-bottom: 0;
-          // }
+          .ant-checkbox-group,
+          .ant-radio-group {
+            width: 100%;
+            .ant-radio-wrapper,
+            .ant-checkbox-wrapper {
+              width: 29%;
+            }
+          }
+          &:last-child {
+            margin-bottom: 0;
+          }
           .width_half {
-            width: 100px;
+            width: 42% !important;
           }
         }
       }

@@ -1131,14 +1131,18 @@ const fetchGetIlkAddress = async (id) => {
       padding: 0 20px;
       margin-bottom: 40px;
       .ant-checkbox-group,
-    .ant-radio-group {
-      width: 100%;
-    }
+      .ant-radio-group {
+        width: 100%;
+        .ant-radio-wrapper,
+        .ant-checkbox-wrapper {
+          width: 29%;
+        }
+      }
       &:last-child {
         margin-bottom: 0;
       }
       .width_half {
-        width: 40%;
+        width: 42% !important;
       }
     }
   }
