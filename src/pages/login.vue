@@ -1,17 +1,21 @@
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { message } from "ant-design-vue";
 
 import { verify, login } from "@/request/login";
+
+import { VerifySystem } from "@/utils/login.js";
 
 const store = useStore();
 // const systemMode = store?.state?.systemMode;
 const lang = computed(() => store.state.lang);
 const systemMode = computed(() => store.state.systemMode);
+const apiConfig = computed(() => store.state.apiConfig);
 
 const router = useRouter();
+const route = useRoute();
 const state = reactive({
   verifyInfo: null,
   isCodeLoading: false,
@@ -24,6 +28,18 @@ const formState = reactive({
   password: "",
   code: "",
 });
+
+watch(
+  () => apiConfig?.value,
+  (v) => {
+    if (v?.wechat?.app_id) {
+      VerifySystem({ config: v, router: router });
+    }
+  },
+  {
+    deep: true,
+  }
+);
 
 onMounted(() => {
   getVerify();
@@ -57,12 +73,14 @@ const onFinish = (values) => {
 
 const onLogin = async () => {
   try {
+    let open_id = localStorage.getItem("openId");
+
     let params = {
       key: state.verifyInfo?.key,
-      open_id: "",
+      open_id,
       ...formState,
     };
-    console.log("params",params)
+    console.log("params", params);
     let res = await login(params);
     if (res?.code != 1) {
       message.warning(res?.msg || "登录失败~");
@@ -222,6 +240,7 @@ const toggleLang = (type) => {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      font-size: 14px;
       .langItem {
         color: #868686;
         padding: 2px 16px;
@@ -233,7 +252,6 @@ const toggleLang = (type) => {
         box-shadow: 0px 5px 10px 0px rgba(51, 102, 153, 0.1);
         border-radius: 17px 17px 17px 17px;
         font-weight: bold;
-        font-size: 14px;
         color: #1f56e1;
       }
     }

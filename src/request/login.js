@@ -24,3 +24,15 @@ export function login(data) {
     // isCryptoPas: true,
   });
 }
+
+// 微信code授权
+export function wx_login(data) {
+  return service({
+    url: "/api/login/wxlogin",
+    method: "post",
+    isLoading: true,
+    loadingMsg: "正在授权登录",
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}

@@ -7,7 +7,7 @@ import PDFICON from "@/assets/common/pdfIcon.png";
 import DOCICON from "@/assets/common/docIcon.png";
 
 const MODE = import.meta.env.MODE;
-const baseURL = MODE === "production" ? "/" : "/api/v4/Upload/index";
+const baseURL = MODE === "production" ? "/v4/Upload/index" : "/api/v4/Upload/index";
 
 const token = sessionStorage.getItem("token") || "";
 const emits = defineEmits(["onFileUpload"]);

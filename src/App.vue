@@ -18,8 +18,7 @@ import { getCategory } from "@/request/home";
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
-const isPageLoading = computed(() => store.state.pageLoading);
-const pageLoadingText = computed(() => store.state.pageLoadingText);
+
 const hasClass = (className) => {
   return document.body.classList.contains(className);
 };
@@ -102,6 +101,7 @@ const fetchConfig = async () => {
     let res = await getGlobalConfig();
     store.dispatch("updateApiConfig", res?.data);
     console.log(store);
+    console.log(res?.data);
   } catch (e) {
     console.log(e);
   }
