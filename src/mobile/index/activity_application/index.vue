@@ -38,12 +38,17 @@ const state = reactive({
     date: [],
   },
   activityInfo: {},
+  activityInfoShow: false,
   applicationList: [],
 });
 
 onMounted(() => {
   fetchGetApplicationIndex();
 });
+
+const onRefresh = () => {
+  fetchGetApplicationList();
+};
 
 const fetchGetApplicationIndex = async () => {
   try {
@@ -115,6 +120,7 @@ const filterCategorys = (list) => {
 const handleFilter = () => {
   state.filterShow = false;
   console.log(state.filterSearch);
+  fetchGetApplicationList();
 };
 const handleShowInfo = (item) => {
   fetchInfo(item.id);
@@ -144,7 +150,7 @@ const onApply = (id) => {
         finished-text="没有更多了"
         @load="onLoad"
       >
-        <div v-for="item in state.applicationList" :key="item?.id" class="item">
+        <div v-if="state.applicationList.length" v-for="item in state.applicationList" :key="item?.id" class="item">
           <van-row>
             <van-col span="9" class="img_col">
               <a-image
@@ -196,6 +202,7 @@ const onApply = (id) => {
             </van-col>
           </van-row>
         </div>
+        <a-empty class="empty" v-else />
       </van-list>
     </van-pull-refresh>
 
@@ -274,6 +281,10 @@ const onApply = (id) => {
       color: rgba(26, 73, 192, 1);
       font-family: AliExtraBold !important;
     }
+  }
+
+  .empty {
+    padding-top: 100px;
   }
 
   .item {
@@ -409,7 +420,7 @@ const onApply = (id) => {
   }
 }
 
-// :deep(.van-pull-refresh) {
-//   height: 50% !important;
-// }
+:deep(.van-pull-refresh) {
+  height: 100% !important;
+}
 </style>

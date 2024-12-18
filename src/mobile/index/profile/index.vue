@@ -58,7 +58,7 @@ const state = reactive({
     {
       id: "15",
       label: "帮助与反馈",
-      link: "help",
+      link: "feedback",
       icon: "@/assets/my/mobile_help.svg",
     },
   ],
@@ -140,6 +140,8 @@ const goToLink = (link) => {
   console.log(link);
   if (link == "common") {
     router.push(`/mo/common`);
+  } else if (link == "feedback") {
+    router.push(`/mo/feedback`);
   } else {
     router.push(`/mo/profile/${link}`);
   }

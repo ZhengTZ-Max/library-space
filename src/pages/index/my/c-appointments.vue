@@ -9,12 +9,9 @@ import { message } from "ant-design-vue";
 import moment from "moment";
 import { exchangeDateTime } from "@/utils";
 import {
-  getSeatAreaDate,
-  getSeatOftenDate,
-  getSeatCollectList,
-  getSeatOftenList,
+
   cancelSeatCollect,
-  getSeatInfo,
+
   getOftenTime,
   getOftenTableList,
 } from "@/request/common";

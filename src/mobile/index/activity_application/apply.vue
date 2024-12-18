@@ -768,8 +768,8 @@ const draftActivity = async (data) => {
             alt="Empty state illustration"
           />
           <div class="item_for_file_item">
-            <div class="item_for_file_item_left">文件名称xxx</div>
-            <div class="item_for_file_item_right">10.85KB</div>
+            <div class="item_for_file_item_left">{{ state.poster[0]?.file_origin_name }}</div>
+            <div class="item_for_file_item_right">{{ state.poster[0]?.file_size }}</div>
           </div>
           <img
             style="width: 20px; height: 20px"
@@ -804,8 +804,8 @@ const draftActivity = async (data) => {
             alt="Empty state illustration"
           />
           <div class="item_for_file_item">
-            <div class="item_for_file_item_left">文件名称xxx</div>
-            <div class="item_for_file_item_right">10.85KB</div>
+            <div class="item_for_file_item_left">{{ state.approve[0]?.file_origin_name }}</div>
+            <div class="item_for_file_item_right">{{ state.approve[0]?.file_size }}</div>
           </div>
           <img
             style="width: 20px; height: 20px"
@@ -840,8 +840,8 @@ const draftActivity = async (data) => {
             alt="Empty state illustration"
           />
           <div class="item_for_file_item">
-            <div class="item_for_file_item_left">文件名称xxx</div>
-            <div class="item_for_file_item_right">10.85KB</div>
+            <div class="item_for_file_item_left">{{ state.publicize[0]?.file_origin_name }}</div>
+            <div class="item_for_file_item_right">{{ state.publicize[0]?.file_size }}</div>
           </div>
           <img
             style="width: 20px; height: 20px"
@@ -874,8 +874,8 @@ const draftActivity = async (data) => {
             alt="Empty state illustration"
           />
           <div class="item_for_file_item">
-            <div class="item_for_file_item_left">文件名称xxx</div>
-            <div class="item_for_file_item_right">10.85KB</div>
+            <div class="item_for_file_item_left">{{ state.plan[0]?.file_origin_name }}</div>
+            <div class="item_for_file_item_right">{{ state.plan[0]?.file_size }}</div>
           </div>
           <img
             style="width: 20px; height: 20px"
@@ -909,8 +909,8 @@ const draftActivity = async (data) => {
             alt="Empty state illustration"
           />
           <div class="item_for_file_item">
-            <div class="item_for_file_item_left">文件名称xxx</div>
-            <div class="item_for_file_item_right">10.85KB</div>
+            <div class="item_for_file_item_left">{{ state.materials[0]?.file_origin_name }}</div>
+            <div class="item_for_file_item_right">{{ state.materials[0]?.file_size }}</div>
           </div>
           <img
             style="width: 20px; height: 20px"

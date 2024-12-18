@@ -595,7 +595,7 @@ const handleDateChange = (v) => {
     }
   }
 }
-// :deep(.van-pull-refresh) {
-//   height: 50% !important;
-// }
+:deep(.van-pull-refresh) {
+  height: 100% !important;
+}
 </style>
