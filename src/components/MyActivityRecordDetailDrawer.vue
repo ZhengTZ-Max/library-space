@@ -2,6 +2,11 @@
 import { reactive, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import Carousel from "@/components/CarouselCom.vue";
+import MyActivityRecordShare from "@/components/MyActivityRecordShare.vue";
+import Uploader from "@/components/Uploader.vue";
+import PDFICON from "@/assets/common/pdfIcon.png";
+import DOCICON from "@/assets/common/docIcon.png";
+
 const store = useStore();
 
 const props = defineProps({
@@ -11,9 +16,10 @@ const props = defineProps({
   },
 });
 const state = reactive({
+  onShare: false,
   propsData: {
     activeKey: "",
-    selectedRecord: {},
+
     selectedDetails: {},
 
     selectedDate: "",
@@ -22,36 +28,159 @@ const state = reactive({
     isShowTextArea: false,
     comments: "",
   },
+
+  quickMode: "1",
+  initApprove: [
+    // {
+    //   file_ext: "pdf",
+    //   file_name: "NKY2Pj2ipqIUQmFu1732951373143983.pdf",
+    //   file_origin_name: "Transactions Explanation.pdf",
+    //   file_path:
+    //     "/upload/activity/2024-11-30/NKY2Pj2ipqIUQmFu1732951373143983.pdf",
+    //   file_size: "524.64 KB",
+    // },
+  ],
+  poster: [],
+  approve: [],
+  publicize: [],
+  plan: [],
+  materials: [],
 });
 onMounted(() => {
   state.propsData = props?.data || {};
+
+  console.log(state.propsData);
 });
+
+const getFileIcon = (fileExt) => {
+  switch (fileExt) {
+    case "pdf":
+      return PDFICON; // PDF 图标
+    case "doc":
+    case "docx":
+      return DOCICON; // Word 图标
+    case "xls":
+    case "xlsx":
+      return require("@/assets/common/excelIcon.png"); // Excel 图标
+    default:
+      return require("@/assets/common/defaultIcon.png"); // 默认图标
+  }
+};
+
+const onCancelComments = () => {
+  state.propsData.isShowTextArea = false;
+  state.propsData.comments = "";
+};
+
+const onSelectDate = (item) => {
+  state.propsData.selectedDate = item.date;
+  state.propsData.selectedTimeList = item.time;
+};
+
+const fileUpload = (data, type) => {
+  console.log(data, type);
+  if (type == "poster") {
+    state.poster = filterFileUpload(data);
+  } else if (type == "approve") {
+    state.approve = filterFileUpload(data);
+  } else if (type == "publicize") {
+    state.publicize = filterFileUpload(data);
+  } else if (type == "plan") {
+    state.plan = filterFileUpload(data);
+  } else if (type == "materials") {
+    state.materials = filterFileUpload(data);
+  }
+
+  console.log(state);
+};
+
+const filterFileUpload = (files) => {
+  let list = files || [];
+
+  list = list.map((e) => {
+    let fileRow = {};
+    if (e?.status == "done" && e?.response?.code == 0) {
+      fileRow = e?.response?.data;
+    }
+    return fileRow;
+  });
+
+  return list;
+};
 </script>
 <template>
   <div class="drawer-content">
-    <div
-      class="content-top"
-      v-if="
-        (state.propsData?.activeKey === '1' &&
-          state.propsData?.selectedRecord?.status_name !== '等待审核') ||
-        state.propsData?.activeKey === '2'
-      "
-    >
-      <Carousel>
-        <template v-slot:content>
-          <div v-for="item in state.propsData?.selectedRecord?.poster">
-            <img class="image" :src="item?.file_path" alt="" />
-          </div>
-        </template>
-      </Carousel>
-
+    <div class="content-top">
+      <div class="carousel-box">
+        <Carousel>
+          <template v-slot:content>
+            <div
+              v-if="state.quickMode == '1'"
+              v-for="item in state.propsData?.selectedDetails?.poster"
+            >
+              <img class="image" :src="item?.file_path" alt="" />
+            </div>
+            <div
+              v-if="state.quickMode == '2'"
+              v-for="item in state.propsData?.selectedDetails?.publicize"
+            >
+              <img class="image" :src="item?.file_path" alt="" />
+            </div>
+          </template>
+        </Carousel>
+      </div>
+      <div
+        class="uploadFile-box"
+        v-if="state.propsData.selectedDetails.status_name == '等待审核'"
+      >
+        <div class="uploadFile-item">
+          <div><span style="color: #ff4d4f">*</span>活动海报:</div>
+          <Uploader
+            :initFileList="state.poster"
+            filePath="activity"
+            :showUploadList="true"
+            :maxCount="1"
+            @onFileUpload="(v) => fileUpload(v, 'poster')"
+            accept=".png, .jpg, .jpeg"
+            list-type="picture-card"
+          >
+            <img src="@/assets/feedback_uploadimg.svg" alt="" />
+          </Uploader>
+        </div>
+        <div class="uploadFile-item">
+          <div>宣传片:</div>
+          <Uploader
+            :initFileList="state.publicize"
+            filePath="activity"
+            :showUploadList="true"
+            :maxCount="1"
+            @onFileUpload="(v) => fileUpload(v, 'publicize')"
+            accept=".mp4,.mov"
+            list-type="picture-card"
+          >
+            <img src="@/assets/feedback_uploadimg.svg" alt="" />
+          </Uploader>
+        </div>
+      </div>
       <div class="controls">
         <div
           class="toggleLang"
           :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
         >
-          <div class="langItem langActive activeBtn">图片</div>
-          <div class="langItem activeBtn">视频</div>
+          <div
+            class="langItem activeBtn"
+            :class="{ langActive: state.quickMode == '1' }"
+            @click="state.quickMode = '1'"
+          >
+            图片
+          </div>
+          <div
+            class="langItem activeBtn"
+            :class="{ langActive: state.quickMode == '2' }"
+            @click="state.quickMode = '2'"
+          >
+            视频
+          </div>
         </div>
         <div class="share-btn">
           <img
@@ -59,15 +188,16 @@ onMounted(() => {
             alt=""
             class="background-image"
           />
-          <span class="share-text">分享</span>
+          <span class="share-text" @click="state.onShare = true">分享</span>
         </div>
       </div>
     </div>
 
+    <!-- 申请记录 详情 -->
     <div
       v-if="
         state.propsData?.activeKey === '1' &&
-        state.propsData?.selectedRecord?.status_name !== '等待审核'
+        state.propsData?.selectedDetails?.status_name !== '等待审核'
       "
     >
       <div class="content-details">
@@ -79,15 +209,23 @@ onMounted(() => {
         </div>
         <div class="info-item">
           <span class="label">活动名称：</span>
-          <span class="value">{{ state.propsData?.selectedDetails?.title }}</span>
+          <span class="value">{{
+            state.propsData?.selectedDetails?.title
+          }}</span>
         </div>
         <div class="info-item">
           <span class="label">活动日期：</span>
-          <span class="value">{{ state.propsData?.selectedDetails?.begin_date }} ~ {{ state.propsData?.selectedDetails?.end_date }}</span>
+          <span class="value"
+            >{{ state.propsData?.selectedDetails?.begin_date }} ~
+            {{ state.propsData?.selectedDetails?.end_date }}</span
+          >
         </div>
         <div class="info-item">
           <span class="label">活动时间：</span>
-          <span class="value">{{ state.propsData?.selectedDetails?.begin_time }} ~ {{ state.propsData?.selectedDetails?.end_time }}</span>
+          <span class="value"
+            >{{ state.propsData?.selectedDetails?.begin_time }} ~
+            {{ state.propsData?.selectedDetails?.end_time }}</span
+          >
         </div>
         <div class="info-item">
           <span class="label">可报名人数：</span>
@@ -95,7 +233,9 @@ onMounted(() => {
         </div>
         <div class="info-item">
           <span class="label">活动地点：</span>
-          <span class="value">{{ state.propsData?.selectedDetails?.nameMerge }}</span>
+          <span class="value">{{
+            state.propsData?.selectedDetails?.nameMerge
+          }}</span>
         </div>
         <div class="info_item_description">
           <span class="label_description">活动介绍：</span>
@@ -105,23 +245,185 @@ onMounted(() => {
             </p>
           </div>
         </div>
-        <div class="attachment-section" v-if="state.propsData?.selectedDetails?.approve">
+        <div
+          class="attachment-section"
+          v-if="state.propsData?.selectedDetails?.approve"
+        >
           <div class="label">审批附件：</div>
           <div class="file-item">
-            <img src="@/assets/activity_application/upload_file.svg" alt="DOC" class="file-icon" />
-            <span class="file-name">{{ state.propsData?.selectedDetails?.approve[0]?.file_name }}</span>
+            <img
+              :src="
+                getFileIcon(
+                  state.propsData?.selectedDetails?.approve[0]?.file_ext
+                )
+              "
+              alt="DOC"
+              class="file-icon"
+            />
+            <span class="file-name">{{
+              state.propsData?.selectedDetails?.approve[0]?.file_name
+            }}</span>
           </div>
         </div>
-        <div class="attachment-section">
+        <div
+          class="attachment-section"
+          v-if="state.propsData?.selectedDetails?.plan"
+        >
           <div class="label">活动策划案：</div>
           <div class="file-item">
-            <!-- <img src="@/assets/pdf-icon.png" alt="PDF" class="file-icon" /> -->
-            <span class="file-name">文件名XXX.pdf</span>
+            <img
+              :src="
+                getFileIcon(state.propsData?.selectedDetails?.plan[0]?.file_ext)
+              "
+              alt="PDF"
+              class="file-icon"
+            />
+            <span class="file-name">{{
+              state.propsData?.selectedDetails?.plan[0]?.file_name
+            }}</span>
           </div>
         </div>
       </div>
     </div>
-    <div v-if="state.activeKey === '2'">
+
+    <!-- 申请记录 等待审核状态  编辑 -->
+    <div
+      v-if="
+        state.propsData?.activeKey === '1' &&
+        state.propsData?.selectedDetails?.status_name == '等待审核'
+      "
+    >
+      <div class="content-details">
+        <div class="info-item status">
+          <span class="label">活动状态：</span>
+          <span :class="statusClass">{{
+            state.propsData?.selectedDetails?.status_name
+          }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">活动名称 :</span>
+          <a-input v-model:value="state.propsData.selectedDetails.title" />
+        </div>
+        <div class="info-item">
+          <span class="label">活动日期：</span>
+          <div class="disable_input_item">
+            {{ state.propsData?.selectedDetails?.begin_date }} ~
+            {{ state.propsData?.selectedDetails?.end_date }}
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="label">活动时间：</span>
+          <div class="disable_input_item">
+            {{ state.propsData?.selectedDetails?.begin_time }} ~
+            {{ state.propsData?.selectedDetails?.end_time }}
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="label">可报名人数：</span>
+          <div class="disable_input_item">
+            {{ state.propsData?.selectedDetails?.max }}
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="label">活动地点：</span>
+          <div class="disable_input_item">
+            {{ state.propsData?.selectedDetails?.nameMerge }}
+          </div>
+        </div>
+        <div class="info_item_description">
+          <span class="label_description">活动介绍：</span>
+          <div class="value-wrapper">
+            <a-textarea
+              style="width: 100%"
+              v-model:value="state.propsData.selectedDetails.content"
+              :allowClear="true"
+              :show-count="true"
+              :maxlength="200"
+              :autosize="{ minRows: 3, maxRows: 5 }"
+            />
+          </div>
+        </div>
+        <div class="bottom-upload-box">
+          <div class="bottom-upload-item">
+            <div class="bottom-upload-item-title">
+              <span style="color: #ff4d4f">*</span>审批附件:
+            </div>
+            <Uploader
+              :initFileList="state.approve"
+              filePath="activity"
+              :showUploadList="true"
+              :maxCount="1"
+              @onFileUpload="(v) => fileUpload(v, 'approve')"
+              accept="application/pdf,application/msword"
+              list-type="picture"
+            >
+              <div class="bottom-upload-item-img">
+                <img
+                  src="@/assets/activity_application/upload_file.svg"
+                  alt=""
+                />
+                Word/PDF
+              </div>
+            </Uploader>
+          </div>
+          <div class="bottom-upload-item">
+            <div class="bottom-upload-item-title">
+              <span style="color: #ff4d4f">*</span>活动策划案:
+            </div>
+            <Uploader
+              :initFileList="state.plan"
+              filePath="activity"
+              :showUploadList="true"
+              :maxCount="1"
+              @onFileUpload="(v) => fileUpload(v, 'plan')"
+              accept="application/pdf,application/msword"
+              list-type="picture"
+            >
+              <div class="bottom-upload-item-img">
+                <img
+                  src="@/assets/activity_application/upload_file.svg"
+                  alt=""
+                />
+                Word/PDF
+              </div>
+            </Uploader>
+          </div>
+          <div class="bottom-upload-item">
+            <div class="bottom-upload-item-title">其他申请材料:</div>
+            <Uploader
+              :initFileList="state.materials"
+              filePath="activity"
+              :showUploadList="true"
+              :maxCount="1"
+              @onFileUpload="(v) => fileUpload(v, 'materials')"
+              accept="application/pdf,application/msword"
+              list-type="picture"
+            >
+              <div class="bottom-upload-item-img">
+                <img
+                  src="@/assets/activity_application/upload_file.svg"
+                  alt=""
+                />
+                Word/PDF
+              </div>
+            </Uploader>
+          </div>
+        </div>
+      </div>
+
+      <a-divider />
+      <div class="bottom_btn_box">
+        <a-button class="cancel_btn" 
+          >取消申请</a-button
+        >
+        <a-button class="submit_btn" type="primary" @click="onSubmit"
+          >提交修改</a-button
+        >
+      </div>
+    </div>
+
+    <!-- 报名记录 详情 -->
+    <div v-if="state.propsData?.activeKey === '2'">
       <div class="content-details">
         <div class="info-item status">
           <span class="label">活动状态：</span>
@@ -131,7 +433,9 @@ onMounted(() => {
         </div>
         <div class="info-item">
           <span class="label">活动名称：</span>
-          <span class="value">{{ state.propsData?.selectedDetails?.title }}</span>
+          <span class="value">{{
+            state.propsData?.selectedDetails?.title
+          }}</span>
         </div>
         <div class="schedule-row">
           <span class="label">活动日期：</span>
@@ -173,7 +477,9 @@ onMounted(() => {
         </div>
         <div class="info-item">
           <span class="label">活动地点：</span>
-          <span class="value">{{ state.propsData?.selectedDetails?.nameMerge }}</span>
+          <span class="value">{{
+            state.propsData?.selectedDetails?.nameMerge
+          }}</span>
         </div>
         <div class="info_item_description">
           <span class="label_description">活动介绍：</span>
@@ -183,6 +489,7 @@ onMounted(() => {
             </p>
           </div>
         </div>
+
         <div
           :class="{
             info_item_comments: state.propsData.isShowTextArea,
@@ -194,7 +501,7 @@ onMounted(() => {
             v-if="!state.propsData.isShowTextArea"
             src="@/assets/my/activity-record/comments_edit.svg"
             alt=""
-            @click="onShowTextArea"
+            @click="state.propsData.isShowTextArea = true"
           />
           <div v-if="state.propsData.isShowTextArea" class="value-wrapper">
             <a-textarea
@@ -215,7 +522,7 @@ onMounted(() => {
             />
           </div>
         </div>
-        <div v-if="state.propsData.selectedRecord.status_name === '报名成功'">
+        <div v-if="state.propsData.selectedDetails.status_name === '报名成功'">
           <a-button
             type="primary"
             shape="round"
@@ -226,33 +533,52 @@ onMounted(() => {
         </div>
       </div>
     </div>
+
+    <van-popup v-model:show="state.onShare" round class="share-popup">
+      <MyActivityRecordShare
+        :data="state.propsData.selectedDetails"
+        @onClose="state.onShare = false"
+      />
+    </van-popup>
   </div>
 </template>
 <style scoped lang="less">
-
 .drawer-content {
   padding: 10px 15px;
 }
 .content-top {
+  display: flex;
   position: relative;
   width: 100%;
-  max-width: 400px;
-  .image {
-    width: 400px;
-    height: 225px;
+
+  .carousel-box {
+    width: 100%;
+    max-width: 400px;
+    .image {
+      width: 400px;
+      height: 225px;
+    }
+  }
+  .uploadFile-box {
+    color: #000;
+    margin-left: 20px;
+    overflow-y: auto;
+    .uploadFile-item {
+      margin-bottom: 20px;
+    }
   }
 }
 .controls {
   position: absolute;
   width: 263px;
-  bottom: 30px;
+  top: 180px;
   left: 136px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   .toggleLang {
     width: 130px;
-    height: 28px;
+    height: 35px;
     margin-bottom: 25px;
     padding: 4px;
     background: #333f6c;
@@ -298,6 +624,7 @@ onMounted(() => {
 }
 .content-details {
   padding-top: 40px;
+  padding-bottom: 50px;
   color: black;
   .status-ongoing {
     color: #1890ff;
@@ -315,6 +642,9 @@ onMounted(() => {
     color: #000000;
   }
   .info-item {
+    align-items: center;
+    display: flex;
+    margin-top: 15px;
     margin-bottom: 20px;
     line-height: 1.5;
   }
@@ -324,6 +654,15 @@ onMounted(() => {
     width: 100px;
     font-weight: bold;
     color: rgba(97, 97, 97, 1);
+  }
+
+  .disable_input_item {
+    border: 1px solid rgba(4, 4, 21, 0.1);
+    border-radius: 10px;
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(4, 4, 21, 0.04);
+    color: rgba(32, 32, 32, 0.6);
   }
 
   .info_item_description {
@@ -336,7 +675,25 @@ onMounted(() => {
     font-weight: bold;
     color: rgba(97, 97, 97, 1);
 
-    width: 70px; /* 调整标签的宽度 */
+    width: 100px; /* 调整标签的宽度 */
+  }
+
+  .bottom-upload-box {
+    display: flex;
+    gap: 110px;
+    .bottom-upload-item {
+      margin-top: 20px;
+      .bottom-upload-item-title {
+        color: rgba(32, 32, 32, 1);
+        font-size: 14px;
+      }
+      .bottom-upload-item-img {
+        cursor: pointer;
+        margin-top: 12px;
+        color: rgba(134, 134, 134, 1);
+        font-size: 12px;
+      }
+    }
   }
 
   .value-wrapper {
@@ -353,8 +710,9 @@ onMounted(() => {
   }
   .info_item_comments {
     display: flex;
+    margin-top: 15px;
     justify-content: space-between;
-    margin-bottom: 15px;
+    margin-bottom: 25px;
   }
 
   .highlight {
@@ -429,5 +787,25 @@ onMounted(() => {
     border-color: #91d5ff;
     color: #1890ff;
   }
+}
+
+.bottom_btn_box {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  .cancel_btn {
+    width: 160px;
+    background-color: rgba(243, 244, 247, 1);
+    color: rgba(140, 143, 158, 1);
+    font-size: 14px;
+  }
+  .submit_btn {
+    width: 160px;
+    font-size: 14px;
+  }
+}
+.share-popup {
+  background: transparent !important;
+  width: 316px;
 }
 </style>

@@ -1,6 +1,7 @@
 <script setup>
 import { reactive, onMounted, watch, ref } from "vue";
 import { useStore } from "vuex";
+import { getUserInfo } from "@/utils";
 
 const store = useStore();
 const props = defineProps({
@@ -13,12 +14,12 @@ const props = defineProps({
 });
 const state = reactive({
   selectedRecord: {},
-  userName: "",
+  userInfo: getUserInfo(),
 });
 
 onMounted(() => {
   state.selectedRecord = props?.data || {};
-  state.userName = props?.userName || "";
+
 });
 
 const onCancelReservation = () => {
@@ -43,7 +44,7 @@ const onCancelReservation = () => {
         >{{ state.selectedRecord.status_name }}</span
       >
     </p>
-    <p>预约用户：{{ state.userName }}({{ state.selectedRecord.booker }})</p>
+    <p>预约用户：{{ state.userInfo.name }}({{ state.selectedRecord.booker }})</p>
     <p>预约时间：{{ state.selectedRecord.beginTime }}</p>
     <p>开始时间：{{ state.selectedRecord.beginTime }}</p>
     <p>结束时间：{{ state.selectedRecord.endTime }}</p>

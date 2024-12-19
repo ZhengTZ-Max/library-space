@@ -5,6 +5,7 @@ import { SearchOutlined } from "@ant-design/icons-vue";
 import { getSeatRecordList, getSeatRenegeList } from "@/request/sear-record";
 import MySeatRecordCom from "@/components/MySeatRecordCom.vue";
 import PageSizeCom from "@/components/PageSizeCom.vue";
+import { getUserInfo } from "@/utils";
 
 const store = useStore();
 const state = reactive({
@@ -37,7 +38,6 @@ const state = reactive({
 
 });
 
-const userName = computed(() => store.state.loginInfo?.name);
 
 const columns = [
   {

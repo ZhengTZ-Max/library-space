@@ -14,19 +14,21 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { updatePassword } from "@/request/my";
 import { message } from "ant-design-vue";
+import { getUserInfo } from "@/utils";
 
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
+const userInfo = computed(() => getUserInfo());
+
 const formState = reactive({
-  userId: store.state.loginInfo?.card,
-  username: store.state.loginInfo?.name,
+  userId: userInfo.value.card,
+  username: userInfo.value.name,
   oldPassword: "",
   newPassword: "",
   confirmPassword: "",
 });
-
 
 const onSubmit = async () => {
   try {
@@ -72,7 +74,6 @@ const onSubmit = async () => {
     console.log(error);
   }
 };
-
 </script>
 <template>
   <div class="change-password">

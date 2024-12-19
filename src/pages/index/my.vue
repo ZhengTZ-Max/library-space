@@ -128,9 +128,7 @@ const fetchMyInfo = async () => {
     const res = await getMyInfo();
     if (res.code === 0) {
       state.userInfo = res.data || {};
-      if (state.userInfo.name) {
-        store.dispatch("setUserName", res.data.name);
-      }
+
     }
     console.log(res);
   } catch (error) {
@@ -248,7 +246,9 @@ const fetchUpdateMyInfo = async (type) => {
         state.userInfo.email = state.email;
         state.email = "";
       }
+      store.dispatch("updateLoginInfo", state.userInfo);
     }
+
   } catch (error) {
     console.log(error);
   }

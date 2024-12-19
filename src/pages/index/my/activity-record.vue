@@ -23,7 +23,7 @@ const state = reactive({
 
   drawerDetailsInfo: {
     activeKey: "",
-    selectedRecord: {},
+
     selectedDetails: {},
 
     selectedDate: "",
@@ -90,12 +90,12 @@ const columnsForDraft = [
 
 const onShowDrawer = (record) => {
   state.drawerDetailsInfo.activeKey = state.activeKey;
-  state.drawerDetailsInfo.selectedRecord = record;
+  // state.drawerDetailsInfo.selectedRecord = record;
   fetchGetActivityDetail(record.id);
 };
 const onHideDrawer = () => {
   state.isShowDrawer = false;
-  state.drawerDetailsInfo.selectedRecord = {};
+  // state.drawerDetailsInfo.selectedRecord = {};
   state.drawerDetailsInfo.selectedDetails = {};
 };
 
@@ -145,6 +145,7 @@ const fetch = async () => {
 
 const fetchGetActivityDetail = async (id) => {
   try {
+    initDrawerDetailsInfo();
     let params = {
       ilk: state.activeKey,
       id,
@@ -158,6 +159,13 @@ const fetchGetActivityDetail = async (id) => {
     console.log(error);
   }
 };
+
+const initDrawerDetailsInfo = () => {
+  state.drawerDetailsInfo.selectedDate = "";
+  state.drawerDetailsInfo.selectedTimeList = [];
+  state.drawerDetailsInfo.appointmentTime = "";
+};
+
 const fetchSaveComments = async () => {
   try {
     let params = {
@@ -191,18 +199,13 @@ const onChangePage = (page, pageSize) => {
   fetch();
 };
 
-const onShowTextArea = () => {
-  state.isShowTextArea = true;
-};
-const onCancelComments = () => {
-  state.isShowTextArea = false;
-  state.comments = "";
-};
+
 const onSaveComments = () => {
   fetchSaveComments();
 };
 
 const onDealWithDate = () => {
+
   state.drawerDetailsInfo.selectedDetails.time.forEach((dateItem) => {
     // 检查当前日期的 time 数组
     const hasSubscribed = dateItem.time.some((timeItem) => {
@@ -217,6 +220,7 @@ const onDealWithDate = () => {
     // 根据是否有 is_subscribe = 1 来设置 isSelected
     dateItem.isAppointment = hasSubscribed;
     if (hasSubscribed && state.drawerDetailsInfo.selectedDate === "") {
+      
       state.drawerDetailsInfo.selectedDate = dateItem.date;
     }
 
@@ -230,10 +234,7 @@ const onDealWithDate = () => {
   // console.log(state.selectedDetails.time);
 };
 
-const onSelectDate = (item) => {
-  state.drawerDetailsInfo.selectedDate = item.date;
-  state.drawerDetailsInfo.selectedTimeList = item.time;
-};
+
 </script>
 
 <template>
@@ -346,7 +347,7 @@ const onSelectDate = (item) => {
       @close="onHideDrawer"
       :closable="false"
       :footer="null"
-      width="600px"
+      width="800px"
       destroyOnClose
     >
       <div class="drawer-title">

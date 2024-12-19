@@ -94,6 +94,9 @@ const fetchUpdateMyInfo = async () => {
     if (res.code === 0) {
       message.success("修改成功");
       state.isEdit = false;
+      state.userInfo.mobile = state.mobile;
+      state.userInfo.email = state.email;
+      store.dispatch("updateLoginInfo", state.userInfo);
     }
   } catch (error) {
     console.log(error);

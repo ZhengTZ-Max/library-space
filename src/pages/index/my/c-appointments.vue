@@ -195,7 +195,7 @@ const dealwitchTime = (res) => {
   } else {
     console.log(res);
     initTime();
-    message.error(res.msg);
+    message.error(res.message);
   }
 };
 
@@ -390,7 +390,7 @@ const handleShow = (v) => {
       </div>
 
       <div
-        v-if="!(state.activeKey === '2')"
+        v-if="state.activeKey == 1 && state.dates.length > 0"
         class="date-time-selector"
       >
         <div class="date-selector">
