@@ -1,8 +1,12 @@
 import * as dd from "dingtalk-jsapi";
+import { showToast } from "vant";
+
 import store from "../store";
 import {
   wx_login,
   qywx_login,
+  dingTalk_login,
+  getCasLogin,
   // DingTalk_LOGIN,
   // QYWX_LOGIN,
   // getDingTalk_config,
@@ -18,7 +22,7 @@ export async function WX_LOGIN(data) {
         // sessionStorage.setItem("openId", res.open_id);
         localStorage.setItem("openId", res.open_id);
       }
-      // toLogin();
+      toLogin();
       return false;
     }
 
@@ -30,7 +34,7 @@ export async function WX_LOGIN(data) {
     loginSuccess();
   } catch (e) {
     console.log("授权失败...?", JSON.stringify(e));
-    // toLogin();
+    toLogin();
   }
 }
 
@@ -39,7 +43,7 @@ export async function QYWX_LOGIN(data) {
     const res = await qywx_login(data);
     console.log("登录成功？", JSON.stringify(res));
     if (res.code !== 1) {
-      // toLogin();
+      toLogin();
       return false;
     }
     sessionStorage.setItem("token", res.member.token);
@@ -48,7 +52,54 @@ export async function QYWX_LOGIN(data) {
     loginSuccess();
   } catch (e) {
     console.log("授权失败...", JSON.stringify(e));
-    // toLogin();
+    toLogin();
+  }
+}
+
+export async function DingTalk_LOGIN(data) {
+  try {
+    const res = await dingTalk_login(data);
+    if (res.code !== 1) {
+      toLogin();
+      return false;
+    }
+    sessionStorage.setItem("token", res.member.token);
+    store.dispatch("updateLoginInfo", res.member);
+
+    loginSuccess();
+  } catch (e) {
+    console.log("授权失败...", JSON.stringify(e));
+    toLogin();
+  }
+}
+
+export async function CasLogin(cas) {
+  try {
+    let openId = localStorage.getItem("openId") || "";
+    let params = {
+      cas,
+    };
+    if (openId) {
+      params.open_id = openId;
+    }
+    const res = await getCasLogin(params);
+    if (res.code != 1) {
+      showToast({
+        message: res.msg || "认证失败~",
+        duration: 2000,
+      });
+      setTimeout(() => {
+        sessionStorage.setItem("casAuth", true);
+        toLogin();
+      }, 1000);
+      return false;
+    }
+    sessionStorage.setItem("token", res.member.token);
+    store.dispatch("updateLoginInfo", res.member);
+    sessionStorage.setItem("isCas", true);
+    loginSuccess();
+  } catch (e) {
+    console.log(e);
   }
 }
 
@@ -113,6 +164,12 @@ export async function VerifySystem({ config, router }) {
   let agentSystem = sessionStorage.getItem("agentSystem");
   let token = sessionStorage.getItem("token");
   let originUrl = window.location.href;
+
+  if (token) {
+    router.replace("/");
+    return false;
+  }
+
   if (!isVerify) {
     sessionStorage.setItem("verifyLogin", true);
   }
@@ -123,8 +180,6 @@ export async function VerifySystem({ config, router }) {
 
   if (agent == "APP") {
     // token && APP_LOGIN({ token });
-  } else if (agent == "DEFAULT" || token) {
-    router.replace("/");
   } else if (agent == "WX" && config?.wechat?.app_id) {
     if (config?.wechat?.callback) {
       let openId = getUrlKey("openid");
@@ -168,42 +223,41 @@ export async function VerifySystem({ config, router }) {
       };
       window.location.href = `${redirectUrl}?appid=${params.appid}&redirect_uri=${params.redirect_uri}&response_type=${params.response_type}&scope=${params.scope}&state=1&connect_redirect=1#wechat_redirect`;
     } else {
-      console.log("企业微信-------------------");
       console.log(window.location.href);
       QYWX_LOGIN({ code });
     }
   } else if (agent == "DingTalk" && config?.dingtalk?.app_key) {
-    // let dingCode = await getDingTalkCode(config?.dingtalk?.corp_id);
-    // console.log("我获取了钉钉企业id，使用dd.ready获取了授权code", dingCode);
-    // let code = dingCode || route.query.code || "";
-    // if (!code) {
-    //   let redirectUrl = `https://oapi.dingtalk.com/connect/oauth2/sns_authorize`;
-    //   // let corpInfo = await getDingTalk_config();
-    //   // console.log("钉钉企业ID -------- ", corpInfo);
-    //   // if (!corpInfo.app_key) return false;
-    //   let params = {
-    //     appid: config?.dingtalk?.app_key,
-    //     redirect_uri: encodeURIComponent(originUrl),
-    //     response_type: "code",
-    //     scope: "snsapi_auth",
-    //   };
-    //   console.log("钉钉企业ID -------- ", JSON.stringify(params));
-    //   console.log(
-    //     "钉钉跳转地址 -------- ",
-    //     `${redirectUrl}?redirect_uri=${params.redirect_uri}&response_type=${params.response_type}&appid=${params.appid}&scope=${params.scope}&state=1`
-    //   );
-    //   // location.hash = "#/login";
-    //   setTimeout(() => {
-    //     location.href = `${redirectUrl}?redirect_uri=${params.redirect_uri}&response_type=${params.response_type}&appid=${params.appid}&scope=${params.scope}&state=1`;
-    //   }, 0);
-    // } else {
-    //   console.log("钉钉-------------------");
-    //   console.log(window.location.href);
-    //   DingTalk_LOGIN({ code });
-    // }
+    let dingCode = await getDingTalkCode(config?.dingtalk?.corp_id);
+    console.log("我获取了钉钉企业id，使用dd.ready获取了授权code", dingCode);
+    let code = dingCode || getUrlKey("code") || "";
+    if (!code) {
+      let redirectUrl = `https://oapi.dingtalk.com/connect/oauth2/sns_authorize`;
+      // let corpInfo = await getDingTalk_config();
+      // console.log("钉钉企业ID -------- ", corpInfo);
+      // if (!corpInfo.app_key) return false;
+      let params = {
+        appid: config?.dingtalk?.app_key,
+        redirect_uri: encodeURIComponent(originUrl),
+        response_type: "code",
+        scope: "snsapi_auth",
+      };
+      console.log("钉钉企业ID -------- ", JSON.stringify(params));
+      console.log(
+        "钉钉跳转地址 -------- ",
+        `${redirectUrl}?redirect_uri=${params.redirect_uri}&response_type=${params.response_type}&appid=${params.appid}&scope=${params.scope}&state=1`
+      );
+      // location.hash = "#/login";
+      setTimeout(() => {
+        location.href = `${redirectUrl}?redirect_uri=${params.redirect_uri}&response_type=${params.response_type}&appid=${params.appid}&scope=${params.scope}&state=1`;
+      }, 0);
+    } else {
+      console.log("钉钉-------------------");
+      console.log(window.location.href);
+      DingTalk_LOGIN({ code });
+    }
   } else {
     sessionStorage.setItem("authError", true);
-    router.replace("/");
+    toLogin();
   }
 }
 
@@ -250,3 +304,31 @@ function loginSuccess() {
     console.log(e);
   }
 }
+
+function toLogin() {
+  // Toast({
+  //   message: "授权失败,请重新登录",
+  // });
+  sessionStorage.setItem("authError", true);
+  setTimeout(() => {
+    location.hash = "#/login";
+    verifyLoginType();
+  }, 1500);
+}
+
+const verifyLoginType = () => {
+  let agentSystem = sessionStorage.getItem("agentSystem");
+  let authError = sessionStorage.getItem("authError");
+  let casAuth = sessionStorage.getItem("casAuth");
+  let apiConfig = sessionStorage.getItem("apiConfig");
+  if (apiConfig) {
+    apiConfig = JSON.parse(apiConfig);
+  }
+  let { login, cas_url } = apiConfig?.config;
+  if (
+    (authError && !casAuth && login == 4) ||
+    (agentSystem == "DEFAULT" && login == 4)
+  ) {
+    window.location.href = cas_url;
+  }
+};

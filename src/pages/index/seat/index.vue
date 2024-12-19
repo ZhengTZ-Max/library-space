@@ -306,7 +306,7 @@ const onFloor = (row) => {
   }
   .librarySlt {
     width: 100%;
-    margin: 38px 0 50px 0;
+    margin: 0 0 50px 0;
     padding: 0 82px;
     .posBot {
       display: flex;

@@ -32,12 +32,14 @@ const formState = reactive({
 watch(
   () => apiConfig?.value,
   (v) => {
+    let authError = sessionStorage.getItem("authError");
     if (v?.wechat?.app_id) {
-      VerifySystem({ config: v, router: router });
+      !authError && VerifySystem({ config: v, router: router });
     }
   },
   {
     deep: true,
+    immediate: true,
   }
 );
 

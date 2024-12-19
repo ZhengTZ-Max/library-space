@@ -32,7 +32,8 @@ const onGoToLink = (row, t) => {
       class="tabItem activeBtn"
       @click="onGoToLink(item)"
     >
-      <img src="@/assets/home/seatIcon.svg" alt="" />
+      <img v-if="item?.icon" :src="item?.icon" alt="" />
+      <img v-else src="@/assets/home/seatIcon.svg" alt="" />
       <p>{{ item?.name }}</p>
     </div>
   </div>
@@ -46,7 +47,8 @@ const onGoToLink = (row, t) => {
       class="tabItem activeBtn"
       @click="onGoToLink(item, 'm')"
     >
-      <img src="@/assets/home/seatIcon.svg" alt="" />
+      <img v-if="item?.icon" :src="item?.icon" alt="" />
+      <img v-else src="@/assets/home/seatIcon.svg" alt="" />
       <p>{{ item?.name }}</p>
     </div>
   </div>

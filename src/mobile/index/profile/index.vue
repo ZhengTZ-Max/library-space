@@ -11,7 +11,10 @@ import { reactive, computed, onMounted, watch } from "vue";
 import { OutLogin } from "@/utils";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { showConfirmDialog, showToast } from "vant";
+
 import { getMyInfo } from "@/request/my";
+import { wx_removeOpenid } from "@/request/login";
 
 const store = useStore();
 const lang = computed(() => store.state.lang);
@@ -140,6 +143,34 @@ const goToLink = (link) => {
     router.push(`/mo/profile/${link}`);
   }
 };
+
+const unbindWx = () => {
+  try {
+    showConfirmDialog({
+      title: `提示`,
+      message: `是否确认解绑微信登录？`,
+    })
+      .then(async () => {
+        const res = await wx_removeOpenid();
+
+        if (res.code != 0) {
+          showToast({
+            message: res.message,
+          });
+          return false;
+        }
+        showToast({
+          message: res.message,
+        });
+        // resetSubscribeList();
+      })
+      .catch(() => {
+        // on cancel
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
 </script>
 <template>
   <div class="profile">
@@ -197,10 +228,11 @@ const goToLink = (link) => {
       </div>
 
       <div class="profile_footer">
-        <button class="footer-button" @click="goToLink('/mo/...')">
-          微信解绑
-        </button>
-        <div class="divider"></div>
+        <template v-if="state.userInfo?.open_id">
+          <button class="footer-button" @click="unbindWx">微信解绑</button>
+          <div class="divider"></div>
+        </template>
+
         <button class="footer-button" @click="handleOut">退出登录</button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 // import { setupLayouts } from "virtual:generated-layouts";
 import routes from "virtual:generated-pages";
-const whitePaths = ["login", "404", "forget"];
+const whitePaths = ["login", "404", "forget", "cas"];
 import store from "../store";
 
 // const routesTree = setupLayouts(routes);

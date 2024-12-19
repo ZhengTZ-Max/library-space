@@ -48,3 +48,51 @@ export function qywx_login(data) {
     data,
   });
 }
+
+// 钉钉code授权
+export function dingTalk_login(data) {
+  return service({
+    url: "/api/login/dingtalksns",
+    method: "post",
+    isLoading: true,
+    loadingMsg: "正在授权登录",
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}
+
+// 微信取消绑定
+export function wx_removeOpenid(data) {
+  return service({
+    url: "v4/member/unwx",
+    method: "post",
+    isLoading: true,
+    // loadingMsg: "正在授权登录",
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}
+
+// CAS登录配置
+export function getCasLogin(data) {
+  return service({
+    url: "/api/cas/user",
+    method: "post",
+    isLoading: true,
+    // loadingMsg:"正在授权登录",
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}
+
+// CAS退出登录
+export function outCasLogin(params) {
+  return service({
+    url: "/api/cas/cas",
+    method: "get",
+    isLoading: true,
+    // loadingMsg:"正在授权登录",
+    // customLoading:true, 是否自定义loading
+    params,
+  });
+}

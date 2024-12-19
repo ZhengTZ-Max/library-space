@@ -514,7 +514,7 @@ const onFloor = (row) => {
   }
   .librarySlt {
     width: 100%;
-    margin: 38px 0 50px 0;
+    margin: 0 0 50px 0;
     padding: 0 82px;
     .libraryItem {
       position: relative;
@@ -613,8 +613,12 @@ const onFloor = (row) => {
   }
 
   .spaceMapSlt {
+    padding-left: 120px;
     display: flex;
-    justify-content: center;
+    .spaceMap{
+      border: 2px solid #cccccc;
+      border-radius: 4px;
+    }
   }
 }
 

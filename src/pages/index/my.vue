@@ -5,6 +5,8 @@ import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { message } from "ant-design-vue";
 import { getMyInfo, updatePassword, updateMyInfo } from "@/request/my";
+import { wx_removeOpenid } from "@/request/login";
+import { showConfirmDialog } from "vant";
 import { OutLogin } from "@/utils";
 
 const store = useStore();
@@ -253,6 +255,34 @@ const fetchUpdateMyInfo = async (type) => {
     console.log(error);
   }
 };
+
+const unbindWx = () => {
+  try {
+    showConfirmDialog({
+      title: `提示`,
+      message: `是否确认解绑微信登录？`,
+    })
+      .then(async () => {
+        const res = await wx_removeOpenid();
+
+        if (res.code != 0) {
+          message.error(res.message);
+          return false;
+        }
+        message.success(res.message);
+
+        // showToast({
+        //   message: res.message,
+        // });
+        // resetSubscribeList();
+      })
+      .catch(() => {
+        // on cancel
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
 </script>
 <template>
   <div class="my">
@@ -356,11 +386,11 @@ const fetchUpdateMyInfo = async (type) => {
           <div class="itemLabel">卡有效期</div>
           <div class="itemRight">{{ state.userInfo?.date }}</div>
         </div>
-        <div class="infoItem">
+        <div v-if="state.userInfo?.open_id" class="infoItem">
           <div class="itemLabel">微信</div>
           <div class="itemRight">
             <span>z4824614</span>
-            <span class="wxBind activeBtn">解绑</span>
+            <span class="wxBind activeBtn" @click="unbindWx">解绑</span>
           </div>
         </div>
 

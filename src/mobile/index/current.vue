@@ -82,10 +82,10 @@ const isEmpty = () => {
       </div>
     </template>
 
-    <div v-else class="emptyCon">
+    <!-- <div v-else class="emptyCon">
       <img src="@/assets/home/emptyAppt.png" alt="" />
       <div class="apptBtn activeBtn" @click="router.push('/')">立即预约</div>
-    </div>
+    </div> -->
 
     <div class="commonAppt">
       <commonAppt @handleShow="fetchSubscribe" />

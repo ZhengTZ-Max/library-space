@@ -25,7 +25,7 @@ const state = reactive({
 
 onMounted(() => {
   let agentSystem = sessionStorage.getItem("agentSystem");
-  if (isIOS() && agentSystem == "QY_WX") {
+  if (isIOS() && ['DingTalk','QY_WX']?.includes(agentSystem)) {
     state.safeArea = true;
   } else {
     state.safeArea = false;

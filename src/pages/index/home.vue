@@ -50,6 +50,8 @@ onMounted(() => {});
   .content {
     position: relative;
     flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
     background-color: #ecf5ff;
     // background-image: url("@/assets/home/homeBg.svg");
     // background-position: right;

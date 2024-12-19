@@ -25,16 +25,16 @@
 }
 
 /* 常规字体 */
-@font-face {
+/* @font-face {
   font-family: AliRegular;
   src: url("./assets/font/AlibabaPuHuiTi-2-55-Regular.otf");
-}
+} */
 
 /* 常规字体 加粗 - AliHeavy */
-@font-face {
+/* @font-face {
   font-family: AliHeavy;
   src: url("./assets/font/AlibabaPuHuiTi-2-105-Heavy.otf");
-}
+} */
 
 /* * {
   font-family: "AliRegular", "sans-serif" !important;
@@ -238,6 +238,7 @@ div {
   position: absolute;
   right: 0;
   top: 0;
+  z-index: 1;
 }
 
 .cardItem .cardItemImgCon .cardItemImg {

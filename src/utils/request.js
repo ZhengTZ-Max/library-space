@@ -30,6 +30,7 @@ service.interceptors.request.use(
       showLoadingToast({
         forbidClick: true,
         duration: 0,
+        message: config?.loadingMsg || "",
       });
     }
 

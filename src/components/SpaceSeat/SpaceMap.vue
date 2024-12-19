@@ -87,17 +87,17 @@ const fillCanvas = () => {
 
       // 设置文字样式并在 Canvas 中添加文字
       ctx.fillStyle = "#000"; // 设置文字颜色
-      ctx.font = "14px AliRegular"; // 设置字体样式
+      ctx.font = "14px"; // 设置字体样式
       ctx.textAlign = "center"; // 设置文字水平居中
       ctx.textBaseline = "top"; // 设置文字垂直居中
 
       if (rectW < 70) {
-        ctx.font = "11px AliRegular"; // 设置字体样式
+        ctx.font = "11px"; // 设置字体样式
       }
 
       if (rectH < 30) {
         ctx.textBaseline = "middle"; // 设置文字垂直居中
-        ctx.font = "11px AliRegular"; // 设置字体样式
+        ctx.font = "11px"; // 设置字体样式
       }
 
       // 多行文字内容

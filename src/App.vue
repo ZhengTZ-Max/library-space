@@ -99,10 +99,13 @@ const fetchBanner = async () => {
 
 const fetchConfig = async () => {
   try {
-    let res = await getGlobalConfig();
-    store.dispatch("updateApiConfig", res?.data);
-    console.log(store);
-    console.log(res?.data);
+    let apiConfig = sessionStorage.getItem("apiConfig");
+    if (apiConfig) {
+      store.dispatch("updateApiConfig", JSON.parse(apiConfig));
+    } else {
+      let res = await getGlobalConfig();
+      store.dispatch("updateApiConfig", res?.data);
+    }
   } catch (e) {
     console.log(e);
   }
@@ -110,9 +113,14 @@ const fetchConfig = async () => {
 
 const fetchLangConfig = async () => {
   try {
-    let res = await getGlobalLang();
-    store.dispatch("updateLangData", res?.data);
-    console.log(store);
+    let langData = sessionStorage.getItem("langData");
+    // sessionStorage.setItem("langData", JSON.stringify(data));
+    if (langData) {
+      store.dispatch("updateLangData", JSON.parse(langData));
+    } else {
+      let res = await getGlobalLang();
+      store.dispatch("updateLangData", res?.data);
+    }
   } catch (e) {
     console.log(e);
   }

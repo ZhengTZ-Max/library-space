@@ -46,9 +46,11 @@ const store = createStore({
     },
     setApiConfig(state, info) {
       state.apiConfig = info;
+      sessionStorage.setItem("apiConfig", JSON.stringify(info));
     },
     setLangData(state, data) {
       state.langData = data;
+      sessionStorage.setItem("langData", JSON.stringify(data));
     },
     setLang(state, data) {
       state.lang = data;
