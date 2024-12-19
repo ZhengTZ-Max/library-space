@@ -92,6 +92,8 @@ const state = reactive({
   },
 
   studyOpenTime: [],
+
+  spaceMapShow: false,
 });
 
 onMounted(() => {

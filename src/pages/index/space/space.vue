@@ -390,7 +390,6 @@ const handleDateChange = (v) => {
 
     <a-modal
       width="50%"
-      height="70%"
       v-model:open="state.spaceFilterShow"
       title="空间筛选"
       @ok="handleFilter"

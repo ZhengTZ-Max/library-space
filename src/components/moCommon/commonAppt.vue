@@ -126,7 +126,7 @@ const fetchTimeList = async () => {
       }, 1);
     } else {
       initTime();
-      message.error(res?.msg || "获取开放日期失败");
+      // message.error(res?.msg || "获取开放日期失败");
     }
   } catch (error) {
     initTime();
@@ -326,7 +326,7 @@ const handleShow = (v) => {
       </div>
       <div
         class="filterTimes"
-        v-if="!(state.quickMode === '2')"
+        v-if="!(state.quickMode === '2') && (state.dateList?.length && state.timeList?.length)"
       >
         <div class="timeItem">
           <span>日期：</span>
@@ -344,7 +344,7 @@ const handleShow = (v) => {
             </a-radio-group>
           </div>
         </div>
-        <div class="timeItem" style="margin-top: 12px">
+        <div class="timeItem" style="margin-top: 12px" >
           <span>时间：</span>
           <div style="width: 100%">
             <a-radio-group v-model:value="state.timeValue" @change="onChangeDateOrTime">
@@ -388,7 +388,7 @@ const handleShow = (v) => {
             </div>
           </div>
         </div>
-        <a-empty v-else />
+        <a-empty :description="state.activeType == `collect` ? '无收藏的座位' : '无常用的座位'" v-else />
       </div>
     </div>
 
@@ -446,6 +446,7 @@ const handleShow = (v) => {
   .apptCon {
     padding: 12px 14px;
     background-color: #fafafa;
+    min-height: 350px;
     .filterTimes {
       margin-top: 20px;
       padding: 14px 16px;

@@ -625,6 +625,7 @@ const onFloor = (row) => {
 .filterCon {
   padding: 24px 0;
   height: 100%;
+  max-height: 550px;
   overflow: auto;
   .filterFilter {
     margin-bottom: 24px;
