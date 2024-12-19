@@ -514,7 +514,8 @@ const fetchSubmit = async (params) => {
         flex: 1;
         font-size: 30px;
         transform: skewX(-6deg);
-        font-family: AliHeavy !important;
+        // font-family: AliHeavy !important;
+        font-weight: bold;
         color: var(--primary-color);
       }
       &:last-child {

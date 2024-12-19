@@ -235,7 +235,8 @@ const goToLink = (link) => {
         .user_name {
           font-size: 16px;
           color: rgba(255, 255, 255, 1);
-          font-family: AliHeavy;
+          // font-family: AliHeavy;
+          font-weight: bold;
         }
         .user_id {
           font-size: 14px;

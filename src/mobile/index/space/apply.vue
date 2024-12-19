@@ -1232,7 +1232,8 @@ const getDateStatus = () => {
       margin-bottom: 10px;
       font-size: 16px;
       color: rgba(32, 32, 32, 1);
-      font-family: AliHeavy !important;
+      // font-family: AliHeavy !important;
+      font-weight: bold;
     }
     .select_time_desc {
       margin-top: 10px;
@@ -1348,7 +1349,8 @@ const getDateStatus = () => {
       .add_people_box_title {
         font-size: 14px;
         color: rgba(32, 32, 32, 1);
-        font-family: AliHeavy !important;
+        // font-family: AliHeavy !important;
+        font-weight: bold;
       }
       .add_people_box_input {
         display: flex;
@@ -1402,7 +1404,8 @@ const getDateStatus = () => {
       .activity_edit_info_item_title {
         font-size: 14px;
         color: rgba(32, 32, 32, 1);
-        font-family: AliHeavy !important;
+        // font-family: AliHeavy !important;
+        font-weight: bold;
       }
       .edit_input {
         color: rgba(32, 32, 32, 1);
@@ -1417,7 +1420,8 @@ const getDateStatus = () => {
         margin-bottom: 10px;
         font-size: 14px;
         color: rgba(32, 32, 32, 1);
-        font-family: AliHeavy !important;
+        // font-family: AliHeavy !important;
+        font-weight: bold;
       }
       .edit_textarea {
         color: rgba(32, 32, 32, 1);
@@ -1437,7 +1441,8 @@ const getDateStatus = () => {
       .upload_file_box_title {
         font-size: 14px;
         color: rgba(32, 32, 32, 1);
-        font-family: AliHeavy !important;
+        // font-family: AliHeavy !important;
+        font-weight: bold;
       }
     }
     .item_for_file_content {

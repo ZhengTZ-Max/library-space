@@ -1290,7 +1290,8 @@ const getDateStatus = () => {
           margin-bottom: 20px;
           font-size: 16px;
           color: rgba(32, 32, 32, 1);
-          font-family: AliHeavy !important;
+          // font-family: AliHeavy !important;
+          font-weight: bold;
         }
         .time_select_box {
           margin-top: 20px;
@@ -1425,7 +1426,8 @@ const getDateStatus = () => {
           .add_people_box_title {
             font-size: 16px;
             color: rgba(32, 32, 32, 1);
-            font-family: AliHeavy !important;
+            // font-family: AliHeavy !important;
+            font-weight: bold;
           }
           .add_people_box_input {
             display: flex;
@@ -1472,7 +1474,8 @@ const getDateStatus = () => {
         .right_bottom_title {
           font-size: 16px;
           color: rgba(32, 32, 32, 1);
-          font-family: AliHeavy !important;
+          // font-family: AliHeavy !important;
+          font-weight: bold;
         }
         .right_bottom_item {
           margin-top: 20px;

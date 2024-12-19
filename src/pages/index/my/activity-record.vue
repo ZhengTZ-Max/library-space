@@ -356,8 +356,8 @@ const onSelectDate = (item) => {
         </div>
         <img src="@/assets/close.svg" alt="" />
       </div>
-      <MyActivityRecordDetailDrawer :data="state.drawerDetailsInfo" />
       <a-divider />
+      <MyActivityRecordDetailDrawer :data="state.drawerDetailsInfo" />
     </a-drawer>
   </div>
 </template>

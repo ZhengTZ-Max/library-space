@@ -499,7 +499,8 @@ const fetchApplyActivity = async () => {
         font-size: 18px;
         color: #202020;
         flex: 1;
-        font-family: "AliHeavy";
+        // font-family: "AliHeavy";
+        font-weight: bold;
       }
     }
     .content_body_title {
@@ -507,7 +508,8 @@ const fetchApplyActivity = async () => {
       font-size: 14px;
       margin-bottom: 10px;
       margin-top: 10px;
-      font-family: AliHeavy !important;
+      // font-family: AliHeavy !important;
+      font-weight: bold;
     }
     .content_body_data_time {
       background-color: #fff;

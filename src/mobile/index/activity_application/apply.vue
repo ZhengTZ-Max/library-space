@@ -1087,7 +1087,8 @@ const draftActivity = async (data) => {
     .select_time_title {
       font-size: 16px;
       color: rgba(32, 32, 32, 1);
-      font-family: AliHeavy !important;
+      // font-family: AliHeavy !important;
+      font-weight: bold;
     }
     .select_time_desc {
       margin-top: 10px;
@@ -1170,7 +1171,8 @@ const draftActivity = async (data) => {
       .activity_edit_info_item_title {
         font-size: 14px;
         color: rgba(32, 32, 32, 1);
-        font-family: AliHeavy !important;
+        // font-family: AliHeavy !important;
+        font-weight: bold;
       }
       .edit_input {
         color: rgba(32, 32, 32, 1);
@@ -1188,7 +1190,8 @@ const draftActivity = async (data) => {
         margin-bottom: 10px;
         font-size: 14px;
         color: rgba(32, 32, 32, 1);
-        font-family: AliHeavy !important;
+        // font-family: AliHeavy !important;
+        font-weight: bold;
       }
       .edit_textarea {
         color: rgba(32, 32, 32, 1);
@@ -1206,7 +1209,8 @@ const draftActivity = async (data) => {
     .file_upload_text {
       font-size: 14px;
       color: rgba(32, 32, 32, 1);
-      font-family: AliHeavy !important;
+      // font-family: AliHeavy !important;
+      font-weight: bold;
       margin-bottom: 10px;
     }
     .item_for_file_title {

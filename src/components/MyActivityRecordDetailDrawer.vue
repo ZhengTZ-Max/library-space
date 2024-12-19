@@ -83,33 +83,33 @@ onMounted(() => {
         </div>
         <div class="info-item">
           <span class="label">活动日期：</span>
-          <span class="value">2024-02-19 ~ 2024-02-21</span>
+          <span class="value">{{ state.propsData?.selectedDetails?.begin_date }} ~ {{ state.propsData?.selectedDetails?.end_date }}</span>
         </div>
         <div class="info-item">
           <span class="label">活动时间：</span>
-          <span class="value">08:00-12:00, 13:00-17:00</span>
+          <span class="value">{{ state.propsData?.selectedDetails?.begin_time }} ~ {{ state.propsData?.selectedDetails?.end_time }}</span>
         </div>
         <div class="info-item">
           <span class="label">可报名人数：</span>
-          <span class="value">30</span>
+          <span class="value">{{ state.propsData?.selectedDetails?.max }}</span>
         </div>
         <div class="info-item">
           <span class="label">活动地点：</span>
-          <span class="value">嘉德馆-5F-501大型空间</span>
+          <span class="value">{{ state.propsData?.selectedDetails?.nameMerge }}</span>
         </div>
         <div class="info_item_description">
           <span class="label_description">活动介绍：</span>
           <div class="value-wrapper">
             <p class="value">
-              这是一段活动介绍，这是一段活动介绍这是一段活动介绍这是一段活动介绍这是一段活动介绍，这是一段活动介绍。
+              {{ state.propsData?.selectedDetails?.content }}
             </p>
           </div>
         </div>
-        <div class="attachment-section">
+        <div class="attachment-section" v-if="state.propsData?.selectedDetails?.approve">
           <div class="label">审批附件：</div>
           <div class="file-item">
-            <!-- <img src="@/assets/doc-icon.png" alt="DOC" class="file-icon" /> -->
-            <span class="file-name">文件名XXX.docx</span>
+            <img src="@/assets/activity_application/upload_file.svg" alt="DOC" class="file-icon" />
+            <span class="file-name">{{ state.propsData?.selectedDetails?.approve[0]?.file_name }}</span>
           </div>
         </div>
         <div class="attachment-section">

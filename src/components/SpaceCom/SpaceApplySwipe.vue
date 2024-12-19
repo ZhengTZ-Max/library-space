@@ -239,7 +239,8 @@ const onChange = (v) => {
   width: 144px;
   color: rgba(26, 73, 192, 1);
   font-size: 14px;
-  font-family: AliHeavy !important;
+  // font-family: AliHeavy !important;
+  font-weight: bold;
   padding: 5px 10px;
   background-color: rgba(26, 73, 192, 0.06);
   border-radius: 17px;
@@ -340,7 +341,8 @@ const onChange = (v) => {
     width: 110px;
     color: rgba(26, 73, 192, 1);
     font-size: 12px;
-    font-family: AliHeavy !important;
+    // font-family: AliHeavy !important;
+    font-weight: bold;
     padding: 5px 10px;
     background-color: rgba(26, 73, 192, 0.06);
     border-radius: 17px;

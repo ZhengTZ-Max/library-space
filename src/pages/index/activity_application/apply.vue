@@ -1206,7 +1206,8 @@ const handleShow = (v) => {
         .left_bottom_title {
           font-size: 16px;
           color: rgba(32, 32, 32, 1);
-          font-family: AliHeavy !important;
+          // font-family: AliHeavy !important;
+          font-weight: bold;
         }
         .time_select_box {
           margin-top: 12px;
@@ -1332,7 +1333,8 @@ const handleShow = (v) => {
         .right_top_title {
           font-size: 16px;
           color: rgba(32, 32, 32, 1);
-          font-family: AliHeavy !important;
+          // font-family: AliHeavy !important;
+          font-weight: bold;
         }
         .right_top_item {
           margin-top: 20px;
@@ -1358,7 +1360,8 @@ const handleShow = (v) => {
         .right_bottom_title {
           font-size: 16px;
           color: rgba(32, 32, 32, 1);
-          font-family: AliHeavy !important;
+          // font-family: AliHeavy !important;
+          font-weight: bold;
         }
         .upload_item {
           margin-top: 20px;

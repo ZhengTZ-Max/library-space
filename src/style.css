@@ -36,9 +36,9 @@
   src: url("./assets/font/AlibabaPuHuiTi-2-105-Heavy.otf");
 }
 
-* {
+/* * {
   font-family: "AliRegular", "sans-serif" !important;
-}
+} */
 .van-icon::before {
   font-family: "vant-icon" !important;
 }
