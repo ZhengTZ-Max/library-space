@@ -166,13 +166,13 @@ const filterCategorys = (list) => {
   .title {
     font-size: 26px;
     color: #1a49c0;
-    font-family: AliExtraBold !important;
+    font-family: AliHeavy !important;
   }
   .title_mobile {
     margin-top: 10px;
     font-size: 16px;
     color: rgba(0, 0, 0, 1);
-    font-family: AliExtraBold !important;
+    font-family: AliHeavy !important;
   }
   .seatNum {
     margin: 14px 0;
