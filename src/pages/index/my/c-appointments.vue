@@ -14,6 +14,8 @@ import {
 
   getOftenTime,
   getOftenTableList,
+  getCollectTime,
+  getCollectTableList,
 } from "@/request/common";
 import { getSpaceConfirm } from "@/request/seat.js";
 
@@ -121,22 +123,10 @@ const fetch = () => {
   if (state.activeKey == 1) {
     // 座位
     // 获取开放日期
-
-    if (state.quickMode == 1) {
-      // 收藏
-    } else {
-      // 常用
-      fetchOftenTime();
-    }
+    fetchTimeList();
   } else {
     // 空间
-
-    if (state.quickMode == 1) {
-      // 收藏
-    } else {
-      // 常用
-      fetchOftenTableList();
-    }
+    fetchTableList();
   }
 };
 
@@ -153,20 +143,27 @@ const initTime = () => {
   state.total = 0;
 };
 
-const fetchOftenTime = async () => {
+const fetchTimeList = async () => {
   try {
     let params = {
       type: state.activeKey,
     };
-    let res = await getOftenTime(params);
+    let res = null;
+    if (state.quickMode == 1) {
+      // 收藏
+      res = await getCollectTime(params);
+    } else {
+      // 常用
+      res = await getOftenTime(params);
+    }
     console.log(res);
-
     dealwitchTime(res);
   } catch (error) {
-    initTime();
     console.log(error);
   }
 };
+
+
 
 const dealwitchTime = (res) => {
   if (res && res.code == 0 && res.data.length > 0) {
@@ -192,23 +189,8 @@ const dealwitchTime = (res) => {
     });
     console.log(state.datesSelectList);
     state.dateValue = state.datesSelectList[0].value;
-
-    // state.times = state.dates.find((item) => item.day == state.dateValue).times;
-    // state.timesSelectList = state.times.map((item) => {
-    //   return {
-    //     label: item.show_time,
-    //     value: item.show_time,
-    //     start: item.start,
-    //     end: item.end,
-    //   };
-    // });
-    // state.timeValue = state.timesSelectList[0].value;
-    // state.timeSelectStart = state.timesSelectList[0].start;
-    // state.timeSelectEnd = state.timesSelectList[0].end;
-
-    // fetchSeatList();
     setTimeout(() => {
-      fetchOftenTableList();
+      fetchTableList();
     }, 1);
   } else {
     console.log(res);
@@ -217,7 +199,7 @@ const dealwitchTime = (res) => {
   }
 };
 
-const fetchOftenTableList = async () => {
+const fetchTableList = async () => {
   try {
     let params = null;
     if (state.activeKey == 1) {
@@ -237,7 +219,14 @@ const fetchOftenTableList = async () => {
         type: state.activeKey,
       };
     }
-    let res = await getOftenTableList(params);
+    let res = null;
+    if (state.quickMode == 1) {
+      // 收藏
+      res = await getCollectTableList(params);
+    } else {
+      // 常用
+      res = await getOftenTableList(params);
+    }
 
     if (res.code == 0) {
       state.seatList = res.data;
@@ -254,21 +243,24 @@ const fetchOftenTableList = async () => {
   }
 };
 
+
+
 const onCancelCollect = async (record) => {
   showConfirmDialog({
     title: $t("V4_remove_from_favorites"),
-    message: `${record.nameMerge}:${record.spacename}`,
+    message: `${record.name_merge}:${record.space_name}`,
   }).then(async () => {
     try {
       let params = {
-        spaceId: record.spaceId,
+        space_id: record.space_id,
       };
       let res = await cancelSeatCollect(params);
       if (res.code == 0) {
-        message.success(res.msg);
+        message.success(res.message);
       } else {
-        message.error(res.msg);
+        message.error(res.message);
       }
+      fetchTableList();
     } catch (error) {
       console.log(error);
     }
@@ -281,7 +273,6 @@ const onApplyOrJumpDetail = (record) => {
     // 只有reserve_type=1的可以直接调用预约接口，等于其他值的跳转到座位详情
     if (record.reserve_type == 1) {
       // 预约
-
       onSeatAppt(record);
     } else {
       // 跳转到座位详情
@@ -307,16 +298,19 @@ const onApplyOrJumpDetail = (record) => {
 
 const onSeatAppt = async (record) => {
   try {
+    let findTimeRow = state.times?.find(
+      (e) => e?.show_time == state.timeValue
+    );
     let params = {
       seat_id: record?.space_id,
       segment: record?.segment,
       day: state.dateValue,
-      startTime: state.timeSelectStart,
-      endTime: state.timeSelectEnd,
+      startTime: findTimeRow?.start,
+      endTime: findTimeRow?.end,
     };
     showConfirmDialog({
       title: `确认预约`,
-      message: `地点：${record.name_merge}\n座位:${record.space_name}\n时间:${params.day} ${params.startTime} - ${params.endTime}`,
+      message: `地点：${record.name_merge}\n座位:${record.space_name}\n时间:${params.day} ${findTimeRow?.show_time}`,
       messageAlign: "left",
     })
       .then(async () => {
@@ -347,16 +341,10 @@ const onSeatAppt = async (record) => {
 
 const onChangeDateOrTime = (e) => {
   if (state.activeKey == 1) {
-    if (state.quickMode == 1) {
-      // 收藏
-      // fetchSeatList();
-    } else {
-      // 常用
-      fetchOftenTableList();
-    }
-  } else {
-    // 空间
-  }
+    // 座位 模块  其实此层if可以去掉，因为时间选择模块 只有在座位模块下才显示
+    fetchTableList();
+  } 
+  // 空间 模块下没有时间选择
 };
 
 const pagination = computed(() => ({
@@ -402,7 +390,7 @@ const handleShow = (v) => {
       </div>
 
       <div
-        v-if="!(state.activeKey === '2' && state.quickMode === 2)"
+        v-if="!(state.activeKey === '2')"
         class="date-time-selector"
       >
         <div class="date-selector">

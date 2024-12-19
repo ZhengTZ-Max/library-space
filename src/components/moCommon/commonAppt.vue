@@ -5,13 +5,12 @@ import { message } from "ant-design-vue";
 import { showToast, showConfirmDialog } from "vant";
 import { useRoute, useRouter } from "vue-router";
 import {
-  getSeatAreaDate,
-  getSeatOftenDate,
-  getSeatCollectList,
-  getSeatOftenList,
+
   cancelSeatCollect,
   getOftenTime,
   getOftenTableList,
+  getCollectTime,
+  getCollectTableList,
 } from "@/request/common";
 
 import { getSpaceConfirm } from "@/request/seat.js";
@@ -98,37 +97,32 @@ const fetch = () => {
   if (state.quickMode == 1) {
     // 座位
     // 获取开放日期
-
-    if (state.activeType == "collect") {
-      // 收藏
-    } else {
-      // 常用
-      fetchOftenTime();
-    }
+    fetchTimeList();
   } else {
     // 空间
-
-    if (state.activeType == "collect") {
-      // 收藏
-    } else {
-      // 常用
-      fetchOftenTableList();
-    }
+    fetchTableList();
   }
 };
 
-const fetchOftenTime = async () => {
+const fetchTimeList = async () => {
   try {
     let params = {
       type: state.quickMode,
     };
-    let res = await getOftenTime(params);
+    let res = null;
+    if (state.activeType == "collect") {
+      // 收藏
+      res = await getCollectTime(params);
+    } else {
+      // 常用
+      res = await getOftenTime(params);
+    }
     console.log(res);
     if (res && res.code == 0 && res.data.length > 0) {
       state.dateList = res.data;
       state.dateValue = res?.data[0]?.day;
       setTimeout(() => {
-        fetchOftenTableList();
+        fetchTableList();
       }, 1);
     } else {
       initTime();
@@ -140,7 +134,7 @@ const fetchOftenTime = async () => {
   }
 };
 
-const fetchOftenTableList = async () => {
+const fetchTableList = async () => {
   try {
     let params = null;
     if (state.quickMode == 1) {
@@ -161,7 +155,14 @@ const fetchOftenTableList = async () => {
         type: state.quickMode,
       };
     }
-    let res = await getOftenTableList(params);
+    let res = null;
+    if (state.activeType == "collect") {
+      // 收藏
+      res = await getCollectTableList(params);
+    } else {
+      // 常用
+      res = await getOftenTableList(params);
+    }
 
     if (res.code == 0) {
       state.seatList = res.data;
@@ -176,6 +177,28 @@ const fetchOftenTableList = async () => {
   } catch (error) {
     console.log(error);
   }
+};
+
+const onCancelCollect = async (record) => {
+  showConfirmDialog({
+    title: $t("V4_remove_from_favorites"),
+    message: `${record.name_merge}:${record.space_name}`,
+  }).then(async () => {
+    try {
+      let params = {
+        space_id: record.space_id,
+      };
+      let res = await cancelSeatCollect(params);
+      if (res.code == 0) {
+        message.success(res.message);
+      } else {
+        message.error(res.message);
+      }
+      fetchTableList();
+    } catch (error) {
+      console.log(error);
+    }
+  });
 };
 
 const onApplyOrJumpDetail = (item) => {
@@ -250,13 +273,8 @@ const onSeatAppt = async (row) => {
 
 const onChangeDateOrTime = (e) => {
   if (state.quickMode == 1) {
-    // 座位
-    if (state.activeType == "collect") {
-      // 收藏
-    } else {
-      // 常用
-      fetchOftenTableList();
-    }
+    // 座位 模块  其实此层if可以去掉，因为时间选择模块 只有在座位模块下才显示
+    fetchTableList();
   }
 };
 
@@ -308,7 +326,7 @@ const handleShow = (v) => {
       </div>
       <div
         class="filterTimes"
-        v-if="!(state.activeType === 'common' && state.quickMode === '2')"
+        v-if="!(state.quickMode === '2')"
       >
         <div class="timeItem">
           <span>日期：</span>
@@ -342,14 +360,14 @@ const handleShow = (v) => {
       </div>
 
       <div class="apptList">
-        <div v-for="item in state?.seatList" class="adsItem">
+        <div v-if="state?.seatList?.length > 0" v-for="item in state?.seatList" class="adsItem">
           <div class="addressInfo">
             <span>地点：{{ item?.name_merge }}</span>
             <img
               v-if="state.activeType == 'collect'"
               class="activeBtn"
               src="@/assets/seat/collectedIcon.svg"
-              @click="fetchDeleteCollect(item?.spaceId)"
+              @click="onCancelCollect(item)"
               alt=""
             />
           </div>
@@ -370,6 +388,7 @@ const handleShow = (v) => {
             </div>
           </div>
         </div>
+        <a-empty v-else />
       </div>
     </div>
 
@@ -403,6 +422,8 @@ const handleShow = (v) => {
 </template>
 <style lang="less" scoped>
 .commonAppt {
+  height: 100%;
+  background-color: #fafafa;
   .cHeader {
     padding: 10px 14px 0 10px;
     border-bottom: 1px solid #f5f5f5;
