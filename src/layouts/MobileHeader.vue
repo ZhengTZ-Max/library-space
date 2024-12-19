@@ -81,7 +81,7 @@ watch(
     text-align: center;
     font-size: 17px;
     color: #202020;
-    font-family: "AliExtraBold" !important;
+    font-family: "AliHeavy" !important;
   }
 }
 </style>

@@ -581,3 +581,33 @@ export const getUserInfo = () => {
   if (userInfo) userInfo = JSON.parse(userInfo);
   return userInfo || {};
 };
+
+export const isIOS = () => {
+  const userAgent = navigator.userAgent;
+  return /iPhone|iPad|iPod/.test(userAgent) && !window.MSStream;
+};
+
+export const hasBottomSafeArea = () => {
+  // 判断设备是否为iPhone X及以上（如 iPhone X, iPhone 11, iPhone 12 等）
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const isX =
+    isIOS && window.innerHeight !== document.documentElement.clientHeight;
+
+  // iPhone X 或者以上的设备会有安全区域
+  if (isX) {
+    // 通过 window.safeAreaInsets 检测是否有底部横条
+    if (window.safeAreaInsets && window.safeAreaInsets.bottom > 0) {
+      return true; // 存在底部横条
+    }
+
+    // 如果没有 window.safeAreaInsets，使用 env(safe-area-inset-bottom) CSS 来进一步判断
+    const bottom = getComputedStyle(document.body).getPropertyValue(
+      "env(safe-area-inset-bottom)"
+    );
+    if (parseInt(bottom, 10) > 0) {
+      return true; // 底部有安全区域
+    }
+  }
+
+  return false;
+};

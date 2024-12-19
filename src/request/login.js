@@ -36,3 +36,15 @@ export function wx_login(data) {
     data,
   });
 }
+
+// 企业微信code授权
+export function qywx_login(data) {
+  return service({
+    url: "/api/login/wxwork",
+    method: "post",
+    isLoading: true,
+    loadingMsg: "正在授权登录",
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}
