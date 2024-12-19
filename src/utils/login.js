@@ -2,6 +2,7 @@ import * as dd from "dingtalk-jsapi";
 import store from "../store";
 import {
   wx_login,
+  qywx_login,
   // DingTalk_LOGIN,
   // QYWX_LOGIN,
   // getDingTalk_config,
@@ -29,6 +30,24 @@ export async function WX_LOGIN(data) {
     loginSuccess();
   } catch (e) {
     console.log("授权失败...?", JSON.stringify(e));
+    // toLogin();
+  }
+}
+
+export async function QYWX_LOGIN(data) {
+  try {
+    const res = await qywx_login(data);
+    console.log("登录成功？", JSON.stringify(res));
+    if (res.code !== 1) {
+      // toLogin();
+      return false;
+    }
+    sessionStorage.setItem("token", res.member.token);
+    store.dispatch("updateLoginInfo", res.member);
+
+    loginSuccess();
+  } catch (e) {
+    console.log("授权失败...", JSON.stringify(e));
     // toLogin();
   }
 }
@@ -91,10 +110,15 @@ export async function VerifySystem({ config, router }) {
 
   let agent = getAgent();
   let isVerify = sessionStorage.getItem("verifyLogin");
+  let agentSystem = sessionStorage.getItem("agentSystem");
   let token = sessionStorage.getItem("token");
   let originUrl = window.location.href;
   if (!isVerify) {
     sessionStorage.setItem("verifyLogin", true);
+  }
+
+  if (!agentSystem) {
+    sessionStorage.setItem("agentSystem", agent);
   }
 
   if (agent == "APP") {
@@ -132,22 +156,22 @@ export async function VerifySystem({ config, router }) {
       }
     }
   } else if (agent == "QY_WX" && config?.wxwork?.app_id) {
-    // let code = route.query.code || "";
-    // // let openId = localStorage.getItem("openId") || "";
-    // if (!code) {
-    //   let redirectUrl = `https://open.weixin.qq.com/connect/oauth2/authorize`;
-    //   let params = {
-    //     appid: config?.wxwork?.app_id,
-    //     redirect_uri: encodeURIComponent(originUrl),
-    //     response_type: "code",
-    //     scope: "snsapi_base",
-    //   };
-    //   window.location.href = `${redirectUrl}?appid=${params.appid}&redirect_uri=${params.redirect_uri}&response_type=${params.response_type}&scope=${params.scope}&state=1&connect_redirect=1#wechat_redirect`;
-    // } else {
-    //   console.log("企业微信-------------------");
-    //   console.log(window.location.href);
-    //   QYWX_LOGIN({ code });
-    // }
+    let code = getUrlKey("code");
+    // let openId = localStorage.getItem("openId") || "";
+    if (!code) {
+      let redirectUrl = `https://open.weixin.qq.com/connect/oauth2/authorize`;
+      let params = {
+        appid: config?.wxwork?.app_id,
+        redirect_uri: encodeURIComponent(originUrl),
+        response_type: "code",
+        scope: "snsapi_base",
+      };
+      window.location.href = `${redirectUrl}?appid=${params.appid}&redirect_uri=${params.redirect_uri}&response_type=${params.response_type}&scope=${params.scope}&state=1&connect_redirect=1#wechat_redirect`;
+    } else {
+      console.log("企业微信-------------------");
+      console.log(window.location.href);
+      QYWX_LOGIN({ code });
+    }
   } else if (agent == "DingTalk" && config?.dingtalk?.app_key) {
     // let dingCode = await getDingTalkCode(config?.dingtalk?.corp_id);
     // console.log("我获取了钉钉企业id，使用dd.ready获取了授权code", dingCode);

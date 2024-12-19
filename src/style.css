@@ -42,7 +42,7 @@
 }
 
 * {
-  font-family: AliRegular !important;
+  font-family: "AliRegular", "sans-serif" !important;
 }
 .van-icon::before {
   font-family: "vant-icon" !important;
@@ -319,4 +319,7 @@ div {
 
 img {
   will-change: transform;
+  image-rendering: crisp-edges; /* 适用于 SVG 或其他矢量图像 */
+  /* 或者 */
+  image-rendering: pixelated; /* 适用于像素化的图像 */
 }

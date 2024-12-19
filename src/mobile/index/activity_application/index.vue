@@ -279,7 +279,7 @@ const onApply = (id) => {
     .left_title {
       font-size: 15px;
       color: rgba(26, 73, 192, 1);
-      font-family: AliExtraBold !important;
+      font-family: AliHeavy !important;
     }
   }
 
