@@ -9,9 +9,7 @@ import { message } from "ant-design-vue";
 import moment from "moment";
 import { exchangeDateTime } from "@/utils";
 import {
-
   cancelSeatCollect,
-
   getOftenTime,
   getOftenTableList,
   getCollectTime,
@@ -163,35 +161,37 @@ const fetchTimeList = async () => {
   }
 };
 
-
-
 const dealwitchTime = (res) => {
-  if (res && res.code == 0 && res.data.length > 0) {
-    state.dates = res.data;
+  if (res && res.code == 0) {
+    if (res.data.length > 0) {
+      state.dates = res.data;
 
-    state.datesSelectList = res.data.map((item) => {
-      let label = "";
-      if (moment().format("YYYY-MM-DD") == item.day) {
-        label = "今天";
-      } else if (
-        exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == item.day
-      ) {
-        label = "明天";
-      } else if (moment().add(2, "days").format("YYYY-MM-DD") == item.day) {
-        label = "后天";
-      } else {
-        label = exchangeDateTime(item.day, 4);
-      }
-      return {
-        label,
-        value: moment(item.day).format("YYYY-MM-DD"),
-      };
-    });
-    console.log(state.datesSelectList);
-    state.dateValue = state.datesSelectList[0].value;
-    setTimeout(() => {
-      fetchTableList();
-    }, 1);
+      state.datesSelectList = res.data.map((item) => {
+        let label = "";
+        if (moment().format("YYYY-MM-DD") == item.day) {
+          label = "今天";
+        } else if (
+          exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == item.day
+        ) {
+          label = "明天";
+        } else if (moment().add(2, "days").format("YYYY-MM-DD") == item.day) {
+          label = "后天";
+        } else {
+          label = exchangeDateTime(item.day, 4);
+        }
+        return {
+          label,
+          value: moment(item.day).format("YYYY-MM-DD"),
+        };
+      });
+      console.log(state.datesSelectList);
+      state.dateValue = state.datesSelectList[0].value;
+      setTimeout(() => {
+        fetchTableList();
+      }, 1);
+    } else {
+      initTime();
+    }
   } else {
     console.log(res);
     initTime();
@@ -242,8 +242,6 @@ const fetchTableList = async () => {
     console.log(error);
   }
 };
-
-
 
 const onCancelCollect = async (record) => {
   showConfirmDialog({
@@ -298,9 +296,7 @@ const onApplyOrJumpDetail = (record) => {
 
 const onSeatAppt = async (record) => {
   try {
-    let findTimeRow = state.times?.find(
-      (e) => e?.show_time == state.timeValue
-    );
+    let findTimeRow = state.times?.find((e) => e?.show_time == state.timeValue);
     let params = {
       seat_id: record?.space_id,
       segment: record?.segment,
@@ -336,14 +332,11 @@ const onSeatAppt = async (record) => {
   } catch (e) {}
 };
 
-
-
-
 const onChangeDateOrTime = (e) => {
   if (state.activeKey == 1) {
     // 座位 模块  其实此层if可以去掉，因为时间选择模块 只有在座位模块下才显示
     fetchTableList();
-  } 
+  }
   // 空间 模块下没有时间选择
 };
 
@@ -369,10 +362,7 @@ const handleShow = (v) => {
 
 <template>
   <div class="table">
-    <a-tabs
-      v-model:activeKey="state.activeKey"
-      size="middle"
-    >
+    <a-tabs v-model:activeKey="state.activeKey" size="middle">
       <a-tab-pane key="1" tab="座位"></a-tab-pane>
       <a-tab-pane key="2" tab="空间"></a-tab-pane>
     </a-tabs>

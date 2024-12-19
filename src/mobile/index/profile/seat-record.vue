@@ -177,7 +177,7 @@ const fetchQuery = () => {
       @change="onChangeTab"
     >
       <a-tab-pane key="1" tab="普通座位"></a-tab-pane>
-      <a-tab-pane key="2" tab="考研座位"></a-tab-pane>
+      <a-tab-pane key="4" tab="考研座位"></a-tab-pane>
       <a-tab-pane key="3" tab="研习座位"></a-tab-pane>
     </a-tabs>
     <div
