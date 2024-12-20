@@ -12,6 +12,8 @@
 import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
+import { getActivityDetail, saveComments } from "@/request/activity-record";
+import MyActivityRecordShare from "@/components/MyActivityRecordShare.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -22,82 +24,7 @@ const state = reactive({
   status: "预约成功",
   quickMode: 1,
 
-  selectedDetails: {
-    time: [
-      {
-        date: "2024-10-26",
-        time: [
-          {
-            id: "1123",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 0,
-            teams_count: 0,
-          },
-        ],
-      },
-      {
-        date: "2024-10-27",
-        time: [
-          {
-            id: "1124",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 0,
-            teams_count: 0,
-          },
-        ],
-      },
-      {
-        date: "2024-10-28",
-        time: [
-          {
-            id: "1125",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 0,
-            teams_count: 0,
-          },
-        ],
-      },
-      {
-        date: "2024-10-29",
-        time: [
-          {
-            id: "1126",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 0,
-            teams_count: 0,
-          },
-        ],
-      },
-      {
-        date: "2024-10-30",
-        time: [
-          {
-            id: "1127",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 0,
-            teams_count: 0,
-          },
-        ],
-      },
-      {
-        date: "2024-10-31",
-        time: [
-          {
-            id: "1128",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 1,
-            teams_count: 1,
-          },
-        ],
-      },
-    ],
-  },
+  selectedDetails: {},
   selectedDate: "",
   selectedTimeList: [],
   appointmentTime: "",
@@ -107,6 +34,54 @@ const state = reactive({
   comments: "",
   onShare: false,
 });
+
+onMounted(() => {
+  fetch();
+});
+
+const fetch = async () => {
+  try {
+    let params = {
+      ilk: "1",
+      id: state.id,
+    };
+    const res = await getActivityDetail(params);
+    if (res?.code === 0) {
+      state.selectedDetails = res?.data;
+      onDealWithDate();
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const onDealWithDate = () => {
+  state.selectedDetails.time.forEach((dateItem) => {
+    // 检查当前日期的 time 数组
+    const hasSubscribed = dateItem.time.some((timeItem) => {
+      let isSelected = false;
+      if (timeItem.is_subscribe === 1) {
+        isSelected = true;
+        state.appointmentTime = timeItem.id;
+      }
+      return isSelected;
+    });
+
+    // 根据是否有 is_subscribe = 1 来设置 isSelected
+    dateItem.isAppointment = hasSubscribed;
+    if (hasSubscribed && state.selectedDate === "") {
+      state.selectedDate = dateItem.date;
+    }
+
+    if (dateItem.date === state.selectedDate) {
+      state.selectedTimeList = dateItem.time;
+    }
+  });
+  state.isShowDrawer = true;
+  // console.log(state.selectedDate);
+  // console.log(state.appointmentTime);
+  // console.log(state.selectedDetails.time);
+};
 
 const onChangeQMode = (value) => {
   state.quickMode = value;
@@ -121,31 +96,18 @@ const onSelectDate = (item) => {
   <div class="activity-record-details">
     <div class="content height_calc">
       <div class="top_swipe">
-        <van-swipe>
+        <van-swipe :autoplay="3000" v-if="state.selectedDetails?.poster">
           <van-swipe-item
-            ><van-image
+            v-for="item in state.selectedDetails?.poster"
+            :key="item?.file_path"
+          >
+            <van-image
               radius="10"
-              src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
+              :src="item?.file_path"
               alt="Empty state illustration"
-          /></van-swipe-item>
-          <van-swipe-item
-            ><van-image
-              radius="10"
-              src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-              alt="Empty state illustration"
-          /></van-swipe-item>
-          <van-swipe-item
-            ><van-image
-              radius="10"
-              src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-              alt="Empty state illustration"
-          /></van-swipe-item>
-          <van-swipe-item
-            ><van-image
-              radius="10"
-              src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-              alt="Empty state illustration"
-          /></van-swipe-item>
+            />
+          </van-swipe-item>
+
           <template #indicator="{ active, total }">
             <div class="custom-indicator">{{ active + 1 }}/{{ total }}</div>
           </template>
@@ -187,12 +149,12 @@ const onSelectDate = (item) => {
 
       <div class="item">
         <div class="item_left">活动状态</div>
-        <div class="item_right">{{ state.status }}</div>
+        <div class="item_right">{{ state.selectedDetails?.status_name }}</div>
       </div>
       <a-divider />
       <div class="item">
         <div class="item_left">活动名称</div>
-        <div class="item_right">{{ state.status }}</div>
+        <div class="item_right">{{ state.selectedDetails?.title }}</div>
       </div>
       <a-divider />
       <div class="item_data_time">
@@ -233,20 +195,21 @@ const onSelectDate = (item) => {
       <a-divider />
       <div class="item">
         <div class="item_left">报名人数</div>
-        <div class="item_right">{{ state.status }}</div>
+        <div class="item_right">xxx</div>
       </div>
       <a-divider />
       <div class="item">
         <div class="item_left">活动地点</div>
-        <div class="item_right">{{ state.status }}</div>
+        <div class="item_right">{{ state.selectedDetails?.nameMerge }}</div>
       </div>
       <a-divider />
       <div class="item_description">
         <div class="item_top">活动介绍</div>
         <div class="item_bottom">
-          活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍
+          {{ state.selectedDetails?.content }}
         </div>
       </div>
+      <a-divider />
       <div class="item_comments">
         <div class="item_comments_top">
           <div class="item_comments_left">活动评价</div>
@@ -254,13 +217,17 @@ const onSelectDate = (item) => {
             <img src="@/assets/my/activity-record/comments_edit.svg" alt="" />
           </div>
         </div>
-        <div class="item_comments_bottom">
-          活动评价活动评价活动评价活动评价活动评价活动评价活动评价活动评价活动评价活动评价活动评价活动评价活动评价活动评价活动评价
+        <div
+          class="item_comments_bottom"
+          v-for="item in state.selectedDetails?.comments"
+          :key="item.id"
+        >
+          {{ item.contents }}
         </div>
       </div>
     </div>
 
-    <div class="bottom_info_btn">
+    <div class="bottom_info_btn" v-if="state.selectedDetails?.status_name == '报名成功'">
       <a-button shape="round" block class="cancel_btn">取消报名</a-button>
     </div>
 
@@ -279,51 +246,10 @@ const onSelectDate = (item) => {
       />
     </van-dialog>
     <van-popup v-model:show="state.onShare" round class="share-popup">
-      <div class="share-popup-container">
-        <div class="share-popup-content">
-          <van-image
-            src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-            alt="Empty state illustration"
-          />
-          <div class="share-popup-title">XXX学院-XXX活动</div>
-          <div class="share-popup-item">活动地点</div>
-          <div class="share-popup-item_value">xxxxxxxxxxxx</div>
-          <div class="share-popup-item">活动时间</div>
-          <div class="share-popup-item_value">
-            2024-10-26 08:00 ~ 2024-10-26 12:00
-          </div>
-        </div>
-        <div class="share-popup-scan">
-          <div class="share-popup-scan-text">扫码查看活动详情>></div>
-          <van-image
-            class="share-popup-scan-image"
-            src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-            alt="Empty state illustration"
-          />
-        </div>
-      </div>
-      <div class="share-popup-footer">
-        <button class="footer-button" @click="goToLink('/mo/...')">
-          保存图片
-        </button>
-        <div class="divider"></div>
-        <a-button
-          type="text"
-          class="share-button"
-          plain
-          @click="state.onShare = false"
-        >
-          <img src="@/assets/my/mobile_event_details_share.svg" style="margin-right: 5px;" alt="" />
-          分享
-        </a-button>
-      </div>
-      <div class="share-popup-close">
-        <img
-          src="@/assets/my/mobile_event_details_close.svg"
-          @click="state.onShare = false"
-          alt=""
-        />
-      </div>
+      <MyActivityRecordShare
+        :data="state.selectedDetails"
+        @onClose="state.onShare = false"
+      />
     </van-popup>
   </div>
 </template>
@@ -365,7 +291,7 @@ const onSelectDate = (item) => {
         align-items: center;
         .toggleLang {
           width: 140px;
-          height: 28px;
+          height: 38px;
           padding: 4px;
           background: #333f6c;
           border-radius: 21px;

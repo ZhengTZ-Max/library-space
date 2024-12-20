@@ -23,6 +23,11 @@ const state = reactive({
   itemDetails: {},
 
   activeKey: "1",
+  activeKeyList: [
+    { value: "1", label: "普通座位" },
+    { value: "4", label: "考研座位" },
+    { value: "3", label: "研习座位" },
+  ],
   currentPage: 1,
   pageSize: 10,
   total: 0,
@@ -61,14 +66,16 @@ const state = reactive({
   },
 });
 
-const onChangeTab = (key) => {
-  state.activeKey = key;
-  if (state.quickMode == "3") {
-    state.quickMode = "1";
+watch(
+  () => state.activeKey,
+  () => {
+    if (state.quickMode == "3") {
+      state.quickMode = "1";
+    }
+    state.currentPage = 1;
+    fetch();
   }
-  state.currentPage = 1;
-  fetch();
-};
+);
 
 const onChangeQMode = (row) => {
   if (state.activeKey == "1") {
@@ -125,11 +132,18 @@ const fetchSeatRecordList = async () => {
     state.loading = false;
     state.refreshing = false;
     if (res?.code === 0) {
-      state.data = res?.data?.data || [];
+      if (state.currentPage === 1) {
+        state.data = res?.data?.data || [];
+      } else {
+        state.data.push(...res?.data?.data);
+      }
       state.total = res?.data?.total;
+      state.finished = res?.data?.current_page >= res?.data?.last_page || true;
+    } else {
+      state.data = [];
+      state.finished = true;
+      state.total = 0;
     }
-
-    state.finished = res?.data?.current_page >= res?.data?.last_page || true;
   } catch (error) {
     state.loading = false;
     state.refreshing = false;
@@ -146,14 +160,25 @@ const fetchSeatRenegeList = async () => {
     state.loading = false;
     state.refreshing = false;
     if (res?.code === 0) {
-      state.data = res?.data?.data || [];
+      if (state.currentPage === 1) {
+        state.data = res?.data?.data || [];
+      } else {
+        state.data.push(...res?.data?.data);
+      }
       state.total = res?.data?.total;
+      state.finished = res?.data?.current_page >= res?.data?.last_page || true;
+    } else {
+      state.data = [];
+      state.finished = true;
+      state.total = 0;
     }
-    state.finished = res?.data?.current_page >= res?.data?.last_page || true;
   } catch (error) {
     state.loading = false;
     state.refreshing = false;
     state.finished = true;
+    state.data = [];
+    state.total = 0;
+    console.log(error);
   }
 };
 
@@ -170,16 +195,19 @@ const fetchQuery = () => {
 </script>
 <template>
   <div class="area-record">
-    <a-tabs
-      v-model:activeKey="state.activeKey"
-      class="top_tabs"
-      size="middle"
-      @change="onChangeTab"
-    >
-      <a-tab-pane key="1" tab="普通座位"></a-tab-pane>
-      <a-tab-pane key="4" tab="考研座位"></a-tab-pane>
-      <a-tab-pane key="3" tab="研习座位"></a-tab-pane>
-    </a-tabs>
+    <div class="cHeader">
+      <div class="quickMode">
+        <div
+          v-for="item in state.activeKeyList"
+          :key="item.label"
+          class="item activeBtn"
+          :class="{ itemActive: item?.value == state.activeKey }"
+          @click="state.activeKey = item?.value"
+        >
+          {{ item?.label }}
+        </div>
+      </div>
+    </div>
     <div
       class="quickBtns margin_top_10"
       :class="{
@@ -205,6 +233,7 @@ const fetchQuery = () => {
       @refresh="onRefresh"
     >
       <van-list
+        v-if="state.data.length > 0"
         v-model:loading="state.loading"
         :finished="state.finished"
         finished-text="没有更多了"
@@ -246,6 +275,7 @@ const fetchQuery = () => {
           </div>
         </div>
       </van-list>
+      <a-empty v-else />
     </van-pull-refresh>
 
     <div v-if="state.quickMode == 3" class="query_result">
@@ -308,13 +338,11 @@ const fetchQuery = () => {
       </div>
     </div>
 
-    <a-drawer
-      width="100%"
-      height="100%"
-      placement="bottom"
-      :closable="false"
-      :open="state.showItemDetails"
-      destroyOnClose
+    <van-popup
+      v-model:show="state.showItemDetails"
+      position="bottom"
+      :style="{ height: '100%' }"
+      destroy-on-close
     >
       <div class="libraryPop">
         <SeatRecordDetails :data="state.itemDetails" />
@@ -330,7 +358,7 @@ const fetchQuery = () => {
           </van-button>
         </div>
       </div>
-    </a-drawer>
+    </van-popup>
   </div>
 </template>
 <style lang="less" scoped>
@@ -342,6 +370,24 @@ const fetchQuery = () => {
     background-color: #fff;
     padding-left: 10px !important;
   }
+  .cHeader {
+    padding: 10px 14px 0 10px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .quickMode {
+    display: flex;
+    gap: 20px;
+    .item {
+      padding-bottom: 10px;
+      font-size: 15px;
+      color: #616161;
+
+      &.itemActive {
+        color: #202020;
+        border-bottom: 2px solid #1a49c0;
+      }
+    }
+  }
   .margin_top_10 {
     margin-top: 10px;
   }
@@ -351,7 +397,7 @@ const fetchQuery = () => {
   }
   .width_270 {
     margin-left: 10px;
-    width: 270px;
+    width: 280px;
   }
   .item_list {
     position: relative;
@@ -498,7 +544,6 @@ const fetchQuery = () => {
 
   :deep(.area-record-details) {
     flex: 1;
-    padding: 14px;
   }
   .bottomAction {
     padding: 12px;
@@ -521,9 +566,10 @@ const fetchQuery = () => {
   margin-bottom: 0px !important;
 }
 :deep(.van-pull-refresh) {
-  height: 100% !important;
+  height: 150% !important;
 }
 :deep(.ant-btn-sm) {
   font-size: 12px !important;
 }
+
 </style>

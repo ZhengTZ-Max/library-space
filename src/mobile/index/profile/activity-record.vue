@@ -23,6 +23,12 @@ const router = useRouter();
 
 const state = reactive({
   activeKey: "1",
+
+  activeKeyList: [
+    { value: "1", label: "申请记录" },
+    { value: "2", label: "报名记录" },
+    { value: "3", label: "草稿箱" },
+  ],
   currentPage: 1,
   pageSize: 10,
   total: 0,
@@ -45,8 +51,16 @@ const state = reactive({
 });
 
 onMounted(() => {
-  // fetch();
+  fetch();
 });
+
+watch(
+  () => state.activeKey,
+  () => {
+    state.currentPage = 1;
+    fetch();
+  }
+);
 
 const onRefresh = () => {
   state.currentPage = 1;
@@ -79,13 +93,14 @@ const fetch = async () => {
     } else {
       state.data = [];
       state.finished = true;
+      state.total = 0;
     }
-
   } catch (error) {
     state.loading = false;
     state.refreshing = false;
     state.finished = true;
     state.data = [];
+    state.total = 0;
     console.log(error);
   }
 };
@@ -125,76 +140,35 @@ const onClickItem = (id) => {
 
 <template>
   <div class="activityRecord">
-    <a-tabs
-      v-model:activeKey="state.activeKey"
-      class="top_tabs"
-      size="middle"
-      @change="onChangeTab"
-    >
-      <a-tab-pane key="1" tab="申请记录"></a-tab-pane>
-      <a-tab-pane key="2" tab="报名记录"></a-tab-pane>
-      <a-tab-pane key="3" tab="草稿箱"></a-tab-pane>
-    </a-tabs>
-    <div class="item" v-if="state.activeKey !== '3'" @click="onClickItem('1')">
-      <div class="item_title">11111</div>
-      <div
-        class="rigthBadge basicsBadge"
-        :class="{
-          status_not_started: state?.status_name === '未开始',
-          status_in_registration: state?.status_name === '报名中',
-          status_in_progress: state?.status_name === '进行中',
-          status_end: state?.status_name === '已结束',
-          status_success: state?.status_name === '报名成功',
-        }"
-      >
-        {{ state?.status_name }}
-      </div>
-      <van-image
-        radius="10"
-        src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-        alt="Empty state illustration"
-      />
-      <div class="item_bottom">
-        <div class="event-location">
-          <img src="@/assets/event/seat.svg" alt="Location" />
-          <span>1111</span>
-        </div>
-        <div class="event-time">
-          <img src="@/assets/event/time.svg" alt="Time" />
-          <div class="timeList">
-            <span>1111</span>
-          </div>
+
+    <div class="cHeader">
+      <div class="quickMode">
+        <div
+          v-for="item in state.activeKeyList"
+          :key="item.label"
+          class="item activeBtn"
+          :class="{ itemActive: item?.value == state.activeKey }"
+          @click="state.activeKey = item?.value"
+        >
+          {{ item?.label }}
         </div>
       </div>
     </div>
-    <div class="item" v-if="state.activeKey == '3'" @click="onClickItem('1')">
-      <div class="item_title">11111</div>
-      <van-image
-        radius="10"
-        src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-        alt="Empty state illustration"
-      />
-      <div class="item_bottom_draft" @click="onClickDraftEdit('1')">
-        <div class="draft_left">1111</div>
-        <div class="draft_right">
-          <div class="draft_time">编辑</div>
-          <img src="@/assets/my/mobile_event_edit_draft.svg" alt="Edit" />
-        </div>
-      </div>
-    </div>
-    <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
+
+    <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh" >
       <van-list
+        v-if="state.data.length > 0"
         v-model:loading="state.loading"
         :finished="state.finished"
         finished-text="没有更多了"
         @load="onLoad"
       >
         <div
-          class="item"
+          class="item_list"
           v-if="state.activeKey !== '3'"
           v-for="item in state.data"
           :key="item?.id"
-          @click="onClickItem(item)"
+          @click="onClickItem(item?.id)"
         >
           <div class="item_title">{{ item?.title }}</div>
           <div
@@ -203,7 +177,9 @@ const onClickItem = (id) => {
               status_not_started: item?.status_name === '未开始',
               status_in_registration: item?.status_name === '报名中',
               status_in_progress: item?.status_name === '进行中',
-              status_end: item?.status_name === '已结束',
+              status_end:
+                item?.status_name === '已结束' ||
+                item?.status_name === '审核未通过',
               status_success: item?.status_name === '报名成功',
             }"
           >
@@ -227,7 +203,7 @@ const onClickItem = (id) => {
           </div>
         </div>
         <div
-          class="item"
+          class="item_list"
           v-if="state.activeKey == '3'"
           v-for="item in state.data"
           :key="item?.id"
@@ -248,6 +224,7 @@ const onClickItem = (id) => {
           </div>
         </div>
       </van-list>
+      <a-empty v-else />
     </van-pull-refresh>
   </div>
 </template>
@@ -257,12 +234,27 @@ const onClickItem = (id) => {
   overflow: auto;
   background-color: #fafafa;
 
-  .top_tabs {
+
+  .cHeader {
     background-color: #fff;
-    padding-left: 10px !important;
-    padding-bottom: 0px !important;
+    padding: 10px 14px 0 10px;
+    border-bottom: 1px solid #f5f5f5;
   }
-  .item {
+  .quickMode {
+    display: flex;
+    gap: 20px;
+    .item {
+      padding-bottom: 10px;
+      font-size: 15px;
+      color: #616161;
+      &.itemActive {
+        color: #202020;
+        border-bottom: 2px solid #1a49c0;
+      }
+    }
+  }
+
+  .item_list {
     border-radius: 10px;
     background: #fff;
     padding: 10px;
@@ -270,6 +262,7 @@ const onClickItem = (id) => {
     margin-right: 10px;
     margin-top: 10px;
     position: relative;
+    margin-bottom: 30px;
 
     .item_title {
       font-size: 14px;
@@ -353,7 +346,8 @@ const onClickItem = (id) => {
 :deep(.ant-tabs-nav) {
   margin-bottom: 0px !important;
 }
+
 :deep(.van-pull-refresh) {
-  height: 100% !important;
+  height: 120vh !important;
 }
 </style>

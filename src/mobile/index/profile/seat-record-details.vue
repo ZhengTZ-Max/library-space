@@ -110,7 +110,7 @@ onMounted(() => {
   overflow: auto;
   display: flex;
   flex-direction: column;
-  background-color: #fafafa;
+
   .height_calc {
     height: calc(100% - 50px);
   }

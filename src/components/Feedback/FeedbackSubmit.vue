@@ -17,7 +17,35 @@ const props = defineProps({
   },
 });
 const state = reactive({
-  propsData: {},
+  propsData: {
+    categoryList: [],
+    submitType: "",
+    categoryAreaList: [],
+    categoryAreaId: "",
+    categoryTypeList: [],
+    categoryTypeId: "",
+    categoryInputContent: "",
+    
+    phone: "",
+    email: "",
+
+    ilkList: [],
+    ilkTypeList: [],
+    ilkTypeId: "",
+    ilkAreaID: "",
+    ilkAddressList: [],
+
+    concatenatedNames: "",
+    ilkSeat: "",
+    ilkIsStop: 0,
+    ilkMobile: "",
+    ilkContent: "",
+    ilkTypeIsSpace: false,
+    ilkTypeHaveRegion: false,
+
+
+    fileList: [],
+  },
   filterSource: {
     ilkAreaList: [],
     ilkFloorList: [],
@@ -30,6 +58,8 @@ const state = reactive({
   },
 
   isShowIlkAreaDrawer: false,
+ 
+  
 });
 onMounted(() => {
   state.propsData = props?.data || {};
@@ -51,6 +81,14 @@ const handleCategoryChange = (value) => {
 
 const handleIlkChange = (value) => {
   let ilk = state.propsData.ilkList.find((item) => item.id == value);
+  state.propsData.ilkTypeIsSpace = ilk.id == 10;
+  if (ilk.is_region) {
+    state.propsData.ilkTypeHaveRegion = true;
+  } else {
+    state.propsData.ilkTypeHaveRegion = false;
+  }
+  console.log(state.propsData.ilkTypeHaveRegion);
+
   fetchGetIlkAddress(ilk.is_region);
 };
 
@@ -61,15 +99,25 @@ const handleIlkAreaClick = () => {
     message.warning("请选择报修类型");
   }
 };
+const initFilter = () => {
+  state.filterSource = {
+    ilkAreaList: [],
+    ilkFloorList: [],
+    ilkSpaceList: [],
+  };
+  state.filterSearch = {
+    ilkAreaID: "",
+    ilkFloorID: "",
+    ilkSpaceID: "",
+  };
+  state.propsData.concatenatedNames = "";
+  state.propsData.ilkAreaID = "";
+};
 
 const fetchGetIlkAddress = async (id) => {
   try {
     const res = await getIlkAddress(id);
-    state.filterSource = {
-      ilkAreaList: [],
-      ilkFloorList: [],
-      ilkSpaceList: [],
-    };
+    initFilter();
     if (res.code == 0) {
       state.propsData.ilkAddressList = res.data;
       let list = res.data;
@@ -97,6 +145,7 @@ const handleFilter = () => {
       state.filterSearch.ilkAreaID &&
       item.id == state.filterSearch.ilkAreaID
     ) {
+      state.propsData.ilkAreaID = item.id;
       names.push(item.name);
     }
     if (
@@ -117,7 +166,26 @@ const handleFilter = () => {
   console.log(state.propsData.concatenatedNames);
   state.isShowIlkAreaDrawer = false;
 };
+const fileUpload = (data, type) => {
+  console.log(data, type);
+  if (type == "feedback") {
+    state.propsData.fileList = filterFileUpload(data);
+  }
+};
 
+const filterFileUpload = (files) => {
+  let list = files || [];
+
+  list = list.map((e) => {
+    let fileRow = {};
+    if (e?.status == "done" && e?.response?.code == 0) {
+      fileRow = e?.response?.data;
+    }
+    return fileRow;
+  });
+
+  return list;
+};
 </script>
 <template>
   <div class="feedback_submit">
@@ -177,10 +245,10 @@ const handleFilter = () => {
           <Uploader
             filePath="feedback"
             :maxCount="1"
-            @onFileUpload="(v) => fileUpload(v)"
+            @onFileUpload="(v) => fileUpload(v, 'feedback')"
             accept="image/jpeg,image/png,image/bmp"
             list-type="picture-card"
-            :showUploadList="false"
+            :showUploadList="true"
           >
             <img src="@/assets/feedback_uploadimg.svg" alt="" />
           </Uploader>
@@ -240,7 +308,12 @@ const handleFilter = () => {
           }}
         </div>
       </a-flex>
-      <a-flex class="feedback_item" gap="middle" align="center">
+      <a-flex
+        class="feedback_item"
+        gap="middle"
+        align="center"
+        v-if="!state.propsData.ilkTypeIsSpace"
+      >
         <div>报修座位：</div>
         <div style="flex: 1">
           <a-input
@@ -285,10 +358,10 @@ const handleFilter = () => {
           <Uploader
             filePath="feedback"
             :maxCount="1"
-            @onFileUpload="(v) => fileUpload(v)"
+            @onFileUpload="(v) => fileUpload(v, 'feedback')"
             accept="image/jpeg,image/png,image/bmp"
             list-type="picture-card"
-            :showUploadList="false"
+            :showUploadList="true"
           >
             <img src="@/assets/feedback_uploadimg.svg" alt="" />
           </Uploader>

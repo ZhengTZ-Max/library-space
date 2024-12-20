@@ -13,6 +13,13 @@ import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 
+import { getActivityDetail, saveComments } from "@/request/activity-record";
+import MyActivityRecordShare from "@/components/MyActivityRecordShare.vue";
+
+import Uploader from "@/components/Uploader.vue";
+import PDFICON from "@/assets/common/pdfIcon.png";
+import DOCICON from "@/assets/common/docIcon.png";
+
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
@@ -22,82 +29,15 @@ const state = reactive({
   status: "预约成功",
   quickMode: 1,
 
-  selectedDetails: {
-    time: [
-      {
-        date: "2024-10-26",
-        time: [
-          {
-            id: "1123",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 0,
-            teams_count: 0,
-          },
-        ],
-      },
-      {
-        date: "2024-10-27",
-        time: [
-          {
-            id: "1124",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 0,
-            teams_count: 0,
-          },
-        ],
-      },
-      {
-        date: "2024-10-28",
-        time: [
-          {
-            id: "1125",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 0,
-            teams_count: 0,
-          },
-        ],
-      },
-      {
-        date: "2024-10-29",
-        time: [
-          {
-            id: "1126",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 0,
-            teams_count: 0,
-          },
-        ],
-      },
-      {
-        date: "2024-10-30",
-        time: [
-          {
-            id: "1127",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 0,
-            teams_count: 0,
-          },
-        ],
-      },
-      {
-        date: "2024-10-31",
-        time: [
-          {
-            id: "1128",
-            start_time: "08:00",
-            end_time: "12:00",
-            is_subscribe: 1,
-            teams_count: 1,
-          },
-        ],
-      },
-    ],
-  },
+  isEdit: false,
+
+  poster: [],
+  approve: [],
+  publicize: [],
+  plan: [],
+  materials: [],
+
+  selectedDetails: {},
   selectedDate: "",
   selectedTimeList: [],
   appointmentTime: "",
@@ -110,6 +50,46 @@ const state = reactive({
   onShare: false,
 });
 
+onMounted(() => {
+  fetch();
+});
+
+const fetch = async () => {
+  try {
+    let params = {
+      ilk: "1",
+      id: state.id,
+    };
+    const res = await getActivityDetail(params);
+    if (res?.code === 0) {
+      state.selectedDetails = res?.data;
+
+      // 海报
+      if (state.selectedDetails?.poster) {
+        state.poster = state.selectedDetails?.poster;
+      }
+      // 审批附件
+      if (state.selectedDetails?.approve) {
+        state.approve = state.selectedDetails?.approve;
+      }
+      // 活动策划案
+      if (state.selectedDetails?.publicize) {
+        state.publicize = state.selectedDetails?.publicize;
+      }
+      // 宣传片
+      if (state.selectedDetails?.plan) {
+        state.plan = state.selectedDetails?.plan;
+      }
+      // 其他活动材料
+      if (state.selectedDetails?.materials) {
+        state.materials = state.selectedDetails?.materials;
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const onChangeQMode = (value) => {
   state.quickMode = value;
 };
@@ -118,30 +98,68 @@ const onSelectDate = (item) => {
   state.selectedDate = item.date;
   state.selectedTimeList = item.time;
 };
+
+const getFileIcon = (fileExt) => {
+  switch (fileExt) {
+    case "pdf":
+      return PDFICON; // PDF 图标
+    case "doc":
+    case "docx":
+      return DOCICON; // Word 图标
+    case "xls":
+    case "xlsx":
+      return require("@/assets/common/excelIcon.png"); // Excel 图标
+    default:
+      return require("@/assets/common/defaultIcon.png"); // 默认图标
+  }
+};
+
+const fileUpload = (data, type) => {
+  console.log(data, type);
+  if (type == "poster") {
+    state.poster = filterFileUpload(data);
+  } else if (type == "approve") {
+    state.approve = filterFileUpload(data);
+  } else if (type == "publicize") {
+    state.publicize = filterFileUpload(data);
+  } else if (type == "plan") {
+    state.plan = filterFileUpload(data);
+  } else if (type == "materials") {
+    state.materials = filterFileUpload(data);
+  }
+
+  console.log(state);
+};
+
+const filterFileUpload = (files) => {
+  let list = files || [];
+
+  list = list.map((e) => {
+    let fileRow = {};
+    if (e?.status == "done" && e?.response?.code == 0) {
+      fileRow = e?.response?.data;
+    }
+    return fileRow;
+  });
+
+  return list;
+};
 </script>
 <template>
   <div class="activity-record-details">
     <div class="content height_calc">
       <div class="top_swipe">
-        <van-swipe>
+        <van-swipe :autoplay="3000" v-if="state.selectedDetails?.poster">
           <van-swipe-item
-            ><van-image
+            v-for="item in state.selectedDetails?.poster"
+            :key="item?.file_path"
+          >
+            <van-image
               radius="10"
-              src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
+              :src="item?.file_path"
               alt="Empty state illustration"
-          /></van-swipe-item>
-          <van-swipe-item
-            ><van-image
-              radius="10"
-              src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-              alt="Empty state illustration"
-          /></van-swipe-item>
-          <van-swipe-item
-            ><van-image
-              radius="10"
-              src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-              alt="Empty state illustration"
-          /></van-swipe-item>
+            />
+          </van-swipe-item>
 
           <template #indicator="{ active, total }">
             <div class="custom-indicator">{{ active + 1 }}/{{ total }}</div>
@@ -184,15 +202,18 @@ const onSelectDate = (item) => {
 
       <div class="item">
         <div class="item_left">活动状态</div>
-        <div class="item_right">{{ state.status }}</div>
+        <div class="item_right">{{ state.selectedDetails?.status_name }}</div>
       </div>
       <a-divider />
       <div class="item_can_edit">
         <div class="item_can_edit_top">
           <div>活动名称</div>
           <div class="item_can_edit_right">
-            <div class="item_right">活动名称</div>
-            <div v-if="false" @click="state.onShowTextAreaForName = true">
+            <div class="item_right">{{ state.selectedDetails?.title }}</div>
+            <div
+              v-if="state.isEdit"
+              @click="state.onShowTextAreaForName = true"
+            >
               <img src="@/assets/my/activity-record/comments_edit.svg" alt="" />
             </div>
           </div>
@@ -201,29 +222,35 @@ const onSelectDate = (item) => {
       <a-divider />
       <div class="item">
         <div class="item_left">活动日期</div>
-        <div class="item_right">{{ state.status }}</div>
+        <div class="item_right">
+          {{ state.selectedDetails?.begin_date }} ~
+          {{ state.selectedDetails?.end_date }}
+        </div>
       </div>
       <a-divider />
       <div class="item">
         <div class="item_left">活动时间</div>
-        <div class="item_right">{{ state.status }}</div>
+        <div class="item_right">
+          {{ state.selectedDetails?.begin_time }} ~
+          {{ state.selectedDetails?.end_time }}
+        </div>
       </div>
       <a-divider />
       <div class="item">
         <div class="item_left">可报名人数</div>
-        <div class="item_right">{{ state.status }}</div>
+        <div class="item_right">{{ state.selectedDetails?.max }}</div>
       </div>
       <a-divider />
       <div class="item">
         <div class="item_left">活动地点</div>
-        <div class="item_right">{{ state.status }}</div>
+        <div class="item_right">{{ state.selectedDetails?.nameMerge }}</div>
       </div>
       <a-divider />
       <div class="item_can_edit">
         <div class="item_can_edit_top">
           <div class="item_comments_left">活动介绍</div>
           <div
-            v-if="false"
+            v-if="state.isEdit"
             class="item_can_edit_right"
             @click="state.onShowTextAreaForDescription = true"
           >
@@ -231,47 +258,241 @@ const onSelectDate = (item) => {
           </div>
         </div>
         <div class="item_can_edit_bottom">
-          活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍活动介绍
+          {{ state.selectedDetails?.content }}
         </div>
       </div>
       <a-divider />
       <!-- 不可编辑 文件列表 -->
-      <div class="item_for_file">
-        <div class="item_for_file_title">活动文件</div>
-        <div class="item_for_file_content">
-          <van-image
-            style="width: 45px; height: 45px"
-            src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-            alt="Empty state illustration"
-          />
-          <div class="item_for_file_item">
-            <div class="item_for_file_item_left">文件名称xxx</div>
-            <div class="item_for_file_item_right">10.85KB</div>
+      <div v-if="!state.isEdit">
+        <div class="item_for_file" v-if="state.selectedDetails?.approve">
+          <div class="item_for_file_title">审批附件</div>
+          <div class="item_for_file_content">
+            <van-image
+              style="width: 45px; height: 45px"
+              :src="getFileIcon(state.selectedDetails?.approve[0]?.file_ext)"
+              alt="Empty state illustration"
+            />
+            <div class="item_for_file_item">
+              <div class="item_for_file_item_left">
+                {{ state.selectedDetails?.approve[0]?.file_name }}
+              </div>
+              <div class="item_for_file_item_right">
+                {{ state.selectedDetails?.approve[0]?.file_size }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <a-divider />
+        <div class="item_for_file" v-if="state.selectedDetails?.plan">
+          <div class="item_for_file_title">活动策划案</div>
+          <div class="item_for_file_content">
+            <van-image
+              style="width: 45px; height: 45px"
+              :src="getFileIcon(state.selectedDetails?.plan[0]?.file_ext)"
+              alt="Empty state illustration"
+            />
+            <div class="item_for_file_item">
+              <div class="item_for_file_item_left">
+                {{ state.selectedDetails?.plan[0]?.file_name }}
+              </div>
+              <div class="item_for_file_item_right">
+                {{ state.selectedDetails?.plan[0]?.file_size }}
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <a-divider />
       <!-- 可编辑 文件列表 -->
-      <div class="item_for_file">
-        <div class="item_for_file_title">
-          <div><span style="color: red">*</span>审批文件</div>
-          <div class="item_for_file_title_right_upload">+图片</div>
-        </div>
-        <div class="item_for_file_content">
-          <van-image
-            style="width: 45px; height: 45px"
-            src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-            alt="Empty state illustration"
-          />
-          <div class="item_for_file_item">
-            <div class="item_for_file_item_left">文件名称xxx</div>
-            <div class="item_for_file_item_right">10.85KB</div>
+      <div v-if="state.isEdit">
+        <!-- 活动海报 -->
+        <div class="item_for_file">
+          <div class="item_for_file_title">
+            <div><span style="color: red">*</span>活动海报</div>
+            <Uploader
+              :initFileList="state.poster"
+              filePath="activity"
+              :maxCount="1"
+              :showUploadList="false"
+              @onFileUpload="(v) => fileUpload(v, 'poster')"
+              accept=".png, .jpg, .jpeg"
+              list-type="picture"
+            >
+              <div class="item_for_file_title_right_upload">+图片</div>
+            </Uploader>
           </div>
-          <img
-            style="width: 20px; height: 20px"
-            src="@/assets/my/mobile_event_details_remove.svg"
-            alt="Empty state illustration"
-          />
+          <div class="item_for_file_content" v-if="state.poster.length > 0">
+            <van-image
+              style="width: 45px; height: 45px"
+              :src="state.poster[0]?.file_path"
+              alt="Empty state illustration"
+            />
+            <div class="item_for_file_item">
+              <div class="item_for_file_item_left">
+                {{ state.poster[0]?.file_name }}
+              </div>
+              <div class="item_for_file_item_right">
+                {{ state.poster[0]?.file_size }}
+              </div>
+            </div>
+            <img
+              style="width: 20px; height: 20px"
+              src="@/assets/my/mobile_event_details_remove.svg"
+              alt="Empty state illustration"
+            />
+          </div>
+        </div>
+        <a-divider />
+        <!-- 审批附件 -->
+        <div class="item_for_file">
+          <div class="item_for_file_title">
+            <div><span style="color: red">*</span>审批附件</div>
+            <Uploader
+              :initFileList="state.approve"
+              filePath="activity"
+              :maxCount="1"
+              :showUploadList="false"
+              @onFileUpload="(v) => fileUpload(v, 'approve')"
+              accept="application/pdf,application/msword"
+              list-type="picture"
+            >
+              <div class="item_for_file_title_right_upload">+Word/PDF</div>
+            </Uploader>
+          </div>
+          <div class="item_for_file_content" v-if="state.approve.length > 0">
+            <van-image
+              style="width: 45px; height: 45px"
+              :src="getFileIcon(state.approve[0]?.file_ext)"
+              alt="Empty state illustration"
+            />
+            <div class="item_for_file_item">
+              <div class="item_for_file_item_left">
+                {{ state.approve[0]?.file_name }}
+              </div>
+              <div class="item_for_file_item_right">
+                {{ state.approve[0]?.file_size }}
+              </div>
+            </div>
+            <img
+              style="width: 20px; height: 20px"
+              src="@/assets/my/mobile_event_details_remove.svg"
+              alt="Empty state illustration"
+            />
+          </div>
+        </div>
+        <a-divider />
+        <!-- 宣传片 -->
+        <div class="item_for_file">
+          <div class="item_for_file_title">
+            <div>宣传片</div>
+            <Uploader
+              :initFileList="state.plan"
+              filePath="activity"
+              :maxCount="1"
+              :showUploadList="false"
+              @onFileUpload="(v) => fileUpload(v, 'plan')"
+              accept=".mp4,.mov"
+              list-type="picture"
+            >
+              <div class="item_for_file_title_right_upload">+视频</div>
+            </Uploader>
+          </div>
+          <div class="item_for_file_content" v-if="state.plan.length > 0">
+            <van-image
+              style="width: 45px; height: 45px"
+              :src="state.plan[0]?.file_path"
+              alt="Empty state illustration"
+            />
+            <div class="item_for_file_item">
+              <div class="item_for_file_item_left">
+                {{ state.approve[0]?.file_name }}
+              </div>
+              <div class="item_for_file_item_right">
+                {{ state.approve[0]?.file_size }}
+              </div>
+            </div>
+            <img
+              style="width: 20px; height: 20px"
+              src="@/assets/my/mobile_event_details_remove.svg"
+              alt="Empty state illustration"
+            />
+          </div>
+        </div>
+        <a-divider />
+        <!-- 活动策划案 -->
+        <div class="item_for_file">
+          <div class="item_for_file_title">
+            <div><span style="color: red">*</span>活动策划案</div>
+            <Uploader
+              :initFileList="state.plan"
+              filePath="activity"
+              :maxCount="1"
+              :showUploadList="false"
+              @onFileUpload="(v) => fileUpload(v, 'plan')"
+              accept="application/pdf,application/msword"
+              list-type="picture"
+            >
+              <div class="item_for_file_title_right_upload">+Word/PDF</div>
+            </Uploader>
+          </div>
+          <div class="item_for_file_content" v-if="state.plan.length > 0">
+            <van-image
+              style="width: 45px; height: 45px"
+              :src="getFileIcon(state.plan[0]?.file_ext)"
+              alt="Empty state illustration"
+            />
+            <div class="item_for_file_item">
+              <div class="item_for_file_item_left">
+                {{ state.plan[0]?.file_name }}
+              </div>
+              <div class="item_for_file_item_right">
+                {{ state.plan[0]?.file_size }}
+              </div>
+            </div>
+            <img
+              style="width: 20px; height: 20px"
+              src="@/assets/my/mobile_event_details_remove.svg"
+              alt="Empty state illustration"
+            />
+          </div>
+        </div>
+        <a-divider />
+        <!-- 其他申请材料 -->
+        <div class="item_for_file">
+          <div class="item_for_file_title">
+            <div>其他申请材料</div>
+            <Uploader
+              :initFileList="state.materials"
+              filePath="activity"
+              :maxCount="1"
+              :showUploadList="false"
+              @onFileUpload="(v) => fileUpload(v, 'materials')"
+              accept="application/pdf,application/msword"
+              list-type="picture"
+            >
+              <div class="item_for_file_title_right_upload">+Word/PDF</div>
+            </Uploader>
+          </div>
+          <div class="item_for_file_content" v-if="state.materials.length > 0">
+            <van-image
+              style="width: 45px; height: 45px"
+              :src="getFileIcon(state.materials[0]?.file_ext)"
+              alt="Empty state illustration"
+            />
+            <div class="item_for_file_item">
+              <div class="item_for_file_item_left">
+                {{ state.materials[0]?.file_name }}
+              </div>
+              <div class="item_for_file_item_right">
+                {{ state.materials[0]?.file_size }}
+              </div>
+            </div>
+            <img
+              style="width: 20px; height: 20px"
+              src="@/assets/my/mobile_event_details_remove.svg"
+              alt="Empty state illustration"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -279,18 +500,24 @@ const onSelectDate = (item) => {
     <!-- <div class="bottom_info_btn">
       <a-button shape="round" block class="cancel_btn">取消报名</a-button>
     </div> -->
-    <div class="bottomAct">
+    <div
+      class="bottomAct"
+      v-if="state.selectedDetails?.status_name == '等待审核' && !state.isEdit"
+    >
       <van-button round block type="default">取消申请</van-button>
-      <van-button round block type="primary" @click="handleFilter"
+      <van-button round block type="primary" @click="state.isEdit = true"
         >重新编辑</van-button
       >
     </div>
-    <!-- <div class="bottomAct">
-      <van-button round block type="default">取消</van-button>
-      <van-button round block type="primary" @click="handleFilter"
+    <div class="bottomAct" v-if="state.isEdit">
+      <van-button round block type="default" @click="state.isEdit = false"
+        >取消</van-button
+      >
+      <van-button round block type="primary" @click="submitEdit"
         >提交修改</van-button
       >
-    </div> -->
+    </div>
+
     <van-dialog
       v-model:show="state.onShowTextAreaForName"
       title="活动名称"
@@ -299,7 +526,7 @@ const onSelectDate = (item) => {
     >
       <a-textarea
         style="width: 83%; margin: 20px 30px"
-        v-model:value="state.description"
+        v-model:value="state.selectedDetails.title"
         :allowClear="true"
         :placeholder="`请输入活动名称`"
         :autosize="{ minRows: 1, maxRows: 1 }"
@@ -313,62 +540,18 @@ const onSelectDate = (item) => {
     >
       <a-textarea
         style="width: 83%; margin: 20px 30px"
-        v-model:value="state.description"
+        v-model:value="state.selectedDetails.content"
         :allowClear="true"
         :placeholder="`请输入本次活动的介绍`"
         :autosize="{ minRows: 3, maxRows: 6 }"
       />
     </van-dialog>
     <van-popup v-model:show="state.onShare" round class="share-popup">
-      <div class="share-popup-container">
-        <div class="share-popup-content">
-          <van-image
-            src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-            alt="Empty state illustration"
-          />
-          <div class="share-popup-title">XXX学院-XXX活动</div>
-          <div class="share-popup-item">活动地点</div>
-          <div class="share-popup-item_value">xxxxxxxxxxxx</div>
-          <div class="share-popup-item">活动时间</div>
-          <div class="share-popup-item_value">
-            2024-10-26 08:00 ~ 2024-10-26 12:00
-          </div>
-        </div>
-        <div class="share-popup-scan">
-          <div class="share-popup-scan-text">扫码查看活动详情>></div>
-          <van-image
-            class="share-popup-scan-image"
-            src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-            alt="Empty state illustration"
-          />
-        </div>
-      </div>
-      <div class="share-popup-footer">
-        <button class="footer-button" @click="goToLink('/mo/...')">
-          保存图片
-        </button>
-        <div class="divider"></div>
-        <a-button
-          type="text"
-          class="share-button"
-          plain
-          @click="state.onShare = false"
-        >
-          <img
-            src="@/assets/my/mobile_event_details_share.svg"
-            style="margin-right: 5px"
-            alt=""
-          />
-          分享
-        </a-button>
-      </div>
-      <div class="share-popup-close">
-        <img
-          src="@/assets/my/mobile_event_details_close.svg"
-          @click="state.onShare = false"
-          alt=""
-        />
-      </div>
+      <MyActivityRecordShare
+        :data="state.selectedDetails"
+        @onClose="state.onShare = false"
+      />
+      
     </van-popup>
   </div>
 </template>
@@ -418,7 +601,7 @@ const onSelectDate = (item) => {
         align-items: center;
         .toggleLang {
           width: 140px;
-          height: 28px;
+          height: 35px;
           padding: 4px;
           background: #333f6c;
           border-radius: 21px;

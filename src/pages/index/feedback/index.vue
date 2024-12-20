@@ -7,10 +7,9 @@ import {
   getFeedbackCategory,
   getFeedbackIlk,
   postFeedback,
-  getIlkAddress,
   getFeedbackDetail,
+  postFeedbackForRepair,
 } from "@/request/feedback";
-
 
 import PageSizeCom from "@/components/PageSizeCom.vue";
 import FeedbackDetails from "@/components/Feedback/FeedbackDetails.vue";
@@ -34,8 +33,8 @@ const state = reactive({
   // categoryList: [],
 
   submitInfo: {
-    categoryList: [],
     submitType: "",
+    categoryList: [],
     categoryAreaList: [],
     categoryAreaId: "",
     categoryTypeList: [],
@@ -57,8 +56,6 @@ const state = reactive({
     ilkContent: "",
   },
 
-
-
   isShowIlkAreaDrawer: false,
 
   defaultPic:
@@ -70,35 +67,6 @@ onMounted(() => {
   fetchCategory();
   fetchIlk();
 });
-
-const getDefaultList = () => {
-  return [
-    {
-      id: "1", //意见反馈id
-      content: "这是意见反馈内容", //反馈内容
-      type: "1", //区分是意见反馈还是设备报修。1意见反馈2设备报修
-      cate_id: "1", //意见反馈类型
-      pic_urls: null, //反馈图片,json格式
-      create_time: "2024-03-07 09:28:28", //反馈时间
-      is_read: "0", //是否已读，1已读0未读
-      ROW_NUMBER: "1", //意见反馈类型名称
-      cate_name: "意见", //英文意见反馈类型名称
-      en_cate_name: "opinion",
-    },
-    {
-      id: "2", //意见反馈id
-      content: "这是意见反馈内容", //反馈内容
-      type: "2", //区分是意见反馈还是设备报修。1意见反馈2设备报修
-      cate_id: "2", //意见反馈类型
-      pic_urls: null, //反馈图片,json格式
-      create_time: "2024-03-07 09:28:28", //反馈时间
-      is_read: "0", //是否已读，1已读0未读
-      ROW_NUMBER: "1", //意见反馈类型名称
-      cate_name: "意见", //英文意见反馈类型名称
-      en_cate_name: "opinion",
-    },
-  ];
-};
 
 const columns = [
   {
@@ -145,33 +113,28 @@ const onShowSubmitModal = (type) => {
   state.isShowSubmitDrawer = true;
 };
 
+const onCloseSubmitDrawer = () => {
+  state.isShowSubmitDrawer = false;
+  state.submitInfo = {
+    ...state.submitInfo,
+    categoryAreaId: "",
+    categoryTypeId: "",
+    categoryInputContent: "",
+    phone: "",
+    email: "",
 
-const handleIlkChange = (value) => {
-  let ilk = state.ilkList.find((item) => item.id == value);
-  fetchGetIlkAddress(ilk.is_region);
-};
+    ilkTypeId: "",
+    ilkAreaID: "",
+    concatenatedNames: "",
+    ilkSeat: "",
+    ilkIsStop: 0,
+    ilkMobile: "",
+    ilkContent: "",
+    ilkTypeHaveRegion: false,
+    ilkTypeIsSpace: false,
 
-const fileUpload = (data) => {
-  state.submitInfo.fileList = filterFileUpload(data);
-  // if (data[0]?.response?.data) {
-  //   state.fileList.push(data[0].response.data);
-  //   console.log(state.fileList);
-  // }
-  // console.log(state.fileList);
-};
-
-const filterFileUpload = (files) => {
-  let list = files || [];
-
-  list = list.map((e) => {
-    let fileRow = {};
-    if (e?.status == "done" && e?.response?.code == 0) {
-      fileRow = e?.response?.data;
-    }
-    return fileRow;
-  });
-
-  return list;
+    fileList: [],
+  };
 };
 
 const onSubmit = () => {
@@ -197,10 +160,10 @@ const onSubmit = () => {
       message.warning("请输入手机号");
       return false;
     }
-    // if (!state.email) {
-    //   message.warning("请输入邮箱");
-    //   return false;
-    // }
+    if (!state.email) {
+      message.warning("请输入邮箱");
+      return false;
+    }
     let params = {
       area_id: state.submitInfo.categoryAreaId,
       cate_id: state.submitInfo.categoryTypeId,
@@ -212,10 +175,57 @@ const onSubmit = () => {
     fetchSubmit(params);
   } else {
     // 设备报修
+
+    if (!state.submitInfo.ilkTypeId) {
+      message.warning("请选择报修类型");
+      return false;
+    }
+
+    if (state.submitInfo.ilkTypeHaveRegion) {
+      // 此时必填区域
+      if (!state.submitInfo.ilkAreaID) {
+        message.warning("请选择报修区域");
+        return false;
+      }
+      if (!state.submitInfo.ilkTypeIsSpace) {
+        // 不是空间类型， 座位一栏显示
+        // 此时必填座位 第一层 ilkTypeHaveRegion 的判断下 此时必填区域
+        if (!state.submitInfo.ilkSeat) {
+          message.warning("请选择报修座位");
+          return false;
+        }
+      }
+    }
+
+    if (!state.submitInfo.ilkMobile) {
+      message.warning("请输入联系电话");
+      return false;
+    }
+    if (!state.submitInfo.ilkContent) {
+      message.warning("请输入报修内容");
+      return false;
+    }
+    if (!state.submitInfo.fileList.length) {
+      message.warning("请上传反馈图片");
+      return false;
+    }
+    let areaId = state.submitInfo.ilkTypeHaveRegion
+      ? state.submitInfo.ilkAreaID
+      : "0";
+    let spaceId = state.submitInfo.ilkTypeHaveRegion
+      ? state.submitInfo.ilkSeat
+      : "0";
+    let params = {
+      type_id: state.submitInfo.ilkTypeId,
+      content: state.submitInfo.ilkContent,
+      pic_urls: state.submitInfo.fileList,
+      mobile: state.submitInfo.ilkMobile,
+      area_id: areaId,
+      space_id: spaceId,
+    };
+    fetchSubmit(params);
   }
 };
-
-
 
 const fetch = async () => {
   try {
@@ -292,33 +302,6 @@ const fetchIlk = async () => {
   }
 };
 
-const fetchGetIlkAddress = async (id) => {
-  try {
-    const res = await getIlkAddress(id);
-    state.filterSource = {
-      ilkAreaList: [],
-      ilkFloorList: [],
-      ilkSpaceList: [],
-    };
-    if (res.code == 0) {
-      state.ilkAddressList = res.data;
-      let list = res.data;
-      list.forEach((item) => {
-        if (item.levels == 1) {
-          state.filterSource.ilkAreaList.push(item);
-        } else if (item.levels == 2) {
-          state.filterSource.ilkFloorList.push(item);
-        } else if (item.levels == 3) {
-          state.filterSource.ilkSpaceList.push(item);
-        }
-      });
-      console.log(state.filterSource);
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 const fetchSubmit = async (params) => {
   try {
     if (state.submitInfo.submitType == "1") {
@@ -326,10 +309,15 @@ const fetchSubmit = async (params) => {
       if (res.code == 0) {
         message.success(res.message);
         state.isShowSubmitDrawer = false;
+        fetch();
       }
     } else {
-      const res = await postFeedback(params);
-      console.log(res);
+      const res = await postFeedbackForRepair(params);
+      if (res.code == 0) {
+        message.success(res.message);
+        state.isShowSubmitDrawer = false;
+        fetch();
+      }
     }
   } catch (error) {
     console.log(error);
@@ -393,7 +381,7 @@ const fetchSubmit = async (params) => {
         </a-table>
       </PageSizeCom>
     </div>
-    <a-empty v-else style="margin-top: 40px;" />
+    <a-empty v-else style="margin-top: 40px" />
     <div class="cPagination" v-if="state.data?.length > 0">
       <a-pagination
         v-model:current="state.currentPage"
@@ -441,7 +429,7 @@ const fetchSubmit = async (params) => {
     <!-- 提交反馈/设备报修 抽屉弹窗 -->
     <a-drawer
       :open="state.isShowSubmitDrawer"
-      @close="state.isShowSubmitDrawer = false"
+      @close="onCloseSubmitDrawer"
       :closable="false"
       :footer="null"
       width="600px"
@@ -450,7 +438,9 @@ const fetchSubmit = async (params) => {
       <div class="drawer_title">
         <div class="title_text">
           <div class="indicator_title"></div>
-          <div>{{ state.submitInfo.submitType == "1" ? "意见反馈" : "设备报修" }}</div>
+          <div>
+            {{ state.submitInfo.submitType == "1" ? "意见反馈" : "设备报修" }}
+          </div>
         </div>
         <div>
           <a-button class="cancel_btn" @click="state.isShowSubmitDrawer = false"
@@ -465,8 +455,6 @@ const fetchSubmit = async (params) => {
       <a-divider />
       <FeedbackSubmit :data="state.submitInfo" />
     </a-drawer>
-
-    
   </div>
 </template>
 <style lang="less" scoped>

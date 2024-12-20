@@ -145,7 +145,7 @@ onMounted(() => {
   .top_info {
     overflow-y: auto;
     height: calc(100% - 50px);
-    margin-top: 16px;
+
 
     .info_item_status {
       --van-cell-value-color: rgba(32, 32, 32, 1);

@@ -21,6 +21,10 @@ import { getUserInfo } from "@/utils";
 const router = useRouter();
 const state = reactive({
   activeKey: "1",
+  activeKeyList: [
+    { value: "1", label: "普通空间" },
+    { value: "2", label: "大型空间" },
+  ],
   UserInfo: getUserInfo(),
   currentPage: 1,
   pageSize: 10,
@@ -45,6 +49,14 @@ const onChangeTab = (key) => {
   fetch();
   console.log(key);
 };
+
+watch(
+  () => state.activeKey,
+  (newVal) => {
+    state.currentPage = 1;
+    fetch();
+  }
+);
 
 const onChangeQMode = (row) => {
   state.quickMode = row?.value;
@@ -78,14 +90,24 @@ const fetchAreaRecordList = async () => {
     state.refreshing = false;
 
     if (res?.code === 0) {
-      state.data = res?.data?.data || [];
+      if (state.currentPage === 1) {
+        state.data = res?.data?.data || [];
+      } else {
+        state.data.push(...res?.data?.data);
+      }
       state.total = res?.data?.total;
+      state.finished = res?.data?.current_page >= res?.data?.last_page || true;
+    } else {
+      state.data = [];
+      state.finished = true;
+      state.total = 0;
     }
-    state.finished = res?.data?.current_page >= res?.data?.last_page || true;
   } catch (error) {
     state.loading = false;
     state.refreshing = false;
     state.finished = true;
+    state.data = [];
+    state.total = 0;
     console.log(error);
   }
 };
@@ -100,14 +122,24 @@ const fetchRenegesRecordList = async () => {
     state.loading = false;
     state.refreshing = false;
     if (res?.code === 0) {
-      state.data = res?.data?.data || [];
+      if (state.currentPage === 1) {
+        state.data = res?.data?.data || [];
+      } else {
+        state.data.push(...res?.data?.data);
+      }
       state.total = res?.data?.total;
+      state.finished = res?.data?.current_page >= res?.data?.last_page || true;
+    } else {
+      state.data = [];
+      state.finished = true;
+      state.total = 0;
     }
-    state.finished = res?.data?.current_page >= res?.data?.last_page || true;
   } catch (error) {
     state.loading = false;
     state.refreshing = false;
     state.finished = true;
+    state.data = [];
+    state.total = 0;
     console.log(error);
   }
 };
@@ -130,15 +162,20 @@ const onClickItem = (item) => {
 </script>
 <template>
   <div class="area-record">
-    <a-tabs
-      v-model:activeKey="state.activeKey"
-      class="top_tabs"
-      size="middle"
-      @change="onChangeTab"
-    >
-      <a-tab-pane key="1" tab="普通空间"></a-tab-pane>
-      <a-tab-pane key="2" tab="大型空间"></a-tab-pane>
-    </a-tabs>
+
+    <div class="cHeader">
+      <div class="quickMode">
+        <div
+          v-for="item in state.activeKeyList"
+          :key="item.label"
+          class="item activeBtn"
+          :class="{ itemActive: item?.value == state.activeKey }"
+          @click="state.activeKey = item?.value"
+        >
+          {{ item?.label }}
+        </div>
+      </div>
+    </div>
     <div class="quickBtns" style="width: 220px; margin: 10px 10px">
       <div
         v-for="item in state.quickModeList"
@@ -153,6 +190,7 @@ const onClickItem = (item) => {
 
     <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
       <van-list
+        v-if="state.data.length > 0"
         v-model:loading="state.loading"
         :finished="state.finished"
         finished-text="没有更多了"
@@ -194,15 +232,14 @@ const onClickItem = (item) => {
           </div>
         </div>
       </van-list>
+      <a-empty v-else />
     </van-pull-refresh>
 
-    <a-drawer
-      width="100%"
-      height="100%"
-      placement="bottom"
-      :closable="false"
-      :open="state.showItemDetails"
-      destroyOnClose
+    <van-popup
+      v-model:show="state.showItemDetails"
+      position="bottom"
+      :style="{ height: '100%' }"
+      destroy-on-close
     >
       <div class="libraryPop">
         <MyAreaRecordDetails :data="state.itemDetails" />
@@ -218,7 +255,7 @@ const onClickItem = (item) => {
           </van-button>
         </div>
       </div>
-    </a-drawer>
+    </van-popup>
   </div>
 </template>
 <style lang="less" scoped>
@@ -230,6 +267,25 @@ const onClickItem = (item) => {
   .top_tabs {
     background-color: #fff;
     padding-left: 10px !important;
+  }
+  .cHeader {
+    padding: 10px 14px 0 10px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .quickMode {
+    display: flex;
+    .item {
+      padding-bottom: 10px;
+      font-size: 15px;
+      color: #616161;
+      &:first-child {
+        margin-right: 40px;
+      }
+      &.itemActive {
+        color: #202020;
+        border-bottom: 2px solid #1a49c0;
+      }
+    }
   }
   .item_list {
     position: relative;
@@ -303,7 +359,6 @@ const onClickItem = (item) => {
 
   :deep(.area-record-details) {
     flex: 1;
-    padding: 14px;
   }
   .bottomAction {
     padding: 12px;
@@ -326,7 +381,7 @@ const onClickItem = (item) => {
   margin-bottom: 0px !important;
 }
 :deep(.van-pull-refresh) {
-  height: 100% !important;
+  height: 150% !important;
 }
 :deep(.ant-btn-sm) {
   font-size: 12px !important;

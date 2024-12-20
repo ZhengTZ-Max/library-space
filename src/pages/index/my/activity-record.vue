@@ -153,7 +153,11 @@ const fetchGetActivityDetail = async (id) => {
     const res = await getActivityDetail(params);
     if (res?.code === 0) {
       state.drawerDetailsInfo.selectedDetails = res?.data;
-      onDealWithDate();
+      if (state.activeKey === "1") { 
+        state.isShowDrawer = true;
+      } else {
+        onDealWithDate();
+      }
     }
   } catch (error) {
     console.log(error);

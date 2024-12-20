@@ -16,6 +16,11 @@ import { useStore } from "vuex";
 const router = useRouter();
 const state = reactive({
   activeKey: "1",
+  activeKeyList: [
+    { value: "1", label: "日柜" },
+    { value: "2", label: "周柜" },
+    { value: "3", label: "长期柜" },
+  ],
   currentPage: 1,
   pageSize: 10,
   total: 0,
@@ -28,17 +33,19 @@ const state = reactive({
   ],
   status_name: "预约成功",
 
-
   refreshing: false,
   loading: false,
   finished: true,
 });
 
-const onChangeTab = (key) => {
-  state.activeKey = key;
-  state.currentPage = 1;
-  fetchGetBookLocker();
-};
+watch(
+  () => state.activeKey,
+  () => {
+    state.currentPage = 1;
+    fetchGetBookLocker();
+  }
+);
+
 
 const onChangeQMode = (row) => {
   state.quickMode = row?.value;
@@ -73,7 +80,7 @@ const fetchGetBookLocker = async () => {
 };
 
 onMounted(() => {
-    fetchGetBookLocker();
+  fetchGetBookLocker();
 });
 
 const onRefresh = () => {
@@ -94,16 +101,20 @@ const onClickItem = (id) => {
 </script>
 <template>
   <div class="book-locker">
-    <a-tabs
-      v-model:activeKey="state.activeKey"
-      class="top_tabs"
-      size="middle"
-      @change="onChangeTab"
-    >
-      <a-tab-pane key="1" tab="日柜"></a-tab-pane>
-      <a-tab-pane key="2" tab="周柜"></a-tab-pane>
-      <a-tab-pane key="3" tab="长期柜"></a-tab-pane>
-    </a-tabs>
+    <div class="cHeader">
+      <div class="quickMode">
+        <div
+          v-for="item in state.activeKeyList"
+          :key="item.label"
+          class="item activeBtn"
+          :class="{ itemActive: item?.value == state.activeKey }"
+          @click="state.activeKey = item?.value"
+        >
+          {{ item?.label }}
+        </div>
+      </div>
+    </div>
+
     <div class="quickBtns" style="width: 220px; margin: 10px 10px">
       <div
         v-for="item in state.quickModeList"
@@ -129,7 +140,9 @@ const onClickItem = (id) => {
         <span>2024-02-05 09:57:00 2024-02-05 09:57:00 2024-02-05 09:57:00</span>
 
         <div>
-          <a-button type="primary" shape="round" size="small" block>取消</a-button>
+          <a-button type="primary" shape="round" size="small" block
+            >取消</a-button
+          >
         </div>
       </div>
 
@@ -147,11 +160,13 @@ const onClickItem = (id) => {
     </div>
     <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
       <van-list
+        v-if="state.data.length > 0"
         v-model:loading="state.loading"
         :finished="state.finished"
         finished-text="没有更多了"
         @load="onLoad"
       ></van-list>
+      <a-empty v-else />
     </van-pull-refresh>
   </div>
 </template>
@@ -161,9 +176,23 @@ const onClickItem = (id) => {
   overflow: auto;
   background-color: #fafafa;
 
-  .top_tabs {
-    background-color: #fff;
-    padding-left: 10px !important;
+  .cHeader {
+    padding: 10px 14px 0 10px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .quickMode {
+    display: flex;
+    gap: 20px;
+    .item {
+      padding-bottom: 10px;
+      font-size: 15px;
+      color: #616161;
+
+      &.itemActive {
+        color: #202020;
+        border-bottom: 2px solid #1a49c0;
+      }
+    }
   }
   .item_list {
     position: relative;
@@ -227,7 +256,7 @@ const onClickItem = (id) => {
   margin-bottom: 0px !important;
 }
 :deep(.van-pull-refresh) {
-  height: 100% !important;
+  height: 150% !important;
 }
 :deep(.ant-btn-sm) {
   font-size: 12px !important;

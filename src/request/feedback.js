@@ -55,7 +55,14 @@ export function getFeedbackDetail(data) {
     method: "POST",
     isLoading: true,
     data,
-    });
-  }
-  
+  });
+}
 
+export function postFeedbackForRepair(data) {
+  return service({
+    url: "/v4/help/repair",
+    method: "POST",
+    isLoading: true,
+    data,
+  });
+}
