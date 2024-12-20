@@ -15,6 +15,15 @@ import { showConfirmDialog, showToast } from "vant";
 
 import { getMyInfo } from "@/request/my";
 import { wx_removeOpenid } from "@/request/login";
+import OftenIcon from "@/assets/my/mobile_profile_list/often.svg";
+import SeatRecordIcon from "@/assets/my/mobile_profile_list/seatRecord.svg";
+import SpaceRecordIcon from "@/assets/my/mobile_profile_list/spaceRecord.svg";
+import ActivityRecordIcon from "@/assets/my/mobile_profile_list/activityRecord.svg";
+import BookLockerIcon from "@/assets/my/mobile_profile_list/bookLocker.svg";
+import LostAndFoundIcon from "@/assets/my/mobile_profile_list/lostAndFound.svg";
+import FeedBackIcon from "@/assets/my/mobile_profile_list/feedback.svg";
+import MyInfoIcon from "@/assets/my/mobile_profile_list/myInfo.svg";
+import ChangePasswordIcon from "@/assets/my/mobile_profile_list/changePassword.svg";
 
 const store = useStore();
 const lang = computed(() => store.state.lang);
@@ -26,43 +35,43 @@ const state = reactive({
       id: "3",
       label: "常用预约",
       link: "common",
-      icon: "@/assets/my/mobile_profile_item.svg",
+      icon: OftenIcon,
     },
     {
       id: "1",
       label: "座位预约记录",
       link: "seat-record",
-      icon: "@/assets/my/mobile_seat.svg",
+      icon: SeatRecordIcon,
     },
     {
       id: "2",
       label: "空间预约记录",
       link: "area-record",
-      icon: "@/assets/my/mobile_area.svg",
+      icon: SpaceRecordIcon,
     },
     {
       id: "6",
       label: "活动预约记录",
       link: "activity-record",
-      icon: "@/assets/my/mobile_activity_record.svg",
+      icon: ActivityRecordIcon,
     },
     {
       id: "10",
       label: "存书柜预约记录",
       link: "book-locker",
-      icon: "@/assets/my/mobile_book_locker.svg",
+      icon: BookLockerIcon,
     },
     {
       id: "14",
       label: "失物招领",
       link: "lostAndFound",
-      icon: "@/assets/my/mobile_lostAndFound.svg",
+      icon: LostAndFoundIcon,
     },
     {
       id: "15",
       label: "帮助与反馈",
       link: "feedback",
-      icon: "@/assets/my/mobile_help.svg",
+      icon: FeedBackIcon,
     },
   ],
 
@@ -73,13 +82,13 @@ const state = reactive({
       id: "16",
       label: "个人信息",
       link: "my-info",
-      icon: "@/assets/my/mobile_my_info.svg",
+      icon: MyInfoIcon,
     },
     {
       id: "17",
       label: "修改密码",
       link: "change-password",
-      icon: "@/assets/my/mobile_change_password.svg",
+      icon: ChangePasswordIcon,
     },
   ],
 });
@@ -314,5 +323,8 @@ const unbindWx = () => {
 }
 .van-cell-group--inset {
   margin: 0 !important;
+}
+:deep(.van-icon) {
+  padding-top: 5px;
 }
 </style>
