@@ -182,3 +182,15 @@ export function setRelayStatus(data) {
     data,
   });
 }
+
+// 扫码预约（座位检测）
+export function checkSeatAsk(data) {
+  return service({
+    url: "/api/Seat/qr_book_check",
+    method: "post",
+    isLoading: true,
+    // loadingMsg:"正在预约",
+    // customLoading:true, //是否自定义loading
+    data,
+  });
+}

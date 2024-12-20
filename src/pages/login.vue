@@ -94,6 +94,11 @@ const onLogin = async () => {
     store.dispatch("updateLoginInfo", res?.data);
     sessionStorage.setItem("token", res.data.token);
 
+    let StorageQr = sessionStorage.getItem("StorageQr");
+    if (StorageQr) {
+      router.replace(StorageQr);
+      return false;
+    }
     if (systemMode?.value == "pc") {
       router.replace("/");
     } else {
