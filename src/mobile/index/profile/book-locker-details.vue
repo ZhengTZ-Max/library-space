@@ -1,25 +1,24 @@
-<route>
-    {
-      meta: {
-        showHead: false,
-        showLeftBack:true,
-        title:'yuyue_detail',
-        showTabbar:true
-      }
-    }
-</route>
 <script setup>
 import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
-
+import { getUserInfo } from "@/utils";
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
+const props = defineProps({
+  data: {
+    type: Object,
+  },
+});
 const state = reactive({
-  id: route?.query?.id || "",
-  status: "预约成功",
+  UserInfo: getUserInfo(),
+  propsData: {},
+});
+
+onMounted(() => {
+  state.propsData = props?.data || {};
 });
 </script>
 <template>
@@ -27,23 +26,107 @@ const state = reactive({
     <van-cell-group class="top_info">
       <van-cell
         class="info_item_status"
-        :class="{ info_item_status_success: state.status === '预约成功' }"
+        :class="{
+          info_item_status_success: state.propsData.statusMsg === '预约成功',
+          info_item_status_in_progress: state.propsData.statusMsg === '使用中',
+          info_item_status_error:
+            state.propsData.statusMsg === '未签到' ||
+            state.propsData.statusMsg === '使用超时',
+        }"
         title="预约状态"
-        :value="state.status"
+        :value="state.propsData.statusMsg"
       />
-      <van-cell class="info_item" title="预约用户" value="内容" />
-      <van-cell class="info_item" title="预约时间" value="内容" />
-      <van-cell class="info_item" title="开始时间" value="内容" />
-      <van-cell class="info_item" title="结束时间" value="内容" />
-      <van-cell class="info_item" title="预约地点" value="内容" />
+      <van-cell
+        class="info_item"
+        title="预约用户"
+        :value="state.UserInfo.name + ' (' + state.UserInfo.id + ')'"
+      />
+      <van-cell
+        class="info_item"
+        title="预约时间"
+        :value="state.propsData.beginTime"
+      />
+      <van-cell
+        class="info_item"
+        title="开始时间"
+        :value="state.propsData.beginTime"
+      />
+      <van-cell
+        class="info_item"
+        title="结束时间"
+        :value="state.propsData.endTime"
+      />
+      <van-cell
+        class="info_item"
+        title="预约地点"
+        :value="state.propsData.nameMerge"
+      />
     </van-cell-group>
     <van-cell-group class="bottom_info">
-        <van-cell class="info_item" title="预约用户" value="内容" />
-        <van-cell class="info_item" title="预约用户" value="内容" />
-        <van-cell class="info_item" title="预约用户" value="内容" />
+      <!-- 使用中  存物时间 -->
+      <template v-if="state.propsData.statusMsg === '使用中'">
+        <van-cell
+          class="info_item"
+          title="存物时间"
+          :value="state.propsData.beginTime"
+        />
+      </template>
 
+      <!-- 已取消  取消时间 -->
+      <template v-else-if="state.propsData.statusMsg === '已取消'">
+        <van-cell
+          class="info_item"
+          title="取消时间"
+          :value="state.propsData.beginTime"
+        />
+      </template>
+
+      <!-- 已结束  存物时间/结束时间 -->
+      <template v-else-if="state.propsData.statusMsg === '已结束'">
+        <van-cell
+          class="info_item"
+          title="存物时间"
+          :value="state.propsData.beginTime"
+        />
+        <van-cell
+          class="info_item"
+          title="结束时间"
+          :value="state.propsData.finishTime"
+        />
+      </template>
+
+      <!-- 未签到 违约时间 -->
+      <template v-else-if="state.propsData.statusMsg === '未签到'">
+        <van-cell
+          class="info_item"
+          title="违约时间"
+          :value="state.propsData.beginTime"
+        />
+      </template>
+
+      <!-- 使用超时 使用超时时间 -->
+      <template v-else-if="state.propsData.statusMsg === '使用超时'">
+        <van-cell
+          class="info_item"
+          title="存物时间"
+          :value="state.propsData.beginTime"
+        />
+        <van-cell
+          class="info_item"
+          title="取物时间"
+          :value="state.propsData.beginTime"
+        />
+        <van-cell
+          class="info_item_red"
+          title="超时时长"
+          :value="state.propsData.beginTime + '分钟'"
+        />
+      </template>
     </van-cell-group>
-    <div class="bottom_info_btn">
+    <div
+      class="bottom_info_btn"
+      v-if="state.propsData.statusMsg === '预约成功'"
+    >
       <a-button shape="round" block class="cancel_btn">取消预约</a-button>
     </div>
   </div>
@@ -57,8 +140,17 @@ const state = reactive({
   .top_info {
     margin-top: 16px;
     background-color: #fff;
+    .info_item_status {
+      --van-cell-value-color: rgba(32, 32, 32, 1);
+    }
     .info_item_status_success {
       --van-cell-value-color: rgba(78, 201, 91, 1);
+    }
+    .info_item_status_in_progress {
+      --van-cell-value-color: rgba(31, 86, 225, 1);
+    }
+    .info_item_status_error {
+      --van-cell-value-color: rgba(223, 31, 31, 1);
     }
     .info_item {
       --van-cell-value-color: rgba(32, 32, 32, 1);
@@ -69,6 +161,9 @@ const state = reactive({
 
     .info_item {
       --van-cell-value-color: rgba(32, 32, 32, 1);
+    }
+    .info_item_red {
+      --van-cell-value-color: rgba(255, 0, 0, 1);
     }
   }
   .bottom_info_btn {

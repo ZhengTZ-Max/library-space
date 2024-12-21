@@ -12,14 +12,20 @@
 import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
+import { getBookLockerList } from "@/request/book-locker";
+import { getUserInfo } from "@/utils";
+import { message } from "ant-design-vue";
+
+import BookLockerDetails from "@/mobile/index/profile/book-locker-details.vue";
 
 const router = useRouter();
 const state = reactive({
-  activeKey: "1",
+  userInfo: getUserInfo(),
+  activeKey: "14",
   activeKeyList: [
-    { value: "1", label: "日柜" },
-    { value: "2", label: "周柜" },
-    { value: "3", label: "长期柜" },
+    { value: "14", label: "日柜" },
+    { value: "15", label: "周柜" },
+    { value: "16", label: "长期柜" },
   ],
   currentPage: 1,
   pageSize: 10,
@@ -29,47 +35,53 @@ const state = reactive({
   quickMode: 1,
   quickModeList: [
     { value: 1, label: "预约记录" },
-    { value: 2, label: "违约记录" },
+    { value: 0, label: "违约记录" },
   ],
-  status_name: "预约成功",
 
   refreshing: false,
   loading: false,
   finished: true,
+  showItemDetails: false,
+  itemDetails: {},
 });
 
 watch(
-  () => state.activeKey,
+  () => [state.activeKey, state.quickMode],
   () => {
     state.currentPage = 1;
     fetchGetBookLocker();
   }
 );
 
-
-const onChangeQMode = (row) => {
-  state.quickMode = row?.value;
-  state.currentPage = 1;
+onMounted(() => {
   fetchGetBookLocker();
-};
+});
 
 const fetchGetBookLocker = async () => {
   try {
     let params = {
-      tab: state.activeKey,
+      type: state.activeKey,
+      isOrder: state.quickMode,
       page: state.currentPage,
-      type: state.quickMode,
-
-      limit: state.pageSize,
+      size: state.pageSize,
     };
-    // const res = await getBookLocker();
-
     state.loading = false;
     state.refreshing = false;
-
-    state.total = 0;
-    state.data = [];
-    state.finished = true;
+    const res = await getBookLockerList(params);
+    if (res.code === 1) {
+      if (state.currentPage === 1) {
+        state.data = res?.data?.list || [];
+      } else {
+        state.data.push(...res?.data?.list);
+      }
+      state.total = res?.data?.count || 0;
+      state.finished = state.currentPage >= res?.data?.totalPage;
+    } else {
+      state.data = [];
+      state.total = 0;
+      state.finished = true;
+      message.error(res.msg);
+    }
   } catch (error) {
     state.loading = false;
     state.refreshing = false;
@@ -92,15 +104,17 @@ const onLoad = () => {
   fetchGetBookLocker();
 };
 
-const onClickItem = (id) => {
-  router.push({
-    path: "/mo/profile/book-locker-details",
-    query: { id },
-  });
+const onClickItem = (item) => {
+  state.showItemDetails = true;
+
+  state.itemDetails = item;
+  console.log(state.itemDetails);
 };
 </script>
 <template>
-  <div class="book-locker">
+  <div
+    class="book-locker"
+  >
     <div class="cHeader">
       <div class="quickMode">
         <div
@@ -121,43 +135,12 @@ const onClickItem = (id) => {
         :key="item.label"
         class="item activeBtn"
         :class="{ itemActive: item?.value == state.quickMode }"
-        @click="onChangeQMode(item)"
+        @click="state.quickMode = item?.value"
       >
         {{ item?.label }}
       </div>
     </div>
 
-    <div class="item_list">
-      <div class="info_item margin_bottom" @click="onClickItem('1')">
-        <img
-          src="@/assets/my/mobile_lostAndFound_item_location.svg"
-          alt="Location"
-        />
-        <span>失物招领</span>
-      </div>
-      <div class="info_item">
-        <img src="@/assets/event/time.svg" alt="Time" />
-        <span>2024-02-05 09:57:00 2024-02-05 09:57:00 2024-02-05 09:57:00</span>
-
-        <div>
-          <a-button type="primary" shape="round" size="small" block
-            >取消</a-button
-          >
-        </div>
-      </div>
-
-      <div
-        class="rightBadge basicsBadge"
-        :class="{
-          status_success: state.status_name === '预约成功',
-          status_cancel: state.status_name === '已取消',
-          status_in_progress: state.status_name === '使用中',
-          status_end: state.status_name === '已结束',
-        }"
-      >
-        {{ state.status_name }}
-      </div>
-    </div>
     <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
       <van-list
         v-if="state.data.length > 0"
@@ -165,9 +148,71 @@ const onClickItem = (id) => {
         :finished="state.finished"
         finished-text="没有更多了"
         @load="onLoad"
-      ></van-list>
+      >
+        <div
+          class="item_list"
+          v-for="item in state.data"
+          :key="item.id"
+          @click="onClickItem(item)"
+        >
+          <div class="info_item margin_bottom">
+            <img
+              src="@/assets/my/mobile_lostAndFound_item_location.svg"
+              alt="Location"
+            />
+            <span>{{ item.nameMerge }}</span>
+          </div>
+          <div class="info_item">
+            <img src="@/assets/event/time.svg" alt="Time" />
+            <span v-if="state.quickMode == 1"
+              >{{ item.beginTime }} - {{ item.endTime }}</span
+            >
+            <span v-else>{{ item.time }}</span>
+
+            <div v-if="item.statusMsg == '预约成功'">
+              <a-button type="primary" shape="round" size="small" block
+                >取消</a-button
+              >
+            </div>
+          </div>
+
+          <div
+            class="rightBadge basicsBadge"
+            :class="{
+              status_success: item.statusMsg === '预约成功',
+              status_cancel: item.statusMsg === '已取消',
+              status_in_progress: item.statusMsg === '使用中',
+              status_end: item.statusMsg === '已结束',
+            }"
+          >
+            {{ item.statusMsg }}
+          </div>
+        </div>
+      </van-list>
       <a-empty v-else />
     </van-pull-refresh>
+
+    <van-popup
+      v-model:show="state.showItemDetails"
+      position="bottom"
+      :style="{ height: '100%' }"
+      destroy-on-close
+    >
+      <div class="libraryPop">
+        <BookLockerDetails :data="state.itemDetails" />
+        <div class="bottomAction">
+          <van-button
+            round
+            block
+            type="default"
+            @click="state.showItemDetails = false"
+          >
+            <img src="@/assets/seat/moBackBtn.svg" alt="" />
+            返回
+          </van-button>
+        </div>
+      </div>
+    </van-popup>
   </div>
 </template>
 <style lang="less" scoped>
@@ -252,12 +297,36 @@ const onClickItem = (id) => {
   }
 }
 
-:deep(.ant-tabs-nav) {
-  margin-bottom: 0px !important;
+.libraryPop {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+
+  :deep(.area-record-details) {
+    flex: 1;
+  }
+  .bottomAction {
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    & button {
+      &:nth-child(1) {
+        margin-right: 12px;
+      }
+      img {
+        margin-right: 4px;
+        transform: translateY(-2px);
+      }
+    }
+  }
 }
+
 :deep(.van-pull-refresh) {
-  height: 150% !important;
+  min-height: 90vh !important;
 }
+
 :deep(.ant-btn-sm) {
   font-size: 12px !important;
 }

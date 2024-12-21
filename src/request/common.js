@@ -1,7 +1,5 @@
 import service from "@/utils/request";
 
-
-
 export function cancelSeatCollect(data) {
   return service({
     url: "/v4/member/uncollectseat",
