@@ -1515,20 +1515,4 @@ const getDateStatus = () => {
     }
   }
 }
-.toastItem {
-  display: flex;
-  width: 100%;
-  font-size: 14px;
-  color: #616161;
-  margin-bottom: 10px;
-  span {
-    &:nth-child(1) {
-      min-width: 75px;
-      text-align: left;
-    }
-    &:nth-child(2) {
-      flex: 1;
-    }
-  }
-}
 </style>

@@ -79,6 +79,29 @@
   }
 }
 
+.toastItem {
+  display: flex;
+  width: 100%;
+  font-size: 14px;
+  color: #616161;
+  margin-bottom: 10px;
+  span {
+    &:nth-child(1) {
+      white-space: nowrap !important;
+      min-width: 55px;
+      text-align: right;
+    }
+    &:nth-child(2) {
+      flex: 1;
+    }
+  }
+}
+
+.ant-modal-footer {
+  padding-top: 0 !important;
+  border-top: none;
+}
+
 /*!
  * Load Awesome v1.1.0 (http://github.danielcardoso.net/load-awesome/)
  * Copyright 2015 Daniel Cardoso <@DanielCardoso>
