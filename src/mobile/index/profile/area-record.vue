@@ -161,8 +161,9 @@ const onClickItem = (item) => {
 };
 </script>
 <template>
-  <div class="area-record">
-
+  <div
+    class="area-record"
+  >
     <div class="cHeader">
       <div class="quickMode">
         <div
@@ -380,10 +381,11 @@ const onClickItem = (item) => {
 :deep(.ant-tabs-nav) {
   margin-bottom: 0px !important;
 }
-:deep(.van-pull-refresh) {
-  height: 150% !important;
-}
+
 :deep(.ant-btn-sm) {
   font-size: 12px !important;
+}
+:deep(.van-pull-refresh) {
+  min-height: 90vh !important;
 }
 </style>

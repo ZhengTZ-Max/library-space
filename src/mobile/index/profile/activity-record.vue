@@ -139,8 +139,9 @@ const onClickItem = (id) => {
 </script>
 
 <template>
-  <div class="activityRecord">
-
+  <div
+    class="activityRecord"
+  >
     <div class="cHeader">
       <div class="quickMode">
         <div
@@ -155,7 +156,7 @@ const onClickItem = (id) => {
       </div>
     </div>
 
-    <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh" >
+    <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
       <van-list
         v-if="state.data.length > 0"
         v-model:loading="state.loading"
@@ -233,7 +234,6 @@ const onClickItem = (id) => {
   height: 100%;
   overflow: auto;
   background-color: #fafafa;
-
 
   .cHeader {
     background-color: #fff;
@@ -346,8 +346,8 @@ const onClickItem = (id) => {
 :deep(.ant-tabs-nav) {
   margin-bottom: 0px !important;
 }
-
 :deep(.van-pull-refresh) {
-  height: 120vh !important;
+  min-height: 90vh !important;
 }
+
 </style>

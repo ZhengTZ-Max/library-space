@@ -540,6 +540,6 @@ const fetchSubmit = async (params) => {
   margin: 0 !important;
 }
 :deep(.van-pull-refresh) {
-  height: 100% !important;
+  min-height: 90vh !important;
 }
 </style>
