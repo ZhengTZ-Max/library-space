@@ -40,3 +40,14 @@ export function getBanner(data) {
     data,
   });
 }
+
+// 获取服务器时间
+export function getServeTime(data) {
+  return service({
+    url: "/api/index/time",
+    method: "POST",
+    isLoading: true,
+    // customLoading:true, //是否自定义loading
+    data,
+  });
+}

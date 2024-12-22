@@ -194,3 +194,15 @@ export function checkSeatAsk(data) {
     data,
   });
 }
+
+// touch扫码 delete/checkin/checkout/leave[取消/签到/签离/临时离开]
+export function touch_qr_books(data) {
+  return service({
+    url: "/api/Seat/touch_qr_books",
+    method: "post",
+    isLoading: true,
+    // loadingMsg:"正在预约",
+    // customLoading:true, //是否自定义loading
+    data,
+  });
+}

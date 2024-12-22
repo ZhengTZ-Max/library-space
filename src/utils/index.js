@@ -4,6 +4,7 @@ import _ from "lodash";
 import crypto from "./crypto";
 import store from "../store";
 import { useRouter } from "vue-router";
+import { getServeTime } from "@/request";
 
 const MODE = import.meta.env.MODE;
 
@@ -610,4 +611,21 @@ export const hasBottomSafeArea = () => {
   }
 
   return false;
+};
+
+export const verifyTime = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await getServeTime();
+      let CT = new Date((res.data.time / 29 - 509) * 1000);
+      resolve(CT);
+    } catch (e) {
+      console.log(e);
+      reject();
+    }
+  });
+};
+
+export const decryptTime = (time) => {
+  return (time / 29 - 509) * 1000;
 };

@@ -15,15 +15,19 @@
 import { nextTick, onMounted, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
+import { showDialog } from "vant";
 
-// import { touch_qr_books } from "@/httpAction/region";
-// import { Toast, Dialog } from "vant";
+import { exchangeDateTime, verifyTime, decryptTime } from "@/utils";
+
+import { touch_qr_books } from "@/request/seat";
 
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 
 const state = reactive({
+  qrInfo: {},
+
   show: false,
   seatShow: false,
   confirmInfo: {},
@@ -32,77 +36,123 @@ const state = reactive({
 });
 
 onMounted(() => {
-  //   store.dispatch("getCurrentTime");
-  //   checkInfo();
+  checkInfo();
 });
 
-// const checkInfo = () => {
-//   // https://sh.swechat.cc/h5/#/scancheck?school=ske&type=1&t=48083715524
+const checkInfo = async () => {
+  // https://sh.swechat.cc/h5/#/scancheck?school=ske&type=1&t=48083715524
 
-//   let qrInfo = route.query;
-//   let qrType = route.query.type;
-//   let qrTime = route.query.t;
-//   let token = sessionStorage.getItem("token") || "";
-//   let touchQRMethod = sessionStorage.getItem("touchQRMethod") || "";
-//   let currentTime = store?.state?.config?.currentTime;
-//   if (qrTime && currentTime) {
-//     qrTime = (qrTime / 29 - 509) * 1000;
-//     qrTime = qrTime + 60000;
-//     qrTime = new Date(qrTime);
-//     if (qrTime <= currentTime) {
-//       Dialog.alert({
-//         title: "提示",
-//         message:
-//           store?.state?.lang?.currentLang?.QR_code_expired ||
-//           "二维码已失效，请到座位系统中预约",
-//       }).then(() => {
-//         toVerify();
-//       });
-//       return false;
-//     }
-//   }
-//   if (touchQRMethod) {
-//     qrType = touchQRMethod;
-//   }
-//   let type =
-//     qrType == 1
-//       ? "checkin"
-//       : qrType == 2
-//       ? "leave"
-//       : qrType == 3
-//       ? "checkout"
-//       : "";
-//   if (["delete", "checkin", "checkout", "leave"].includes(type)) {
-//     if (token) {
-//       state.method = type;
-//       handleAction();
-//     } else {
-//       sessionStorage.setItem("touchQRMethod", qrInfo.type);
-//       toVerify();
-//     }
-//   } else {
-//     toVerify();
-//   }
-// };
+  let qrInfo = route.query;
+  let StorageQr = sessionStorage.getItem("StorageQr") || "";
+  let token = sessionStorage.getItem("token") || "";
+  let currentTime = await verifyTime();
 
-// // 完全离开
-// const handleAction = async (row) => {
-//   try {
-//     let params = {
-//       method: state.method,
-//     };
-//     const res = await touch_qr_books(params);
-//     Dialog.alert({
-//       title: "提示",
-//       message: res.msg,
-//     }).then(() => {
-//       toVerify();
-//     });
-//   } catch (e) {
-//     console.log(e);
-//     toVerify();
-//   }
-// };
+  if (!token && qrInfo?.type) {
+    sessionStorage.setItem("StorageQr", route?.fullPath);
+    toVerify();
+  } else if (token) {
+    state.qrInfo = qrInfo;
+    StorageQr && sessionStorage.removeItem("StorageQr");
+    // handleAction();
+  }
+
+  let qrTime = state.qrInfo?.t;
+  let qrType = state.qrInfo?.type;
+  if (qrTime) {
+    // 定义过期时间
+    qrTime = Number(qrTime) + 60000;
+    if (new Date(decryptTime(qrTime)) <= currentTime) {
+      showDialog({
+        title: "提示",
+        message: "二维码已失效，请到座位系统中预约.",
+      }).then(() => {
+        toVerify();
+      });
+      return false;
+    } else if (!["1", "2", "3"].includes(qrType)) {
+      showDialog({
+        title: "提示",
+        message: "扫码预约失败~",
+      }).then(() => {
+        toVerify();
+      });
+    }
+  }
+
+  handleAction();
+  // let qrType = route.query.type;
+  // let qrTime = route.query.t;
+  // let token = sessionStorage.getItem("token") || "";
+  // let touchQRMethod = sessionStorage.getItem("touchQRMethod") || "";
+  // let currentTime = store?.state?.config?.currentTime;
+  // if (qrTime && currentTime) {
+  //   qrTime = (qrTime / 29 - 509) * 1000;
+  //   qrTime = qrTime + 60000;
+  //   qrTime = new Date(qrTime);
+  //   if (qrTime <= currentTime) {
+  //     Dialog.alert({
+  //       title: "提示",
+  //       message:
+  //         store?.state?.lang?.currentLang?.QR_code_expired ||
+  //         "二维码已失效，请到座位系统中预约",
+  //     }).then(() => {
+  //       toVerify();
+  //     });
+  //     return false;
+  //   }
+  // }
+  // if (touchQRMethod) {
+  //   qrType = touchQRMethod;
+  // }
+  // let type =
+  //   qrType == 1
+  //     ? "checkin"
+  //     : qrType == 2
+  //     ? "leave"
+  //     : qrType == 3
+  //     ? "checkout"
+  //     : "";
+  // if (["delete", "checkin", "checkout", "leave"].includes(type)) {
+  //   if (token) {
+  //     state.method = type;
+  //     handleAction();
+  //   } else {
+  //     sessionStorage.setItem("touchQRMethod", qrInfo.type);
+  //     toVerify();
+  //   }
+  // } else {
+  //   toVerify();
+  // }
+};
+
+const handleAction = async () => {
+  try {
+    let params = {
+      method: state.method,
+    };
+    let qrType = state.qrInfo?.type;
+
+    if (qrType == 1) {
+      params.method = "checkin";
+    } else if (qrType == 2) {
+      params.method = "leave";
+    } else if (qrType == 3) {
+      params.method = "checkout";
+    }
+
+    const res = await touch_qr_books(params);
+
+    showDialog({
+      title: "提示",
+      message: res.msg,
+    }).then(() => {
+      toVerify();
+    });
+  } catch (e) {
+    console.log(e);
+    toVerify();
+  }
+};
 const toVerify = () => {
   router.replace("pageVerify");
 };

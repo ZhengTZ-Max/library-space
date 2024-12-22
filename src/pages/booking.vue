@@ -7,7 +7,7 @@
         <div></div>
         <div></div>
       </div>
-      <div class="helpText">正在预约...{{ systemMode }}</div>
+      <div class="helpText">正在预约...</div>
     </div>
 
     <ShowInfoToast
@@ -101,7 +101,7 @@ import {
 } from "@/request/home";
 
 import ShowInfoToast from "@/components/ShowInfoToast.vue";
-import { exchangeDateTime } from "@/utils";
+import { exchangeDateTime, verifyTime } from "@/utils";
 
 const store = useStore();
 const router = useRouter();
@@ -118,13 +118,15 @@ onMounted(() => {
   checkInfo();
 });
 
-const checkInfo = () => {
+const checkInfo = async () => {
   // https://sh.swechat.cc/h5/#/booking?area_id=50&seat_id=3729
 
   let qrInfo = route.query;
   let StorageQr = sessionStorage.getItem("StorageQr") || "";
   let token = sessionStorage.getItem("token") || "";
   console.log(route);
+  let time = await verifyTime();
+  console.log(time);
 
   if (!token && qrInfo?.area_id) {
     sessionStorage.setItem("StorageQr", route?.fullPath);
@@ -150,7 +152,7 @@ const checkSeat = async () => {
       type: res?.code == 0 ? "success" : "error",
       msg: (res?.code != 0 && res?.message) || "",
     };
-    res.status = 9;
+    res.status = 1;
     if ([1].includes(Number(res.status))) {
       resultShow = {
         ...resultShow,
