@@ -386,7 +386,7 @@ const unbindWx = () => {
           <div class="itemLabel">卡有效期</div>
           <div class="itemRight">{{ state.userInfo?.date }}</div>
         </div>
-        <div v-if="state.userInfo?.open_id" class="infoItem">
+        <div v-if="state.userInfo?.open_id" class="infoItem lastItem">
           <div class="itemLabel">微信</div>
           <div class="itemRight">
             <span>z4824614</span>
@@ -576,6 +576,9 @@ const unbindWx = () => {
         }
       }
 
+      .lastItem{
+        border-bottom: none;
+      }
       .actionBot {
         margin-top: 50px;
         padding: 0 20px;

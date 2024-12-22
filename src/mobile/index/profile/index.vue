@@ -242,7 +242,7 @@ const unbindWx = () => {
           <div class="divider"></div>
         </template>
 
-        <button class="footer-button" @click="handleOut">退出登录</button>
+        <button class="footer-button" style="width: 100%;" @click="handleOut">退出登录</button>
       </div>
     </div>
   </div>
