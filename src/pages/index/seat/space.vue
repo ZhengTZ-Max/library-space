@@ -161,7 +161,7 @@ const fetchLibrary = async () => {
       params.premisesIds = state.filterOptions?.premises?.map((e) => e?.id);
     }
     state.floorMapOpt.list = [];
-    state.floorMapOpt.activeId = ''
+    state.floorMapOpt.activeId = "";
     let res = await getSpacePick(params);
 
     if (res.code != 0) {
@@ -519,6 +519,7 @@ const onFloor = (row) => {
     .libraryItem {
       position: relative;
       box-sizing: initial;
+      width: 220px;
     }
     .basicsBadge {
       padding: 3px 8px;
@@ -557,7 +558,7 @@ const onFloor = (row) => {
       padding: 14px 10px 5px 10px;
 
       .title {
-        margin-bottom: 20px;
+        margin-bottom: 6px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -615,7 +616,7 @@ const onFloor = (row) => {
   .spaceMapSlt {
     padding-left: 120px;
     display: flex;
-    .spaceMap{
+    .spaceMap {
       border: 2px solid #cccccc;
       border-radius: 4px;
     }

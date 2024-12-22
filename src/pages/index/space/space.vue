@@ -493,6 +493,8 @@ const handleDateChange = (v) => {
     .libraryItem {
       position: relative;
       box-sizing: initial;
+      width: 220px;
+
       :deep(.cardItemImgCon) {
         .ant-image {
           width: 100%;
@@ -536,7 +538,7 @@ const handleDateChange = (v) => {
       padding: 14px 10px 5px 10px;
 
       .title {
-        margin-bottom: 12px;
+        margin-bottom: 6px;
         display: flex;
         align-items: center;
         justify-content: space-between;

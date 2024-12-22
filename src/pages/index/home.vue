@@ -20,11 +20,6 @@ onMounted(() => {});
           {{ $t("V4_library") }}<br />
           {{ $t("V4_space_reservation_system") }}
         </div>
-        <p class="subtitle">
-          与其用华丽的外衣装饰自己 <br />
-          不如用知识武装自己...
-        </p>
-
         <Tabs></Tabs>
       </div>
       <div v-if="bannerList?.length" class="carouselCon">

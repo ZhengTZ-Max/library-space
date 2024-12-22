@@ -33,7 +33,7 @@ export function getGlobalLang(data) {
 
 export function getBanner(data) {
   return service({
-    url: "/api/index/banner",
+    url: "/v4/index/banner",
     method: "POST",
     // loadingMsg:"正在登录",
     isLoading: true,

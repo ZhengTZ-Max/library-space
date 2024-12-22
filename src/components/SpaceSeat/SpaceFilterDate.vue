@@ -221,6 +221,19 @@ const onChangeTimesMo = () => {
   }
   state.timePickerPopShow = false;
 };
+
+const onChangeDate = () => {
+  console.log(state.filterTimes[0]?.id, "state.filterTimes");
+  setTimeout(() => {
+    if (state.filterDateType == 1) {
+      state.filterRows.time = state.filterTimes[0]?.id;
+    } else if (state.filterDateType == 2) {
+      state.filterRows.time = state.filterTimes[0][0];
+    }
+  }, 50);
+
+  // state.filterRows.time = "";
+};
 </script>
 <template>
   <div class="filterCon" :class="{ filterConMo: systemMode != 'pc' }">
@@ -229,7 +242,7 @@ const onChangeTimesMo = () => {
       <div class="fiterItem">
         <a-radio-group
           v-model:value="state.filterRows.date"
-          @change="state.filterRows.time = ''"
+          @change="onChangeDate"
         >
           <a-radio
             v-for="item in state.filterDate"
