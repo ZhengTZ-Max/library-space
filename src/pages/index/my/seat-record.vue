@@ -5,7 +5,7 @@ import { SearchOutlined } from "@ant-design/icons-vue";
 import { getSeatRecordList, getSeatRenegeList } from "@/request/sear-record";
 import MySeatRecordCom from "@/components/MySeatRecordCom.vue";
 import PageSizeCom from "@/components/PageSizeCom.vue";
-import { getUserInfo } from "@/utils";
+import { getUserInfo, exchangeDateTime } from "@/utils";
 
 const store = useStore();
 const state = reactive({
@@ -23,7 +23,7 @@ const state = reactive({
   isModalVisible: false,
   isModalVisibleForQuery: false,
   selectLocationName: "",
-  selectedRecord: "",
+  selectedRecord: {},
   queryResult: {
     location: "基础馆-1F-自修A区(研习)",
     currentPeriod: {
@@ -35,13 +35,16 @@ const state = reactive({
       status: "未获得",
     },
   },
-
 });
-
 
 const columns = [
   {
-    title: "座位",
+    title: "区域",
+    dataIndex: "seat_space",
+    key: "seat_space",
+  },
+  {
+    title: "座位号",
     dataIndex: "seat",
     key: "seat",
   },
@@ -63,6 +66,7 @@ const columns = [
 
 const onShowModal = (record) => {
   state.isModalVisible = true;
+  state.selectedRecord.activeKey = state.activeKey;
   state.selectedRecord = record;
 };
 const onHideModal = () => {
@@ -209,11 +213,30 @@ const onChangePage = (page, pageSize) => {
           scrollToFirstRowOnChange
         >
           <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'seat_space'">
+              <span>{{ record.nameMerge }}</span>
+            </template>
             <template v-if="column.key === 'seat'">
-              <span>{{ record.nameMerge }} : {{ record.name }}</span>
+              <span v-if="state.activeKey == '1'"> {{ record.name }}</span>
+              <span v-else> {{ record.spacename }}</span>
             </template>
             <template v-if="column.key === 'time'">
-              <span>{{ record.beginTime }}</span>
+              <span v-if="state.activeKey == '1'">
+                <!-- 普通座位  日期不会跨天 -->
+                {{ exchangeDateTime(record.beginTime, 3) }}~{{
+                  exchangeDateTime(record.endTime, 8)
+                }}</span
+              >
+              <span v-else>
+                <!-- 研习/考研座位 日期会跨天 -->
+                {{ exchangeDateTime(record.beginTime, 3) }}~
+                {{ // 判断开始和结束是否为同一天
+                  exchangeDateTime(record.beginTime, 2) !=
+                  exchangeDateTime(record.endTime, 2)
+                    ? exchangeDateTime(record.endTime, 3)
+                    : exchangeDateTime(record.endTime, 8)
+                }}
+              </span>
             </template>
             <template v-if="column.key === 'status_name'">
               <span>

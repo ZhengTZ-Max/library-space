@@ -186,6 +186,7 @@ const onClickItem = (item) => {
   state.showItemDetails = true;
 
   state.itemDetails = item;
+  state.itemDetails.activeKey = state.activeKey;
   console.log(state.itemDetails);
 };
 

@@ -63,6 +63,11 @@ onMounted(() => {
           title="预约地点"
           :value="state.propsData.nameMerge + ' : ' + state.propsData.name"
         />
+        <van-cell
+          class="info_item"
+          title="座位号"
+          :value="state.propsData.activeKey == '1' ? state.propsData.name : state.propsData.spacename"
+        />
       </van-cell-group>
 
       <br />

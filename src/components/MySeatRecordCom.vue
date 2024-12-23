@@ -51,7 +51,7 @@ const onCancelReservation = () => {
     <p>结束时间：{{ state.selectedRecord.endTime }}</p>
     <p>
       预约地点：{{ state.selectedRecord.nameMerge }} :
-      {{ state.selectedRecord.name }}
+      {{ state.selectedRecord.activeKey == '1' ? state.selectedRecord.name : state.selectedRecord.spacename }}
     </p>
     <a-divider dashed />
     <!-- <div v-if="state.selectedRecord.status_name !== '预约成功'">
