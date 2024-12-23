@@ -248,16 +248,17 @@ const onChangeMo = (row) => {
         ></a-tab-pane>
       </a-tabs>
 
-      <div class="mobileRule">
+      <div v-else class="mobileRule">
         <div class="tabsCon">
           <div
             v-for="item in state.showList"
             :key="item?.id"
             class="tabItem"
             @click="onChangeMo(item)"
-            :class="{ active: state.activeKey == item.id }"
           >
-            {{ item?.title }}
+            <span :class="{ active: state.activeKey == item.id }">{{
+              item?.title
+            }}</span>
           </div>
         </div>
         <div class="showHtmlM" v-html="state.showHtml"></div>
@@ -294,9 +295,16 @@ const onChangeMo = (row) => {
       .tabItem {
         padding: 2px 6px;
         transition: 0s;
-        border-bottom: 2px solid transparent;
-        &.active {
-          border-bottom: 2px solid var(--primary-color);
+        width: 33.3%;
+        margin-bottom: 8px;
+        text-align: center;
+        span {
+          border-bottom: 2px solid transparent;
+          padding: 3px 0;
+
+          &.active {
+            border-bottom: 2px solid var(--primary-color);
+          }
         }
       }
     }
