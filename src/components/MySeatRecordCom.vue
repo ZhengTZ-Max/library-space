@@ -76,7 +76,7 @@ const onCancelReservation = () => {
     </div>
     <div v-else>
       <template v-for="item in state.selectedRecord.timelist"
-        ><p>{{ item.status_name }}:{{ item.operateTime }}</p></template
+        ><p>{{ item.status_name }}：{{ item.operateTime }}</p></template
       >
     </div>
   </div>

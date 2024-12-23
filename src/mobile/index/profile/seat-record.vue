@@ -194,9 +194,7 @@ const fetchQuery = () => {
 };
 </script>
 <template>
-  <div
-    class="area-record"
-  >
+  <div class="area-record">
     <div class="cHeader">
       <div class="quickMode">
         <div
@@ -367,7 +365,7 @@ const fetchQuery = () => {
 .area-record {
   height: 100%;
   background-color: #fafafa;
-  overflow: hidden;
+  overflow: auto;
   .top_tabs {
     background-color: #fff;
     padding-left: 10px !important;
@@ -563,7 +561,6 @@ const fetchQuery = () => {
     }
   }
 }
-
 
 :deep(.ant-btn-sm) {
   font-size: 12px !important;

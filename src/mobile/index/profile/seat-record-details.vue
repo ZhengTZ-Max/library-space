@@ -46,7 +46,7 @@ onMounted(() => {
         <van-cell
           class="info_item"
           title="预约时间"
-          :value="state.propsData.beginTime"
+          :value="state.propsData.examTime"
         />
         <van-cell
           class="info_item"
@@ -67,7 +67,15 @@ onMounted(() => {
 
       <br />
       <!-- 取消时间  签到时间-->
-      <van-cell
+
+      <template v-for="item in state.propsData.timelist">
+        <van-cell
+          class="info_item"
+          :title="item.status_name"
+          :value="item.operateTime"
+        />
+      </template>
+      <!-- <van-cell
         v-if="state.propsData.status_name === '已取消'"
         class="info_item"
         title="取消时间"
@@ -87,7 +95,7 @@ onMounted(() => {
         class="info_item"
         title="违约时间"
         :value="state.propsData.signInTime"
-      />
+      /> -->
     </div>
     <!-- <van-cell-group class="bottom_info">
         <van-cell class="info_item" title="预约用户" value="内容" />

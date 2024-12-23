@@ -281,6 +281,7 @@ const onChangePage = (page, pageSize) => {
       title="预约详情"
       :footer="null"
       @ok="onHideModal"
+      destroyOnClose
     >
       <MySeatRecordCom :data="state.selectedRecord" :userName="userName" />
     </a-modal>
