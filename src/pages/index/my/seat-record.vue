@@ -52,6 +52,7 @@ const columns = [
     title: "时间",
     dataIndex: "time",
     key: "time",
+    width: 200,
   },
   {
     title: "状态",
@@ -223,18 +224,14 @@ const onChangePage = (page, pageSize) => {
             <template v-if="column.key === 'time'">
               <span v-if="state.activeKey == '1'">
                 <!-- 普通座位  日期不会跨天 -->
-                {{ exchangeDateTime(record.beginTime, 3) }}~{{
+                {{ exchangeDateTime(record.beginTime, 3) }} ~ {{
                   exchangeDateTime(record.endTime, 8)
                 }}</span
               >
               <span v-else>
                 <!-- 研习/考研座位 日期会跨天 -->
-                {{ exchangeDateTime(record.beginTime, 3) }}~
-                {{ // 判断开始和结束是否为同一天
-                  exchangeDateTime(record.beginTime, 2) !=
-                  exchangeDateTime(record.endTime, 2)
-                    ? exchangeDateTime(record.endTime, 3)
-                    : exchangeDateTime(record.endTime, 8)
+                {{ exchangeDateTime(record.beginTime, 2) }} ~ {{
+                  exchangeDateTime(record.endTime, 40)
                 }}
               </span>
             </template>
@@ -296,6 +293,7 @@ const onChangePage = (page, pageSize) => {
         :total="state.total"
         @change="onChangePage"
         show-less-items
+        :showSizeChanger="false"
       />
     </div>
     <a-modal
