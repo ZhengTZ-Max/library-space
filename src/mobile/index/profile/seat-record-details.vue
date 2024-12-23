@@ -61,7 +61,7 @@ onMounted(() => {
         <van-cell
           class="info_item"
           title="预约地点"
-          :value="state.propsData.nameMerge + ' : ' + state.propsData.name"
+          :value="state.propsData.nameMerge"
         />
         <van-cell
           class="info_item"
@@ -205,5 +205,8 @@ onMounted(() => {
 :deep(.van-cell__title) {
   color: rgba(97, 97, 97, 1) !important;
   font-size: 14px;
+}
+:deep(.van-cell__value) {
+  flex: 2.2 !important;
 }
 </style>

@@ -16,6 +16,7 @@ import { useStore } from "vuex";
 import SeatRecordDetails from "@/mobile/index/profile/seat-record-details.vue";
 // import MySeatRecordCom from "@/components/MySeatRecordCom.vue";
 import { getSeatRecordList, getSeatRenegeList } from "@/request/sear-record";
+import { exchangeDateTime } from "@/utils";
 
 const router = useRouter();
 const state = reactive({
@@ -25,8 +26,8 @@ const state = reactive({
   activeKey: "1",
   activeKeyList: [
     { value: "1", label: "普通座位" },
-    { value: "4", label: "考研座位" },
     { value: "3", label: "研习座位" },
+    { value: "4", label: "考研座位" },
   ],
   currentPage: 1,
   pageSize: 10,
@@ -252,7 +253,21 @@ const fetchQuery = () => {
           </div>
           <div class="info_item">
             <img src="@/assets/event/time.svg" alt="Time" />
-            <span>{{ item.beginTime }}</span>
+            <template v-if="state.quickMode == '1'">
+              <!-- 预约记录 -->
+              <span v-if="state.activeKey == '1'"
+                >{{ exchangeDateTime(item.beginTime, 3) }} ~
+                {{ exchangeDateTime(item.endTime, 8) }}</span
+              >
+              <span v-else
+                >{{ exchangeDateTime(item.beginTime, 2) }} ~
+                {{ exchangeDateTime(item.endTime, 40) }}</span
+              >
+            </template>
+            <template v-else>
+              <!-- 违约记录 -->
+              <span>{{ item.renegeTime }}</span>
+            </template>
 
             <div v-if="item.status_name === '预约成功'">
               <a-button type="primary" shape="round" size="small" block
@@ -276,7 +291,9 @@ const fetchQuery = () => {
           </div>
         </div>
       </van-list>
-      <a-empty v-else />
+      <div style="height: 100%" v-else>
+        <a-empty />
+      </div>
     </van-pull-refresh>
 
     <div v-if="state.quickMode == 3" class="query_result">
@@ -568,6 +585,6 @@ const fetchQuery = () => {
 }
 
 :deep(.van-pull-refresh) {
-  min-height: 90vh !important;
+  min-height: 90% !important;
 }
 </style>

@@ -347,7 +347,7 @@ const onClickItem = (id) => {
   margin-bottom: 0px !important;
 }
 :deep(.van-pull-refresh) {
-  min-height: 90vh !important;
+  min-height: 90% !important;
 }
 
 </style>

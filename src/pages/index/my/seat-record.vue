@@ -42,26 +42,31 @@ const columns = [
     title: "区域",
     dataIndex: "seat_space",
     key: "seat_space",
+    width: 400,
   },
   {
     title: "座位号",
     dataIndex: "seat",
     key: "seat",
+    width: 200,
   },
   {
     title: "时间",
     dataIndex: "time",
     key: "time",
-    width: 200,
+    width: 300,
   },
   {
     title: "状态",
     dataIndex: "status_name",
     key: "status_name",
+
   },
   {
     title: "操作",
     key: "action",
+
+    width: 100,
   },
 ];
 
