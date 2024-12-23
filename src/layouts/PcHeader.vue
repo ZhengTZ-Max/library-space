@@ -3,12 +3,15 @@ import { reactive, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { OutLogin } from "@/utils";
+
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
 const lang = computed(() => store.state.lang);
 const categoryList = computed(() => store.state.categoryList);
 // const systemMode = computed(() => store.state.systemMode);
+
+import BookRules from "@/components/BookRules.vue";
 
 const state = reactive({
   navList: [
@@ -29,13 +32,18 @@ const state = reactive({
     },
   ],
   quickValue: undefined,
+  showRules: false,
 });
 
 const isActiveNav = (link) => {
   return route.path?.includes(link);
 };
 const onChangeNav = (item) => {
-  router.push(`/${item?.link}`);
+  if (item?.link == "rule") {
+    state.showRules = true;
+  } else {
+    router.push(`/${item?.link}`);
+  }
 };
 
 const handleChange = (id) => {
@@ -92,7 +100,8 @@ const toggleLang = (type) => {
           :virtual="false"
         >
           <a-select-option v-for="item in categoryList" :value="item.id">
-            <img src="@/assets/home/quickSelectIcon_01.svg" alt="" />
+            <!-- <img src="@/assets/home/quickSelectIcon_01.svg" alt="" /> -->
+            <img :src="item?.icon" alt="" />
             {{ item.name }}
           </a-select-option>
         </a-select>
@@ -102,6 +111,7 @@ const toggleLang = (type) => {
       </div>
     </div>
   </header>
+  <BookRules v-if="state.showRules" v-model:isShow="state.showRules" />
 </template>
 
 <style lang="less" scoped>
@@ -153,6 +163,7 @@ const toggleLang = (type) => {
             align-items: center;
             img {
               margin-right: 6px;
+              filter: invert(0) brightness(6);
             }
           }
         }
@@ -175,6 +186,9 @@ const toggleLang = (type) => {
   .ant-select-item {
     padding: 12px;
     color: #fff;
+    img {
+      filter: invert(0) brightness(6);
+    }
   }
   .ant-select-item-option-selected {
     color: rgb(255 255 255) !important;

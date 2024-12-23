@@ -14,12 +14,15 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import AppointmentsCards from "@/components/h-appointments-cards.vue";
 import Tabs from "@/components/h-tabs.vue";
+import BookRules from "@/components/BookRules.vue";
 const router = useRouter();
 const store = useStore();
 const bannerList = computed(() => store.state.bannerList);
 const noticeList = computed(() => store.state.noticeList);
 
-const state = reactive({});
+const state = reactive({
+  showRules: false,
+});
 
 const handleMsg = (row) => {
   console.log(row);
@@ -34,6 +37,8 @@ const handleMsg = (row) => {
           <img :src="item?.content" alt="" />
         </div>
       </a-carousel>
+
+      <div class="apptRule" @click="state.showRules = true">预约规则</div>
     </div>
     <div class="tabsCon">
       <div class="topSlide">
@@ -62,6 +67,7 @@ const handleMsg = (row) => {
         </div>
       </div>
     </div>
+    <BookRules v-if="state.showRules" v-model:isShow="state.showRules" />
   </div>
 </template>
 <style scoped lang="less">
@@ -70,6 +76,7 @@ const handleMsg = (row) => {
   height: 100%;
   overflow: auto;
   .bannerLoop {
+    position: relative;
     width: 100%;
     .reviewImg {
       width: 100%;
@@ -78,6 +85,16 @@ const handleMsg = (row) => {
         width: 100%;
         height: 260px;
       }
+    }
+    .apptRule {
+      position: absolute;
+      left: 0;
+      top: 20%;
+      padding: 3px 14px 3px 10px;
+      background-color: var(--primary-color);
+      font-size: 12px;
+      border-radius: 0px 12px 12px 0px;
+      color: #fff;
     }
   }
   .tabsCon {

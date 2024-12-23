@@ -57,22 +57,21 @@ onMounted(() => {
 
 const fetchCategory = async () => {
   try {
-    // state.isCodeLoading = true;
-    const res = await getCategory();
-    // state.isCodeLoading = false;
-
-    if (res.code != 0) {
-      return false;
+    let categoryList = sessionStorage.getItem("categoryList");
+    if (categoryList) {
+      store.dispatch("setCategoryList", JSON.parse(categoryList));
+    } else {
+      const res = await getCategory();
+      let categoryList = res.data || [];
+      categoryList = res.data || [];
+      categoryList = categoryList?.map((e) => {
+        return {
+          ...e,
+          path: tabType?.find((t) => t?.id == e?.id)?.path,
+        };
+      });
+      store.dispatch("setCategoryList", categoryList || []);
     }
-    let categoryList = res.data || [];
-    categoryList = res.data || [];
-    categoryList = categoryList?.map((e) => {
-      return {
-        ...e,
-        path: tabType?.find((t) => t?.id == e?.id)?.path,
-      };
-    });
-    store.dispatch("setCategoryList", categoryList || []);
 
     // state.categoryList = categoryList;
   } catch (e) {

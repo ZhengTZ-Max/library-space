@@ -51,3 +51,14 @@ export function getServeTime(data) {
     data,
   });
 }
+
+// 获取使用须知
+export function getBookingRules(data) {
+  return service({
+    url: "/v4/index/bookingRules",
+    method: "POST",
+    isLoading: true,
+    // customLoading:true, //是否自定义loading
+    data,
+  });
+}

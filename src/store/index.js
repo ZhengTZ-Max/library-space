@@ -20,10 +20,16 @@ const store = createStore({
     userId: "",
 
     pageResizing: false,
+    rules: {},
   },
   mutations: {
+    setRules(state, val) {
+      state.rules = val;
+      sessionStorage.setItem("BookRule", JSON.stringify(val));
+    },
     setCategoryList(state, list) {
       state.categoryList = list;
+      sessionStorage.setItem("categoryList", JSON.stringify(list));
     },
     setNoticeList(state, list) {
       state.noticeList = list;
@@ -66,6 +72,9 @@ const store = createStore({
     },
   },
   actions: {
+    setRules({ commit }, val) {
+      commit("setRules", val);
+    },
     setPageResizing({ commit }, val) {
       commit("setPageResizing", val);
     },
