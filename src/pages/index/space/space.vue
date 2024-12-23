@@ -217,6 +217,7 @@ const fetchInfo = async (id) => {
     }
     state.spaceInfo = { ...res?.data, type: "space" } || {};
     state.spaceInfoShow = true;
+    console.log(state.spaceInfo);
   } catch (error) {
     state.spaceInfo = {};
     console.log(error);
@@ -345,7 +346,7 @@ const handleDateChange = (v) => {
                 </div>
                 <div class="num">
                   <span>可容纳人数</span>
-                  <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} 人</span>
+                  <span>{{ item?.minPerson }} <span v-if="item?.minPerson != item?.maxPerson ">~ {{ item?.maxPerson }}</span>人</span>
                 </div>
                 <div class="boutique">
                   <div class="boutiqueList" v-for="bout in item?.boutiques">

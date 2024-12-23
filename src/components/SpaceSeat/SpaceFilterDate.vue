@@ -289,12 +289,30 @@ const onChangeDate = () => {
             >
           </template>
           <template v-else-if="state.filterDateType == 2">
-            <a-radio
-              v-for="item in state.filterTimes[0]"
-              :value="item"
-              :key="item"
-              >{{ item }}</a-radio
-            >
+            <template v-if="systemMode == 'pc'">
+              <a-radio
+                v-for="item in state.filterTimes[0]"
+                :value="item"
+                :key="item"
+                >{{ item }}</a-radio
+              >
+            </template>
+            <template v-else>
+              <a-flex wrap="wrap">
+                <!--  第一个(左侧) 宽度40% -->
+                <div
+                  v-for="(item, index) in state.filterTimes[0]"
+                  :key="item"
+                  :style="{
+                    width: `${(index + 1) % 3 == 1 ? '40%' : '30%'}`,
+                    textAlign: `${(index + 1) % 3 == 0 ? 'right' : 'left'}`,
+                    marginTop: '6px',
+                  }"
+                >
+                  <a-radio :value="item">{{ item }} </a-radio>
+                </div>
+              </a-flex>
+            </template>
           </template>
         </a-radio-group>
       </div>
@@ -319,7 +337,7 @@ const onChangeDate = () => {
 <style lang="less" scoped>
 .filterCon {
   padding: 24px 0 0 0;
-  height: 30vh !important;
+  height: 40vh !important;
   overflow: hidden;
   display: flex;
   flex-direction: column;

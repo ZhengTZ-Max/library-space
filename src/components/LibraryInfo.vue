@@ -18,6 +18,7 @@ const state = reactive({
 onMounted(() => {
   state.propsData = props?.data || {};
   //   fetchInfo();
+  console.log(state.propsData);
 });
 
 // const fetchInfo = async () => {
@@ -41,22 +42,6 @@ const filterCategorys = (list) => {
 <template>
   <div class="libraryInfo">
     <!-- 轮播图 -->
-
-    <!-- <van-swipe
-      v-if="systemMode != 'pc' && state.propsData?.type == 'activity'"
-      :autoplay="3000"
-      indicator-color="white"
-    >
-      <van-swipe-item v-for="(item, index) in state.propsData?.img" :key="item">
-        <img
-          width="100%"
-          height="290px"
-          :src="item"
-          alt="Empty state illustration"
-        />
-      </van-swipe-item>
-    </van-swipe> -->
-
     <a-carousel autoplay>
       <div
         class="reviewImg"
@@ -67,16 +52,7 @@ const filterCategorys = (list) => {
         <img :src="item" alt="" />
       </div>
     </a-carousel>
-    <!-- <a-carousel autoplay>
-      <div
-        class="reviewImg"
-        v-if="systemMode != 'pc' && state.propsData?.type == 'space'"
-        v-for="item in state.propsData?.img"
-        :key="item"
-      >
-        <img :src="item" alt="" />
-      </div>
-    </a-carousel> -->
+
     <a-carousel autoplay>
       <div
         class="reviewImg"
@@ -96,53 +72,115 @@ const filterCategorys = (list) => {
       </div>
     </a-carousel>
 
-    <!-- 标题 -->
-    <p v-if="systemMode == 'pc'" class="title">
-      {{ state.propsData?.nameMerge || state.propsData?.name || "-" }}
-    </p>
-    <p v-else class="title_mobile">
-      {{ state.propsData?.nameMerge || state.propsData?.name || "-" }}
-    </p>
-
-    <!-- 座位数 -->
-    <div class="seatNum" v-if="state.propsData?.type == 'library'">
-      座位 ( <span>空闲{{ state.propsData?.free_num || "-" }}</span
-      ><span>/总数{{ state.propsData?.total_num || "-" }}</span> )
-    </div>
-    <div class="seatNum" v-if="state.propsData?.type == 'space'">
-      <span>研讨间总数{{ state.propsData?.total_num || "-" }}</span>
-    </div>
-    <div class="seatNum" v-if="state.propsData?.type == 'activity'">
-      {{ filterCategorys(state.propsData?.categorys || []) }} (
-      <span
-        >可容纳{{ state.propsData?.minPerson }} ~
-        {{ state.propsData?.maxPerson }}人</span
-      >)
-    </div>
-    <div class="libraryIntro" v-html="state.propsData?.sub_title || ''"></div>
-
-    <!-- 馆舍特征 -->
-    <template v-if="state.propsData?.boutiques?.length">
-      <p class="subtitle">馆舍特征</p>
-
-      <div class="features">
-        <div v-for="item in state.propsData?.boutiques" class="item">
-          <img :src="item?.icon" alt="" />
-          {{ item?.name }}
-        </div>
-      </div>
-    </template>
-
-    <!-- 注意事项 -->
-    <template
-      v-if="state.propsData?.sub_title && state.propsData?.type != 'library'"
+    <!-- PC 端 活动详情页面 单独处理 -->
+    <div
+      style="display: flex; gap: 20px; align-items: flex-start"
+      v-if="systemMode == 'pc' && state.propsData?.type == 'activity'"
     >
-      <p class="subtitle" style="margin-top: 20px">注意事项</p>
-      <div
-        class="notice libraryIntro"
-        v-html="state.propsData?.sub_title"
-      ></div>
-    </template>
+      <img
+        style="width: 450px; height: 450px"
+        :src="state.propsData?.firstImg"
+        alt=""
+      />
+      <div>
+        <!-- 标题 -->
+        <p class="title">
+          {{ state.propsData?.nameMerge || state.propsData?.name || "-" }}
+        </p>
+
+        <!-- 座位数 -->
+        <div class="seatNum">
+          {{ filterCategorys(state.propsData?.categorys || []) }} (
+          <span
+            >可容纳{{ state.propsData?.minPerson }} ~
+            {{ state.propsData?.maxPerson }}人</span
+          >)
+        </div>
+        <div
+          class="libraryIntro"
+          v-html="state.propsData?.sub_title || ''"
+        ></div>
+
+        <!-- 馆舍特征 -->
+        <template v-if="state.propsData?.boutiques?.length">
+          <p class="subtitle">馆舍特征</p>
+
+          <div class="features">
+            <div v-for="item in state.propsData?.boutiques" class="item">
+              <img :src="item?.icon" alt="" />
+              {{ item?.name }}
+            </div>
+          </div>
+        </template>
+
+        <!-- 注意事项 -->
+        <template
+          v-if="
+            state.propsData?.sub_title && state.propsData?.type != 'library'
+          "
+        >
+          <p class="subtitle" style="margin-top: 20px">注意事项</p>
+          <div
+            class="notice libraryIntro"
+            v-html="state.propsData?.sub_title"
+          ></div>
+        </template>
+      </div>
+    </div>
+    <div v-else>
+      <!-- 标题 -->
+      <p v-if="systemMode == 'pc'" class="title">
+        {{ state.propsData?.nameMerge || state.propsData?.name || "-" }}
+      </p>
+      <p v-else class="title_mobile">
+        {{ state.propsData?.nameMerge || state.propsData?.name || "-" }}
+      </p>
+
+      <!-- 座位数 -->
+      <div class="seatNum" v-if="state.propsData?.type == 'library'">
+        座位 ( <span>空闲{{ state.propsData?.free_num || "-" }}</span
+        ><span>/总数{{ state.propsData?.total_num || "-" }}</span> )
+      </div>
+      <div class="seatNum" v-if="state.propsData?.type == 'space'">
+        <span
+          >研讨间可容纳{{ state.propsData?.minPerson }}
+          <span v-if="state.propsData?.minPerson != state.propsData?.maxPerson"
+            >~ {{ state.propsData?.maxPerson }}</span
+          >人</span
+        >
+      </div>
+      <div class="seatNum" v-if="state.propsData?.type == 'activity'">
+        {{ filterCategorys(state.propsData?.categorys || []) }} (
+        <span
+          >可容纳{{ state.propsData?.minPerson }} ~
+          {{ state.propsData?.maxPerson }}人</span
+        >)
+      </div>
+      <div class="libraryIntro" v-html="state.propsData?.sub_title || ''"></div>
+
+      <!-- 馆舍特征 -->
+      <template v-if="state.propsData?.boutiques?.length">
+        <p class="subtitle">馆舍特征</p>
+
+        <div class="features">
+          <div v-for="item in state.propsData?.boutiques" class="item">
+            <img :src="item?.icon" alt="" />
+            {{ item?.name }}
+          </div>
+        </div>
+      </template>
+
+      <!-- 注意事项 -->
+      <template
+        v-if="state.propsData?.sub_title && state.propsData?.type != 'library'"
+      >
+        <p class="subtitle" style="margin-top: 20px">注意事项</p>
+        <div
+          class="notice libraryIntro"
+          v-html="state.propsData?.sub_title"
+        ></div>
+      </template>
+    </div>
   </div>
 </template>
 <style lang="less" scoped>

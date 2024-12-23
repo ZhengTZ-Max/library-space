@@ -64,7 +64,6 @@ onMounted(() => {
 
   fetchGetSpaceSelectList();
   fetchGetSpaceFilterList();
-  
 });
 
 const initQuickDateList = () => {
@@ -180,7 +179,7 @@ const filterFloorIds = (ids) => {
 const fetchGetSpaceInfoList = async () => {
   try {
     let { search, library, floor, date, boutique, category, time } =
-    state.filterSearch;
+      state.filterSearch;
 
     let params = {
       premises: library,
@@ -292,68 +291,75 @@ const handleDateChange = (v) => {
       </div>
     </div>
 
-    <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
-      <van-list
-        v-model:loading="state.loading"
-        :finished="state.finished"
-        finished-text="没有更多了"
-        @load="onLoad"
-      >
-        <div v-for="item in state.spaceInfoList" :key="item?.id" class="item">
-          <van-row>
-            <van-col span="9" class="img_col">
-              <a-image
-                style="width: 100px; height: 100px; border-radius: 10px"
-                :src="item?.firstimg"
-                :preview="false"
-              />
-              <div class="basicsBadge" :class="{ greenBadge: false }">
-                {{ item?.top_name }}
-              </div>
-              <div class="posBot">
-                <!-- - {{ filterCategorys(item?.categorys) }} - -->
-                <span>- {{ item?.type_name }} -</span>
-              </div>
-            </van-col>
-            <van-col span="15" class="right_info">
-              <div class="title">
-                <span>{{ item?.name }}</span>
-                <span>{{ item?.storey_name }}</span>
-              </div>
-
-              <div class="boutique">
-                <div
-                  class="boutiqueList"
-                  v-for="bout in item?.boutiques"
-                  :key="bout?.id"
-                >
-                  {{ bout.name }}
+    <div style="margin-top: 60px">
+      <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
+        <van-list
+          v-model:loading="state.loading"
+          :finished="state.finished"
+          finished-text="没有更多了"
+          @load="onLoad"
+        >
+          <div v-for="item in state.spaceInfoList" :key="item?.id" class="item">
+            <van-row>
+              <van-col span="9" class="img_col">
+                <a-image
+                  style="width: 100px; height: 100px; border-radius: 10px"
+                  :src="item?.firstimg"
+                  :preview="false"
+                />
+                <div class="basicsBadge" :class="{ greenBadge: false }">
+                  {{ item?.top_name }}
                 </div>
-              </div>
-              <div class="num">
-                <span>可容纳人数</span>
-                <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} 人</span>
-              </div>
+                <div class="posBot">
+                  <!-- - {{ filterCategorys(item?.categorys) }} - -->
+                  <span>- {{ item?.type_name }} -</span>
+                </div>
+              </van-col>
+              <van-col span="15" class="right_info">
+                <div class="title">
+                  <span>{{ item?.name }}</span>
+                  <span>{{ item?.storey_name }}</span>
+                </div>
 
-              <div class="action">
-                <span @click="handleShowInfo(item)">查看详情 ></span>
+                <div class="boutique">
+                  <div
+                    class="boutiqueList"
+                    v-for="bout in item?.boutiques"
+                    :key="bout?.id"
+                  >
+                    {{ bout.name }}
+                  </div>
+                </div>
+                <div class="num">
+                  <span>可容纳人数</span>
+                  <span
+                    >{{ item?.minPerson }}
+                    <span v-if="item?.minPerson != item?.maxPerson"
+                      >~ {{ item?.maxPerson }} </span
+                    >人</span
+                  >
+                </div>
 
-                <van-button
-                  plain
-                  type="primary"
-                  color="#1a49c0"
-                  round
-                  size="mini"
-                  style="padding: 4px 15px; font-size: 12px"
-                  @click="onApply(item?.id)"
-                  >申请</van-button
-                >
-              </div>
-            </van-col>
-          </van-row>
-        </div>
-      </van-list>
-    </van-pull-refresh>
+                <div class="action">
+                  <span @click="handleShowInfo(item)">查看详情 ></span>
+
+                  <van-button
+                    plain
+                    type="primary"
+                    color="#1a49c0"
+                    round
+                    size="mini"
+                    style="padding: 4px 15px; font-size: 12px"
+                    @click="onApply(item?.id)"
+                    >申请</van-button
+                  >
+                </div>
+              </van-col>
+            </van-row>
+          </div>
+        </van-list>
+      </van-pull-refresh>
+    </div>
 
     <a-drawer
       rootClassName="filterDrawer"
@@ -425,10 +431,13 @@ const handleDateChange = (v) => {
 .space_space_mobile {
   height: 100%;
   background-color: #fafafa;
-  overflow-y: auto;
-  overflow-x: hidden;
 
   .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
     background-color: #fff;
     padding: 10px 14px;
     display: flex;

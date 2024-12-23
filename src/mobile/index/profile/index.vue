@@ -129,6 +129,7 @@ const fetchMyInfo = async () => {
     const res = await getMyInfo();
     if (res.code === 0) {
       state.userInfo = res.data || {};
+      // state.userInfo.open_id = "111";
     }
     console.log(res);
   } catch (error) {
@@ -242,7 +243,9 @@ const unbindWx = () => {
           <div class="divider"></div>
         </template>
 
-        <button class="footer-button" style="width: 100%;" @click="handleOut">退出登录</button>
+        <button class="footer-button" :class="{ 'w-100': !state.userInfo?.open_id }" @click="handleOut">
+          退出登录
+        </button>
       </div>
     </div>
   </div>
@@ -307,6 +310,9 @@ const unbindWx = () => {
         padding: 10px 20px;
         cursor: pointer;
         font-size: 16px;
+      }
+      .w-100 {
+        width: 100%;
       }
 
       .divider {

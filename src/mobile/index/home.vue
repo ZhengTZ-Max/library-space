@@ -29,7 +29,7 @@ const handleMsg = (row) => {
 <template>
   <div class="home">
     <div class="bannerLoop">
-      <a-carousel :dots="false" autoplay>
+      <a-carousel  autoplay>
         <div class="reviewImg" v-for="item in bannerList" :key="item?.id">
           <img :src="item?.content" alt="" />
         </div>
@@ -130,5 +130,8 @@ const handleMsg = (row) => {
       }
     }
   }
+}
+:deep(.slick-dots-bottom) {
+  bottom: 32px !important;
 }
 </style>

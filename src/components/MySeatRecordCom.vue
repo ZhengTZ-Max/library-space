@@ -19,7 +19,6 @@ const state = reactive({
 
 onMounted(() => {
   state.selectedRecord = props?.data || {};
-
 });
 
 const onCancelReservation = () => {
@@ -44,8 +43,10 @@ const onCancelReservation = () => {
         >{{ state.selectedRecord.status_name }}</span
       >
     </p>
-    <p>预约用户：{{ state.userInfo.name }}({{ state.selectedRecord.booker }})</p>
-    <p>预约时间：{{ state.selectedRecord.beginTime }}</p>
+    <p>
+      预约用户：{{ state.userInfo.name }}({{ state.selectedRecord.booker }})
+    </p>
+    <p>预约时间：{{ state.selectedRecord.examTime }}</p>
     <p>开始时间：{{ state.selectedRecord.beginTime }}</p>
     <p>结束时间：{{ state.selectedRecord.endTime }}</p>
     <p>
@@ -53,7 +54,7 @@ const onCancelReservation = () => {
       {{ state.selectedRecord.name }}
     </p>
     <a-divider dashed />
-    <div v-if="state.selectedRecord.status_name !== '预约成功'">
+    <!-- <div v-if="state.selectedRecord.status_name !== '预约成功'">
       <p v-if="state.selectedRecord.status_name == '未签到'">
         违约时间：{{ state.selectedRecord.renegeTime }}
       </p>
@@ -61,7 +62,7 @@ const onCancelReservation = () => {
         取消时间：{{ state.selectedRecord.cancelTime }}
       </p>
       <p v-else>签到时间：{{ state.selectedRecord.signInTime }}</p>
-    </div>
+    </div> -->
     <div
       class="modal-footer"
       v-if="state.selectedRecord.status_name === '预约成功'"
@@ -71,6 +72,11 @@ const onCancelReservation = () => {
         class="cancel-button"
         @click="onCancelReservation"
         >取消预约</a-button
+      >
+    </div>
+    <div v-else>
+      <template v-for="item in state.selectedRecord.timelist"
+        ><p>{{ item.status_name }}:{{ item.operateTime }}</p></template
       >
     </div>
   </div>

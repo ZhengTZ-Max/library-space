@@ -23,7 +23,7 @@ onMounted(() => {});
         <Tabs></Tabs>
       </div>
       <div v-if="bannerList?.length" class="carouselCon">
-        <a-carousel :dots="false" autoplay>
+        <a-carousel autoplay effect="fade">
           <div class="reviewImg" v-for="item in bannerList" :key="item?.id">
             <img :src="item?.content" alt="" />
           </div>
@@ -119,5 +119,8 @@ onMounted(() => {});
     height: 60px;
     background: linear-gradient(90deg, #1a49c0 0%, #abbef0 100%);
   }
+}
+:deep(.slick-dots-bottom) {
+  bottom: 22px !important;
 }
 </style>

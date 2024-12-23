@@ -931,7 +931,7 @@ const getDateStatus = () => {
         </div>
       </template>
 
-      <a-row v-else :gutter="[15, 15]">
+      <!-- <a-row v-else :gutter="[15, 15]" >
         <template v-for="item in state.calendarInfo.list" :key="item">
           <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
             <div
@@ -950,7 +950,27 @@ const getDateStatus = () => {
             </div>
           </a-col>
         </template>
-      </a-row>
+      </a-row> -->
+
+      <a-flex
+        v-else
+        gap="middle"
+        style="overflow-x: auto; white-space: nowrap; "
+      >
+        <template v-for="item in state.calendarInfo.list" :key="item">
+          <div
+            class="libraryItem cardItemBorTran"
+            :class="{ activeItem: item?.date == state.dateIndex?.date }"
+            @click="onChangeDateAct(item)"
+          >
+            <span>{{ moment(item?.date).format("MM-DD") }}</span>
+            <span>{{ exchangeDateTime(item?.date, 31) }}</span>
+            <div v-if="item?.date == state.dateIndex?.date" class="check_icon">
+              <img src="@/assets/event/checked.svg" />
+            </div>
+          </div>
+        </template>
+      </a-flex>
 
       <div
         v-if="state.spaceApplyInfo?.type_id != 5 && state.sliderShow"
@@ -1321,6 +1341,7 @@ const getDateStatus = () => {
     }
 
     .libraryItem {
+      padding: 5px 15px;
       position: relative;
       background-color: rgba(97, 97, 97, 0.05);
       display: flex;

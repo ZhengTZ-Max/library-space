@@ -1010,7 +1010,7 @@ const handleShow = (v) => {
     </div>
 
     <a-modal
-      width="40%"
+      width="45%"
       v-model:open="state.activityDetailInfoShow"
       title="空间详情"
       @ok="state.activityDetailInfoShow = false"
