@@ -330,6 +330,7 @@ const onFloor = (row) => {
             >
               <div class="cardItemImgCon">
                 <a-image
+                @click="handleAppt(item)"
                   class="cardItemImg"
                   :src="item?.firstImg"
                   :preview="false"
