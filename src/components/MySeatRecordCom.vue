@@ -19,6 +19,7 @@ const state = reactive({
 
 onMounted(() => {
   state.selectedRecord = props?.data || {};
+  console.log(state.selectedRecord);
 });
 
 const onCancelReservation = () => {
@@ -49,10 +50,8 @@ const onCancelReservation = () => {
     <p>预约时间：{{ state.selectedRecord.examTime }}</p>
     <p>开始时间：{{ state.selectedRecord.beginTime }}</p>
     <p>结束时间：{{ state.selectedRecord.endTime }}</p>
-    <p>
-      预约地点：{{ state.selectedRecord.nameMerge }} :
-      {{ state.selectedRecord.activeKey == '1' ? state.selectedRecord.name : state.selectedRecord.spacename }}
-    </p>
+    <p>预约地点：{{ state.selectedRecord.nameMerge }}</p>
+    <p>座位号：{{ state.selectedRecord.name || state.selectedRecord?.spacename }} </p>
     <a-divider dashed />
     <!-- <div v-if="state.selectedRecord.status_name !== '预约成功'">
       <p v-if="state.selectedRecord.status_name == '未签到'">

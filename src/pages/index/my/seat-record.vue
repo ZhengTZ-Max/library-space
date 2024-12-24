@@ -60,7 +60,6 @@ const columns = [
     title: "状态",
     dataIndex: "status_name",
     key: "status_name",
-
   },
   {
     title: "操作",
@@ -71,9 +70,9 @@ const columns = [
 ];
 
 const onShowModal = (record) => {
-  state.isModalVisible = true;
   state.selectedRecord.activeKey = state.activeKey;
   state.selectedRecord = record;
+  state.isModalVisible = true;
 };
 const onHideModal = () => {
   state.isModalVisible = false;
@@ -229,19 +228,18 @@ const onChangePage = (page, pageSize) => {
             <template v-if="column.key === 'time'">
               <span v-if="state.activeKey == '1'">
                 <!-- 普通座位  日期不会跨天 -->
-                {{ exchangeDateTime(record.beginTime, 3) }} ~ {{
-                  exchangeDateTime(record.endTime, 8)
-                }}</span
+                {{ exchangeDateTime(record.beginTime, 3) }} ~
+                {{ exchangeDateTime(record.endTime, 8) }}</span
               >
               <span v-else>
                 <!-- 研习/考研座位 日期会跨天 -->
-                {{ exchangeDateTime(record.beginTime, 2) }} ~ {{
-                  exchangeDateTime(record.endTime, 40)
-                }}
+                {{ exchangeDateTime(record.beginTime, 2) }} ~
+                {{ exchangeDateTime(record.endTime, 40) }}
               </span>
             </template>
             <template v-if="column.key === 'status_name'">
               <span>
+                <!--记得使用status状态码判断  -->
                 <a-tag
                   class="custom-tag"
                   :color="
@@ -249,6 +247,8 @@ const onChangePage = (page, pageSize) => {
                       ? 'success'
                       : record.status_name === '使用中'
                       ? 'processing'
+                      : record.status == '4'
+                      ? 'warning'
                       : record.status_name === '未签到'
                       ? 'error'
                       : record.status_name === '状态异常'

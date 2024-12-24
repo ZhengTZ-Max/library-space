@@ -92,8 +92,12 @@ service.interceptors.response.use(
     if (code === 10001) {
       message.error(messg);
       setTimeout(() => {
-        localStorage.clear();
-        sessionStorage.clear();
+        // localStorage.clear();
+        // sessionStorage.clear();
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("UserInfo");
+        sessionStorage.removeItem("authError");
+        sessionStorage.removeItem("verifyLogin");
         location.hash = "/login";
       }, 1000);
     }

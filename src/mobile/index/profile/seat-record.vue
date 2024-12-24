@@ -228,73 +228,78 @@ const fetchQuery = () => {
         {{ item?.label }}
       </div>
     </div>
-
-    <van-pull-refresh
-      v-if="state.quickMode != 3"
-      v-model="state.refreshing"
-      @refresh="onRefresh"
-    >
-      <van-list
-        v-if="state.data.length > 0"
-        v-model:loading="state.loading"
-        :finished="state.finished"
-        finished-text="没有更多了"
-        @load="onLoad"
+    <div class="refreshCon">
+      <van-pull-refresh
+        v-if="state.quickMode != 3"
+        v-model="state.refreshing"
+        @refresh="onRefresh"
       >
-        <div
-          v-for="item in state.data"
-          :key="item?.id"
-          class="item_list"
-          @click="onClickItem(item)"
+        <van-list
+          v-if="state.data.length > 0"
+          v-model:loading="state.loading"
+          :finished="state.finished"
+          finished-text="没有更多了"
+          @load="onLoad"
         >
-          <div class="info_item margin_bottom">
-            <img src="@/assets/my/mobile_seat_record_seat.svg" alt="Location" />
-            <span>{{ item.nameMerge }} : {{ item.name }}</span>
-          </div>
-          <div class="info_item">
-            <img src="@/assets/event/time.svg" alt="Time" />
-            <template v-if="state.quickMode == '1'">
-              <!-- 预约记录 -->
-              <span v-if="state.activeKey == '1'"
-                >{{ exchangeDateTime(item.beginTime, 3) }} ~
-                {{ exchangeDateTime(item.endTime, 8) }}</span
-              >
-              <span v-else
-                >{{ exchangeDateTime(item.beginTime, 2) }} ~
-                {{ exchangeDateTime(item.endTime, 40) }}</span
-              >
-            </template>
-            <template v-else>
-              <!-- 违约记录 -->
-              <span>{{ item.renegeTime }}</span>
-            </template>
+          <div
+            v-for="item in state.data"
+            :key="item?.id"
+            class="item_list"
+            @click="onClickItem(item)"
+          >
+            <div class="info_item margin_bottom">
+              <img
+                src="@/assets/my/mobile_seat_record_seat.svg"
+                alt="Location"
+              />
+              <span>{{ item.nameMerge }} : {{ item.name }}</span>
+            </div>
+            <div class="info_item">
+              <img src="@/assets/event/time.svg" alt="Time" />
+              <template v-if="state.quickMode == '1'">
+                <!-- 预约记录 -->
+                <span v-if="state.activeKey == '1'"
+                  >{{ exchangeDateTime(item.beginTime, 3) }} ~
+                  {{ exchangeDateTime(item.endTime, 8) }}</span
+                >
+                <span v-else
+                  >{{ exchangeDateTime(item.beginTime, 2) }} ~
+                  {{ exchangeDateTime(item.endTime, 40) }}</span
+                >
+              </template>
+              <template v-else>
+                <!-- 违约记录 -->
+                <span>{{ item.renegeTime }}</span>
+              </template>
 
-            <div v-if="item.status_name === '预约成功'">
-              <a-button type="primary" shape="round" size="small" block
-                >取消</a-button
-              >
+              <div v-if="item.status_name === '预约成功'">
+                <a-button type="primary" shape="round" size="small" block
+                  >取消</a-button
+                >
+              </div>
+            </div>
+
+            <div
+              class="rightBadge basicsBadge"
+              :class="{
+                status_success: item.status_name === '预约成功',
+                status_cancel: item.status_name === '已取消',
+                status_in_progress: item.status_name === '使用中',
+                status_end: item.status_name === '已结束',
+                status_no_sign: item.status_name === '未签到',
+                status_abnormal:
+                  item.status_name === '状态异常' || item.status == '4',
+              }"
+            >
+              {{ item.status_name }}
             </div>
           </div>
-
-          <div
-            class="rightBadge basicsBadge"
-            :class="{
-              status_success: item.status_name === '预约成功',
-              status_cancel: item.status_name === '已取消',
-              status_in_progress: item.status_name === '使用中',
-              status_end: item.status_name === '已结束',
-              status_no_sign: item.status_name === '未签到',
-              status_abnormal: item.status_name === '状态异常',
-            }"
-          >
-            {{ item.status_name }}
-          </div>
+        </van-list>
+        <div style="height: 100%" v-else>
+          <a-empty />
         </div>
-      </van-list>
-      <div style="height: 100%" v-else>
-        <a-empty />
-      </div>
-    </van-pull-refresh>
+      </van-pull-refresh>
+    </div>
 
     <div v-if="state.quickMode == 3" class="query_result">
       <div class="query_result_info">
@@ -384,6 +389,8 @@ const fetchQuery = () => {
   height: 100%;
   background-color: #fafafa;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
   .top_tabs {
     background-color: #fff;
     padding-left: 10px !important;
@@ -584,7 +591,11 @@ const fetchQuery = () => {
   font-size: 12px !important;
 }
 
-:deep(.van-pull-refresh) {
-  min-height: 90% !important;
+.refreshCon {
+  flex: 1;
+  .van-pull-refresh {
+    height: 100%;
+  }
 }
+
 </style>

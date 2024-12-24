@@ -8,6 +8,8 @@ const store = useStore();
 const state = reactive({});
 
 const bannerList = computed(() => store.state.bannerList);
+const apiConfig = computed(() => store.state.apiConfig);
+const lang = computed(() => store.state.lang);
 
 onMounted(() => {});
 </script>
@@ -17,8 +19,9 @@ onMounted(() => {});
       <div class="homel">
         <p class="title">{{ $t("V4_welcome_to_use") }}</p>
         <div class="library">
-          {{ $t("V4_library") }}<br />
-          {{ $t("V4_space_reservation_system") }}
+          {{ lang == "zh" ? apiConfig?.web?.title : apiConfig?.web?.entitle }}
+          <!-- {{ $t("V4_library") }}<br /> -->
+          <!-- {{ $t("V4_space_reservation_system") }} -->
         </div>
         <Tabs></Tabs>
       </div>
@@ -85,7 +88,7 @@ onMounted(() => {});
       .library {
         margin: 8px 0 0 0;
         font-weight: 400;
-        font-size: 70px;
+        font-size: 55px;
         color: #1a49c0;
         line-height: 80px;
         transform: skewX(-6deg);
