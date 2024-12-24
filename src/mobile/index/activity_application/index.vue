@@ -370,6 +370,14 @@ const onApply = (id) => {
         margin-top: 8px;
         display: flex;
         flex-wrap: wrap;
+        max-height: 40px;
+        overflow: auto;
+        &::-webkit-scrollbar {
+          display: none; /* 隐藏滚动条 */
+        }
+
+        scrollbar-width: none; /* Firefox 隐藏滚动条 */
+        -ms-overflow-style: none; /* IE 和 Edge 隐藏滚动条 */
         .boutiqueList {
           border: 1px solid #f28800;
           font-size: 10px;

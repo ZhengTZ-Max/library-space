@@ -117,18 +117,18 @@ onMounted(() => {
   fetchGetActivityApply();
 
   // 回显测试
-  setTimeout(() => {
-    state.initApprove = [
-      {
-        file_ext: "pdf",
-        file_name: "NKY2Pj2ipqIUQmFu1732951373143983.pdf",
-        file_origin_name: "Transactions Explanation.pdf",
-        file_path:
-          "/upload/activity/2024-11-30/NKY2Pj2ipqIUQmFu1732951373143983.pdf",
-        file_size: "524.64 KB",
-      },
-    ];
-  }, 3000);
+  // setTimeout(() => {
+  //   state.initApprove = [
+  //     {
+  //       file_ext: "pdf",
+  //       file_name: "NKY2Pj2ipqIUQmFu1732951373143983.pdf",
+  //       file_origin_name: "Transactions Explanation.pdf",
+  //       file_path:
+  //         "/upload/activity/2024-11-30/NKY2Pj2ipqIUQmFu1732951373143983.pdf",
+  //       file_size: "524.64 KB",
+  //     },
+  //   ];
+  // }, 3000);
 });
 
 const bottomBtnDisabled = () => {
