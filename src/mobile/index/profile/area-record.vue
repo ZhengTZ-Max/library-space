@@ -161,9 +161,7 @@ const onClickItem = (item) => {
 };
 </script>
 <template>
-  <div
-    class="area-record"
-  >
+  <div class="area-record">
     <div class="cHeader">
       <div class="quickMode">
         <div
@@ -189,52 +187,66 @@ const onClickItem = (item) => {
       </div>
     </div>
 
-    <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
-      <van-list
-        v-if="state.data.length > 0"
-        v-model:loading="state.loading"
-        :finished="state.finished"
-        finished-text="没有更多了"
-        @load="onLoad"
-      >
-        <div
-          v-for="item in state.data"
-          :key="item?.id"
-          class="item_list"
-          @click="onClickItem(item)"
+    <div class="refreshCon">
+      <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
+        <van-list
+          v-if="state.data.length > 0"
+          v-model:loading="state.loading"
+          :finished="state.finished"
+          finished-text="没有更多了"
+          @load="onLoad"
         >
-          <div class="info_item margin_bottom">
-            <img src="@/assets/event/seat.svg" alt="Location" />
-            <span>{{ item.nameMerge }}</span>
-          </div>
-          <div class="info_item">
-            <img src="@/assets/event/time.svg" alt="Time" />
-            <span>{{ item.begin_time }}</span>
+          <div
+            v-for="item in state.data"
+            :key="item?.id"
+            class="item_list"
+            @click="onClickItem(item)"
+          >
+            <div class="info_item margin_bottom">
+              <img src="@/assets/event/seat.svg" alt="Location" />
+              <span>{{ item.nameMerge }}</span>
+            </div>
+            <div class="info_item">
+              <img src="@/assets/event/time.svg" alt="Time" />
+              <span>{{ item.begin_time }}</span>
 
-            <div v-if="item.status_name === '预约成功'">
-              <a-button type="primary" shape="round" size="small" block
-                >取消</a-button
-              >
+              <div v-if="item.status_name === '预约成功'">
+                <a-button type="primary" shape="round" size="small" block
+                  >取消</a-button
+                >
+              </div>
+            </div>
+
+            <!-- 
+                  预约成功			2、9
+                  预约待审核		1、32	
+                  待邀			    21
+                  草稿			    31
+                  使用中			  3、11、33
+                  已结束			  4、8、12、34、35
+                  已取消			  6
+                  状态异常			其它
+                -->
+            <div
+              class="rightBadge basicsBadge"
+              :class="{
+                status_success: item.status === '2' || item.status === '9',
+                status_cancel: item.status === '6',
+                status_in_progress: item.status === '3' || item.status === '11' || item.status === '33',
+                status_end: item.status === '4' || item.status === '8' || item.status === '12' || item.status === '34' || item.status === '35',
+                status_waitting: item.status === '1' || item.status === '32',
+                status_closed: item.status_name === '已关闭',
+              }"
+            >
+              {{ item.status_name }}
             </div>
           </div>
-
-          <div
-            class="rightBadge basicsBadge"
-            :class="{
-              status_success: item.status_name === '预约成功',
-              status_cancel: item.status_name === '已取消',
-              status_in_progress: item.status_name === '使用中',
-              status_end: item.status_name === '已结束',
-              status_waitting: item.status_name === '预约待审核',
-              status_closed: item.status_name === '已关闭',
-            }"
-          >
-            {{ item.status_name }}
-          </div>
+        </van-list>
+        <div style="height: 100%" v-else>
+          <a-empty />
         </div>
-      </van-list>
-      <a-empty v-else />
-    </van-pull-refresh>
+      </van-pull-refresh>
+    </div>
 
     <van-popup
       v-model:show="state.showItemDetails"
@@ -264,6 +276,8 @@ const onClickItem = (item) => {
   height: 100%;
   overflow: auto;
   background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
 
   .top_tabs {
     background-color: #fff;
@@ -385,7 +399,10 @@ const onClickItem = (item) => {
 :deep(.ant-btn-sm) {
   font-size: 12px !important;
 }
-:deep(.van-pull-refresh) {
-  min-height: 90vh !important;
+.refreshCon {
+  flex: 1;
+  .van-pull-refresh {
+    height: 100%;
+  }
 }
 </style>

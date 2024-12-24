@@ -279,13 +279,23 @@ const fetchQuery = () => {
               </div>
             </div>
 
+            <!-- 
+                  预约成功			2、9
+                  预约待审核		1、32	
+                  待邀			    21
+                  草稿			    31
+                  使用中			  3、11、33
+                  已结束			  4、8、12、34、35
+                  已取消			  6
+                  状态异常			其它
+                -->
             <div
               class="rightBadge basicsBadge"
               :class="{
-                status_success: item.status_name === '预约成功',
-                status_cancel: item.status_name === '已取消',
-                status_in_progress: item.status_name === '使用中',
-                status_end: item.status_name === '已结束',
+                status_success: item.status === '2' || item.status === '9',
+                status_cancel: item.status === '6',
+                status_in_progress: item.status === '3' || item.status === '11' || item.status === '33',
+                status_end: item.status === '4' || item.status === '8' || item.status === '12' || item.status === '34' || item.status === '35',
                 status_no_sign: item.status_name === '未签到',
                 status_abnormal:
                   item.status_name === '状态异常' || item.status == '4',
@@ -597,5 +607,4 @@ const fetchQuery = () => {
     height: 100%;
   }
 }
-
 </style>

@@ -80,36 +80,47 @@ const onClickItem = (item) => {
         </div>
       </div>
     </div>
-    <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
-      <van-list
-        v-model:loading="state.loading"
-        :finished="state.finished"
-        finished-text="没有更多了"
-        @load="onLoad"
-      >
-        <div class="item" v-for="item in state.data" :key="item?.id" @click="onClickItem(item)">
-          <van-image
-            class="img"
-            radius="6px"
-            src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
-            alt="Empty state illustration"
-          />
-          <div class="info">
-            <div class="info_item">
-              <img
-                src="@/assets/my/mobile_lostAndFound_item_location.svg"
-                alt="Location"
-              />
-              <span>失物招领</span>
-            </div>
-            <div class="info_item">
-              <img src="@/assets/event/time.svg" alt="Time" />
-              <span>2024-02-05 09:57:00</span>
+    <div class="refreshCon">
+      <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
+        <van-list
+          v-if="state.data.length > 0"
+          v-model:loading="state.loading"
+          :finished="state.finished"
+          finished-text="没有更多了"
+          @load="onLoad"
+        >
+          <div
+            class="item"
+            v-for="item in state.data"
+            :key="item?.id"
+            @click="onClickItem(item)"
+          >
+            <van-image
+              class="img"
+              radius="6px"
+              src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
+              alt="Empty state illustration"
+            />
+            <div class="info">
+              <div class="info_item">
+                <img
+                  src="@/assets/my/mobile_lostAndFound_item_location.svg"
+                  alt="Location"
+                />
+                <span>失物招领</span>
+              </div>
+              <div class="info_item">
+                <img src="@/assets/event/time.svg" alt="Time" />
+                <span>2024-02-05 09:57:00</span>
+              </div>
             </div>
           </div>
+        </van-list>
+        <div style="height: 100%" v-else>
+          <a-empty />
         </div>
-      </van-list>
-    </van-pull-refresh>
+      </van-pull-refresh>
+    </div>
   </div>
 </template>
 <style lang="less" scoped>
@@ -118,6 +129,9 @@ const onClickItem = (item) => {
   height: 100%;
   padding: 16px;
   background-color: rgba(250, 250, 250, 1);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
   .item {
     display: flex;
     width: 100%;
@@ -147,7 +161,10 @@ const onClickItem = (item) => {
     }
   }
 }
-:deep(.van-pull-refresh) {
-  height: 100% !important;
+.refreshCon {
+  flex: 1;
+  .van-pull-refresh {
+    height: 100%;
+  }
 }
 </style>

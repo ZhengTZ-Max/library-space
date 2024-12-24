@@ -1,10 +1,10 @@
 <route>
     {
       meta: {
-        showHead: true,
+        showHead: false,
         showLeftBack:true,
         title:'EventRegistration',
-        showTabbar:false
+        showTabbar:true
       }
     }
 </route>
@@ -18,7 +18,6 @@ import { exchangeDateTime } from "@/utils";
 import { getCurrentEventList, getEventFilterIndex } from "@/request/event";
 import EventFilter from "@/components/EventFilterCom.vue";
 
-
 const router = useRouter();
 const state = reactive({
   eventFilterShow: false,
@@ -29,6 +28,10 @@ const state = reactive({
     date: "",
   },
   activeKey: "1",
+  activeKeyList: [
+    { value: "1", label: "当前活动" },
+    { value: "0", label: "历史活动" },
+  ],
   refreshing: false,
   loading: false,
   finished: true,
@@ -43,9 +46,13 @@ const state = reactive({
   eventList: [],
 });
 
-const onChangeTab = (key) => {
-  state.activeKey = key;
-};
+watch(
+  () => state.activeKey,
+  () => {
+    state.currentPage = 1;
+    fetchCurrentEventList();
+  }
+);
 
 const onClickItem = (id) => {
   router.push({
@@ -89,30 +96,42 @@ const fetchCurrentEventList = async () => {
     state.refreshing = false;
 
     if (res.code == 0) {
-      state.eventList = res.data?.data;
+      if (state.currentPage === 1) {
+        state.eventList = res?.data?.data || [];
+      } else {
+        state.eventList.push(...res?.data?.data);
+      }
+      state.total = res?.data?.total;
+      state.finished = res?.data?.current_page >= res?.data?.last_page || true;
     } else {
       state.eventList = [];
+      state.total = 0;
+      state.finished = true;
     }
-    state.finished = res?.data?.current_page >= res?.data?.last_page || true;
   } catch (e) {
     state.loading = false;
     state.refreshing = false;
     state.finished = true;
     state.eventList = [];
+    state.total = 0;
   }
 };
 </script>
 <template>
   <div class="event">
-    <a-tabs
-      v-model:activeKey="state.activeKey"
-      class="top_tabs"
-      size="middle"
-      @change="onChangeTab"
-    >
-      <a-tab-pane key="1" tab="当前活动"></a-tab-pane>
-      <a-tab-pane key="0" tab="历史活动"></a-tab-pane>
-    </a-tabs>
+    <div class="cHeader">
+      <div class="quickMode">
+        <div
+          v-for="item in state.activeKeyList"
+          :key="item.label"
+          class="item_tab activeBtn"
+          :class="{ itemActive: item?.value == state.activeKey }"
+          @click="state.activeKey = item?.value"
+        >
+          {{ item?.label }}
+        </div>
+      </div>
+    </div>
     <div class="right_filter" @click="state.eventFilterShow = true">
       <img src="@/assets/event/mobile_event_filter.svg" alt="filter" />
     </div>
@@ -137,57 +156,63 @@ const fetchCurrentEventList = async () => {
       </div>
     </div>
 
-    <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
-      <van-list
-        v-model:loading="state.loading"
-        :finished="state.finished"
-        finished-text="没有更多了"
-        @load="onLoad"
-      >
-        <div
-          class="item"
-          v-for="item in state.eventList"
-          :key="item?.id"
-          @click="onClickItem(item?.id)"
+    <div class="refreshCon">
+      <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
+        <van-list
+          v-if="state.eventList.length > 0"
+          v-model:loading="state.loading"
+          :finished="state.finished"
+          finished-text="没有更多了"
+          @load="onLoad"
         >
-          <div class="item_title">{{ item?.title }}</div>
           <div
-            class="leftBadge basicsBadge"
-            :class="{
-              status_not_started: item?.status_name === '未开始',
-              status_in_registration: item?.status_name === '报名中',
-              status_in_progress: item?.status_name === '进行中',
-              status_end: item?.status_name === '已结束',
-              status_success: item?.status_name === '报名成功',
-            }"
+            class="item"
+            v-for="item in state.eventList"
+            :key="item?.id"
+            @click="onClickItem(item?.id)"
           >
-            {{ item?.status_name }}
-          </div>
-          <div class="item_img">
-            <van-image
-              :src="item?.poster[0]?.file_path"
-              alt="Empty state illustration"
-            />
-            <div class="posBot">
-              <span>- {{ item?.cate_name }} -</span>
+            <div class="item_title">{{ item?.title }}</div>
+            <div
+              class="leftBadge basicsBadge"
+              :class="{
+                status_not_started: item?.status_name === '未开始',
+                status_in_registration: item?.status_name === '报名中',
+                status_in_progress: item?.status_name === '进行中',
+                status_end: item?.status_name === '已结束',
+                status_success: item?.status_name === '报名成功',
+              }"
+            >
+              {{ item?.status_name }}
             </div>
-          </div>
+            <div class="item_img">
+              <van-image
+                :src="item?.poster[0]?.file_path"
+                alt="Empty state illustration"
+              />
+              <div class="posBot">
+                <span>- {{ item?.cate_name }} -</span>
+              </div>
+            </div>
 
-          <div class="item_bottom">
-            <div class="event-location">
-              <img src="@/assets/event/seat.svg" alt="Location" />
-              <span>{{ item?.nameMerge }}</span>
-            </div>
-            <div class="event-time">
-              <img src="@/assets/event/time.svg" alt="Time" />
-              <div class="timeList">
-                <span>{{ item?.show_time }}</span>
+            <div class="item_bottom">
+              <div class="event-location">
+                <img src="@/assets/event/seat.svg" alt="Location" />
+                <span>{{ item?.nameMerge }}</span>
+              </div>
+              <div class="event-time">
+                <img src="@/assets/event/time.svg" alt="Time" />
+                <div class="timeList">
+                  <span>{{ item?.show_time }}</span>
+                </div>
               </div>
             </div>
           </div>
+        </van-list>
+        <div style="height: 100%" v-else>
+          <a-empty />
         </div>
-      </van-list>
-    </van-pull-refresh>
+      </van-pull-refresh>
+    </div>
 
     <a-drawer
       rootClassName="filterDrawer"
@@ -227,11 +252,34 @@ const fetchCurrentEventList = async () => {
   background-color: #fafafa;
 
   position: relative;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
   .top_tabs {
     background-color: #fff;
     padding-left: 10px !important;
     padding-bottom: 0px !important;
   }
+  .cHeader {
+    padding: 10px 14px 0 10px;
+    border-bottom: 1px solid #f5f5f5;
+    background-color: #fff;
+  }
+  .quickMode {
+    display: flex;
+    gap: 20px;
+    .item_tab {
+      padding-bottom: 10px;
+      font-size: 15px;
+      color: #616161;
+
+      &.itemActive {
+        color: #202020;
+        border-bottom: 2px solid #1a49c0;
+      }
+    }
+  }
+
   .right_filter {
     position: absolute;
     right: 10px;
@@ -279,6 +327,7 @@ const fetchCurrentEventList = async () => {
     position: relative;
 
     .item_title {
+      margin-top: 20px;
       font-size: 14px;
       color: rgba(32, 32, 32, 1);
       margin-bottom: 12px;
@@ -375,7 +424,10 @@ const fetchCurrentEventList = async () => {
 :deep(.ant-tabs-nav) {
   margin-bottom: 0px !important;
 }
-:deep(.van-pull-refresh) {
-  height: 100% !important;
+.refreshCon {
+  flex: 1;
+  .van-pull-refresh {
+    height: 100%;
+  }
 }
 </style>

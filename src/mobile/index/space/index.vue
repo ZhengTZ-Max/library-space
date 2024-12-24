@@ -65,67 +65,74 @@ const fetchGetSpaceListInfo = async () => {
 };
 
 const goToLink = (item) => {
-    router.push({
+  router.push({
     path: "/mo/space/space",
     query: { id: item?.id },
   });
 };
 
-const handleShowInfo = (item) => {
-
-};
+const handleShowInfo = (item) => {};
 </script>
 <template>
   <div class="space_mobile">
-    <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
-      <van-list
-        v-model:loading="state.loading"
-        :finished="state.finished"
-        finished-text="没有更多了"
-        @load="onLoad"
-      >
-        <div class="librarySlt">
-          <a-row v-if="state.libraryList?.length" :gutter="[12, 20]">
-            <template v-for="item in state.libraryList" :key="item?.id">
-              <a-col :xs="24" :sm="24" :md="24" :lg="24">
-                <div class="libraryItem cardItem">
-                  <div class="cardItemImgCon">
-                    <div
-                      class="rightBadge viewMore clickBox"
-                      @click.stop="handleShowInfo(item)"
-                    >
-                      <span> 查看详情 </span>
-                      <img src="@/assets/home/rightIconW.svg" alt="" />
-                    </div>
-                    <img class="cardItemImg" :src="item?.firstImg" alt="" />
-                    <div class="posBot">
-                      <p>{{ item?.name }}</p>
+    <div class="refreshCon">
+      <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
+        <van-list
+          v-if="state.libraryList?.length > 0"
+          v-model:loading="state.loading"
+          :finished="state.finished"
+          finished-text="没有更多了"
+          @load="onLoad"
+        >
+          <div class="librarySlt">
+            <a-row v-if="state.libraryList?.length" :gutter="[12, 20]">
+              <template v-for="item in state.libraryList" :key="item?.id">
+                <a-col :xs="24" :sm="24" :md="24" :lg="24">
+                  <div class="libraryItem cardItem">
+                    <div class="cardItemImgCon">
+                      <div
+                        class="rightBadge viewMore clickBox"
+                        @click.stop="handleShowInfo(item)"
+                      >
+                        <span> 查看详情 </span>
+                        <img src="@/assets/home/rightIconW.svg" alt="" />
+                      </div>
+                      <img class="cardItemImg" :src="item?.firstImg" alt="" />
+                      <div class="posBot">
+                        <p>{{ item?.name }}</p>
 
-                      <div class="bottomItem">
-                        <div class="num">
-                          <span>空间总数{{ item?.total || "-" }}</span>
-                        </div>
-                        <div class="action" @click="goToLink(item)">
-                          <span>预约</span>
-                          <img src="@/assets/home/rightIconW.svg" alt="" />
+                        <div class="bottomItem">
+                          <div class="num">
+                            <span>空间总数{{ item?.total || "-" }}</span>
+                          </div>
+                          <div class="action" @click="goToLink(item)">
+                            <span>预约</span>
+                            <img src="@/assets/home/rightIconW.svg" alt="" />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </a-col>
-            </template>
-          </a-row>
-          <a-empty v-else />
+                </a-col>
+              </template>
+            </a-row>
+            <a-empty v-else />
+          </div>
+        </van-list>
+        <div style="height: 100%" v-else>
+          <a-empty />
         </div>
-      </van-list>
-    </van-pull-refresh>
+      </van-pull-refresh>
+    </div>
   </div>
 </template>
 <style lang="less" scoped>
 .space_mobile {
   height: 100%;
   background-color: #fafafa;
+  display: flex;
+  overflow: auto;
+  flex-direction: column;
 
   .librarySlt {
     width: 100%;
@@ -202,7 +209,12 @@ const handleShowInfo = (item) => {
     }
   }
 }
-
+.refreshCon {
+  flex: 1;
+  .van-pull-refresh {
+    height: 100%;
+  }
+}
 // :deep(.van-pull-refresh) {
 //   height: 70% !important;
 // }

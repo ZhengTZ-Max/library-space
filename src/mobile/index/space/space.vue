@@ -291,9 +291,10 @@ const handleDateChange = (v) => {
       </div>
     </div>
 
-    <div style="margin-top: 60px">
+    <div class="refreshCon">
       <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
         <van-list
+          v-if="state.spaceInfoList?.length > 0"
           v-model:loading="state.loading"
           :finished="state.finished"
           finished-text="没有更多了"
@@ -358,6 +359,9 @@ const handleDateChange = (v) => {
             </van-row>
           </div>
         </van-list>
+        <div style="height: 100%" v-else>
+          <a-empty />
+        </div>
       </van-pull-refresh>
     </div>
 
@@ -431,6 +435,9 @@ const handleDateChange = (v) => {
 .space_space_mobile {
   height: 100%;
   background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
 
   .header {
     position: fixed;
@@ -604,7 +611,11 @@ const handleDateChange = (v) => {
     }
   }
 }
-:deep(.van-pull-refresh) {
-  height: 100% !important;
+.refreshCon {
+  margin-top: 60px;
+  flex: 1;
+  .van-pull-refresh {
+    height: 100%;
+  }
 }
 </style>

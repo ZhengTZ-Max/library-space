@@ -139,9 +139,7 @@ const onClickItem = (id) => {
 </script>
 
 <template>
-  <div
-    class="activityRecord"
-  >
+  <div class="activityRecord">
     <div class="cHeader">
       <div class="quickMode">
         <div
@@ -156,77 +154,81 @@ const onClickItem = (id) => {
       </div>
     </div>
 
-    <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
-      <van-list
-        v-if="state.data.length > 0"
-        v-model:loading="state.loading"
-        :finished="state.finished"
-        finished-text="没有更多了"
-        @load="onLoad"
-      >
-        <div
-          class="item_list"
-          v-if="state.activeKey !== '3'"
-          v-for="item in state.data"
-          :key="item?.id"
-          @click="onClickItem(item?.id)"
+    <div class="refreshCon">
+      <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
+        <van-list
+          v-if="state.data.length > 0"
+          v-model:loading="state.loading"
+          :finished="state.finished"
+          finished-text="没有更多了"
+          @load="onLoad"
         >
-          <div class="item_title">{{ item?.title }}</div>
           <div
-            class="rigthBadge basicsBadge"
-            :class="{
-              status_not_started: item?.status_name === '未开始',
-              status_in_registration: item?.status_name === '报名中',
-              status_in_progress: item?.status_name === '进行中',
-              status_end:
-                item?.status_name === '已结束' ||
-                item?.status_name === '审核未通过',
-              status_success: item?.status_name === '报名成功',
-            }"
+            class="item_list"
+            v-if="state.activeKey !== '3'"
+            v-for="item in state.data"
+            :key="item?.id"
+            @click="onClickItem(item?.id)"
           >
-            {{ item?.status_name }}
-          </div>
-          <van-image
-            :src="item?.poster[0]?.file_path"
-            alt="Empty state illustration"
-          />
-          <div class="item_bottom">
-            <div class="event-location">
-              <img src="@/assets/event/seat.svg" alt="Location" />
-              <span>{{ item?.nameMerge }}</span>
+            <div class="item_title">{{ item?.title }}</div>
+            <div
+              class="rigthBadge basicsBadge"
+              :class="{
+                status_not_started: item?.status_name === '未开始',
+                status_in_registration: item?.status_name === '报名中',
+                status_in_progress: item?.status_name === '进行中',
+                status_end:
+                  item?.status_name === '已结束' ||
+                  item?.status_name === '审核未通过',
+                status_success: item?.status_name === '报名成功',
+              }"
+            >
+              {{ item?.status_name }}
             </div>
-            <div class="event-time">
-              <img src="@/assets/event/time.svg" alt="Time" />
-              <div class="timeList">
-                <span>{{ item?.show_date }}</span>
+            <van-image
+              :src="item?.poster[0]?.file_path"
+              alt="Empty state illustration"
+            />
+            <div class="item_bottom">
+              <div class="event-location">
+                <img src="@/assets/event/seat.svg" alt="Location" />
+                <span>{{ item?.nameMerge }}</span>
+              </div>
+              <div class="event-time">
+                <img src="@/assets/event/time.svg" alt="Time" />
+                <div class="timeList">
+                  <span>{{ item?.show_date }}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div
-          class="item_list"
-          v-if="state.activeKey == '3'"
-          v-for="item in state.data"
-          :key="item?.id"
-          @click="onClickItem(item)"
-        >
-          <div class="item_title">{{ item?.title }}</div>
-          <van-image
-            radius="10"
-            :src="item?.poster[0]?.file_path"
-            alt="Empty state illustration"
-          />
-          <div class="item_bottom_draft" @click="onClickDraftEdit('1')">
-            <div class="draft_left">1111</div>
-            <div class="draft_right">
-              <div class="draft_time">编辑</div>
-              <img src="@/assets/my/mobile_event_edit_draft.svg" alt="Edit" />
+          <div
+            class="item_list"
+            v-if="state.activeKey == '3'"
+            v-for="item in state.data"
+            :key="item?.id"
+            @click="onClickItem(item)"
+          >
+            <div class="item_title">{{ item?.title }}</div>
+            <van-image
+              radius="10"
+              :src="item?.poster[0]?.file_path"
+              alt="Empty state illustration"
+            />
+            <div class="item_bottom_draft" @click="onClickDraftEdit('1')">
+              <div class="draft_left">1111</div>
+              <div class="draft_right">
+                <div class="draft_time">编辑</div>
+                <img src="@/assets/my/mobile_event_edit_draft.svg" alt="Edit" />
+              </div>
             </div>
           </div>
+        </van-list>
+        <div style="height: 100%" v-else>
+          <a-empty />
         </div>
-      </van-list>
-      <a-empty v-else />
-    </van-pull-refresh>
+      </van-pull-refresh>
+    </div>
   </div>
 </template>
 <style lang="less" scoped>
@@ -234,6 +236,8 @@ const onClickItem = (id) => {
   height: 100%;
   overflow: auto;
   background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
 
   .cHeader {
     background-color: #fff;
@@ -346,8 +350,10 @@ const onClickItem = (id) => {
 :deep(.ant-tabs-nav) {
   margin-bottom: 0px !important;
 }
-:deep(.van-pull-refresh) {
-  min-height: 90% !important;
+.refreshCon {
+  flex: 1;
+  .van-pull-refresh {
+    height: 100%;
+  }
 }
-
 </style>

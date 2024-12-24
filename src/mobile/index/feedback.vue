@@ -296,13 +296,11 @@ const fetchSubmit = async (params) => {
       const res = await postFeedback(params);
       if (res.code == 0) {
         message.success(res.message);
-
       }
     } else {
       const res = await postFeedbackForRepair(params);
       if (res.code == 0) {
         message.success(res.message);
-
       }
     }
   } catch (error) {
@@ -313,7 +311,10 @@ const fetchSubmit = async (params) => {
 
 <template>
   <div class="feedback">
-    <div v-if="!state.isOptionDetails" style="height: 100%; overflow-y: hidden">
+    <div
+      v-if="!state.isOptionDetails"
+      class="feedback_content"
+    >
       <div class="cHeader">
         <div class="quickMode">
           <div
@@ -328,54 +329,63 @@ const fetchSubmit = async (params) => {
         </div>
       </div>
 
-      <!-- 反馈列表 -->
-      <van-pull-refresh
-        v-model="state.refreshing"
-        @refresh="onRefresh"
-        v-if="state.activeKey == '1'"
-      >
-        <van-list
-          v-if="state.data.length > 0"
-          v-model:loading="state.loading"
-          :finished="state.finished"
-          finished-text="没有更多了"
-          @load="onLoad"
-        >
-          <div class="feedback_list" v-for="item in state.data" :key="item?.id">
-            <div class="item" @click="onShowOptionDetails(item)">
-              <div class="van-ellipsis item_title">
-                {{ item?.content }}
-              </div>
-              <div class="type_time">
-                <div
-                  class="type"
-                  :class="{
-                    opinion: item?.type == '1',
-                    device: item?.type == '2',
-                  }"
-                >
-                  {{ item?.type === "1" ? "意见反馈" : "设备报修" }}
-                </div>
-                <div class="time">{{ item?.create_time }}</div>
-              </div>
-              <a-divider />
-              <div class="right_arrow">
-                <img
-                  src="@/assets/activity_application/right_arrow_gray.svg"
-                  alt=""
-                />
-              </div>
-              <div class="status_dot" v-if="item?.is_read == '0'"></div>
 
-              <!-- <img src="@/assets/activity_application/right_arrow_gray.svg" alt="" /> -->
+      <!-- 反馈列表 -->
+      <div class="refreshCon">
+        <van-pull-refresh
+          v-model="state.refreshing"
+          @refresh="onRefresh"
+          v-if="state.activeKey == '1'"
+        >
+          <van-list
+            v-if="state.data.length > 0"
+            v-model:loading="state.loading"
+            :finished="state.finished"
+            finished-text="没有更多了"
+            @load="onLoad"
+          >
+            <div
+              class="feedback_list"
+              v-for="item in state.data"
+              :key="item?.id"
+            >
+              <div class="item" @click="onShowOptionDetails(item)">
+                <div class="van-ellipsis item_title">
+                  {{ item?.content }}
+                </div>
+                <div class="type_time">
+                  <div
+                    class="type"
+                    :class="{
+                      opinion: item?.type == '1',
+                      device: item?.type == '2',
+                    }"
+                  >
+                    {{ item?.type === "1" ? "意见反馈" : "设备报修" }}
+                  </div>
+                  <div class="time">{{ item?.create_time }}</div>
+                </div>
+                <a-divider />
+                <div class="right_arrow">
+                  <img
+                    src="@/assets/activity_application/right_arrow_gray.svg"
+                    alt=""
+                  />
+                </div>
+                <div class="status_dot" v-if="item?.is_read == '0'"></div>
+
+                <!-- <img src="@/assets/activity_application/right_arrow_gray.svg" alt="" /> -->
+              </div>
             </div>
+          </van-list>
+          <div style="height: 100%" v-else>
+            <a-empty />
           </div>
-        </van-list>
-        <a-empty v-else />
-      </van-pull-refresh>
+        </van-pull-refresh>
+      </div>
 
       <!-- 意见反馈 / 设备报修-->
-      <div class="feedback_option_tab">
+      <div class="feedback_option_tab" v-if="state.activeKey != '1'">
         <FeedbackSubmitMobile :data="state.submitInfo" />
 
         <div class="option_bottomAction">
@@ -412,7 +422,12 @@ const fetchSubmit = async (params) => {
 .feedback {
   height: 100%;
   background-color: #fafafa;
-  overflow: hidden;
+  .feedback_content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: auto;
+  }
   .cHeader {
     padding: 10px 14px 0 10px;
     border-bottom: 1px solid #f5f5f5;
@@ -539,7 +554,10 @@ const fetchSubmit = async (params) => {
 :deep(.ant-divider-horizontal) {
   margin: 0 !important;
 }
-:deep(.van-pull-refresh) {
-  min-height: 90vh !important;
+.refreshCon {
+  flex: 1;
+  .van-pull-refresh {
+    height: 100%;
+  }
 }
 </style>

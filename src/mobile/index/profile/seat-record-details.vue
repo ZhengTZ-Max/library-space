@@ -25,15 +25,25 @@ onMounted(() => {
   <div class="area-record-details">
     <div
       class="top_info"
-      :class="{ height_calc: state.propsData.status_name === '预约成功' }"
+      :class="{ height_calc: state.propsData.status === '2' || state.propsData.status === '9' }"
     >
+      <!-- 
+                  预约成功			2、9
+                  预约待审核		1、32	
+                  待邀			    21
+                  草稿			    31
+                  使用中			  3、11、33
+                  已结束			  4、8、12、34、35
+                  已取消			  6
+                  状态异常			其它
+                -->
       <van-cell-group>
         <van-cell
           class="info_item_status"
           :class="{
             info_item_status_success:
-              state.propsData.status_name === '预约成功',
-            info_item_status_blue: state.propsData.status_name === '使用中',
+              state.propsData.status === '2' || state.propsData.status === '9',
+            info_item_status_blue: state.propsData.status === '3' || state.propsData.status === '11' || state.propsData.status === '33',
           }"
           title="预约状态"
           :value="state.propsData.status_name"
@@ -66,7 +76,11 @@ onMounted(() => {
         <van-cell
           class="info_item"
           title="座位号"
-          :value="state.propsData.activeKey == '1' ? state.propsData.name : state.propsData.spacename"
+          :value="
+            state.propsData.activeKey == '1'
+              ? state.propsData.name
+              : state.propsData.spacename
+          "
         />
       </van-cell-group>
 
@@ -110,7 +124,7 @@ onMounted(() => {
     </van-cell-group> -->
     <div
       class="bottom_info_btn"
-      v-if="state.propsData.status_name === '预约成功'"
+      v-if="state.propsData.status === '2' || state.propsData.status === '9'"
     >
       <a-button shape="round" block class="cancel_btn">取消预约</a-button>
     </div>

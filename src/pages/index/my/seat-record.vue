@@ -240,14 +240,24 @@ const onChangePage = (page, pageSize) => {
             <template v-if="column.key === 'status_name'">
               <span>
                 <!--记得使用status状态码判断  -->
+                <!-- 
+                  预约成功			2、9
+                  预约待审核		1、32	
+                  待邀			    21
+                  草稿			    31
+                  使用中			  3、11、33
+                  已结束			  4、8、12、34、35
+                  已取消			  6
+                  状态异常			其它
+                -->
                 <a-tag
                   class="custom-tag"
                   :color="
-                    record.status_name === '预约成功'
+                    record.status === '2' || record.status === '9'
                       ? 'success'
-                      : record.status_name === '使用中'
+                      : record.status === '3' || record.status === '11' || record.status === '33'
                       ? 'processing'
-                      : record.status == '4'
+                      : record.status == '1' || record.status == '32'
                       ? 'warning'
                       : record.status_name === '未签到'
                       ? 'error'

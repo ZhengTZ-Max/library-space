@@ -153,7 +153,7 @@ const fetchGetActivityDetail = async (id) => {
     const res = await getActivityDetail(params);
     if (res?.code === 0) {
       state.drawerDetailsInfo.selectedDetails = res?.data;
-      if (state.activeKey === "1") { 
+      if (state.activeKey === "1") {
         state.isShowDrawer = true;
       } else {
         onDealWithDate();
@@ -203,13 +203,11 @@ const onChangePage = (page, pageSize) => {
   fetch();
 };
 
-
 const onSaveComments = () => {
   fetchSaveComments();
 };
 
 const onDealWithDate = () => {
-
   state.drawerDetailsInfo.selectedDetails.time.forEach((dateItem) => {
     // 检查当前日期的 time 数组
     const hasSubscribed = dateItem.time.some((timeItem) => {
@@ -224,7 +222,6 @@ const onDealWithDate = () => {
     // 根据是否有 is_subscribe = 1 来设置 isSelected
     dateItem.isAppointment = hasSubscribed;
     if (hasSubscribed && state.drawerDetailsInfo.selectedDate === "") {
-      
       state.drawerDetailsInfo.selectedDate = dateItem.date;
     }
 
@@ -237,8 +234,6 @@ const onDealWithDate = () => {
   // console.log(state.appointmentTime);
   // console.log(state.selectedDetails.time);
 };
-
-
 </script>
 
 <template>

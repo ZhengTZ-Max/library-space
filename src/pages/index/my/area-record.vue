@@ -23,7 +23,6 @@ const state = reactive({
   isModalVisibleForQuery: false,
   selectLocationName: "",
   selectedRecord: "",
-
 });
 
 const columns = [
@@ -169,16 +168,26 @@ const onChangePage = (page, pageSize) => {
             </template>
             <template v-if="column.key === 'status_name'">
               <span>
+                <!-- 
+                  预约成功			2、9
+                  预约待审核		1、32	
+                  待邀			    21
+                  草稿			    31
+                  使用中			  3、11、33
+                  已结束			  4、8、12、34、35
+                  已取消			  6
+                  状态异常			其它
+                -->
                 <a-tag
                   class="custom-tag"
                   :color="
-                    record.status_name === '预约成功'
+                    record.status === '2' || record.status === '9'
                       ? 'success'
-                      : record.status_name === '使用中'
+                      : record.status === '3' ||
+                        record.status === '11' ||
+                        record.status === '33'
                       ? 'processing'
-                      : record.status_name === '未签到'
-                      ? 'error'
-                      : record.status_name === '预约待审核'
+                      : record.status === '1' || record.status === '32'
                       ? 'warning'
                       : 'default'
                   "
@@ -192,7 +201,8 @@ const onChangePage = (page, pageSize) => {
               <template
                 v-if="
                   record.status_name === '预约待确认' ||
-                  record.status_name === '预约成功'
+                  record.status === '2' ||
+                  record.status === '9'
                 "
               >
                 <span>
@@ -231,14 +241,24 @@ const onChangePage = (page, pageSize) => {
     >
       <a-divider />
       <div v-if="state.selectedRecord" class="modal-content">
+        <!-- 
+                  预约成功			2、9
+                  预约待审核		1、32	
+                  待邀			    21
+                  草稿			    31
+                  使用中			  3、11、33
+                  已结束			  4、8、12、34、35
+                  已取消			  6
+                  状态异常			其它
+                -->
         <p>
           预约状态：<span
             :class="
-              state.selectedRecord.status_name === '预约待审核'
+              state.selectedRecord.status === '1' || state.selectedRecord.status === '1'
                 ? 'status-wait'
-                : state.selectedRecord.status_name === '预约成功'
+                : state.selectedRecord.status === '2' || state.selectedRecord.status === '9'
                 ? 'status-success'
-                : state.selectedRecord.status_name === '使用中'
+                : state.selectedRecord.status === '3' || state.selectedRecord.status === '11' || state.selectedRecord.status === '33'
                 ? 'status-active'
                 : state.selectedRecord.status_name === '未签到'
                 ? 'status-nosign'

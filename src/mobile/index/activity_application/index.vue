@@ -21,7 +21,6 @@ import {
 import EventFilter from "@/components/EventFilterCom.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
 
-
 const router = useRouter();
 const state = reactive({
   boutiques: [{ name: "电视" }, { name: "投影仪" }],
@@ -143,68 +142,79 @@ const onApply = (id) => {
       </div>
     </div>
 
-    <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
-      <van-list
-        v-model:loading="state.loading"
-        :finished="state.finished"
-        finished-text="没有更多了"
-        @load="onLoad"
-      >
-        <div v-if="state.applicationList.length" v-for="item in state.applicationList" :key="item?.id" class="item">
-          <van-row>
-            <van-col span="9" class="img_col">
-              <a-image
-                style="width: 100px; height: 100px;border-radius: 10px"
-                :src="item?.firstImg"
-                :preview="false"
-              />
-              <div class="basicsBadge" :class="{ greenBadge: false }">
-                {{ item?.top_name }}
-              </div>
-              <div class="posBot">
-                - {{ filterCategorys(item?.categorys) }} -
-              </div>
-            </van-col>
-            <van-col span="15" class="right_info">
-              <div class="title">
-                <span>{{ item?.name }}</span>
-                <span>{{ item?.storey_name }}</span>
-              </div>
-
-              <div class="boutique">
-                <div
-                  class="boutiqueList"
-                  v-for="bout in item?.boutiques"
-                  :key="bout?.id"
-                >
-                  {{ bout.name }}
+    <div class="refreshCon">
+      <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
+        <van-list
+          v-if="state.applicationList.length > 0"
+          v-model:loading="state.loading"
+          :finished="state.finished"
+          finished-text="没有更多了"
+          @load="onLoad"
+        >
+          <div
+            v-if="state.applicationList.length"
+            v-for="item in state.applicationList"
+            :key="item?.id"
+            class="item"
+          >
+            <van-row>
+              <van-col span="9" class="img_col">
+                <a-image
+                  style="width: 100px; height: 100px; border-radius: 10px"
+                  :src="item?.firstImg"
+                  :preview="false"
+                />
+                <div class="basicsBadge" :class="{ greenBadge: false }">
+                  {{ item?.top_name }}
                 </div>
-              </div>
-              <div class="num">
-                <span>可容纳人数</span>
-                <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} 人</span>
-              </div>
+                <div class="posBot">
+                  - {{ filterCategorys(item?.categorys) }} -
+                </div>
+              </van-col>
+              <van-col span="15" class="right_info">
+                <div class="title">
+                  <span>{{ item?.name }}</span>
+                  <span>{{ item?.storey_name }}</span>
+                </div>
 
-              <div class="action">
-                <span @click="handleShowInfo(item)">查看详情 ></span>
+                <div class="boutique">
+                  <div
+                    class="boutiqueList"
+                    v-for="bout in item?.boutiques"
+                    :key="bout?.id"
+                  >
+                    {{ bout.name }}
+                  </div>
+                </div>
+                <div class="num">
+                  <span>可容纳人数</span>
+                  <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} 人</span>
+                </div>
 
-                <van-button
-                  plain
-                  type="primary"
-                  color="#1a49c0"
-                  round
-                  size="mini"
-                  style="padding: 4px 15px; font-size: 12px"
-                  @click="onApply(item?.id)"
-                  >申请</van-button
-                >
-              </div>
-            </van-col>
-          </van-row>
+                <div class="action">
+                  <span @click="handleShowInfo(item)">查看详情 ></span>
+
+                  <van-button
+                    plain
+                    type="primary"
+                    color="#1a49c0"
+                    round
+                    size="mini"
+                    style="padding: 4px 15px; font-size: 12px"
+                    @click="onApply(item?.id)"
+                    >申请</van-button
+                  >
+                </div>
+              </van-col>
+            </van-row>
+          </div>
+          <a-empty class="empty" v-else />
+        </van-list>
+        <div style="height: 100%" v-else>
+          <a-empty />
         </div>
-        <a-empty class="empty" v-else />
-      </van-list>
-    </van-pull-refresh>
+      </van-pull-refresh>
+    </div>
 
     <a-drawer
       rootClassName="filterDrawer"
@@ -258,7 +268,11 @@ const onApply = (id) => {
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
             返回
           </van-button>
-          <van-button round block type="primary" @click="onApply(state.activityInfo?.id)"
+          <van-button
+            round
+            block
+            type="primary"
+            @click="onApply(state.activityInfo?.id)"
             >预约</van-button
           >
         </div>
@@ -270,6 +284,9 @@ const onApply = (id) => {
 .activity_application_mobile {
   height: 100%;
   background-color: #fafafa;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
   .top_tabs {
     padding: 15px 16px;
     background-color: #fff;
@@ -421,7 +438,10 @@ const onApply = (id) => {
   }
 }
 
-:deep(.van-pull-refresh) {
-  height: 100% !important;
+.refreshCon {
+  flex: 1;
+  .van-pull-refresh {
+    height: 100%;
+  }
 }
 </style>
