@@ -38,13 +38,17 @@ import Uploader from "@/components/Uploader.vue";
 import SliderCom from "@/components/SliderCom.vue";
 import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
 import ShowInfoToast from "@/components/ShowInfoToast.vue";
+import HiddenArrow from "@/assets/swipe_hidden_arrow.svg";
+import ShowArrow from "@/assets/swipe_show_arrow.svg";
 
 const router = useRouter();
 const route = useRoute();
 const state = reactive({
   UserInfo: getUserInfo(),
 
+  swipeShow: true,
   initQuerySpaceId: route?.query?.id || "",
+  initQueryDate: route?.query?.date || "",
 
   argumentArray: [],
 
@@ -222,7 +226,14 @@ const fetchGetSpaceApply = async () => {
     state.calendarInfo.list = res?.data?.axis?.list || [];
 
     if ([2, 6]?.includes(Number(state.spaceApplyInfo?.type_id))) {
-      state.dateIndex = state.calendarInfo.list[0];
+      let index = state.calendarInfo.list.findIndex(
+        (item) => item.date == state.initQueryDate
+      );
+      if (index != -1) {
+        state.dateIndex = state.calendarInfo.list[index];
+      } else {
+        state.dateIndex = state.calendarInfo.list[0];
+      }
     }
 
     // 获取日历 开始时间 结束时间
@@ -472,14 +483,18 @@ const chooseTimeIsInRange = (value, item, type, index) => {
   const timeDifference = (dateE.getTime() - dateS.getTime()) / (1000 * 60);
   // 判断时间差
   if (timeDifference > state.chooseTimeConfig.max_range) {
-    message.warning(`预约时间最长时间不能超过${state.chooseTimeConfig.max_range}分钟`);
+    message.warning(
+      `预约时间最长时间不能超过${state.chooseTimeConfig.max_range}分钟`
+    );
     if (type == "start") {
       item.begin_time = null;
     } else {
       item.end_time = null;
     }
   } else if (timeDifference < state.chooseTimeConfig.min_range) {
-    message.warning(`预约时间最短时间不能低于${state.chooseTimeConfig.min_range}分钟`);
+    message.warning(
+      `预约时间最短时间不能低于${state.chooseTimeConfig.min_range}分钟`
+    );
     if (type == "start") {
       item.begin_time = null;
     } else {
@@ -811,137 +826,189 @@ const getDateStatus = () => {
 
 <template>
   <div class="space_apply">
-    <div class="top_swipe">
-      <SpaceApplySwipe
-        v-if="state.spaceApplyInfo?.brother_area?.length"
-        :data="state.spaceApplyInfo"
-        :defaultId="state.initQuerySpaceId"
-        @changeSlide="onChangeSlide"
-        @viewInfo="fetchGetSpaceDetailInfo"
-        @viewFloor="onViewFloor"
-      />
-    </div>
+    <div class="space_apply_content">
+      <div
+        class="top_swipe"
+        :style="{ height: state.swipeShow ? '240px' : '45px' }"
+      >
+        <SpaceApplySwipe
+          v-if="state.spaceApplyInfo?.brother_area?.length && state.swipeShow"
+          :data="state.spaceApplyInfo"
+          :defaultId="state.initQuerySpaceId"
+          @changeSlide="onChangeSlide"
+          @viewInfo="fetchGetSpaceDetailInfo"
+          @viewFloor="onViewFloor"
+        />
 
-    <div class="select_time">
-      <div class="select_time_title">时间选择</div>
-      <template v-if="state.spaceApplyInfo?.type_id == 5">
-        <div class="select_time_desc">
-          点击您想要选择的日期<span>（可选择多天）</span>
+        <div
+          class="hidden_arrow"
+          v-if="state.swipeShow"
+          @click="state.swipeShow = false"
+        >
+          <a-image :src="HiddenArrow" />
         </div>
-        <div class="calendar_box">
-          <Calendar
-            v-model:selectedDate="state.selectDateInfo"
-            :calendarInfo="state.calendarInfo"
-            :axisTimeList="state.axisTimeList"
-            @onSelected="onSelected"
-          />
+
+        <div class="show_arrow_box" v-if="!state.swipeShow">
+          <span
+            >{{ state.activityApplyInfo?.top_name }}-
+            {{ state.activityApplyInfo?.storey_name }}-
+            {{ state.activityApplyInfo?.name }}</span
+          >
+          <div
+            class="show_arrow"
+            v-if="!state.swipeShow"
+            @click="state.swipeShow = true"
+          >
+            <a-image :src="ShowArrow" />
+          </div>
         </div>
-        <div style="margin-top: 8px" class="timeStatus">
-          <span class="can_book">有预约:</span>
-          <span class="allCir"></span>
-          <span style="margin-right: 30px">全天</span>
-          <span class="allCir topCir"></span>
-          <span class="allCir botCir"></span>
-          <span>半天</span>
-        </div>
-        <div v-if="state.spaceApplyInfo?.earlierPeriods == 0">
-          <div class="selected_time_selected_text">
-            已选时间：
-            <span v-if="state.selectDateInfo?.length"
-              >{{ showApplyDate() }}
-            </span>
-            <span v-else>-</span>
+      </div>
+
+      <div class="select_time">
+        <div class="select_time_title">时间选择</div>
+        <template v-if="state.spaceApplyInfo?.type_id == 5">
+          <div class="select_time_desc">
+            点击您想要选择的日期<span>（可选择多天）</span>
+          </div>
+          <div class="calendar_box">
+            <Calendar
+              v-model:selectedDate="state.selectDateInfo"
+              :calendarInfo="state.calendarInfo"
+              :axisTimeList="state.axisTimeList"
+              @onSelected="onSelected"
+            />
+          </div>
+          <div style="margin-top: 8px" class="timeStatus">
+            <span class="can_book">有预约:</span>
+            <span class="allCir"></span>
+            <span style="margin-right: 30px">全天</span>
+            <span class="allCir topCir"></span>
+            <span class="allCir botCir"></span>
+            <span>半天</span>
+          </div>
+          <div v-if="state.spaceApplyInfo?.earlierPeriods == 0">
+            <div class="selected_time_selected_text">
+              已选时间：
+              <span v-if="state.selectDateInfo?.length"
+                >{{ showApplyDate() }}
+              </span>
+              <span v-else>-</span>
+            </div>
+            <div
+              v-if="state.selectDateInfo?.length"
+              class="add_time_box"
+              v-for="(item, index) in state.chooseTimeList"
+              :key="index"
+            >
+              <div class="choose_time_item">
+                <a-time-picker
+                  format="HH:mm"
+                  valueFormat="HH:mm"
+                  :bordered="false"
+                  style="width: 100%"
+                  hideDisabledOptions
+                  :disabledTime="onDisabledTime"
+                  :minuteStep="state.chooseTimeConfig.step"
+                  size="middle"
+                  :showNow="false"
+                  v-model:value="item.begin_time"
+                  placeholder="开始时间"
+                  @change="(v) => onChangeTime(v, item, 'start', index)"
+                />
+              </div>
+              <div>~</div>
+              <div class="choose_time_item">
+                <a-time-picker
+                  format="HH:mm"
+                  valueFormat="HH:mm"
+                  :bordered="false"
+                  style="width: 100%"
+                  hideDisabledOptions
+                  :disabledTime="onDisabledTime"
+                  :minuteStep="state.chooseTimeConfig.step"
+                  size="middle"
+                  :showNow="false"
+                  v-model:value="item.end_time"
+                  placeholder="结束时间"
+                  @change="(v) => onChangeTime(v, item, 'end', index)"
+                />
+              </div>
+
+              <img
+                v-if="index == 0"
+                @click="addTimeSlot"
+                src="@/assets/activity_application/add_one_time.svg"
+                alt=""
+              />
+              <img
+                v-if="index != 0"
+                @click="removeTimeSlot"
+                src="@/assets/activity_application/remove_one_time.svg"
+                alt=""
+              />
+            </div>
           </div>
           <div
-            v-if="state.selectDateInfo?.length"
-            class="add_time_box"
-            v-for="(item, index) in state.chooseTimeList"
-            :key="index"
+            v-if="
+              state.spaceApplyInfo?.earlierPeriods == 3 &&
+              state.axisTimeList?.length
+            "
           >
-            <div class="choose_time_item">
-              <a-time-picker
-                format="HH:mm"
-                valueFormat="HH:mm"
-                :bordered="false"
-                style="width: 100%"
-                hideDisabledOptions
-                :disabledTime="onDisabledTime"
-                :minuteStep="state.chooseTimeConfig.step"
-                size="middle"
-                :showNow="false"
-                v-model:value="item.begin_time"
-                placeholder="开始时间"
-                @change="(v) => onChangeTime(v, item, 'start', index)"
-              />
+            <div class="selected_time_selected_text">
+              已选时间：
+              <span v-if="state.selectDateInfo?.length"
+                >{{ showApplyDate() }}
+              </span>
+              <span v-else>-</span>
             </div>
-            <div>~</div>
-            <div class="choose_time_item">
-              <a-time-picker
-                format="HH:mm"
-                valueFormat="HH:mm"
-                :bordered="false"
-                style="width: 100%"
-                hideDisabledOptions
-                :disabledTime="onDisabledTime"
-                :minuteStep="state.chooseTimeConfig.step"
-                size="middle"
-                :showNow="false"
-                v-model:value="item.end_time"
-                placeholder="结束时间"
-                @change="(v) => onChangeTime(v, item, 'end', index)"
-              />
-            </div>
-
-            <img
-              v-if="index == 0"
-              @click="addTimeSlot"
-              src="@/assets/activity_application/add_one_time.svg"
-              alt=""
-            />
-            <img
-              v-if="index != 0"
-              @click="removeTimeSlot"
-              src="@/assets/activity_application/remove_one_time.svg"
-              alt=""
-            />
-          </div>
-        </div>
-        <div
-          v-if="
-            state.spaceApplyInfo?.earlierPeriods == 3 &&
-            state.axisTimeList?.length
-          "
-        >
-          <div class="selected_time_selected_text">
-            已选时间：
-            <span v-if="state.selectDateInfo?.length"
-              >{{ showApplyDate() }}
-            </span>
-            <span v-else>-</span>
-          </div>
-          <a-radio-group
-            v-if="state.selectDateInfo?.length"
-            v-model:value="state.chooseRadioTime"
-          >
-            <a-radio
-              v-for="item in state.axisTimeList"
-              :value="item?.id"
-              :disabled="item?.status == 'disabled'"
-              :style="{
-                display: 'flex',
-                height: '40px',
-                lineHeight: '40px',
-              }"
-              >{{ item?.name }}
-              {{ `(${item?.start_time} ~ ${item?.end_time})` }}</a-radio
+            <a-radio-group
+              v-if="state.selectDateInfo?.length"
+              v-model:value="state.chooseRadioTime"
             >
-          </a-radio-group>
-        </div>
-      </template>
+              <a-radio
+                v-for="item in state.axisTimeList"
+                :value="item?.id"
+                :disabled="item?.status == 'disabled'"
+                :style="{
+                  display: 'flex',
+                  height: '40px',
+                  lineHeight: '40px',
+                }"
+                >{{ item?.name }}
+                {{ `(${item?.start_time} ~ ${item?.end_time})` }}</a-radio
+              >
+            </a-radio-group>
+          </div>
+        </template>
 
-      <!-- <a-row v-else :gutter="[15, 15]" >
-        <template v-for="item in state.calendarInfo.list" :key="item">
-          <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
+        <!-- <a-row v-else :gutter="[15, 15]" >
+          <template v-for="item in state.calendarInfo.list" :key="item">
+            <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
+              <div
+                class="libraryItem cardItemBorTran"
+                :class="{ activeItem: item?.date == state.dateIndex?.date }"
+                @click="onChangeDateAct(item)"
+              >
+                <span>{{ moment(item?.date).format("MM-DD") }}</span>
+                <span>{{ exchangeDateTime(item?.date, 31) }}</span>
+                <div
+                  v-if="item?.date == state.dateIndex?.date"
+                  class="check_icon"
+                >
+                  <img src="@/assets/event/checked.svg" />
+                </div>
+              </div>
+            </a-col>
+          </template>
+        </a-row> -->
+
+        <a-flex
+          v-else
+          gap="middle"
+          style="overflow-x: auto; white-space: nowrap"
+          class="vertical_scroll"
+        >
+          <template v-for="item in state.calendarInfo.list" :key="item">
             <div
               class="libraryItem cardItemBorTran"
               :class="{ activeItem: item?.date == state.dateIndex?.date }"
@@ -956,185 +1023,166 @@ const getDateStatus = () => {
                 <img src="@/assets/event/checked.svg" />
               </div>
             </div>
-          </a-col>
-        </template>
-      </a-row> -->
+          </template>
+        </a-flex>
 
-      <a-flex
-        v-else
-        gap="middle"
-        style="overflow-x: auto; white-space: nowrap; "
-      >
-        <template v-for="item in state.calendarInfo.list" :key="item">
-          <div
-            class="libraryItem cardItemBorTran"
-            :class="{ activeItem: item?.date == state.dateIndex?.date }"
-            @click="onChangeDateAct(item)"
-          >
-            <span>{{ moment(item?.date).format("MM-DD") }}</span>
-            <span>{{ exchangeDateTime(item?.date, 31) }}</span>
-            <div v-if="item?.date == state.dateIndex?.date" class="check_icon">
-              <img src="@/assets/event/checked.svg" />
-            </div>
-          </div>
-        </template>
-      </a-flex>
+        <div
+          v-if="state.spaceApplyInfo?.type_id != 5 && state.sliderShow"
+          style="margin-top: 20px"
+        >
+          <SliderCom
+            :options="state.sliderConfig"
+            v-model:value="state.sliderVal"
+          />
+        </div>
+      </div>
 
       <div
-        v-if="state.spaceApplyInfo?.type_id != 5 && state.sliderShow"
-        style="margin-top: 20px"
+        class="add_people_box"
+        v-if="[5, 6]?.includes(Number(state.spaceApplyInfo?.type_id))"
       >
-        <SliderCom
-          :options="state.sliderConfig"
-          v-model:value="state.sliderVal"
-        />
-      </div>
-    </div>
-
-    <div
-      class="add_people_box"
-      v-if="[5, 6]?.includes(Number(state.spaceApplyInfo?.type_id))"
-    >
-      <div class="add_people_box_content">
-        <div class="add_people_box_title">参与人员</div>
-        <div class="add_people_box_input">
-          <a-input
-            size="middle"
-            class="input_box"
-            :bordered="false"
-            v-model:value="state.addPeople"
-            placeholder="请输入学工号"
-          />
-          <img
-            @click="addPeople"
-            class="add_people_box_input_icon"
-            src="@/assets/activity_application/add_one_time.svg"
-            alt=""
-          />
-        </div>
-      </div>
-      <a-row v-if="state.addPeopleList?.length > 0" :gutter="[10, 0]">
-        <template v-for="(item, index) in state.addPeopleList" :key="index">
-          <a-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8" :xxl="8">
-            <div class="add_people_item">
-              <span>{{ item?.name }}</span>
-              <img
-                style="cursor: pointer"
-                @click="removePeople(index)"
-                src="@/assets/blue_remove_icon.svg"
-                alt=""
-              />
-            </div>
-          </a-col>
-        </template>
-      </a-row>
-      <div class="right_top_right_text">
-        <div v-if="state.addPeopleList?.length < 1">
-          还可添加{{ state.spaceApplyInfo?.maxPerson }}人
-        </div>
-        <div v-else>
-          还可添加{{
-            state.spaceApplyInfo?.maxPerson - state.addPeopleList?.length
-          }}人
-        </div>
-      </div>
-    </div>
-
-    <div class="activity_info">
-      <!-- 申请主题 -->
-      <div class="activity_edit_info_item">
-        <div class="activity_edit_info_item_title">申请主题</div>
-        <div>
-          <a-input
-            class="edit_input"
-            :bordered="false"
-            v-model:value="state.filterActivityTheme"
-            placeholder="请填写活动主题"
-            size="small"
-          />
-        </div>
-      </div>
-      <div class="drive_line" />
-
-      <!-- 申请内容 -->
-      <div class="activity_edit_info_item_textarea">
-        <div class="activity_edit_info_item_textarea_title">申请内容</div>
-        <a-textarea
-          v-model:value="state.filterActivityContent"
-          show-count
-          class="edit_textarea"
-          :bordered="false"
-          placeholder="请填写活动内容"
-          :autoSize="{ minRows: 1, maxRows: 3 }"
-          :maxlength="200"
-        />
-      </div>
-      <div class="drive_line" />
-      <!-- 手机号 -->
-      <div class="activity_edit_info_item">
-        <div class="activity_edit_info_item_title">联系电话</div>
-        <div>
-          <a-input
-            class="edit_input"
-            :bordered="false"
-            v-model:value="state.filterActivityMobile"
-            placeholder="请填写联系电话"
-            size="small"
-          />
-        </div>
-      </div>
-      <!-- 是否公开 -->
-      <div class="activity_edit_info_item">
-        <div class="activity_edit_info_item_title">是否公开</div>
-        <a-radio-group v-model:value="state.isOpen">
-          <a-radio :value="0" :key="0">是</a-radio>
-          <a-radio :value="1" :key="1">否</a-radio>
-        </a-radio-group>
-      </div>
-    </div>
-
-    <div class="upload_file_box" v-if="state.spaceApplyInfo?.isMouldShow == 1">
-      <div class="upload_file_box_content">
-        <div class="upload_file_box_title">上传附件</div>
-        <Uploader
-          class="margin_left_10"
-          filePath="seminar"
-          :maxCount="1"
-          @onFileUpload="(v) => fileUpload(v)"
-          accept="image/jpeg,image/png,image/bmp"
-          list-type="picture-card"
-          :showUploadList="false"
-          :initFileList="state.initFileList"
-        >
-          <img
-            class="add_people_box_input_icon"
-            src="@/assets/activity_application/add_one_time.svg"
-            alt=""
-          />
-        </Uploader>
-      </div>
-      <!-- 等待一个文件上传成功列表 做for循环 -->
-      <template v-for="item in state.fileList" :key="item">
-        <div class="item_for_file_content">
-          <van-image
-            style="width: 45px; height: 45px"
-            src="@/assets/activity_application/upload_file.svg"
-            alt="Empty state illustration"
-          />
-          <div class="item_for_file_item">
-            <div class="item_for_file_item_left">文件名称xxx</div>
-            <div class="item_for_file_item_right">10.85KB</div>
+        <div class="add_people_box_content">
+          <div class="add_people_box_title">参与人员</div>
+          <div class="add_people_box_input">
+            <a-input
+              size="middle"
+              class="input_box"
+              :bordered="false"
+              v-model:value="state.addPeople"
+              placeholder="请输入学工号"
+            />
+            <img
+              @click="addPeople"
+              class="add_people_box_input_icon"
+              src="@/assets/activity_application/add_one_time.svg"
+              alt=""
+            />
           </div>
-          <img
-            style="width: 20px; height: 20px"
-            src="@/assets/my/mobile_event_details_remove.svg"
-            alt="Empty state illustration"
+        </div>
+        <a-row v-if="state.addPeopleList?.length > 0" :gutter="[10, 0]">
+          <template v-for="(item, index) in state.addPeopleList" :key="index">
+            <a-col :xs="8" :sm="8" :md="8" :lg="8" :xl="8" :xxl="8">
+              <div class="add_people_item">
+                <span>{{ item?.name }}</span>
+                <img
+                  style="cursor: pointer"
+                  @click="removePeople(index)"
+                  src="@/assets/blue_remove_icon.svg"
+                  alt=""
+                />
+              </div>
+            </a-col>
+          </template>
+        </a-row>
+        <div class="right_top_right_text">
+          <div v-if="state.addPeopleList?.length < 1">
+            还可添加{{ state.spaceApplyInfo?.maxPerson }}人
+          </div>
+          <div v-else>
+            还可添加{{
+              state.spaceApplyInfo?.maxPerson - state.addPeopleList?.length
+            }}人
+          </div>
+        </div>
+      </div>
+
+      <div class="activity_info">
+        <!-- 申请主题 -->
+        <div class="activity_edit_info_item">
+          <div class="activity_edit_info_item_title">申请主题</div>
+          <div>
+            <a-input
+              class="edit_input"
+              :bordered="false"
+              v-model:value="state.filterActivityTheme"
+              placeholder="请填写活动主题"
+              size="small"
+            />
+          </div>
+        </div>
+        <div class="drive_line" />
+
+        <!-- 申请内容 -->
+        <div class="activity_edit_info_item_textarea">
+          <div class="activity_edit_info_item_textarea_title">申请内容</div>
+          <a-textarea
+            v-model:value="state.filterActivityContent"
+            show-count
+            class="edit_textarea"
+            :bordered="false"
+            placeholder="请填写活动内容"
+            :autoSize="{ minRows: 1, maxRows: 3 }"
+            :maxlength="200"
           />
         </div>
-      </template>
-    </div>
+        <div class="drive_line" />
+        <!-- 手机号 -->
+        <div class="activity_edit_info_item">
+          <div class="activity_edit_info_item_title">联系电话</div>
+          <div>
+            <a-input
+              class="edit_input"
+              :bordered="false"
+              v-model:value="state.filterActivityMobile"
+              placeholder="请填写联系电话"
+              size="small"
+            />
+          </div>
+        </div>
+        <!-- 是否公开 -->
+        <div class="activity_edit_info_item">
+          <div class="activity_edit_info_item_title">是否公开</div>
+          <a-radio-group v-model:value="state.isOpen">
+            <a-radio :value="0" :key="0">是</a-radio>
+            <a-radio :value="1" :key="1">否</a-radio>
+          </a-radio-group>
+        </div>
+      </div>
 
-    <!-- 底部按钮 -->
+      <div
+        class="upload_file_box"
+        v-if="state.spaceApplyInfo?.isMouldShow == 1"
+      >
+        <div class="upload_file_box_content">
+          <div class="upload_file_box_title">上传附件</div>
+          <Uploader
+            class="margin_left_10"
+            filePath="seminar"
+            :maxCount="1"
+            @onFileUpload="(v) => fileUpload(v)"
+            accept="image/jpeg,image/png,image/bmp"
+            list-type="picture-card"
+            :showUploadList="false"
+            :initFileList="state.initFileList"
+          >
+            <img
+              class="add_people_box_input_icon"
+              src="@/assets/activity_application/add_one_time.svg"
+              alt=""
+            />
+          </Uploader>
+        </div>
+        <!-- 等待一个文件上传成功列表 做for循环 -->
+        <template v-for="item in state.fileList" :key="item">
+          <div class="item_for_file_content">
+            <van-image
+              style="width: 45px; height: 45px"
+              src="@/assets/activity_application/upload_file.svg"
+              alt="Empty state illustration"
+            />
+            <div class="item_for_file_item">
+              <div class="item_for_file_item_left">文件名称xxx</div>
+              <div class="item_for_file_item_right">10.85KB</div>
+            </div>
+            <img
+              style="width: 20px; height: 20px"
+              src="@/assets/my/mobile_event_details_remove.svg"
+              alt="Empty state illustration"
+            />
+          </div>
+        </template>
+      </div>
+    </div>
     <div class="bottomAction_box">
       <van-button round block type="default" @click="router.go(-1)">
         <img src="@/assets/seat/moBackBtn.svg" alt="" />
@@ -1149,15 +1197,13 @@ const getDateStatus = () => {
         >立即预约</van-button
       >
     </div>
+    <!-- 底部按钮 -->
 
-    <a-drawer
-      rootClassName="filterDrawer"
-      width="100%"
-      height="100%"
-      placement="bottom"
-      :open="state.spaceDetailInfoShow"
-      @close="state.spaceDetailInfoShow = false"
-      :closable="false"
+    <van-popup
+      v-model:show="state.spaceDetailInfoShow"
+      position="bottom"
+      :style="{ height: '100%' }"
+      destroy-on-close
     >
       <div class="libraryPop">
         <LibraryInfo
@@ -1176,7 +1222,7 @@ const getDateStatus = () => {
           </van-button>
         </div>
       </div>
-    </a-drawer>
+    </van-popup>
 
     <SpaceRuleConfirm
       v-if="state.ruleShow"
@@ -1246,10 +1292,42 @@ const getDateStatus = () => {
   background-color: #fafafa;
   padding: 20px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  .space_apply_content {
+    height: calc(100% - 60px);
+    overflow-y: auto;
+  }
   .top_swipe {
-    height: 200px;
+    position: relative;
     background-color: #fff;
     border-radius: 10px;
+
+    .hidden_arrow {
+      background-color: rgba(255, 255, 255, 1);
+      border-radius: 10px;
+      position: absolute;
+      right: 0;
+      bottom: -10px;
+      width: 51px;
+      height: 22px;
+      display: flex;
+      justify-content: center;
+    }
+    .show_arrow_box {
+      height: 100%;
+      display: flex;
+      padding: 0 10px;
+      align-items: center;
+      justify-content: space-between;
+      color: rgba(32, 32, 32, 1);
+      font-weight: bold;
+      font-size: 14px;
+      .show_arrow {
+
+        padding: 0 10px;
+      }
+    }
   }
   .select_time {
     margin-top: 20px;
@@ -1347,7 +1425,11 @@ const getDateStatus = () => {
         border-radius: 18px;
       }
     }
-
+    .vertical_scroll {
+      /* Firefox 的滚动条样式 */
+      scrollbar-width: thin; /* 滚动条的宽度 */
+      scrollbar-color: rgba(97, 97, 97, 0.05) #f1f1f1; /* 滚动条的颜色和轨道的颜色 */
+    }
     .libraryItem {
       padding: 5px 15px;
       position: relative;
@@ -1487,6 +1569,7 @@ const getDateStatus = () => {
     }
   }
   .bottomAction_box {
+    flex: 1;
     margin-top: 20px;
     padding: 5px;
     display: flex;

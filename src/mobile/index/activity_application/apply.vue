@@ -32,6 +32,8 @@ import Uploader from "@/components/Uploader.vue";
 import SliderCom from "@/components/SliderCom.vue";
 import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
 import ShowInfoToast from "@/components/ShowInfoToast.vue";
+import HiddenArrow from "@/assets/swipe_hidden_arrow.svg";
+import ShowArrow from "@/assets/swipe_show_arrow.svg";
 
 import { showToast, Toast } from "vant";
 
@@ -39,6 +41,8 @@ const router = useRouter();
 const route = useRoute();
 
 const state = reactive({
+  swipeShow: true,
+
   sliderShow: false,
   sliderVal: [],
   sliderConfig: {
@@ -559,15 +563,40 @@ const draftActivity = async (data) => {
 
 <template>
   <div class="activity_application_apply_mobile">
-    <div class="top_swipe">
+    <div
+      class="top_swipe"
+      :style="{ height: state.swipeShow ? '240px' : '45px' }"
+    >
       <ActivitySpaceSwipe
-        v-if="state.activityApplyInfo?.brother_area?.length"
+        v-if="state.activityApplyInfo?.brother_area?.length && state.swipeShow"
         :data="state.activityApplyInfo"
         :defaultId="state.initQuerySpaceId"
         @changeSlide="onChangeSlide"
         @viewInfo="fetchGetActivityDetailInfo"
         @viewFloor="onViewFloor"
       />
+      <div
+        class="hidden_arrow"
+        v-if="state.swipeShow"
+        @click="state.swipeShow = false"
+      >
+        <a-image :src="HiddenArrow" />
+      </div>
+
+      <div class="show_arrow_box" v-if="!state.swipeShow">
+        <span
+          >{{ state.activityApplyInfo?.top_name }}-
+          {{ state.activityApplyInfo?.storey_name }}-
+          {{ state.activityApplyInfo?.name }}</span
+        >
+        <div
+          class="show_arrow"
+          v-if="!state.swipeShow"
+          @click="state.swipeShow = true"
+        >
+          <a-image :src="ShowArrow" />
+        </div>
+      </div>
     </div>
     <div class="select_time">
       <div class="select_time_title">时间选择</div>
@@ -1098,9 +1127,36 @@ const draftActivity = async (data) => {
   padding: 20px;
   overflow-y: auto;
   .top_swipe {
-    height: 200px;
+    position: relative;
+
     background-color: #fff;
     border-radius: 10px;
+
+    .hidden_arrow {
+      background-color: rgba(255, 255, 255, 1);
+      border-radius: 10px;
+      position: absolute;
+      right: 0;
+      bottom: -10px;
+      width: 51px;
+      height: 22px;
+      display: flex;
+      justify-content: center;
+    }
+    .show_arrow_box {
+      height: 100%;
+      display: flex;
+      padding: 0 10px;
+      align-items: center;
+      justify-content: space-between;
+      color: rgba(32, 32, 32, 1);
+      font-weight: bold;
+      font-size: 14px;
+      .show_arrow {
+
+        padding: 0 10px;
+      }
+    }
   }
 
   .select_time {

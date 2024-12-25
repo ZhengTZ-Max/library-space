@@ -245,7 +245,7 @@ const onApply = (id) => {
   state.spaceInfoShow = false;
   router.push({
     path: "/mo/space/apply",
-    query: { id },
+    query: { id, date: state.quickDate },
   });
 };
 
@@ -253,13 +253,14 @@ const handleFilter = () => {
   fetchGetSpaceInfoList();
   state.quickDate = state.filterSearch?.date;
   state.filterShow = false;
-  //   fetchGetSpaceInfoList();
+  fetchGetSpaceInfoList();
 };
 
 const handleDateChange = (v) => {
   state.quickDate = v;
+  state.filterSearch.date = v;
   console.log(state.quickDate);
-  //   fetchGetSpaceInfoList();
+  fetchGetSpaceInfoList();
 };
 </script>
 <template>

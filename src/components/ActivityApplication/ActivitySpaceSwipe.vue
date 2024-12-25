@@ -3,7 +3,6 @@ import { reactive, onMounted, ref, computed } from "vue";
 import { useStore } from "vuex";
 import Carousel from "@/components/CarouselCom.vue";
 
-
 const store = useStore();
 const emits = defineEmits(["viewInfo", "changeSlide", "viewFloor"]);
 const systemMode = computed(() => store.state.systemMode);
@@ -36,6 +35,10 @@ const initFirst = () => {
 
 const onChange = (v) => {
   emits("changeSlide", state.list[v]);
+};
+
+const onTouchMove = (e) => {
+
 };
 </script>
 <template>
@@ -109,16 +112,6 @@ const onChange = (v) => {
                   <span>{{ item?.name }}</span>
                   <span>{{ item?.storey_name }}</span>
                 </div>
-
-                <!-- <div class="boutique">
-                  <div
-                    class="boutiqueList"
-                    v-for="bout in item?.boutiques"
-                    :key="bout?.id"
-                  >
-                    {{ bout.name }}
-                  </div>
-                </div> -->
                 <div class="num">
                   <span>可容纳人数</span>
                   <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} 人</span>
@@ -130,7 +123,11 @@ const onChange = (v) => {
                 </div>
               </van-col>
             </van-row>
-            <div class="boutique_mobile">
+
+            <a-flex
+              style="overflow-x: auto; white-space: nowrap; margin-top: 10px"
+              @touchmove.stop="onTouchMove"
+            >
               <div
                 class="boutiqueList"
                 v-for="bout in item?.boutiques"
@@ -138,7 +135,7 @@ const onChange = (v) => {
               >
                 {{ bout.name }}
               </div>
-            </div>
+            </a-flex>
           </div>
           <a-divider class="divider" dashed />
           <div class="bottom_button" style="">查看申请说明 ></div>
@@ -321,14 +318,14 @@ const onChange = (v) => {
 
     scrollbar-width: none; /* Firefox 隐藏滚动条 */
     -ms-overflow-style: none; /* IE 和 Edge 隐藏滚动条 */
-    .boutiqueList {
-      border: 1px solid #f28800;
-      font-size: 10px;
-      color: rgba(242, 136, 0, 1);
-      padding: 1px 4px;
-      margin-right: 8px;
-      margin-bottom: 8px;
-    }
+  }
+  .boutiqueList {
+    border: 1px solid #f28800;
+    font-size: 10px;
+    color: rgba(242, 136, 0, 1);
+    padding: 1px 4px;
+    margin-right: 8px;
+    margin-bottom: 8px;
   }
   .divider {
     margin: 10px 0 !important;
@@ -353,10 +350,12 @@ const onChange = (v) => {
   bottom: 20px !important;
 }
 :deep(.slick-prev) {
+  display: none !important;
   left: 0 !important;
 }
 
 :deep(.slick-next) {
+  display: none !important;
   right: 0 !important;
 }
 
