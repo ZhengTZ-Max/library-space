@@ -1,8 +1,23 @@
 <template>
-  <div
-    class="centerCon clearBookCase"
-    :class="{ clearBookcaseM: systemMode != 'pc' }"
-  >
+  <div class="ClearBookCase" :class="{ clearBookcaseM: systemMode != 'pc' }">
+    <a-affix
+      v-if="systemMode == 'pc'"
+      offset-top="0"
+      :target="() => containerRef"
+    >
+      <div class="header">
+        <div class="leftTit">
+          <a-breadcrumb>
+            <template #separator
+              ><img src="@/assets/seat/titRightIcon.svg" alt=""
+            /></template>
+            <a-breadcrumb-item
+              >选择馆舍<img src="@/assets/seat/titRightIcon.svg" alt=""
+            /></a-breadcrumb-item>
+          </a-breadcrumb>
+        </div>
+      </div>
+    </a-affix>
     <div class="caseList">
       <div
         class="caseItem"
@@ -28,13 +43,13 @@
               <p class="showNum">
                 <span>·总数{{ row?.all }}</span>
                 <span style="color: #5d89f6"
-                  >·空闲{{ row?.empty }}({{ row?.emptyPCT }})</span
+                  >·空闲 {{ row?.empty }} ({{ row?.emptyPCT }})</span
                 >
               </p>
               <p class="showNum">
-                <span>·在用{{ row?.use }}({{ row?.usePCT }})</span>
+                <span>·在用{{ row?.use }} ({{ row?.usePCT }})</span>
                 <span style="color: #ff5d5d"
-                  >·异常{{ row?.unusually }}({{ row?.unusuallyPCT }})</span
+                  >·异常{{ row?.unusually }} ({{ row?.unusuallyPCT }})</span
                 >
               </p>
             </div>
@@ -49,7 +64,7 @@
 </template>
 <script setup>
 import { useStore } from "vuex";
-import { reactive, onMounted, computed } from "vue";
+import { reactive, onMounted, computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { clearBookcaseHome } from "@/request/bookcase";
 // import { filterTreeEn } from "@/utils/help";
@@ -59,6 +74,7 @@ const store = useStore();
 const lang = store?.state?.lang?.lang;
 
 const systemMode = computed(() => store.state.systemMode);
+const containerRef = ref();
 
 const state = reactive({
   listConfig: {
@@ -75,7 +91,7 @@ const getBookcaseList = async () => {
   if (res?.code != 0) {
     return;
   }
-  //   state.listConfig.list = filterTreeEn(res?.data);
+  state.listConfig.list = res?.data || [];
 };
 
 const details = (id, type) => {
@@ -89,41 +105,63 @@ const details = (id, type) => {
 };
 </script>
 <style lang="less" scoped>
-::v-deep.van-pull-refresh {
-  flex: 1;
-  overflow: auto;
-  background-color: #fff;
-}
 .clearBookcaseM {
   height: calc(100vh - 50px) !important;
   overflow: auto;
+  .caseList {
+    width: 100%;
+    max-width: 100%;
+  }
 }
-.clearBookcase {
-  height: calc(100vh - 78px);
+.header {
+  padding: 20px 30px;
+  color: #202020;
   display: flex;
-  flex-direction: column;
-  .filterCon {
-    padding: 20px 18px;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  .leftTit {
+    font-size: 18px;
+    img {
+      width: 22px;
+      height: 22px;
+    }
+  }
+  .rightAction {
+    flex: 1;
     display: flex;
     justify-content: flex-end;
-    border-bottom: 1px solid #f2f2f2;
-    .filter {
-      font-size: 13px;
-      cursor: pointer;
+    .quickDate {
+      flex: 1;
       display: flex;
-      align-items: center;
-      font-size: 13px;
-      font-weight: 500;
-      transition: 0.2s;
-      color: rgb(34 34 34 / 70%);
-      svg {
-        margin-left: 4px;
-        color: #222222;
+      justify-content: center;
+    }
+    .filters {
+      margin-left: 20px;
+      padding: 8px 16px;
+      background: rgba(26, 73, 192, 0.07);
+      border-radius: 18px 18px 18px 18px;
+      border: 1px solid rgba(26, 73, 192, 0.14);
+      font-size: 14px;
+      color: #1a49c0;
+      img {
+        width: 14px;
+        height: 14px;
+        margin-right: 4px;
       }
     }
   }
 }
+.ClearBookCase {
+  width: 100%;
+  height: calc(100vh - 78px);
+  display: flex;
+  flex-direction: column;
+}
 .caseList {
+  margin: 0 auto;
+  width: 60%;
+  max-width: 750px;
   padding: 16px;
   .caseItem {
     margin-bottom: 15px;
@@ -201,5 +239,11 @@ const details = (id, type) => {
       }
     }
   }
+}
+
+::v-deep.van-pull-refresh {
+  flex: 1;
+  overflow: auto;
+  background-color: #fff;
 }
 </style>

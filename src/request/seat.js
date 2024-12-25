@@ -186,7 +186,19 @@ export function setRelayStatus(data) {
 // 扫码预约（座位检测）
 export function checkSeatAsk(data) {
   return service({
-    url: "/api/Seat/qr_book_check",
+    url: "/v4/space/qr_scan",
+    method: "post",
+    isLoading: true,
+    // loadingMsg:"正在预约",
+    // customLoading:true, //是否自定义loading
+    data,
+  });
+}
+
+// 扫码换座
+export function SeatQrChange(data) {
+  return service({
+    url: "/v4/space/qr_change",
     method: "post",
     isLoading: true,
     // loadingMsg:"正在预约",

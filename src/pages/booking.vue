@@ -25,18 +25,18 @@
           class="toastItem"
         >
           <span>时间：</span>
-          <span>{{ state.apptResult?.seatInfo?.time }}</span>
+          <span>{{ state.apptResult?.seatInfo?.show_time }}</span>
         </div>
         <div class="toastItem">
           <span>地点：</span>
-          <span>{{ state.apptResult?.seatInfo?.areainfo }}</span>
+          <span>{{ state.apptResult?.seatInfo?.show_area }}</span>
         </div>
         <div
           v-if="[1, 8]?.includes(state.apptResult?.seatInfo?.status)"
           class="toastItem"
         >
           <span>座位：</span>
-          <span>{{ state.apptResult?.seatInfo?.no }}</span>
+          <span>{{ state.apptResult?.seatInfo?.show_seat }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
           <span>提醒：</span>
@@ -93,7 +93,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { showToast, showDialog } from "vant";
 
-import { checkSeatAsk } from "@/request/seat";
+import { checkSeatAsk, SeatQrChange } from "@/request/seat";
 import {
   fetchSeatSignin,
   fetchSeatleave,
@@ -101,7 +101,7 @@ import {
 } from "@/request/home";
 
 import ShowInfoToast from "@/components/ShowInfoToast.vue";
-import { exchangeDateTime, verifyTime } from "@/utils";
+import { exchangeDateTime } from "@/utils";
 
 const store = useStore();
 const router = useRouter();
@@ -125,8 +125,8 @@ const checkInfo = async () => {
   let StorageQr = sessionStorage.getItem("StorageQr") || "";
   let token = sessionStorage.getItem("token") || "";
   console.log(route);
-  let time = await verifyTime();
-  console.log(time);
+  // let time = await verifyTime();
+  // console.log(time);
 
   if (!token && qrInfo?.area_id) {
     sessionStorage.setItem("StorageQr", route?.fullPath);
@@ -146,36 +146,36 @@ const checkSeat = async () => {
     const res = await checkSeatAsk(params);
 
     let resultShow = {
-      seatInfo: res,
+      seatInfo: res?.data,
       show: true,
-      title: res?.code == 0 ? "预约成功" : "预约失败",
-      type: res?.code == 0 ? "success" : "error",
-      msg: (res?.code != 0 && res?.message) || "",
+      // title: res?.code == 0 ? "预约成功" : "预约失败",
+      // type: res?.code == 0 ? "success" : "error",
+      // msg: (res?.code != 0 && res?.message) || "",
     };
-    res.status = 1;
-    if ([1].includes(Number(res.status))) {
+    let status = res?.data?.status;
+    if ([1].includes(Number(status))) {
       resultShow = {
         ...resultShow,
         type: "success",
         title: "预约成功",
       };
-    } else if ([3].includes(Number(res.status))) {
+    } else if ([3].includes(Number(status))) {
       resultShow = {
         ...resultShow,
         title: "请选择您需要的操作",
         hideIcon: true,
         okText: "none",
       };
-    } else if ([4].includes(Number(res.status))) {
+    } else if ([4].includes(Number(status))) {
       resultShow = {
         ...resultShow,
         title: "需要换的座位是",
         hideIcon: true,
         okText: "none",
       };
-    } else if ([0, 2, 5, 6, 7].includes(Number(res.status))) {
+    } else if ([0, 2, 5, 6, 7].includes(Number(status))) {
       toVerify();
-    } else if ([8].includes(Number(res.status))) {
+    } else if ([8].includes(Number(status))) {
       resultShow = {
         ...resultShow,
         title: "换座失败",
@@ -193,6 +193,7 @@ const checkSeat = async () => {
       router.replace(path);
     }
     state.apptResult = resultShow;
+    console.log(state.apptResult, "state.apptResult");
   } catch (e) {
     console.log(e);
   }
@@ -208,7 +209,7 @@ const handleAction = async (type) => {
     } else if (type == "checkout") {
       res = await fetchSeatCheckout({ id: state.qrInfo.seat_id });
     } else if (type == "changeSeat") {
-      res = await fetchSeatCheckout({ id: state.qrInfo.seat_id });
+      res = await SeatQrChange({ id: state.qrInfo.seat_id });
     }
 
     if (res.code != 0) {
@@ -234,7 +235,11 @@ const handleAction = async (type) => {
 
 const handleShow = (v) => {
   if (!v && state.apptResult?.type == "success") {
-    router.push("/mo/current");
+    if (systemMode?.value == "pc") {
+      router.replace("/");
+    } else {
+      router.replace("/mo/current");
+    }
   }
 };
 
