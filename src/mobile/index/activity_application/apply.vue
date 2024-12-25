@@ -994,14 +994,11 @@ const draftActivity = async (data) => {
       >
     </div>
 
-    <a-drawer
-      rootClassName="filterDrawer"
-      width="100%"
-      height="100%"
-      placement="bottom"
-      :open="state.activityDetailInfoShow"
-      @close="state.activityDetailInfoShow = false"
-      :closable="false"
+    <van-popup
+      v-model:show="state.activityDetailInfoShow"
+      position="bottom"
+      :style="{ height: '100%' }"
+      destroy-on-close
     >
       <div class="libraryPop">
         <LibraryInfo
@@ -1020,7 +1017,7 @@ const draftActivity = async (data) => {
           </van-button>
         </div>
       </div>
-    </a-drawer>
+    </van-popup>
 
     <SpaceRuleConfirm
       v-if="state.ruleShow"

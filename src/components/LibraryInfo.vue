@@ -163,7 +163,7 @@ const filterCategorys = (list) => {
           {{ state.propsData?.maxPerson }}人</span
         >)
       </div>
-      <div class="libraryIntro" v-html="state.propsData?.sub_title || ''"></div>
+      <div class="libraryIntro" v-html="state.propsData?.contents || ''"></div>
 
       <!-- 馆舍特征 -->
       <template v-if="state.propsData?.boutiques?.length">

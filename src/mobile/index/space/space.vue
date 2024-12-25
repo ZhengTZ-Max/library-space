@@ -13,6 +13,7 @@ import { reactive, onMounted, watch, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
+import { exchangeDateTime } from "@/utils";
 
 import {
   getSpaceSelectList,
@@ -262,6 +263,26 @@ const handleDateChange = (v) => {
   console.log(state.quickDate);
   fetchGetSpaceInfoList();
 };
+
+const getItemTime = (item) => {
+  let startTimeNum = exchangeDateTime(item?.start_timestamp, 8)
+    .split(":")
+    .map(Number)[0];
+  let itemTime = [];
+  let endTimeNum = exchangeDateTime(item?.end_timestamp, 8)
+    .split(":")
+    .map(Number)[0];
+  for (let i = startTimeNum; i <= endTimeNum; i++) {
+    itemTime.push({
+      timeNum: i,
+      timeType: "unAll",
+    });
+  }
+  itemTime[1].timeType = "all";
+  itemTime[2].timeType = "am";
+  itemTime[3].timeType = "pm";
+  return itemTime;
+};
 </script>
 <template>
   <div class="space_space_mobile">
@@ -358,6 +379,35 @@ const handleDateChange = (v) => {
                 </div>
               </van-col>
             </van-row>
+            <div>
+              <div class="timeStatus">
+                <span class="allCir"></span>
+                <span class="timeStatusText">已被占用</span>
+                <span class="unAllCir" style="margin-left: 30px"></span>
+                <span class="timeStatusText">可预约时段</span>
+              </div>
+              <a-flex wrap="wrap" gap="10px" style="margin-top: 10px">
+                <template v-for="item_ in getItemTime(item)" :key="item">
+                  <div style="padding-right: 4px">
+                    <a-flex vertical align="center">
+                      <!-- 此处还要根据后端返回每条数据里的 data 在判断上午还是下午 -->
+                      <span
+                        :class="
+                          item_?.timeType == 'all'
+                            ? 'itemAll'
+                            : item_?.timeType == 'unAll'
+                            ? 'itemUnAll'
+                            : item_?.timeType == 'am'
+                            ? 'itemAm'
+                            : 'itemPm'
+                        "
+                      ></span>
+                      <span>{{ item_?.timeNum }}</span>
+                    </a-flex>
+                  </div>
+                </template>
+              </a-flex>
+            </div>
           </div>
         </van-list>
         <div style="height: 100%" v-else>
@@ -366,15 +416,11 @@ const handleDateChange = (v) => {
       </van-pull-refresh>
     </div>
 
-    <a-drawer
-      rootClassName="filterDrawer"
-      width="100%"
-      height="100%"
-      placement="bottom"
-      :open="state.spaceInfoShow"
-      @close="state.spaceInfoShow = false"
-      :closable="false"
-      destroyOnClose
+    <van-popup
+      v-model:show="state.spaceInfoShow"
+      position="bottom"
+      :style="{ height: '100%' }"
+      destroy-on-close
     >
       <div class="libraryPop">
         <LibraryInfo v-if="state.spaceInfo?.id" :data="state.spaceInfo" />
@@ -397,16 +443,13 @@ const handleDateChange = (v) => {
           >
         </div>
       </div>
-    </a-drawer>
+    </van-popup>
 
-    <a-drawer
-      rootClassName="filterDrawer"
-      width="100%"
-      height="70%"
-      placement="bottom"
-      :open="state.filterShow"
-      @close="state.filterShow = false"
-      :closable="false"
+    <van-popup
+      v-model:show="state.filterShow"
+      position="bottom"
+      :style="{ height: '70%' }"
+      destroy-on-close
     >
       <div class="drawerCon">
         <SpaceChooseSpaceFilter
@@ -429,7 +472,7 @@ const handleDateChange = (v) => {
           >
         </div>
       </div>
-    </a-drawer>
+    </van-popup>
   </div>
 </template>
 <style lang="less" scoped>
@@ -564,6 +607,72 @@ const handleDateChange = (v) => {
           color: rgba(134, 134, 134, 1);
         }
       }
+    }
+
+    .timeStatus {
+      display: flex;
+      align-items: center;
+
+      .allCir {
+        display: inline-block;
+        width: 12px;
+        height: 3px;
+        background-color: rgba(111, 111, 111, 1);
+      }
+      .unAllCir {
+        display: inline-block;
+        width: 12px;
+        height: 3px;
+        background-color: rgba(224, 224, 224, 1);
+      }
+      .timeStatusText {
+        margin-left: 6px;
+        font-size: 10px;
+        color: rgba(97, 97, 97, 1);
+      }
+    }
+    .itemAll {
+      display: inline-block;
+      width: 12px;
+      height: 3px;
+      background-color: rgba(111, 111, 111, 1);
+    }
+    .itemUnAll {
+      display: inline-block;
+      width: 12px;
+      height: 3px;
+      background-color: rgba(224, 224, 224, 1);
+    }
+    .itemAm {
+      display: flex;
+      width: 12px;
+      height: 3px;
+    }
+    .itemAm::before {
+      content: "";
+      flex: 1;
+      background-color: rgba(111, 111, 111, 1);
+    }
+    .itemAm::after {
+      content: "";
+      flex: 1;
+      background-color: rgba(224, 224, 224, 1);
+    }
+
+    .itemPm {
+      display: flex;
+      width: 12px;
+      height: 3px;
+    }
+    .itemPm::before {
+      content: "";
+      flex: 1;
+      background-color: rgba(224, 224, 224, 1);
+    }
+    .itemPm::after {
+      content: "";
+      flex: 1;
+      background-color: rgba(111, 111, 111, 1);
     }
   }
   .filterDrawer {
