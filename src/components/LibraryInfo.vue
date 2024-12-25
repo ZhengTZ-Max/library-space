@@ -74,7 +74,14 @@ const filterCategorys = (list) => {
 
     <!-- PC 端 活动详情页面 单独处理 -->
     <div
-      style="display: flex; gap: 20px; align-items: flex-start"
+      style="
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        max-height: 860px;
+        flex-wrap: wrap;
+        overflow-x: hidden;
+      "
       v-if="systemMode == 'pc' && state.propsData?.type == 'activity'"
     >
       <img
@@ -82,7 +89,7 @@ const filterCategorys = (list) => {
         :src="state.propsData?.firstImg"
         alt=""
       />
-      <div>
+      <div style="max-width: 450px">
         <!-- 标题 -->
         <p class="title">
           {{ state.propsData?.nameMerge || state.propsData?.name || "-" }}

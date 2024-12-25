@@ -13,7 +13,7 @@ import {
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceChooseSpaceFilter from "@/components/SpaceCom/SpaceChooseSpaceFilter.vue";
 
-import { convertMinutesToHHMM } from "@/utils";
+import { convertMinutesToHHMM, exchangeDateTime } from "@/utils";
 
 const store = useStore();
 const router = useRouter();
@@ -49,6 +49,13 @@ const state = reactive({
     floorId: route?.query?.floor || "",
     categoryType: route?.query?.categoryType || "",
   },
+
+  itemTime: [
+    // {
+    //   timeNum: 0,
+    //   timeType: "all", // all 全天预约  unAll 非全天预约  am 上午预约  pm 下午预约
+    // },
+  ],
 });
 
 const goToLink = (link) => {
@@ -225,7 +232,31 @@ const fetchInfo = async (id) => {
 };
 
 const onChangeAct = (i) => {
+  if (i.id == state.activeIndex) return;
   state.activeIndex = i.id;
+  dealWithTime(i);
+};
+
+const dealWithTime = (i) => {
+  let startTimeNum = exchangeDateTime(i?.start_timestamp, 8)
+    .split(":")
+    .map(Number)[0];
+  let endTimeNum = exchangeDateTime(i?.end_timestamp, 8)
+    .split(":")
+    .map(Number)[0];
+
+  state.itemTime = [];
+  // 先处理后端返回的时间，然后再根据具体占用的时间修改
+  for (let i = startTimeNum; i <= endTimeNum; i++) {
+    state.itemTime.push({
+      timeNum: i,
+      timeType: "unAll",
+    });
+  }
+  state.itemTime[1].timeType = "all";
+  state.itemTime[2].timeType = "am";
+  state.itemTime[3].timeType = "pm";
+  console.log(state.itemTime);
 };
 
 const filterCategorys = (list) => {
@@ -346,13 +377,50 @@ const handleDateChange = (v) => {
                 </div>
                 <div class="num">
                   <span>可容纳人数</span>
-                  <span>{{ item?.minPerson }} <span v-if="item?.minPerson != item?.maxPerson ">~ {{ item?.maxPerson }}</span>人</span>
+                  <span
+                    >{{ item?.minPerson }}
+                    <span v-if="item?.minPerson != item?.maxPerson"
+                      >~ {{ item?.maxPerson }}</span
+                    >人</span
+                  >
                 </div>
                 <div class="boutique">
                   <div class="boutiqueList" v-for="bout in item?.boutiques">
                     {{ bout.name }}
                   </div>
                 </div>
+              </div>
+              <!-- 显示当前空间占用的时间 -->
+              <div v-if="item?.id == state.activeIndex">
+                <!-- 示例 -->
+                <div class="timeStatus">
+                  <span class="allCir"></span>
+                  <span class="timeStatusText">已被占用</span>
+                  <span class="unAllCir" style="margin-left: 30px"></span>
+                  <span class="timeStatusText">可预约时段</span>
+                </div>
+
+                <a-flex wrap="wrap" gap="10px" style="margin-top: 10px">
+                  <template v-for="item in state.itemTime" :key="item">
+                    <div style="padding-right: 4px;">
+                      <a-flex vertical align="center">
+                        <!-- 此处还要根据后端返回每条数据里的 data 在判断上午还是下午 -->
+                        <span
+                          :class="
+                            item?.timeType == 'all'
+                              ? 'itemAll'
+                              : item?.timeType == 'unAll'
+                              ? 'itemUnAll'
+                              : item?.timeType == 'am'
+                              ? 'itemAm'
+                              : 'itemPm'
+                          "
+                        ></span>
+                        <span>{{ item?.timeNum }}</span>
+                      </a-flex>
+                    </div>
+                  </template>
+                </a-flex>
               </div>
               <div
                 v-if="item?.id == state.activeIndex"
@@ -494,7 +562,6 @@ const handleDateChange = (v) => {
     .libraryItem {
       position: relative;
       box-sizing: initial;
-      width: 220px;
 
       :deep(.cardItemImgCon) {
         .ant-image {
@@ -569,6 +636,14 @@ const handleDateChange = (v) => {
         margin-top: 10px;
         display: flex;
         flex-wrap: wrap;
+        max-height: 60px;
+        overflow: auto;
+        &::-webkit-scrollbar {
+          display: none; /* 隐藏滚动条 */
+        }
+
+        scrollbar-width: none; /* Firefox 隐藏滚动条 */
+        -ms-overflow-style: none; /* IE 和 Edge 隐藏滚动条 */
         .boutiqueList {
           border: 1px solid #f28800;
           font-size: 12px;
@@ -578,6 +653,71 @@ const handleDateChange = (v) => {
           margin-bottom: 10px;
         }
       }
+    }
+    .timeStatus {
+      display: flex;
+      align-items: center;
+
+      .allCir {
+        display: inline-block;
+        width: 12px;
+        height: 6px;
+        background-color: rgba(111, 111, 111, 1);
+      }
+      .unAllCir {
+        display: inline-block;
+        width: 12px;
+        height: 6px;
+        background-color: rgba(224, 224, 224, 1);
+      }
+      .timeStatusText {
+        margin-left: 6px;
+        font-size: 10px;
+        color: rgba(97, 97, 97, 1);
+      }
+    }
+    .itemAll {
+      display: inline-block;
+      width: 12px;
+      height: 6px;
+      background-color: rgba(111, 111, 111, 1);
+    }
+    .itemUnAll {
+      display: inline-block;
+      width: 12px;
+      height: 6px;
+      background-color: rgba(224, 224, 224, 1);
+    }
+    .itemAm {
+      display: flex;
+      width: 12px;
+      height: 6px;
+    }
+    .itemAm::before {
+      content: "";
+      flex: 1;
+      background-color: rgba(111, 111, 111, 1);
+    }
+    .itemAm::after {
+      content: "";
+      flex: 1;
+      background-color: rgba(224, 224, 224, 1);
+    }
+
+    .itemPm {
+      display: flex;
+      width: 12px;
+      height: 6px;
+    }
+    .itemPm::before {
+      content: "";
+      flex: 1;
+      background-color: rgba(224, 224, 224, 1);
+    }
+    .itemPm::after {
+      content: "";
+      flex: 1;
+      background-color: rgba(111, 111, 111, 1);
     }
     .action {
       position: absolute;

@@ -26,6 +26,7 @@ import Uploader from "@/components/Uploader.vue";
 import SliderCom from "@/components/SliderCom.vue";
 import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
 import ShowInfoToast from "@/components/ShowInfoToast.vue";
+import { getUserInfo } from "@/utils";
 
 import { showToast, Toast } from "vant";
 
@@ -36,6 +37,8 @@ const lang = computed(() => store.state.lang);
 const containerRef = ref();
 
 const state = reactive({
+
+  userInfo: getUserInfo(),
   sliderVal: [],
   sliderConfig: {
     previousValue: [],
@@ -79,6 +82,8 @@ const state = reactive({
   filterActivityContent: "",
   filterActivityMaxPeople: "",
   filterActivityMobile: "",
+
+
 
   initApprove: [
     // {
@@ -131,6 +136,14 @@ onMounted(() => {
   //   ];
   // }, 3000);
 });
+
+watch(
+  () => state.userInfo,
+  (v) => {
+    state.filterActivityMobile = v?.mobile;
+  },
+  { immediate: true }
+);
 
 const bottomBtnDisabled = () => {
   let submitErr = false;
@@ -769,7 +782,10 @@ const handleShow = (v) => {
             </van-col>
           </van-row>
 
-          <div v-if="state.selectSlideShow && state.sliderShow" style="margin-top: 12px">
+          <div
+            v-if="state.selectSlideShow && state.sliderShow"
+            style="margin-top: 12px"
+          >
             <div class="sliderSlt">
               <div>
                 已选日期：<span class="sltText">{{
@@ -874,7 +890,6 @@ const handleShow = (v) => {
               </a-flex>
             </div>
           </a-flex>
-
         </div>
         <div class="right_bottom">
           <div class="right_bottom_title">上传活动资料</div>
@@ -1021,8 +1036,7 @@ const handleShow = (v) => {
       title="空间详情"
       @ok="state.activityDetailInfoShow = false"
       destroyOnClose
-      okText="确认"
-      cancelText="关闭"
+      :footer="false"
       :cancelButtonProps="{
         size: 'middle',
         style: {
@@ -1038,6 +1052,14 @@ const handleShow = (v) => {
         v-if="state.activityDetailInfo?.id"
         :data="state.activityDetailInfo"
       />
+      <div style="display: flex; justify-content: center">
+        <button
+          class="space_detail_btn"
+          @click="state.activityDetailInfoShow = false"
+        >
+          关闭
+        </button>
+      </div>
     </a-modal>
 
     <SpaceRuleConfirm
@@ -1398,6 +1420,18 @@ const handleShow = (v) => {
       }
     }
   }
+}
+
+.space_detail_btn {
+  margin-top: 20px;
+  width: 150px;
+  border-radius: 12px;
+  background: #f3f4f7;
+  border: 1px solid #cecfd5;
+  color: #8c8f9e; /* 按钮文字颜色 */
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
 }
 </style>
 <style lang="less">

@@ -58,6 +58,11 @@ const state = reactive({
     startDate: "",
     endDate: "",
   },
+  chooseTimeConfig: {
+    step: 15,
+    min_range: 10,
+    max_range: 1425,
+  },
   axisTimeList: [],
   dateIndex: "",
   selectDateInfo: [],
@@ -354,6 +359,9 @@ const getCurrentChooseTimeHaveSelectTime = () => {
     startIndex < endIndex ? [startIndex, endIndex] : [endIndex, startIndex];
 
   const list = state.calendarInfo.list.slice(minIndex, maxIndex + 1); // 包含 endDate
+  state.chooseTimeConfig.step = Number(list[0]?.info?.step);
+  state.chooseTimeConfig.min_range = list[0]?.info?.min_time;
+  state.chooseTimeConfig.max_range = list[0]?.info?.max_time;
   list.forEach((e) => {
     e.info.list.forEach((item) => {
       state.rangeTimeCantSelectTime.push({
@@ -463,15 +471,15 @@ const chooseTimeIsInRange = (value, item, type, index) => {
   // 计算时间差（以分钟为单位）
   const timeDifference = (dateE.getTime() - dateS.getTime()) / (1000 * 60);
   // 判断时间差
-  if (timeDifference > state.max_time) {
-    message.warning(`预约时间最长时间不能超过${state.max_time}分钟`);
+  if (timeDifference > state.chooseTimeConfig.max_range) {
+    message.warning(`预约时间最长时间不能超过${state.chooseTimeConfig.max_range}分钟`);
     if (type == "start") {
       item.begin_time = null;
     } else {
       item.end_time = null;
     }
-  } else if (timeDifference < state.min_time) {
-    message.warning(`预约时间最短时间不能低于${state.min_time}分钟`);
+  } else if (timeDifference < state.chooseTimeConfig.min_range) {
+    message.warning(`预约时间最短时间不能低于${state.chooseTimeConfig.min_range}分钟`);
     if (type == "start") {
       item.begin_time = null;
     } else {
@@ -858,7 +866,7 @@ const getDateStatus = () => {
                 style="width: 100%"
                 hideDisabledOptions
                 :disabledTime="onDisabledTime"
-                :minuteStep="60"
+                :minuteStep="state.chooseTimeConfig.step"
                 size="middle"
                 :showNow="false"
                 v-model:value="item.begin_time"
@@ -875,7 +883,7 @@ const getDateStatus = () => {
                 style="width: 100%"
                 hideDisabledOptions
                 :disabledTime="onDisabledTime"
-                :minuteStep="60"
+                :minuteStep="state.chooseTimeConfig.step"
                 size="middle"
                 :showNow="false"
                 v-model:value="item.end_time"

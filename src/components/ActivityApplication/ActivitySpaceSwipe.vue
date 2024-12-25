@@ -2,6 +2,8 @@
 import { reactive, onMounted, ref, computed } from "vue";
 import { useStore } from "vuex";
 import Carousel from "@/components/CarouselCom.vue";
+
+
 const store = useStore();
 const emits = defineEmits(["viewInfo", "changeSlide", "viewFloor"]);
 const systemMode = computed(() => store.state.systemMode);
@@ -59,7 +61,10 @@ const onChange = (v) => {
                 alt=""
               />
             </div>
-            <div class="otherInfo_item activeBtn" @click="() => emits('viewInfo')">
+            <div
+              class="otherInfo_item activeBtn"
+              @click="() => emits('viewInfo')"
+            >
               查看详情
               <img
                 src="@/assets/activity_application/right_arrow_gray.svg"
@@ -196,7 +201,15 @@ const onChange = (v) => {
 .boutique {
   margin-top: 15px;
   display: flex;
+  max-height: 140px;
   flex-wrap: wrap;
+  overflow: auto;
+  &::-webkit-scrollbar {
+    display: none; /* 隐藏滚动条 */
+  }
+
+  scrollbar-width: none; /* Firefox 隐藏滚动条 */
+  -ms-overflow-style: none; /* IE 和 Edge 隐藏滚动条 */
   .boutiqueList {
     border: 1px solid #f28800;
     font-size: 12px;

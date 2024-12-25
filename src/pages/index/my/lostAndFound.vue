@@ -1,7 +1,8 @@
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useStore } from "vuex";
 import PageSizeCom from "@/components/PageSizeCom.vue";
+import { getLostAndFoundList } from "@/request/lostandfound";
 
 const store = useStore();
 const onCheckedForLocation = ref(true);
@@ -12,8 +13,26 @@ const state = reactive({
   activeKey: "apply",
   isModalVisible: false,
   selectedRecord: "",
+  data: [],
 });
 
+onMounted(() => {
+  fetch();
+});
+
+const fetch = async () => {
+  try {
+    const res = await getLostAndFoundList();
+    if (res.code == 0) {
+      state.data = res.data.list;
+    } else {
+      state.data = [];
+    }
+  } catch (error) {
+    state.data = [];
+    console.log(error);
+  }
+};
 const onShowModal = (record) => {
   state.isModalVisible = true;
   state.selectedRecord = record;
@@ -45,15 +64,15 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    key: "1",
-    image:
-      "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-    location: "基础馆-1F-1号柜:08格",
-    time: "2024-06-01 09:57:00",
-  },
-];
+// const data = [
+//   {
+//     key: "1",
+//     image:
+//       "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
+//     location: "基础馆-1F-1号柜:08格",
+//     time: "2024-06-01 09:57:00",
+//   },
+// ];
 </script>
 
 <template>
@@ -64,10 +83,10 @@ const data = [
     </div>
 
     <div class="table">
-      <PageSizeCom v-if="data?.length > 0">
+      <PageSizeCom v-if="state.data?.length > 0">
         <a-table
           :columns="columns"
-          :data-source="data"
+          :data-source="state.data"
           :pagination="false"
           sticky
           scrollToFirstRowOnChange
@@ -86,7 +105,7 @@ const data = [
       <a-empty v-else />
     </div>
 
-    <div class="cPagination" v-if="data?.length > 0">
+    <div class="cPagination" v-if="state.data?.length > 0">
       <a-pagination
         v-model:current="state.currentPage"
         :total="state.total"

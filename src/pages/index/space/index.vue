@@ -296,6 +296,17 @@ const onFloor = (row) => {
     width: 100%;
     margin: 38px 0 50px 0;
     padding: 0 82px;
+    .libraryItem {
+      position: relative;
+      box-sizing: initial;
+
+
+      :deep(.cardItemImgCon) {
+        .ant-image {
+          width: 100%;
+        }
+      }
+    }
     .posBot {
       display: flex;
       align-items: center;

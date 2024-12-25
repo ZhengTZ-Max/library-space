@@ -12,6 +12,7 @@
 import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
+import { getLostAndFoundList } from "@/request/lostandfound";
 
 const state = reactive({
   currentPage: 1,
@@ -39,12 +40,15 @@ const onLoad = () => {
 
 const fetch = async () => {
   try {
+    const res = await getLostAndFoundList();
     state.loading = false;
     state.refreshing = false;
-
-    state.total = 0;
-    state.data = [];
     state.finished = true;
+    if (res.code == 0) {
+      state.data = res.data;
+    } else {
+      state.data = [];
+    }
   } catch (error) {
     state.loading = false;
     state.refreshing = false;
@@ -59,7 +63,7 @@ const onClickItem = (item) => {
 </script>
 <template>
   <div class="lostAndFound">
-    <div class="item">
+    <!-- <div class="item">
       <van-image
         class="img"
         radius="6px"
@@ -79,7 +83,7 @@ const onClickItem = (item) => {
           <span>2024-02-05 09:57:00</span>
         </div>
       </div>
-    </div>
+    </div> -->
     <div class="refreshCon">
       <van-pull-refresh v-model="state.refreshing" @refresh="onRefresh">
         <van-list

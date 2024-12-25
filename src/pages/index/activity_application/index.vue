@@ -103,6 +103,7 @@ const state = reactive({
 });
 
 const onChangeAct = (i) => {
+  if (i?.id == state.activeIndex) return;
   state.activeIndex = i.id;
 };
 
@@ -112,6 +113,7 @@ onMounted(() => {
 
 const handleFilter = () => {
   state.filterShow = false;
+  fetchGetApplicationList();
 };
 
 const fetchGetApplicationIndex = async () => {
@@ -212,7 +214,7 @@ const handleAppt = (row) => {
             <div
               class="libraryItem cardItem"
               :class="{ activeItem: item?.id == state.activeIndex }"
-              @click="onChangeAct(item)"
+              @mousemove="onChangeAct(item)"
             >
               <div class="cardItemImgCon">
                 <a-image
@@ -464,4 +466,5 @@ const handleAppt = (row) => {
     }
   }
 }
+
 </style>
