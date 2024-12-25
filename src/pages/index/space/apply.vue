@@ -283,8 +283,8 @@ const onDisabledTime = (date) => {
 const onSelected = (date) => {
   if (state.spaceApplyInfo?.earlierPeriods == 0) {
     // 获取当前选择时间范围中 后端返回的已经占用的时间段
-    chooseTimeList: [{ begin_time: "", end_time: "" }],
-      getCurrentChooseTimeHaveSelectTime();
+    state.chooseTimeList = [{ begin_time: "", end_time: "" }];
+    getCurrentChooseTimeHaveSelectTime();
   } else {
     getDateStatus();
 
@@ -323,6 +323,7 @@ const getCurrentChooseTimeHaveSelectTime = () => {
     startIndex < endIndex ? [startIndex, endIndex] : [endIndex, startIndex];
 
   const list = state.calendarInfo.list.slice(minIndex, maxIndex + 1); // 包含 endDate
+  state.stepInfo = list[0]?.info?.step;
   list.forEach((e) => {
     e.info.list.forEach((item) => {
       state.rangeTimeCantSelectTime.push({
@@ -845,16 +846,17 @@ const getDateStatus = () => {
               offset="2"
             >
               <div
+              v-if="state.selectDateInfo?.length"
                 class="selected_time_text"
                 :style="{
                   marginTop: !state.selectDateInfo?.length ? '70%' : '',
                 }"
               >
                 已选时间：
-                <span v-if="state.selectDateInfo?.length"
+                <span 
                   >{{ showApplyDate() }}
                 </span>
-                <span v-else>-</span>
+                
               </div>
               <template v-if="state.selectDateInfo?.length">
                 <div
@@ -871,7 +873,7 @@ const getDateStatus = () => {
                       hideDisabledOptions
                       size="middle"
                       :disabledTime="onDisabledTime"
-                      :minuteStep="60"
+                      :minuteStep="state.stepInfo"
                       :showNow="false"
                       v-model:value="item.begin_time"
                       placeholder="开始时间"
@@ -887,7 +889,7 @@ const getDateStatus = () => {
                       style="width: 100%"
                       hideDisabledOptions
                       size="middle"
-                      :minuteStep="60"
+                      :minuteStep="state.stepInfo"
                       :showNow="false"
                       :disabledTime="onDisabledTime"
                       v-model:value="item.end_time"

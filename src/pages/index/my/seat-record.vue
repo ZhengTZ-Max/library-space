@@ -261,7 +261,7 @@ const onChangePage = (page, pageSize) => {
                       ? 'warning'
                       : record.status_name === '未签到'
                       ? 'error'
-                      : record.status_name === '状态异常'
+                      : record.status_name === '状态异常' || record.status == '4'
                       ? 'warning'
                       : 'default'
                   "
