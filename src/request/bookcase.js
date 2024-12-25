@@ -59,3 +59,14 @@ export function confirmLockBox(data) {
     data,
   });
 }
+
+// 清柜-首页
+export function clearBookcaseHome(data) {
+  return service({
+    url: "/reserve/locker/cIndex",
+    method: "post",
+    isLoading: true,
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}

@@ -105,8 +105,6 @@ const state = reactive({
     title: "预约成功~~",
     type: "success",
   },
-
-
 });
 
 watch(
@@ -122,7 +120,7 @@ watch(
       state.sliderConfig.maxRange = Number(max_time);
 
       state.sliderConfig.disabledArr = list?.map((e) => {
-        return [e?.begin_time, e?.end_time];
+        return [e?.begin_num, e?.end_num];
       });
 
       if (exchangeDateTime(v.date, 2) == exchangeDateTime(new Date(), 2)) {
@@ -286,7 +284,7 @@ const onSelected = (date) => {
   if (state.spaceApplyInfo?.earlierPeriods == 0) {
     // 获取当前选择时间范围中 后端返回的已经占用的时间段
     chooseTimeList: [{ begin_time: "", end_time: "" }],
-    getCurrentChooseTimeHaveSelectTime();
+      getCurrentChooseTimeHaveSelectTime();
   } else {
     getDateStatus();
 

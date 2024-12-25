@@ -179,6 +179,7 @@ const toggleLang = (type) => {
           />
         </a-form-item>
         <a-form-item
+          class="verifyCon"
           name="code"
           :rules="[
             {
@@ -192,18 +193,16 @@ const toggleLang = (type) => {
             :placeholder="$t('verification_code')"
             :maxlength="4"
           >
-            <template #suffix>
-              <a-spin :spinning="state.isCodeLoading">
-                <img
-                  class="verifyCode"
-                  v-if="state.verifyInfo"
-                  @click="getVerify"
-                  :src="state.verifyInfo && state.verifyInfo.base64"
-                  alt=""
-                />
-              </a-spin>
-            </template>
           </a-input>
+          <a-spin :spinning="state.isCodeLoading">
+            <img
+              class="verifyCode"
+              v-if="state.verifyInfo"
+              @click="getVerify"
+              :src="state.verifyInfo && state.verifyInfo.base64"
+              alt=""
+            />
+          </a-spin>
         </a-form-item>
 
         <a-form-item>
@@ -291,18 +290,28 @@ const toggleLang = (type) => {
       border-radius: 18px;
     }
 
-    .verifyCode {
-      width: 90px;
-      height: 24px;
-      object-fit: contain;
-      cursor: pointer;
-    }
     .forgetPass {
       margin: 0 auto;
       margin-top: 20px;
       font-weight: 500;
       font-size: 13px;
       color: #1a49c0;
+    }
+  }
+
+  .verifyCon {
+    width: 100%;
+    :deep(.ant-form-item-control-input-content) {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      .verifyCode {
+        margin-left: 8px;
+        width: 90px;
+        height: 36px;
+        object-fit: contain;
+        cursor: pointer;
+      }
     }
   }
 }

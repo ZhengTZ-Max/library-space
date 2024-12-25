@@ -320,7 +320,7 @@ export const tabType = [
     id: "13",
     name: "清柜",
     enname: "Locker  Clear",
-    path: "",
+    path: "/clearLocker",
   },
   {
     id: "14",

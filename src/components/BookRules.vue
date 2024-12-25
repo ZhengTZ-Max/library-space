@@ -71,11 +71,11 @@ const initRuleList = () => {
         store?.state?.lang?.currentLang?.big_seminar_room || "大研讨室预约",
       key: "bigdiscussion",
     },
-    {
-      id: 5,
-      title: store?.state?.lang?.lang == "zh" ? "入馆预约" : "Admission",
-      key: "entrance",
-    },
+    // {
+    //   id: 5,
+    //   title: store?.state?.lang?.lang == "zh" ? "入馆预约" : "Admission",
+    //   key: "entrance",
+    // },
     {
       id: 7,
       title: store?.state?.lang?.currentLang?.Postgraduate_seats || "考研规则",
@@ -229,7 +229,7 @@ const onChangeMo = (row) => {
     <div
       class="bookRules"
       :style="{
-        height: systemMode == 'mobile' ? '100%' : '60%',
+        height: systemMode == 'mobile' ? '100%' : '60vh',
         marginTop: systemMode == 'mobile' ? '-12px' : '0',
       }"
     >
