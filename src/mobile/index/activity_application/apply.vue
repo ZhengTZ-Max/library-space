@@ -39,6 +39,7 @@ const router = useRouter();
 const route = useRoute();
 
 const state = reactive({
+  sliderShow: false,
   sliderVal: [],
   sliderConfig: {
     previousValue: [],
@@ -202,7 +203,7 @@ const getCurrentTime = () => {
 
   // console.log(
   //   "state.sliderConfig.disabledArr",
-  //   JSON.stringify(state.sliderConfig.disabledArr)
+  //   JSON.stringify(state.sliderConfig)
   // );
   if (
     exchangeDateTime(state.selectDateInfo[0], 2) ==
@@ -220,7 +221,10 @@ const getCurrentTime = () => {
     state.sliderConfig.disabledArr = [...state.sliderConfig.disabledArr];
   }
 
-  state.selectSlideShow = true;
+  setTimeout(() => {
+    state.selectSlideShow = true;
+    state.sliderShow = true;
+  }, 200);
 };
 
 const getCurrentChooseTimeHaveSelectTime = () => {
@@ -586,7 +590,7 @@ const draftActivity = async (data) => {
           {{ exchangeDateTime(state.selectDateInfo[1], 2) }}</span
         >
       </div>
-      <div v-if="state.selectSlideShow">
+      <div v-if="state.selectSlideShow && state.sliderShow">
         <div class="sliderSlt"></div>
         <SliderCom
           :options="state.sliderConfig"
@@ -768,8 +772,12 @@ const draftActivity = async (data) => {
             alt="Empty state illustration"
           />
           <div class="item_for_file_item">
-            <div class="item_for_file_item_left">{{ state.poster[0]?.file_origin_name }}</div>
-            <div class="item_for_file_item_right">{{ state.poster[0]?.file_size }}</div>
+            <div class="item_for_file_item_left">
+              {{ state.poster[0]?.file_origin_name }}
+            </div>
+            <div class="item_for_file_item_right">
+              {{ state.poster[0]?.file_size }}
+            </div>
           </div>
           <img
             style="width: 20px; height: 20px"
@@ -804,8 +812,12 @@ const draftActivity = async (data) => {
             alt="Empty state illustration"
           />
           <div class="item_for_file_item">
-            <div class="item_for_file_item_left">{{ state.approve[0]?.file_origin_name }}</div>
-            <div class="item_for_file_item_right">{{ state.approve[0]?.file_size }}</div>
+            <div class="item_for_file_item_left">
+              {{ state.approve[0]?.file_origin_name }}
+            </div>
+            <div class="item_for_file_item_right">
+              {{ state.approve[0]?.file_size }}
+            </div>
           </div>
           <img
             style="width: 20px; height: 20px"
@@ -840,8 +852,12 @@ const draftActivity = async (data) => {
             alt="Empty state illustration"
           />
           <div class="item_for_file_item">
-            <div class="item_for_file_item_left">{{ state.publicize[0]?.file_origin_name }}</div>
-            <div class="item_for_file_item_right">{{ state.publicize[0]?.file_size }}</div>
+            <div class="item_for_file_item_left">
+              {{ state.publicize[0]?.file_origin_name }}
+            </div>
+            <div class="item_for_file_item_right">
+              {{ state.publicize[0]?.file_size }}
+            </div>
           </div>
           <img
             style="width: 20px; height: 20px"
@@ -874,8 +890,12 @@ const draftActivity = async (data) => {
             alt="Empty state illustration"
           />
           <div class="item_for_file_item">
-            <div class="item_for_file_item_left">{{ state.plan[0]?.file_origin_name }}</div>
-            <div class="item_for_file_item_right">{{ state.plan[0]?.file_size }}</div>
+            <div class="item_for_file_item_left">
+              {{ state.plan[0]?.file_origin_name }}
+            </div>
+            <div class="item_for_file_item_right">
+              {{ state.plan[0]?.file_size }}
+            </div>
           </div>
           <img
             style="width: 20px; height: 20px"
@@ -909,8 +929,12 @@ const draftActivity = async (data) => {
             alt="Empty state illustration"
           />
           <div class="item_for_file_item">
-            <div class="item_for_file_item_left">{{ state.materials[0]?.file_origin_name }}</div>
-            <div class="item_for_file_item_right">{{ state.materials[0]?.file_size }}</div>
+            <div class="item_for_file_item_left">
+              {{ state.materials[0]?.file_origin_name }}
+            </div>
+            <div class="item_for_file_item_right">
+              {{ state.materials[0]?.file_size }}
+            </div>
           </div>
           <img
             style="width: 20px; height: 20px"

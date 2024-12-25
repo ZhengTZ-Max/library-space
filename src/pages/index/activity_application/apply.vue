@@ -64,6 +64,7 @@ const state = reactive({
   },
   selectDateInfo: [],
   selectSlideShow: false,
+  sliderShow: false,
   selectChooseTime: false,
   filterRows: {
     date: "",
@@ -326,6 +327,7 @@ const getCurrentTime = () => {
   let findDate = state.calendarInfo?.list?.find(
     (e) => e?.day == exchangeDateTime(state?.selectDateInfo[0], 2)
   );
+  console.log(findDate);
 
   if (findDate) {
     let { day, start_time, end_time, min_time, max_time, list } = findDate;
@@ -359,7 +361,10 @@ const getCurrentTime = () => {
     state.sliderConfig.disabledArr = [...state.sliderConfig.disabledArr];
   }
 
-  state.selectSlideShow = true;
+  setTimeout(() => {
+    state.selectSlideShow = true;
+    state.sliderShow = true;
+  }, 200);
 };
 
 const goToLink = (link) => {
@@ -456,6 +461,7 @@ const onSelected = (date) => {
   state.selectDateInfo = date;
   state.selectSlideShow = false;
   if (state.selectDateInfo.length > 0) {
+    console.log(state.selectDateInfo);
     if (state.selectDateInfo.length == 1) {
       state.selectChooseTime = false;
       getCurrentTime();
@@ -763,7 +769,7 @@ const handleShow = (v) => {
             </van-col>
           </van-row>
 
-          <div v-if="state.selectSlideShow" style="margin-top: 12px">
+          <div v-if="state.selectSlideShow && state.sliderShow" style="margin-top: 12px">
             <div class="sliderSlt">
               <div>
                 已选日期：<span class="sltText">{{

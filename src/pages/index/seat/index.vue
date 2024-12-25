@@ -181,7 +181,7 @@ const onFloor = (row) => {
       </div>
     </a-affix>
     <div class="librarySlt">
-      <a-row v-if="state.libraryList?.length" :gutter="[40, 40]">
+      <a-row v-if="state.libraryList?.length" :gutter="[40, 30]">
         <template v-for="item in state.libraryList" :key="item?.id">
           <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="8" :xxl="6">
             <div
@@ -221,7 +221,7 @@ const onFloor = (row) => {
                   <span>/总数{{ item?.total_num || "-" }}</span>
                 </div>
                 <div
-                  v-if="item?.id == state.activeIndex"
+                  
                   class="action"
                   @click="goToLink(item?.id)"
                 >
@@ -237,7 +237,7 @@ const onFloor = (row) => {
       <a-row
         v-if="state.activeIndex"
         :gutter="[40, 40]"
-        style="margin-top: 50px"
+        style="margin-top: 30px"
       >
         <a-col
           v-for="item in state.floorList"

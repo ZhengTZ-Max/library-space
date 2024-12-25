@@ -320,7 +320,7 @@ const onFloor = (row) => {
     </a-affix>
 
     <div v-if="state.quickMode == '1'" class="librarySlt">
-      <a-row v-if="state.spaceList?.length" :gutter="[60, 80]">
+      <a-row v-if="state.spaceList?.length" :gutter="[60, 60]">
         <template v-for="item in state.spaceList" :key="item?.id">
           <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
             <div
