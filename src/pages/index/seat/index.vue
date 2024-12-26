@@ -205,10 +205,16 @@ const onFloor = (row) => {
                   </template>
                 </a-image>
                 <!-- <img class="cardItemImg" :src="item?.firstImg" alt="" /> -->
+
                 <div class="posBot">
                   <span>{{ item?.name }}</span>
-                  <span @click.stop="handleShowInfo(item)">查看详情</span>
+                  <span
+                    v-if="item?.show_detail == 1"
+                    @click.stop="handleShowInfo(item)"
+                    >查看详情</span
+                  >
                   <img
+                    v-if="item?.show_detail == 1"
                     @click.stop="handleShowInfo(item)"
                     src="@/assets/home/rightIconW.svg"
                     alt=""
@@ -220,11 +226,7 @@ const onFloor = (row) => {
                   <span>空闲{{ item?.free_num || "-" }}</span>
                   <span>/总数{{ item?.total_num || "-" }}</span>
                 </div>
-                <div
-                  
-                  class="action"
-                  @click="goToLink(item?.id)"
-                >
+                <div class="action" @click="goToLink(item?.id)">
                   <span>预约</span>
                   <img src="@/assets/home/rightIconPrimary.svg" alt="" />
                 </div>

@@ -629,3 +629,20 @@ export const verifyTime = () => {
 export const decryptTime = (time) => {
   return (time / 29 - 509) * 1000;
 };
+
+// 过滤中英文
+export function filterTreeEn(list) {
+  let lang = sessionStorage.getItem('lang');
+  if (!list?.length) {
+    return [];
+  }
+  return list.map((item, index) => {
+    if (lang == "en") {
+      item.name = item.enname || item.name;
+    }
+    if (item.children) {
+      filterTreeEn(item.children);
+    }
+    return item;
+  });
+}

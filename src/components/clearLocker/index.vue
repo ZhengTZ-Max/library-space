@@ -53,7 +53,7 @@
                 >
               </p>
             </div>
-            <div class="viewInfo btn" @click="details(item?.id, row?.id)">
+            <div class="viewInfo clickBox" @click="details(item?.id, row?.id)">
               详情
             </div>
           </div>
@@ -95,8 +95,12 @@ const getBookcaseList = async () => {
 };
 
 const details = (id, type) => {
+  let path = "/clearLocker/clearBookcase";
+  if (systemMode?.value == "mobile") {
+    path = `/mo${path}`;
+  }
   router.push({
-    path: "/clear",
+    path: path,
     query: {
       id: id,
       typeId: type,

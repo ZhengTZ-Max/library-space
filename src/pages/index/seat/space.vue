@@ -83,7 +83,7 @@ const initQueryFn = () => {
 
   let floorSelect = [];
 
-  state.filterSearch.library = (libraryId && [libraryId]) || [];
+  state.filterSearch.library = (libraryId && libraryId) || [];
   state.filterSearch.date = quickDate;
   state.filterSearch.seatType = (seatType && [seatType]) || [];
 
@@ -330,9 +330,9 @@ const onFloor = (row) => {
             >
               <div class="cardItemImgCon">
                 <a-image
-                @click="handleAppt(item)"
+                  @click="handleAppt(item)"
                   class="cardItemImg"
-                  :src="item?.firstImg"
+                  :src="item?.thumb_img"
                   :preview="false"
                 >
                   <template #placeholder>
@@ -344,22 +344,28 @@ const onFloor = (row) => {
                     />
                   </template>
                 </a-image>
-                <div class="leftBadge basicsBadge">{{ item?.typeName }}</div>
                 <div
+                  class="leftBadge basicsBadge"
+                  :style="{ background: item?.rgba_color }"
+                >
+                  {{ item?.premisesName }}
+                </div>
+                <div
+                  v-if="item?.show_detail == 1"
                   class="rightBadge viewMore clickBox"
                   @click.stop="handleShowInfo(item)"
                 >
                   <span> 查看详情 </span>
                   <img src="@/assets/home/rightIconW.svg" alt="" />
                 </div>
-                <div class="posBot">
+                <div class="posBot" v-if="item?.show_category == 1">
                   <span>- {{ item?.typeName }} -</span>
                 </div>
               </div>
               <div class="bottomItem">
                 <div class="title">
                   <span>{{ item?.name }}</span>
-                  <span>1F</span>
+                  <span>{{ item?.storeyName }}</span>
                 </div>
                 <div class="num">
                   总数 <span>{{ item?.total_num || "-" }}</span> 空闲

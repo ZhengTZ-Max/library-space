@@ -298,6 +298,12 @@ function loginSuccess() {
     //     location.hash = "#/home";
     //   }
     // }
+    let StorageQr = sessionStorage.getItem("StorageQr");
+    if (StorageQr) {
+      router.replace(StorageQr);
+      location.hash = `#${StorageQr}`;
+      return false;
+    }
 
     location.hash = "#/";
   } catch (e) {

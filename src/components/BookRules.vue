@@ -79,7 +79,7 @@ const initRuleList = () => {
     {
       id: 7,
       title: store?.state?.lang?.currentLang?.Postgraduate_seats || "考研规则",
-      key: "study_Rules",
+      key: "study_rule",
     },
     {
       id: 10,

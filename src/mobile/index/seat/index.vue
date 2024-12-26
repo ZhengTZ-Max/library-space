@@ -154,6 +154,7 @@ const goToLink = (row) => {
             <div class="libraryItem cardItem">
               <div class="cardItemImgCon">
                 <div
+                  v-if="item?.show_detail == 1"
                   class="rightBadge viewMore clickBox"
                   @click.stop="handleShowInfo(item)"
                 >

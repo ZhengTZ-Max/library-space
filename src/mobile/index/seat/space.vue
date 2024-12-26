@@ -141,7 +141,7 @@ const onQuickDateAct = (type) => {
 };
 
 const onChangeAct = (row) => {
-  row?.id && fetchInfo(row?.id);
+  row?.id && row?.show_detail == "1" && fetchInfo(row?.id);
 };
 
 const fetchFilter = async () => {
@@ -303,17 +303,22 @@ const fetchInfo = async (id) => {
                 <van-image
                   lazy-load
                   class="cardItemImg"
-                  :src="item?.firstImg"
+                  :src="item?.thumb_img"
                 />
-                <div class="leftBadge basicsBadge">{{ item?.typeName }}</div>
-                <div class="posBot">
+                <div
+                  class="leftBadge basicsBadge"
+                  :style="{ background: item?.rgba_color }"
+                >
+                  {{ item?.premisesName }}
+                </div>
+                <div class="posBot" v-if="item?.show_category == 1">
                   <span>- {{ item?.typeName }} -</span>
                 </div>
               </div>
               <div class="bottomItem">
                 <div class="title">
                   <span>{{ item?.name }}</span>
-                  <span>1F</span>
+                  <span>{{ item?.storeyName }}</span>
                 </div>
                 <div class="num">
                   总数 <span>{{ item?.total_num || "-" }}</span> 空闲

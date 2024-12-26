@@ -70,3 +70,69 @@ export function clearBookcaseHome(data) {
     data,
   });
 }
+
+// 清柜 柜子列表
+export function getLockManageFilterConditions(data) {
+  return service({
+    url: "/reserve/Locker/getLockerManageList",
+    method: "post",
+    isLoading: true,
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}
+
+// 一键开柜
+export function oneClickOpenLocker(data) {
+  return service({
+    url: "/apiLocker/Lock/oneClickOpenLocker",
+    method: "post",
+    isLoading: true,
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}
+
+// 一键清柜
+export function oneClickCleanLocker(data) {
+  return service({
+    url: "/apiLocker/Lock/oneClickCleanLocker",
+    method: "post",
+    isLoading: true,
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}
+
+// 清柜-列表
+export function clearBookcase(data) {
+  return service({
+    url: "/reserve/locker/cleanLocker",
+    method: "post",
+    isLoading: true,
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}
+
+// 开柜子列表
+export function openLocker(data) {
+  return service({
+    url: "/apiLocker/Lock/openLocker",
+    method: "post",
+    isLoading: true,
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}
+
+// 清柜-列表
+export function clearBookcaseList(data) {
+  return service({
+    url: "/reserve/locker/cList",
+    method: "post",
+    isLoading: true,
+    // customLoading:true, 是否自定义loading
+    data,
+  });
+}
