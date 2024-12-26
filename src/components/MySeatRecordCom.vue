@@ -1,15 +1,18 @@
 <script setup>
-import { reactive, onMounted, watch, ref } from "vue";
+import { reactive, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { getUserInfo } from "@/utils";
+import { showToast, showConfirmDialog, emptyProps } from "vant";
+import { fetchCancelSeat, fetchCancelStudyCancel } from "@/request/home";
 
+const emit = defineEmits(["close"]);
+const router = useRouter();
 const store = useStore();
+const lang = computed(() => store.state.lang);
 const props = defineProps({
   data: {
     type: Object,
-  },
-  userName: {
-    type: String,
   },
 });
 const state = reactive({
@@ -22,24 +25,92 @@ onMounted(() => {
   console.log(state.selectedRecord);
 });
 
-const onCancelReservation = () => {
-  state.selectedRecord.clickCancelReservation = true;
+const onCancelReservation = async () => {
+  try {
+    let res;
+    let params = {
+      id: state.selectedRecord.id,
+    };
+    let message = "";
+    if (state.selectedRecord.activeKey == "1") {
+      message = `${state.selectedRecord.nameMerge}:${state.selectedRecord.name} ${
+        lang == "zh" ? "的预约" : "Appointment"
+      }？`;
+    } else {
+      message = `${state.selectedRecord.nameMerge}:${state.selectedRecord.spacename} ${
+        lang == "zh" ? "的预约" : "Appointment"
+      }？`;
+    }
+    showConfirmDialog({
+      title: $t("cancelappointment"),
+      message,
+    }).then(async () => {
+      if (state.selectedRecord.activeKey == "1") {
+        res = await fetchCancelSeat(params);
+      } else {
+        res = await fetchCancelStudyCancel(params);
+      }
+      if (res.code == 0) {
+        showToast({
+          message: res?.message || res?.msg,
+        });
+        router.refresh();
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 </script>
 <template>
   <a-divider />
   <div v-if="state.selectedRecord" class="modal-content">
-    <p>
+    <!--  普通座位
+                  预约成功			2、9
+                  预约待审核		1、32	
+                  待邀			    21
+                  草稿			    31
+                  使用中			  3、11、33
+                  已结束			  4、8、12、34、35
+                  已取消			  6
+                  状态异常			其它
+                -->
+    <p v-if="state.selectedRecord.activeKey == '1'">
       预约状态：<span
         :class="
-          state.selectedRecord.status_name === '使用中'
-            ? 'status-active'
-            : state.selectedRecord.status_name === '未签到' ||
-              state.selectedRecord.status_name === '状态异常'
-            ? 'status-nosign'
-            : state.selectedRecord.status_name === '预约成功'
+          state.selectedRecord.status === '2' ||
+          state.selectedRecord.status === '9'
             ? 'status-success'
-            : ''
+            : state.selectedRecord.status === '1' ||
+              state.selectedRecord.status === '32'
+            ? 'status-orange'
+            : state.selectedRecord.status === '3' ||
+              state.selectedRecord.status === '11' ||
+              state.selectedRecord.status === '33'
+            ? 'status-active'
+            : state.selectedRecord.status_name === '未签到'
+            ? 'status-nosign'
+            : 'status-cancel'
+        "
+        >{{ state.selectedRecord.status_name }}</span
+      >
+    </p>
+
+    <!-- 考研/研习座位
+                  已预约    1   绿色 可取消
+                  已取消    2   灰色
+                  暂停      3   橙色
+                  已结束    4   灰色
+                  状态异常  其它 灰色
+                -->
+    <p v-else>
+      预约状态：<span
+        :class="
+          state.selectedRecord.status === '1'
+            ? 'status-success'
+            : state.selectedRecord.status === '3'
+            ? 'status-orange'
+            : 'status-cancel'
         "
         >{{ state.selectedRecord.status_name }}</span
       >
@@ -51,20 +122,22 @@ const onCancelReservation = () => {
     <p>开始时间：{{ state.selectedRecord.beginTime }}</p>
     <p>结束时间：{{ state.selectedRecord.endTime }}</p>
     <p>预约地点：{{ state.selectedRecord.nameMerge }}</p>
-    <p>座位号：{{ state.selectedRecord.name || state.selectedRecord?.spacename }} </p>
+    <p>
+      座位号：{{ state.selectedRecord.name || state.selectedRecord?.spacename }}
+    </p>
     <a-divider dashed />
-    <!-- <div v-if="state.selectedRecord.status_name !== '预约成功'">
-      <p v-if="state.selectedRecord.status_name == '未签到'">
-        违约时间：{{ state.selectedRecord.renegeTime }}
-      </p>
-      <p v-else-if="state.selectedRecord.status_name == '已取消'">
-        取消时间：{{ state.selectedRecord.cancelTime }}
-      </p>
-      <p v-else>签到时间：{{ state.selectedRecord.signInTime }}</p>
-    </div> -->
+
+    <!-- 普通座位 2/9 显示取消预约 -->
+    <!-- 考研/研习座位 1 显示取消预约 -->
     <div
       class="modal-footer"
-      v-if="state.selectedRecord.status_name === '预约成功'"
+      v-if="
+        (state.selectedRecord.activeKey == '1' &&
+          (state.selectedRecord.status === '2' ||
+            state.selectedRecord.status === '9')) ||
+        (state.selectedRecord.activeKey != '2' &&
+          state.selectedRecord.status === '1')
+      "
     >
       <a-button
         type="primary"
@@ -73,9 +146,17 @@ const onCancelReservation = () => {
         >取消预约</a-button
       >
     </div>
-    <div v-else>
+    <div v-else-if="state.selectedRecord.timelist">
       <template v-for="item in state.selectedRecord.timelist"
         ><p>{{ item.status_name }}：{{ item.operateTime }}</p></template
+      >
+    </div>
+    <div v-else class="modal-footer">
+      <a-button
+        type="primary"
+        class="cancel-button"
+        @click="emit('close')"
+        >确定</a-button
       >
     </div>
   </div>
@@ -106,6 +187,12 @@ const onCancelReservation = () => {
   }
   .status-success {
     color: rgba(78, 201, 91, 1);
+  }
+  .status-cancel {
+    color: rgba(153, 153, 153, 1);
+  }
+  .status-orange {
+    color: rgba(255, 153, 0, 1);
   }
 }
 </style>

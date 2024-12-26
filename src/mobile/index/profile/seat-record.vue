@@ -290,13 +290,41 @@ const fetchQuery = () => {
                   状态异常			其它
                 -->
             <div
+              v-if="state.activeKey == '1'"
               class="rightBadge basicsBadge"
               :class="{
                 status_success: item.status === '2' || item.status === '9',
                 status_cancel: item.status === '6',
-                status_in_progress: item.status === '3' || item.status === '11' || item.status === '33',
-                status_end: item.status === '4' || item.status === '8' || item.status === '12' || item.status === '34' || item.status === '35',
+                status_in_progress:
+                  item.status === '3' ||
+                  item.status === '11' ||
+                  item.status === '33',
+                status_end:
+                  item.status === '4' ||
+                  item.status === '8' ||
+                  item.status === '12' ||
+                  item.status === '34' ||
+                  item.status === '35',
                 status_no_sign: item.status_name === '未签到',
+                status_abnormal:
+                  item.status_name === '状态异常' || item.status == '4',
+              }"
+            >
+              {{ item.status_name }}
+            </div>
+            <!-- 考研/研习座位
+                  已预约    1   绿色 可取消
+                  已取消    2   灰色
+                  暂停      3   橙色
+                  已结束    4   灰色
+                  状态异常  其它 灰色
+                -->
+            <div
+              v-else
+              class="rightBadge basicsBadge"
+              :class="{
+                status_success: item.status === '1',
+                status_cancel: item.status === '2' || item.status === '4',
                 status_abnormal:
                   item.status_name === '状态异常' || item.status == '4',
               }"

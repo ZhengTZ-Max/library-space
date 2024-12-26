@@ -6,6 +6,8 @@ import { getSeatRecordList, getSeatRenegeList } from "@/request/sear-record";
 import MySeatRecordCom from "@/components/MySeatRecordCom.vue";
 import PageSizeCom from "@/components/PageSizeCom.vue";
 import { getUserInfo, exchangeDateTime } from "@/utils";
+import { showToast, showConfirmDialog } from "vant";
+import { fetchCancelSeat, fetchCancelStudyCancel } from "@/request/home";
 
 const store = useStore();
 const state = reactive({
@@ -70,14 +72,51 @@ const columns = [
 ];
 
 const onShowModal = (record) => {
-  state.selectedRecord.activeKey = state.activeKey;
   state.selectedRecord = record;
+  state.selectedRecord.activeKey = state.activeKey;
   state.isModalVisible = true;
 };
 const onHideModal = () => {
   state.isModalVisible = false;
   state.isModalVisibleForQuery = false;
   state.selectedRecord = "";
+};
+
+const onCancel = async (record) => {
+  try {
+    let res;
+    let params = {
+      id: record.id,
+    };
+    let message = "";
+    if (state.activeKey == "1") {
+      message = `${record.nameMerge}:${record.name} ${
+        lang == "zh" ? "的预约" : "Appointment"
+      }？`;
+    } else {
+      message = `${record.nameMerge}:${record.spacename} ${
+        lang == "zh" ? "的预约" : "Appointment"
+      }？`;
+    }
+    showConfirmDialog({
+      title: $t("cancelappointment"),
+      message,
+    }).then(async () => {
+      if (record.activeKey == "1") {
+        res = await fetchCancelSeat(params);
+      } else {
+        res = await fetchCancelStudyCancel(params);
+      }
+      if (res.code == 0) {
+        showToast({
+          message: res?.message || res?.msg,
+        });
+        fetch();
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const onQuery = () => {
@@ -251,17 +290,41 @@ const onChangePage = (page, pageSize) => {
                   状态异常			其它
                 -->
                 <a-tag
+                  v-if="state.activeKey == '1'"
                   class="custom-tag"
                   :color="
                     record.status === '2' || record.status === '9'
                       ? 'success'
-                      : record.status === '3' || record.status === '11' || record.status === '33'
+                      : record.status === '3' ||
+                        record.status === '11' ||
+                        record.status === '33'
                       ? 'processing'
                       : record.status == '1' || record.status == '32'
                       ? 'warning'
                       : record.status_name === '未签到'
                       ? 'error'
-                      : record.status_name === '状态异常' || record.status == '4'
+                      : record.status_name === '状态异常' ||
+                        record.status == '4'
+                      ? 'warning'
+                      : 'default'
+                  "
+                >
+                  {{ record.status_name }}
+                </a-tag>
+                <!-- 考研/研习座位
+                  已预约    1   绿色 可取消
+                  已取消    2   灰色
+                  暂停      3   橙色
+                  已结束    4   灰色
+                  状态异常  其它 灰色
+                -->
+                <a-tag
+                  v-else
+                  class="custom-tag"
+                  :color="
+                    record.status === '1'
+                      ? 'success'
+                      : record.status == '3'
                       ? 'warning'
                       : 'default'
                   "
@@ -272,29 +335,37 @@ const onChangePage = (page, pageSize) => {
             </template>
 
             <template v-if="column.key === 'action'">
-              <template v-if="record.status_name === '预约成功'">
-                <span>
-                  <a class="red" type="primary" @click="onShowModal(record)"
-                    >取消</a
-                  >
-                  <a-divider type="vertical" />
-                  <a type="primary" @click="onShowModal(record)">查看</a>
-                </span>
-              </template>
-              <template v-else>
-                <span>
-                  <a type="primary" @click="onShowModal(record)">查看</a>
-                </span>
-                <!-- <template
-                  v-if="
-                    record.status_name === '已超时' ||
-                    record.status_name === '审核未通过'
-                  "
-                >
+              <template v-if="state.activeKey == '1'">
+                <template v-if="record.status === '2' || record.status === '9'">
+                  <span>
+                    <a class="red" type="primary" @click="onCancel(record)"
+                      >取消</a
+                    >
+                    <a-divider type="vertical" />
+                    <a type="primary" @click="onShowModal(record)">查看</a>
+                  </span>
+                </template>
+                <template v-else>
                   <span>
                     <a type="primary" @click="onShowModal(record)">查看</a>
                   </span>
-                </template> -->
+                </template>
+              </template>
+              <template v-else>
+                <template v-if="record.status === '1'">
+                  <span>
+                    <a class="red" type="primary" @click="onCancel(record)"
+                      >取消</a
+                    >
+                    <a-divider type="vertical" />
+                    <a type="primary" @click="onShowModal(record)">查看</a>
+                  </span>
+                </template>
+                <template v-else>
+                  <span>
+                    <a type="primary" @click="onShowModal(record)">查看</a>
+                  </span>
+                </template>
               </template>
             </template>
           </template>
@@ -319,7 +390,7 @@ const onChangePage = (page, pageSize) => {
       @ok="onHideModal"
       destroyOnClose
     >
-      <MySeatRecordCom :data="state.selectedRecord" :userName="userName" />
+      <MySeatRecordCom :data="state.selectedRecord" @close="onHideModal" />
     </a-modal>
 
     <a-card v-if="state.quickMode === 3" class="query-result-card">
