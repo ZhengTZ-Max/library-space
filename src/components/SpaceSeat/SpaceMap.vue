@@ -68,7 +68,7 @@ const fillCanvas = () => {
     let rectH = Math.ceil(Math.abs(y1 - y3));
     canvas.width = rectW;
     canvas.height = rectH;
-
+    console.log("eee", e);
     canvas.style.left = `${x2}px`;
     canvas.style.top = `${y1}px`;
 
@@ -82,11 +82,11 @@ const fillCanvas = () => {
       ctx.lineTo(x3, y3); // 连接到第三个点
       ctx.lineTo(x4, y4); // 连接到第四个点
       ctx.closePath(); // 闭合路径
-      ctx.fillStyle = "rgba(0,0,0,0)";
+      ctx.fillStyle = e?.rgba_color || "rgba(0,0,0,0)";
       ctx.fillRect(0, 0, rectW, rectH);
 
       // 设置文字样式并在 Canvas 中添加文字
-      ctx.fillStyle = "#000"; // 设置文字颜色
+      ctx.fillStyle = e?.font_color || "#000"; // 设置文字颜色
       ctx.font = "14px"; // 设置字体样式
       ctx.textAlign = "center"; // 设置文字水平居中
       ctx.textBaseline = "top"; // 设置文字垂直居中

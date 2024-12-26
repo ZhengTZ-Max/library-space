@@ -37,9 +37,7 @@ const onChange = (v) => {
   emits("changeSlide", state.list[v]);
 };
 
-const onTouchMove = (e) => {
-
-};
+const onTouchMove = (e) => {};
 </script>
 <template>
   <div class="container">
@@ -82,7 +80,7 @@ const onTouchMove = (e) => {
           </div>
 
           <a-divider dashed />
-          <div class="bottom_button" style="">
+          <div class="bottom_button">
             查看申请说明<img
               src="@/assets/activity_application/right_arrow_gray.svg"
               alt=""
@@ -233,6 +231,7 @@ const onTouchMove = (e) => {
   background-color: rgba(26, 73, 192, 0.06);
   border-radius: 17px;
   border: 1px solid rgba(26, 73, 192, 0.5);
+  margin-bottom: 40px;
 }
 
 .item {

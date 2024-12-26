@@ -42,10 +42,10 @@
               v-for="item in state.listConfig.list"
               :key="item.id"
             >
-              <van-checkbox
+              <a-checkbox
                 style="margin-right: 15px"
-                v-model="item.check"
-              ></van-checkbox>
+                v-model:checked="item.check"
+              ></a-checkbox>
               <div class="libiryCon">
                 <div class="typeInfo">
                   <p class="lockerNum">

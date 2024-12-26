@@ -307,7 +307,7 @@ const fetchInfo = async (id) => {
                 />
                 <div
                   class="leftBadge basicsBadge"
-                  :style="{ background: item?.rgba_color }"
+                  :style="{ background: item?.premises_color }"
                 >
                   {{ item?.premisesName }}
                 </div>

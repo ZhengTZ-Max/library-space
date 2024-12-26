@@ -300,7 +300,7 @@ function loginSuccess() {
     // }
     let StorageQr = sessionStorage.getItem("StorageQr");
     if (StorageQr) {
-      router.replace(StorageQr);
+      // router.replace(StorageQr);
       location.hash = `#${StorageQr}`;
       return false;
     }
