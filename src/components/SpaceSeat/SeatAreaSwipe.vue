@@ -49,6 +49,9 @@ const onChange = (v) => {
           <div class="header">
             <div class="tag">{{ item?.premise_name }}</div>
             <img :src="item?.firstImg" alt="Reading Room" class="image" />
+            <div class="posBot" v-if="item?.show_category == 1">
+              <span>- {{ item?.typeCategory }} -</span>
+            </div>
           </div>
           <div class="card-body">
             <div class="card-title">
@@ -114,6 +117,21 @@ const onChange = (v) => {
   border-radius: 5px;
   font-size: 12px;
   color: #ffffff;
+  z-index: 2;
+}
+.posBot {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  padding: 28px 20px 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 12px;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%);
+  border-radius: 0 0 10px 10px;
 }
 
 .image {

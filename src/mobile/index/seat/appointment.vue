@@ -238,26 +238,27 @@ const initSltTimes = () => {
     state.filterSearch.time = curDate?.times[0]?.id;
     state.filterSearch.times = curDate?.times[0];
   } else if (dateType == 2) {
-    state.filterSearch.time = curDate?.times[0][0];
+    state.filterSearch.time = curDate?.times[0];
   } else if (dateType == 3) {
     if (state.filterSearch?.date == exchangeDateTime(new Date(), 2)) {
-      let [start, end] = initSltTime(
-        curDate?.times[0]?.end,
-        curDate?.min_time || 30
-      );
+      console.log("curDate", curDate);
 
-      curDate.times[0].start = start;
-      curDate.times[0].end = end;
+      // let [start, end] = initSltTime(
+      //   curDate?.times[0]?.end,
+      //   curDate?.min_time || 30
+      // );
+
+      // curDate.times[0].start = start;
+      // curDate.times[0].end = end;
     }
+    // let cStart = curDate.times[0].start;
 
-    let cStart = curDate.times[0].start;
-
-    state.filterSearch.time = [
-      cStart,
-      moment(cStart, "HH:mm")
-        .add(Number(curDate?.min_time), "minutes")
-        .format("HH:mm"),
-    ];
+    // state.filterSearch.time = [
+    //   cStart,
+    //   moment(cStart, "HH:mm")
+    //     .add(Number(curDate?.min_time), "minutes")
+    //     .format("HH:mm"),
+    // ];
   }
 
   state.filterDate.time = state.filterSearch?.time;

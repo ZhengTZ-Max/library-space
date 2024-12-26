@@ -228,7 +228,7 @@ const onChangeDate = () => {
     if (state.filterDateType == 1) {
       state.filterRows.time = state.filterTimes[0]?.id;
     } else if (state.filterDateType == 2) {
-      state.filterRows.time = state.filterTimes[0][0];
+      state.filterRows.time = state.filterTimes[0];
     }
   }, 50);
 
@@ -291,7 +291,7 @@ const onChangeDate = () => {
           <template v-else-if="state.filterDateType == 2">
             <template v-if="systemMode == 'pc'">
               <a-radio
-                v-for="item in state.filterTimes[0]"
+                v-for="item in state.filterTimes"
                 :value="item"
                 :key="item"
                 >{{ item }}</a-radio
@@ -301,7 +301,7 @@ const onChangeDate = () => {
               <a-flex wrap="wrap">
                 <!--  第一个(左侧) 宽度40% -->
                 <div
-                  v-for="(item, index) in state.filterTimes[0]"
+                  v-for="(item, index) in state.filterTimes"
                   :key="item"
                   :style="{
                     width: `${(index + 1) % 3 == 1 ? '40%' : '30%'}`,
