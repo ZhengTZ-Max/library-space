@@ -9,7 +9,7 @@
     }
 </route>
 <script setup>
-import { reactive, onMounted, watch, ref } from "vue";
+import { reactive, onMounted, watch, ref, nextTick } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import { message } from "ant-design-vue";
@@ -41,11 +41,13 @@ import ShowInfoToast from "@/components/ShowInfoToast.vue";
 import HiddenArrow from "@/assets/swipe_hidden_arrow.svg";
 import ShowArrow from "@/assets/swipe_show_arrow.svg";
 
+const flexRef = ref(null);
 const router = useRouter();
 const route = useRoute();
 const state = reactive({
   UserInfo: getUserInfo(),
 
+  isFirstTime: true,
   swipeShow: true,
   initQuerySpaceId: route?.query?.id || "",
   initQueryDate: route?.query?.date || "",
@@ -184,6 +186,32 @@ watch(
       setTimeout(() => {
         state.sliderShow = true;
       }, 200);
+
+      state.isFirstTime = false;
+    }
+  }
+);
+
+watch(
+  () => state.dateIndex,
+  async () => {
+    await nextTick(); // 等待 DOM 更新
+    const container = flexRef.value.$el || flexRef.value; // 获取滚动容器，确保引用的是 DOM 元素
+    const activeItem = container.querySelector('.activeItem'); // 获取被选中的项
+    console.log(activeItem);
+    if (activeItem) {
+      const itemOffsetLeft = activeItem.offsetLeft; // 被选中项的左偏移量
+      const containerWidth = container.clientWidth; // 容器的宽度
+
+      // 计算新的滚动位置
+      const newScrollLeft = itemOffsetLeft - (containerWidth / 2) + (activeItem.clientWidth / 2);
+
+      console.log(itemOffsetLeft, containerWidth, newScrollLeft);
+
+      // 使用 requestAnimationFrame 确保在下一个重绘周期中执行滚动
+      requestAnimationFrame(() => {
+        container.scrollTo({ left: newScrollLeft, behavior: 'smooth' }); // 平滑滚动到新位置
+      });
     }
   }
 );
@@ -1004,6 +1032,7 @@ const getDateStatus = () => {
 
         <a-flex
           v-else
+          ref="flexRef"
           gap="middle"
           style="overflow-x: auto; white-space: nowrap"
           class="vertical_scroll"
@@ -1324,7 +1353,6 @@ const getDateStatus = () => {
       font-weight: bold;
       font-size: 14px;
       .show_arrow {
-
         padding: 0 10px;
       }
     }
@@ -1426,6 +1454,20 @@ const getDateStatus = () => {
       }
     }
     .vertical_scroll {
+      /* 设置滚动条样式 */
+      &::-webkit-scrollbar {
+        height: 4px; /* 设置滚动条的高度 */
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(97, 97, 97, 0.05); /* 设置滚动条的颜色 */
+        border-radius: 10px; /* 设置滚动条的圆角 */
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1; /* 设置滚动条轨道的颜色 */
+      }
+
       /* Firefox 的滚动条样式 */
       scrollbar-width: thin; /* 滚动条的宽度 */
       scrollbar-color: rgba(97, 97, 97, 0.05) #f1f1f1; /* 滚动条的颜色和轨道的颜色 */
