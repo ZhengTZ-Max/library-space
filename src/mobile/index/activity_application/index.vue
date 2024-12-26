@@ -177,7 +177,7 @@ const onApply = (id) => {
                   <span>{{ item?.storey_name }}</span>
                 </div>
 
-                <div class="boutique">
+                <a-flex class="vertical_scroll" >
                   <div
                     class="boutiqueList"
                     v-for="bout in item?.boutiques"
@@ -185,7 +185,7 @@ const onApply = (id) => {
                   >
                     {{ bout.name }}
                   </div>
-                </div>
+                </a-flex>
                 <div class="num">
                   <span>可容纳人数</span>
                   <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} 人</span>
@@ -366,18 +366,27 @@ const onApply = (id) => {
           }
         }
       }
-      .boutique {
-        margin-top: 8px;
-        display: flex;
-        flex-wrap: wrap;
-        max-height: 40px;
-        overflow: auto;
+      .vertical_scroll {
+        overflow-x: auto;
+        white-space: nowrap;
+        margin-top: 10px;
+        /* 设置滚动条样式 */
         &::-webkit-scrollbar {
-          display: none; /* 隐藏滚动条 */
+          height: 4px; /* 设置滚动条的高度 */
         }
 
-        scrollbar-width: none; /* Firefox 隐藏滚动条 */
-        -ms-overflow-style: none; /* IE 和 Edge 隐藏滚动条 */
+        &::-webkit-scrollbar-thumb {
+          background-color: rgba(97, 97, 97, 0.05); /* 设置滚动条的颜色 */
+          border-radius: 10px; /* 设置滚动条的圆角 */
+        }
+
+        &::-webkit-scrollbar-track {
+          background: transparent; /* 设置滚动条轨道的颜色 */
+        }
+
+        /* Firefox 的滚动条样式 */
+        scrollbar-width: thin; /* 滚动条的宽度 */
+        scrollbar-color: rgba(97, 97, 97, 0.05) transparent; /* 滚动条的颜色和轨道的颜色 */
         .boutiqueList {
           border: 1px solid #f28800;
           font-size: 10px;

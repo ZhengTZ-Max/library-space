@@ -344,7 +344,7 @@ const getItemTime = (item) => {
                   <span>{{ item?.storey_name }}</span>
                 </div>
 
-                <div class="boutique">
+                <a-flex class="vertical_scroll" >
                   <div
                     class="boutiqueList"
                     v-for="bout in item?.boutiques"
@@ -352,7 +352,7 @@ const getItemTime = (item) => {
                   >
                     {{ bout.name }}
                   </div>
-                </div>
+                </a-flex>
                 <div class="num">
                   <span>可容纳人数</span>
                   <span
@@ -386,7 +386,7 @@ const getItemTime = (item) => {
                 <span class="unAllCir" style="margin-left: 30px"></span>
                 <span class="timeStatusText">可预约时段</span>
               </div>
-              <a-flex wrap="wrap" gap="10px" style="margin-top: 10px">
+              <a-flex wrap="wrap" gap="10px" style="margin-top: 10px" >
                 <template v-for="item_ in getItemTime(item)" :key="item">
                   <div style="padding-right: 4px">
                     <a-flex vertical align="center">
@@ -584,10 +584,27 @@ const getItemTime = (item) => {
           }
         }
       }
-      .boutique {
-        margin-top: 8px;
-        display: flex;
-        flex-wrap: wrap;
+      .vertical_scroll {
+        overflow-x: auto;
+        white-space: nowrap;
+        margin-top: 10px;
+        /* 设置滚动条样式 */
+        &::-webkit-scrollbar {
+          height: 4px; /* 设置滚动条的高度 */
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background-color: rgba(97, 97, 97, 0.05); /* 设置滚动条的颜色 */
+          border-radius: 10px; /* 设置滚动条的圆角 */
+        }
+
+        &::-webkit-scrollbar-track {
+          background: transparent; /* 设置滚动条轨道的颜色 */
+        }
+
+        /* Firefox 的滚动条样式 */
+        scrollbar-width: thin; /* 滚动条的宽度 */
+        scrollbar-color: rgba(97, 97, 97, 0.05) transparent; /* 滚动条的颜色和轨道的颜色 */
         .boutiqueList {
           border: 1px solid #f28800;
           font-size: 10px;

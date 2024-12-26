@@ -197,20 +197,21 @@ watch(
   async () => {
     await nextTick(); // 等待 DOM 更新
     const container = flexRef.value.$el || flexRef.value; // 获取滚动容器，确保引用的是 DOM 元素
-    const activeItem = container.querySelector('.activeItem'); // 获取被选中的项
+    const activeItem = container.querySelector(".activeItem"); // 获取被选中的项
     console.log(activeItem);
     if (activeItem) {
       const itemOffsetLeft = activeItem.offsetLeft; // 被选中项的左偏移量
       const containerWidth = container.clientWidth; // 容器的宽度
 
       // 计算新的滚动位置
-      const newScrollLeft = itemOffsetLeft - (containerWidth / 2) + (activeItem.clientWidth / 2);
+      const newScrollLeft =
+        itemOffsetLeft - containerWidth / 2 + activeItem.clientWidth / 2;
 
       console.log(itemOffsetLeft, containerWidth, newScrollLeft);
 
       // 使用 requestAnimationFrame 确保在下一个重绘周期中执行滚动
       requestAnimationFrame(() => {
-        container.scrollTo({ left: newScrollLeft, behavior: 'smooth' }); // 平滑滚动到新位置
+        container.scrollTo({ left: newScrollLeft, behavior: "smooth" }); // 平滑滚动到新位置
       });
     }
   }
@@ -1030,13 +1031,7 @@ const getDateStatus = () => {
           </template>
         </a-row> -->
 
-        <a-flex
-          v-else
-          ref="flexRef"
-          gap="middle"
-          style="overflow-x: auto; white-space: nowrap"
-          class="vertical_scroll"
-        >
+        <a-flex v-else ref="flexRef" gap="middle" class="vertical_scroll">
           <template v-for="item in state.calendarInfo.list" :key="item">
             <div
               class="libraryItem cardItemBorTran"
@@ -1454,6 +1449,8 @@ const getDateStatus = () => {
       }
     }
     .vertical_scroll {
+      overflow-x: auto;
+      white-space: nowrap;
       /* 设置滚动条样式 */
       &::-webkit-scrollbar {
         height: 4px; /* 设置滚动条的高度 */
@@ -1465,12 +1462,12 @@ const getDateStatus = () => {
       }
 
       &::-webkit-scrollbar-track {
-        background: #f1f1f1; /* 设置滚动条轨道的颜色 */
+        background: transparent; /* 设置滚动条轨道的颜色 */
       }
 
       /* Firefox 的滚动条样式 */
       scrollbar-width: thin; /* 滚动条的宽度 */
-      scrollbar-color: rgba(97, 97, 97, 0.05) #f1f1f1; /* 滚动条的颜色和轨道的颜色 */
+      scrollbar-color: rgba(97, 97, 97, 0.05) transparent; /* 滚动条的颜色和轨道的颜色 */
     }
     .libraryItem {
       padding: 5px 15px;
