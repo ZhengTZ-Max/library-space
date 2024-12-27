@@ -9,6 +9,7 @@ import { getUserInfo, exchangeDateTime } from "@/utils";
 import { showToast, showConfirmDialog } from "vant";
 import { fetchCancelSeat, fetchCancelStudyCancel } from "@/request/home";
 
+const lang = computed(() => store.state.lang);
 const store = useStore();
 const state = reactive({
   activeKey: "1",
@@ -67,7 +68,7 @@ const columns = [
     title: "操作",
     key: "action",
 
-    width: 100,
+    width: 150,
   },
 ];
 
@@ -497,7 +498,7 @@ const onChangePage = (page, pageSize) => {
 }
 
 .red {
-  color: orange;
+  color: red;
 }
 
 .custom-tag {
