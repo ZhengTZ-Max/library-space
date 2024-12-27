@@ -47,10 +47,15 @@ const onChange = (v) => {
           :class="{ moCard: systemMode != 'pc' }"
         >
           <div class="header">
-            <div class="tag">{{ item?.premise_name }}</div>
+            <div
+              class="tag"
+              :style="{ 'background-color': item?.premise_color }"
+            >
+              {{ item?.premise_name }}
+            </div>
             <img :src="item?.firstImg" alt="Reading Room" class="image" />
             <div class="posBot" v-if="item?.show_category == 1">
-              <span>- {{ item?.typeCategory }} -</span>
+              <span>- {{ item?.type_name }} -</span>
             </div>
           </div>
           <div class="card-body">
@@ -70,7 +75,11 @@ const onChange = (v) => {
                 查看平面图
                 <img src="@/assets/home/rightIcon.svg" alt="" />
               </p>
-              <p class="activeBtn" @click="() => emits('viewInfo')">
+              <p
+                v-if="item?.show_detail == 1"
+                class="activeBtn"
+                @click="() => emits('viewInfo')"
+              >
                 查看详情
                 <img src="@/assets/home/rightIcon.svg" alt="" />
               </p>

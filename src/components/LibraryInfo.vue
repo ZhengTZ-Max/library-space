@@ -42,13 +42,11 @@ const filterCategorys = (list) => {
 <template>
   <div class="libraryInfo">
     <!-- 轮播图 -->
-    <a-carousel autoplay>
-      <div
-        class="reviewImg"
-        v-if="systemMode != 'pc' && state.propsData?.type == 'activity'"
-        v-for="item in state.propsData?.img"
-        :key="item"
-      >
+    <a-carousel
+      autoplay
+      v-if="systemMode != 'pc' && state.propsData?.type == 'activity'"
+    >
+      <div class="reviewImg" v-for="item in state.propsData?.img" :key="item">
         <img :src="item" alt="" />
       </div>
     </a-carousel>
@@ -78,20 +76,24 @@ const filterCategorys = (list) => {
         display: flex;
         gap: 20px;
         align-items: flex-start;
-        max-height: 860px;
+        max-height: 660px;
         flex-wrap: wrap;
         overflow-x: hidden;
       "
       v-if="systemMode == 'pc' && state.propsData?.type == 'activity'"
     >
-      <img
-        style="width: 450px; height: 450px"
-        :src="state.propsData?.firstImg"
-        alt=""
-      />
-      <div style="max-width: 450px">
+      <div style="width: 450px">
+        <a-carousel autoplay>
+          <div
+            class="reviewImg"
+            v-for="item in state.propsData?.img"
+            :key="item"
+          >
+            <img :src="item" alt="" />
+          </div>
+        </a-carousel>
         <!-- 标题 -->
-        <p class="title">
+        <p class="title" style="margin-top: 12px">
           {{ state.propsData?.nameMerge || state.propsData?.name || "-" }}
         </p>
 
@@ -103,6 +105,9 @@ const filterCategorys = (list) => {
             {{ state.propsData?.maxPerson }}人</span
           >)
         </div>
+      </div>
+
+      <div style="flex: 1">
         <div
           class="libraryIntro"
           v-html="state.propsData?.sub_title || ''"
@@ -110,7 +115,7 @@ const filterCategorys = (list) => {
 
         <!-- 馆舍特征 -->
         <template v-if="state.propsData?.boutiques?.length">
-          <p class="subtitle">馆舍特征</p>
+          <p class="subtitle" style="margin-top: 8px">馆舍特征</p>
 
           <div class="features">
             <div v-for="item in state.propsData?.boutiques" class="item">

@@ -94,6 +94,8 @@ const state = reactive({
   studyOpenTime: [],
 
   spaceMapShow: false,
+
+  dateErr: false,
 });
 
 onMounted(() => {
@@ -246,27 +248,34 @@ const initSltTimes = () => {
   } else if (dateType == 2) {
     state.filterSearch.time = curDate?.times[0];
   } else if (dateType == 3) {
-    if (state.filterSearch?.date == exchangeDateTime(new Date(), 2)) {
-      // curDate.times[0].start = start;
-      // curDate.times[0].end = end;
-    }
     let [start, end] = [
       moment(curDate?.start_time).format("HH:mm"),
       moment(curDate?.end_time).format("HH:mm"),
     ];
-    console.log("moment", start, end);
-    // let cStart = curDate.times[0].start;
+    if (state.filterSearch?.date == exchangeDateTime(new Date(), 2)) {
+      // curDate.times[0].start = start;
+      // curDate.times[0].end = end;
+      let [curStart, curEnd] = initSltTime(
+        moment(curDate?.end_time).format("HH:mm"),
+        curDate?.step
+      );
 
-    // state.filterSearch.time = [
-    //   cStart,
-    //   moment(cStart, "HH:mm")
-    //     .add(Number(curDate?.min_time), "minutes")
-    //     .format("HH:mm"),
-    // ];
+      start = curStart;
+    }
+
+    state.filterSearch.time = [
+      start,
+      moment(start, "HH:mm")
+        .add(Number(curDate?.min_time), "minutes")
+        .format("HH:mm"),
+    ];
+
   }
 
   state.filterDate.time = state.filterSearch?.time;
   state.filterDate.times = state.filterSearch?.times;
+
+  console.log(state.filterDate,123);
 };
 
 const fetchCheckStudyOpenTime = async () => {
@@ -764,12 +773,16 @@ const fetchDeleteCollect = async () => {
         style: {
           background:
             state.spaceInfo?.type != 1
-              ? (!state?.filterDate?.date && 'rgba(26,73,192,0.3)') || ''
-              : (!state?.filterDate?.time && 'rgba(26,73,192,0.3)') || '',
+              ? ((!state?.filterDate?.date || state.dateErr) &&
+                  'rgba(26,73,192,0.3)') ||
+                ''
+              : ((!state?.filterDate?.time || state.dateErr) &&
+                  'rgba(26,73,192,0.3)') ||
+                '',
           pointerEvents:
             state.spaceInfo?.type != 1
-              ? (!state?.filterDate?.date && 'none') || ''
-              : (!state?.filterDate?.time && 'none') || '',
+              ? ((!state?.filterDate?.date || state.dateErr) && 'none') || ''
+              : ((!state?.filterDate?.time || state.dateErr) && 'none') || '',
         },
       }"
       centered
@@ -779,6 +792,7 @@ const fetchDeleteCollect = async () => {
           v-if="state.spaceInfo?.type == 1"
           :date="state.spaceInfo?.date"
           :initSearch="state.filterDate"
+          v-model:dateErr="state.dateErr"
         />
         <SpaceSeatStudy
           v-else

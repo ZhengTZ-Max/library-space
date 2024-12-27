@@ -298,7 +298,7 @@ const handleAppt = (row) => {
     </a-modal>
 
     <a-modal
-      width="40%"
+      width="980px"
       v-model:open="state.activityInfoShow"
       title="空间详情"
       @ok="handleAppt(state.activityInfo)"

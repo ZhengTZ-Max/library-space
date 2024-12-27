@@ -43,6 +43,9 @@ watch(
       router.replace("/mo");
     }
     console.log("mode", mode, route);
+  },
+  {
+    immediate: true,
   }
 );
 

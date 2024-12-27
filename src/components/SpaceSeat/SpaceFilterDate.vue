@@ -1,19 +1,23 @@
 <script setup>
 import { reactive, onMounted, watch, ref, computed } from "vue";
 import { useStore } from "vuex";
-import { SearchOutlined } from "@ant-design/icons-vue";
-import { exchangeDateTime, initSltTime } from "@/utils";
 import moment from "moment";
+import { showToast } from "vant";
+
+import { exchangeDateTime, initSltTime, convertHHMMToMinutes } from "@/utils";
 const store = useStore();
 const systemMode = computed(() => store.state.systemMode);
 
-const emits = defineEmits(["update:initSearch"]);
+const emits = defineEmits(["update:initSearch", "update:dateErr"]);
 const props = defineProps({
   date: {
     type: Object,
   },
   initSearch: {
     type: Object,
+  },
+  dateErr: {
+    type: Boolean,
   },
 });
 const state = reactive({
@@ -57,6 +61,7 @@ watch(
 const onChangeTimes = (v) => {
   let findTime = state.filterTimes?.find((e) => e?.id == v);
   state.filterRows.times = findTime;
+  console.log(state.filterRows);
 };
 
 const getTimes = () => {
@@ -66,96 +71,116 @@ const getTimes = () => {
   state.filterTimes = findDateRow?.times;
 
   if (state.filterDateType == 3) {
+    let [start, end] = [
+      moment(findDateRow?.start_time).format("HH:mm"),
+      moment(findDateRow?.end_time).format("HH:mm"),
+    ];
     if (state.filterDateRow?.day == exchangeDateTime(new Date(), 2)) {
-      let [start, end] = initSltTime(
-        state.filterTimes[0]?.end,
-        state.filterDateRow?.min_time
+      let [curStart, curEnd] = initSltTime(
+        moment(findDateRow?.end_time).format("HH:mm"),
+        findDateRow?.step
       );
-      state.filterTimes[0].start = start;
-      state.filterTimes[0].end = end;
+      start = curStart;
     }
 
-    if (!state.filterRows.time?.length) {
-      state.filterRows.time = [
-        state.filterTimes[0].start,
-        moment(state.filterTimes[0].start, "HH:mm")
-          .add(Number(state.filterDateRow?.min_time), "minutes")
-          .format("HH:mm"),
-      ];
-    }
+    state.filterRows.time = [
+      start,
+      moment(start, "HH:mm")
+        .add(Number(findDateRow?.min_time), "minutes")
+        .format("HH:mm"),
+    ];
   }
 };
 
 // 定义 disabledTime 函数
 const onDisabledTime = (date, type) => {
-  let { start, end } = state.filterTimes[0];
+  try {
+    let { start_time, end_time } = state.filterDateRow;
+    if (!start_time) {
+      return {
+        disabledHours: () => {
+          return [];
+        },
+        disabledMinutes: () => {
+          return [];
+        },
+      };
+    }
+    // if (state.filterRows.time?.length && type == "end") {
+    //   start_time = moment(new Date(start_time))
+    //     .format("HH:mm")
+    //     .add(Number(state.filterDateRow?.min_time), "minutes")
+    //     .format("HH:mm");
+    // }
 
-  if (state.filterRows.time?.length && type == "end") {
-    start = moment(state.filterTimes[0].start, "HH:mm")
-      .add(Number(state.filterDateRow?.min_time), "minutes")
-      .format("HH:mm");
+    // // 解析开始和结束时间的小时和分钟
+    const [startHour, startMinute] = moment(new Date(start_time))
+      .format("HH:mm")
+      .split(":")
+      .map(Number);
+    const [endHour, endMinute] = moment(new Date(end_time))
+      .format("HH:mm")
+      .split(":")
+      .map(Number);
+
+    return {
+      disabledHours: () => {
+        // 获取要禁用的小时
+        const disabledHours = [];
+
+        // 禁用 0 到 startHour 之前的所有小时
+        for (let i = 0; i < startHour; i++) {
+          disabledHours.push(i);
+        }
+
+        // 禁用 endHour 之后的所有小时
+        for (let i = endHour + 1; i <= 23; i++) {
+          disabledHours.push(i);
+        }
+
+        return disabledHours;
+      },
+      disabledMinutes: (selectedHour) => {
+        // 如果是 startHour，禁用 0 到 startMinute 之前的分钟
+        if (selectedHour === startHour) {
+          const disabledMinutes = [];
+          for (let i = 0; i < startMinute; i++) {
+            disabledMinutes.push(i);
+          }
+          return disabledMinutes;
+        }
+
+        // 如果是 endHour，禁用 endMinute 之后的分钟
+        if (selectedHour === endHour) {
+          const disabledMinutes = [];
+          for (let i = endMinute + 1; i < 60; i++) {
+            disabledMinutes.push(i);
+          }
+          return disabledMinutes;
+        }
+
+        return [];
+      },
+    };
+  } catch (e) {
+    console.log(e);
   }
-
-  // 解析开始和结束时间的小时和分钟
-  const [startHour, startMinute] = start.split(":").map(Number);
-  const [endHour, endMinute] = end.split(":").map(Number);
-
-  return {
-    disabledHours: () => {
-      // 获取要禁用的小时
-      const disabledHours = [];
-
-      // 禁用 0 到 startHour 之前的所有小时
-      for (let i = 0; i < startHour; i++) {
-        disabledHours.push(i);
-      }
-
-      // 禁用 endHour 之后的所有小时
-      for (let i = endHour + 1; i <= 23; i++) {
-        disabledHours.push(i);
-      }
-
-      return disabledHours;
-    },
-    disabledMinutes: (selectedHour) => {
-      // 如果是 startHour，禁用 0 到 startMinute 之前的分钟
-      if (selectedHour === startHour) {
-        const disabledMinutes = [];
-        for (let i = 0; i < startMinute; i++) {
-          disabledMinutes.push(i);
-        }
-        return disabledMinutes;
-      }
-
-      // 如果是 endHour，禁用 endMinute 之后的分钟
-      if (selectedHour === endHour) {
-        const disabledMinutes = [];
-        for (let i = endMinute + 1; i < 60; i++) {
-          disabledMinutes.push(i);
-        }
-        return disabledMinutes;
-      }
-
-      return [];
-    },
-  };
 };
 // 定义 disabledTime 函数
 const onDisabledTimeMo = (type, options, values) => {
-  let { start, end } = state.filterTimes[0];
-  let [sltStart, sltEnd] = state.filterRows.time;
+  let { start_time, end_time } = state.filterDateRow;
 
-  if (state.moTimeType == "end" && sltStart) {
-    start = moment(sltStart, "HH:mm")
-      .add(Number(state.filterDateRow?.min_time), "minutes")
-      .format("HH:mm");
-  }
-
-  // 解析开始和结束时间的小时和分钟
-  let [startHour, startMinute] = start.split(":").map(Number);
-  const [endHour, endMinute] = end.split(":").map(Number);
+  const [startHour, startMinute] = moment(new Date(start_time))
+    .format("HH:mm")
+    .split(":")
+    .map(Number);
+  const [endHour, endMinute] = moment(new Date(end_time))
+    .format("HH:mm")
+    .split(":")
+    .map(Number);
 
   let [sTime, eTime] = values;
+
   if (type === "hour") {
     return options.filter(
       (option) =>
@@ -165,7 +190,7 @@ const onDisabledTimeMo = (type, options, values) => {
 
   if (type === "minute") {
     options = options.filter(
-      (option) => Number(option.value) % state.filterDateRow?.min_time === 0
+      (option) => Number(option.value) % state.filterDateRow?.step === 0
     );
 
     if (state.moTimeType == "start" && sTime == startHour) {
@@ -185,15 +210,15 @@ const onShowTimePicker = (t) => {
   // let { start: deStart, end: deEnd } = state.filterTimes[0];
 
   if (state?.filterRows?.date == exchangeDateTime(new Date(), 2)) {
-    let minTime = state.filterDateRow?.min_time;
-    let deTime = moment();
-    if (deTime.minutes() <= minTime - 1) {
-      deTime = deTime.minutes(Math.ceil(deTime.minutes() / minTime) * minTime);
-    } else if (deTime.minutes() > minTime) {
-      deTime.add(minTime, "minutes");
-      deTime = deTime.minutes(Math.floor(deTime.minutes() / minTime) * minTime);
-    }
-    state.filterTimes[0].start = exchangeDateTime(deTime, 8);
+    // let minTime = state.filterDateRow?.min_time;
+    // let deTime = moment();
+    // if (deTime.minutes() <= minTime - 1) {
+    //   deTime = deTime.minutes(Math.ceil(deTime.minutes() / minTime) * minTime);
+    // } else if (deTime.minutes() > minTime) {
+    //   deTime.add(minTime, "minutes");
+    //   deTime = deTime.minutes(Math.floor(deTime.minutes() / minTime) * minTime);
+    // }
+    // state.filterTimes[0].start = exchangeDateTime(deTime, 8);
   }
 
   if (t == "start" && start) {
@@ -219,6 +244,14 @@ const onChangeTimesMo = () => {
   } else {
     state.filterRows.time[1] = `${s}:${e}`;
   }
+  let [start, end] = state.filterRows.time;
+  if (end < start) {
+    showToast({
+      message: "结束时间不能小于开始时间~",
+    });
+    state.filterRows.time[1] = "";
+  }
+
   state.timePickerPopShow = false;
 };
 
@@ -233,6 +266,30 @@ const onChangeDate = () => {
   }, 50);
 
   // state.filterRows.time = "";
+};
+
+const isShowErrMsg = () => {
+  let showStr = "";
+
+  if (
+    state.filterDateType == 3 &&
+    state.filterRows.time?.length &&
+    state.filterDateRow?.min_time
+  ) {
+    let [start, end] = state.filterRows.time;
+    let { min_time, max_time } = state.filterDateRow;
+    start = convertHHMMToMinutes(start);
+    end = convertHHMMToMinutes(end);
+    let timeAbs = end - start;
+    if (timeAbs < min_time) {
+      showStr = `最小间隔时间为 ${min_time} (分钟)`;
+    } else if (timeAbs > max_time) {
+      showStr = `最大间隔时间为 ${max_time} (分钟)`;
+    }
+  }
+  emits("update:dateErr", !!showStr);
+
+  return showStr;
 };
 </script>
 <template>
@@ -261,7 +318,7 @@ const onChangeDate = () => {
             v-model:value="state.filterRows.time"
             format="HH:mm"
             valueFormat="HH:mm"
-            :minuteStep="Number(state.filterDateRow?.min_time || 1)"
+            :minuteStep="Number(state.filterDateRow?.step || 1)"
             hideDisabledOptions
             :disabledTime="onDisabledTime"
           />
@@ -277,6 +334,10 @@ const onChangeDate = () => {
 
               <img class="posIcon" src="@/assets/seat/timeIcon.svg" alt="" />
             </div>
+          </div>
+
+          <div v-if="isShowErrMsg()" class="errorMsg">
+            {{ isShowErrMsg() }}
           </div>
         </template>
         <a-radio-group v-else v-model:value="state.filterRows.time">
@@ -403,6 +464,11 @@ const onChangeDate = () => {
       font-size: 14px;
       color: #868686;
     }
+  }
+  .errorMsg {
+    margin-top: 6px;
+    color: red;
+    font-size: 14px;
   }
 }
 </style>

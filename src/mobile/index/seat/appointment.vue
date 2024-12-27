@@ -89,6 +89,8 @@ const state = reactive({
   },
 
   studyOpenTime: [],
+
+  dateErr: false,
 });
 
 onMounted(() => {
@@ -240,25 +242,27 @@ const initSltTimes = () => {
   } else if (dateType == 2) {
     state.filterSearch.time = curDate?.times[0];
   } else if (dateType == 3) {
+    let [start, end] = [
+      moment(curDate?.start_time).format("HH:mm"),
+      moment(curDate?.end_time).format("HH:mm"),
+    ];
     if (state.filterSearch?.date == exchangeDateTime(new Date(), 2)) {
-      console.log("curDate", curDate);
-
-      // let [start, end] = initSltTime(
-      //   curDate?.times[0]?.end,
-      //   curDate?.min_time || 30
-      // );
-
       // curDate.times[0].start = start;
       // curDate.times[0].end = end;
-    }
-    // let cStart = curDate.times[0].start;
+      let [curStart, curEnd] = initSltTime(
+        moment(curDate?.end_time).format("HH:mm"),
+        curDate?.step
+      );
 
-    // state.filterSearch.time = [
-    //   cStart,
-    //   moment(cStart, "HH:mm")
-    //     .add(Number(curDate?.min_time), "minutes")
-    //     .format("HH:mm"),
-    // ];
+      start = curStart;
+    }
+
+    state.filterSearch.time = [
+      start,
+      moment(start, "HH:mm")
+        .add(Number(curDate?.min_time), "minutes")
+        .format("HH:mm"),
+    ];
   }
 
   state.filterDate.time = state.filterSearch?.time;
@@ -751,6 +755,7 @@ const fetchDeleteCollect = async () => {
           v-if="state.spaceInfo?.type == 1"
           :date="state.spaceInfo?.date"
           :initSearch="state.filterDate"
+          v-model:dateErr="state.dateErr"
         />
         <SpaceSeatStudy
           v-else
@@ -774,7 +779,9 @@ const fetchDeleteCollect = async () => {
             :disabled="
               state.spaceInfo?.type != 1
                 ? !state?.filterDate?.date
-                : !state?.filterDate?.time
+                : state.dateErr ||
+                  !state?.filterDate?.time[0] ||
+                  !state?.filterDate?.time[1]
             "
             >确认</van-button
           >
