@@ -9,7 +9,7 @@
     }
 </route>
 <script setup>
-import { reactive, onMounted } from "vue";
+import { reactive, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { message } from "ant-design-vue";
 import moment from "moment";
@@ -34,13 +34,14 @@ import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
 import ShowInfoToast from "@/components/ShowInfoToast.vue";
 import HiddenArrow from "@/assets/swipe_hidden_arrow.svg";
 import ShowArrow from "@/assets/swipe_show_arrow.svg";
-
+import { getUserInfo } from "@/utils";
 import { showToast, Toast } from "vant";
 
 const router = useRouter();
 const route = useRoute();
 
 const state = reactive({
+  userInfo: getUserInfo(),
   swipeShow: true,
 
   sliderShow: false,
@@ -68,7 +69,11 @@ const state = reactive({
     startDate: "",
     endDate: "",
   },
-
+  chooseTimeConfig: {
+    step: 15,
+    min_range: 10,
+    max_range: 1425,
+  },
   filterActivityTypeId: "",
   filterActivityTheme: "",
   filterActivityContent: "",
@@ -96,14 +101,28 @@ const state = reactive({
     show: false,
     title: "预约成功~~",
     type: "success",
+    userName: "",
+    location: "",
+    time: "",
   },
   rangeTimeCantSelectTime: [],
+  CalendarStartTime: "",
+  CalendarEndTime: "",
   draftShow: false,
+  submitTimeData: "",
 });
 
 onMounted(() => {
   fetchGetActivityApply();
 });
+
+watch(
+  () => state.userInfo,
+  (v) => {
+    state.filterActivityMobile = v?.mobile;
+  },
+  { immediate: true }
+);
 
 const fetchGetActivityApply = async () => {
   try {
@@ -250,6 +269,11 @@ const getCurrentChooseTimeHaveSelectTime = () => {
     startIndex < endIndex ? [startIndex, endIndex] : [endIndex, startIndex];
 
   const list = state.calendarInfo.list.slice(minIndex, maxIndex + 1); // 包含 endDate
+
+  state.chooseTimeConfig.step = Number(list[0]?.info?.step) || 15;
+  state.chooseTimeConfig.min_range = list[0]?.min_time || 0;
+  state.chooseTimeConfig.max_range = list[0]?.max_time || 1440;
+
   list.forEach((e) => {
     e.list.forEach((item) => {
       state.rangeTimeCantSelectTime.push({
@@ -258,6 +282,17 @@ const getCurrentChooseTimeHaveSelectTime = () => {
       });
     });
   });
+
+  let mStartTime = list?.length ? list[0]?.begin_timestamp : "";
+  let mEndTime = list?.length ? list[0]?.end_timestamp : "";
+
+  let startTime = moment(mStartTime, "HH:mm:ss").format("HH:mm");
+  let endTime = moment(mEndTime, "HH:mm:ss").format("HH:mm");
+
+  const [startHour, startMinute] = startTime.split(":").map(Number);
+  const [endHour, endMinute] = endTime.split(":").map(Number);
+  state.CalendarStartTime = startHour;
+  state.CalendarEndTime = endHour;
 };
 
 // 添加时间段
@@ -356,11 +391,56 @@ const chooseTimeIsInRange = (value, item, type, index) => {
     } else {
       item.end_time = null;
     }
+    return;
+  }
+  // 计算时间差（以分钟为单位）
+  const timeDifference = (dateE.getTime() - dateS.getTime()) / (1000 * 60);
+  // 判断时间差
+  if (timeDifference > state.chooseTimeConfig.max_range) {
+    message.warning(
+      `预约时间最长时间不能超过${state.chooseTimeConfig.max_range}分钟`
+    );
+    if (type == "start") {
+      item.begin_time = null;
+    } else {
+      item.end_time = null;
+    }
+  } else if (timeDifference < state.chooseTimeConfig.min_range) {
+    message.warning(
+      `预约时间最短时间不能低于${state.chooseTimeConfig.min_range}分钟`
+    );
+    if (type == "start") {
+      item.begin_time = null;
+    } else {
+      item.end_time = null;
+    }
   }
 };
 
 const filterArguments = (key) => {
   return state.argumentArray?.some((e) => e.key == key) || false;
+};
+const onDisabledTime = (date) => {
+  let startHour = state.CalendarStartTime;
+  let endHour = state.CalendarEndTime;
+  return {
+    disabledHours: () => {
+      // 获取要禁用的小时
+      const disabledHours = [];
+
+      // 禁用 0 到 startHour 之前的所有小时
+      for (let i = 0; i < startHour; i++) {
+        disabledHours.push(i);
+      }
+
+      // 禁用 endHour 之后的所有小时
+      for (let i = endHour + 1; i <= 23; i++) {
+        disabledHours.push(i);
+      }
+
+      return disabledHours;
+    },
+  };
 };
 
 const fileUpload = (data, type) => {
@@ -517,6 +597,7 @@ const onSubmit = (type) => {
     if (type == "draft") {
       draftActivity(params);
     } else if (type == "rule") {
+      state.submitTimeData = getSubmitTimeData(params);
       applyActivity(params);
     } else {
       state.ruleInfo = { content: state.activityApplyInfo?.should };
@@ -526,6 +607,19 @@ const onSubmit = (type) => {
   } catch (e) {
     console.log(e);
   }
+};
+
+const getSubmitTimeData = (params) => {
+  let startTime = params.start_date;
+  let endTime = params.end_date;
+  let isOneDay = exchangeDateTime(startTime, 2) == exchangeDateTime(endTime, 2);
+
+  const date = isOneDay ? startTime : `${startTime} ~ ${endTime}`;
+  const time = params.time
+    .map((item) => `${item.start_time} ~ ${item.end_time}`)
+    .join(" , ");
+
+  return `${date}\n${time}`;
 };
 
 const applyActivity = async (data) => {
@@ -539,7 +633,9 @@ const applyActivity = async (data) => {
       title: res.message,
       type: res?.code == 0 ? "success" : "error",
       msg: (res?.code != 0 && res?.message) || "",
-
+      userName: state.userInfo?.name,
+      location: `${state.activityApplyInfo?.top_name}-${state.activityApplyInfo?.storey_name}-${state.activityApplyInfo?.name}`,
+      time: state.submitTimeData,
       ...res.data,
     };
   } catch (e) {
@@ -641,8 +737,9 @@ const draftActivity = async (data) => {
             hideDisabledOptions
             size="middle"
             :showNow="false"
-            :minuteStep="15"
+            :minuteStep="state.chooseTimeConfig.step"
             v-model:value="item.begin_time"
+            :disabledTime="onDisabledTime"
             placeholder="开始时间"
             @change="(v) => onChangeTime(v, item, 'start', index)"
           />
@@ -657,8 +754,9 @@ const draftActivity = async (data) => {
             hideDisabledOptions
             size="middle"
             :showNow="false"
-            :minuteStep="15"
+            :minuteStep="state.chooseTimeConfig.step"
             v-model:value="item.end_time"
+            :disabledTime="onDisabledTime"
             placeholder="结束时间"
             @change="(v) => onChangeTime(v, item, 'end', index)"
           />
@@ -1074,15 +1172,15 @@ const draftActivity = async (data) => {
       <template v-slot:content>
         <div class="toastItem">
           <span>申请人：</span>
-          <span>{{ state.apptResult?.name || "" }}</span>
+          <span>{{ state.apptResult?.userName || "" }}</span>
         </div>
         <div class="toastItem">
           <span>预约时间：</span>
-          <span>{{ state.apptResult?.show_date || "" }}</span>
+          <span>{{ state.apptResult?.time || "" }}</span>
         </div>
         <div class="toastItem">
           <span>预约地点：</span>
-          <span>{{ state.apptResult?.nameMerge || "" }}</span>
+          <span>{{ state.apptResult?.location || "" }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
           <span>预约提醒：</span>
@@ -1150,7 +1248,6 @@ const draftActivity = async (data) => {
       font-weight: bold;
       font-size: 14px;
       .show_arrow {
-
         padding: 0 10px;
       }
     }

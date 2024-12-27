@@ -1,10 +1,10 @@
 <route>
     {
       meta: {
-        showHead: true,
+        showHead: false,
         showLeftBack:true,
         title:'EventRegistration',
-        showTabbar:false
+        showTabbar:true
       }
     }
 </route>
@@ -17,14 +17,14 @@ import moment from "moment";
 import EventApplyMobileCom from "../../../components/EventApplyMobileCom.vue";
 import EventApplyResultMobileCom from "../../../components/EventApplyResultMobileCom.vue";
 import { getEventDetails, getApplyActivity } from "@/request/event";
-import { exchangeDateTime } from "../../../utils";
-
+import { exchangeDateTime, getUserInfo } from "@/utils";
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 const containerRef = ref();
 
 const state = reactive({
+
   id: route?.query?.id || "",
   eventInfo: {},
   eventImg: [],
@@ -230,21 +230,24 @@ const onApplyResult = () => {
 const fetchEventDetails = async () => {
   try {
     let res = await getEventDetails({ id: state.id });
-    if (res?.code == 10001) {
-      state.eventDateList = getDefalutList()?.data?.times;
-      state.eventMaxNum = getDefalutList()?.data?.max;
-      console.log(state.eventDateList);
-    } else if (res?.code == 0) {
+
+    if (res?.code == 0) {
       state.eventInfo = res?.data || {};
       state.eventImg = res?.data?.poster || [];
-      state.eventDateList =
-        res.data?.times && res.data.times.length > 0
-          ? res.data?.times
-          : getDefalutList();
+      state.eventDateList = res.data?.times;
       state.eventMaxNum = state.eventInfo?.max;
       console.log(state.eventDateList);
+    } else {
+      state.eventInfo = {};
+      state.eventImg = [];
+      state.eventDateList = [];
+      state.eventMaxNum = 0;
     }
   } catch (e) {
+    state.eventInfo = {};
+    state.eventImg = [];
+    state.eventDateList = [];
+    state.eventMaxNum = 0;
     console.log(e);
   }
 };
@@ -258,25 +261,15 @@ const fetchApplyActivity = async () => {
     };
     let res = await getApplyActivity(params);
     let result = {};
-    if (res?.code == 0) {
-      result = {
-        result: "success",
-        message: "",
-        eventInfo: state.eventInfo,
-        eventDateIndex: state.eventDateIndex,
-        eventTimeShow: state.eventTimeShow,
-        isClose: false,
-      };
-    } else {
-      result = {
-        result: "failed",
-        message: res?.message || "",
-        eventInfo: state.eventInfo,
-        eventDateIndex: state.eventDateIndex,
-        eventTimeShow: state.eventTimeShow,
-        isClose: false,
-      };
-    }
+
+    result = {
+      result: res?.code == 0 ? "success" : "failed",
+      message: res?.message || "",
+      eventInfo: state.eventInfo,
+      eventDateIndex: state.eventDateIndex,
+      eventTimeShow: state.eventTimeShow,
+      isClose: false,
+    };
     state.applyResultInfo = result;
     onApplyResult();
   } catch (e) {
@@ -288,7 +281,7 @@ const fetchApplyActivity = async () => {
   <div class="content">
     <div class="top_img">
       <van-image
-        src="https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570"
+        :src="state.eventImg[0]?.file_path"
         alt="Empty state illustration"
       />
       <div class="controls">
@@ -418,8 +411,8 @@ const fetchApplyActivity = async () => {
 <style lang="less" scoped>
 .content {
   padding: 10px;
-  height: calc(100% - 180px);
-  background-color: #868686;
+  height: calc(100% - 80px);
+  background-color: #fff;
   overflow-y: auto;
   .top_img {
     position: relative;
@@ -434,7 +427,7 @@ const fetchApplyActivity = async () => {
       align-items: center;
       .toggleLang {
         width: 140px;
-        height: 28px;
+        height: 35px;
         margin-bottom: 15px;
         padding: 4px;
         background: #333f6c;

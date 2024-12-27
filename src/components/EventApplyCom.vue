@@ -1,5 +1,6 @@
 <script setup>
 import { reactive, onMounted, watch, ref } from "vue";
+import { getUserInfo } from "@/utils";
 
 const props = defineProps({
   data: {
@@ -7,6 +8,7 @@ const props = defineProps({
   },
 });
 const state = reactive({
+  userInfo: getUserInfo(),
   inputInfo: {
     phone: "",
     email: "",
@@ -16,6 +18,12 @@ const state = reactive({
 
 onMounted(() => {
   state.inputInfo = props?.data || {};
+  if (!state.inputInfo?.phone) {
+    state.inputInfo.phone = state.userInfo?.mobile || "";
+  }
+  if (!state.inputInfo?.email) {
+    state.inputInfo.email = state.userInfo?.email || "";
+  }
 });
 
 const onApply = () => {

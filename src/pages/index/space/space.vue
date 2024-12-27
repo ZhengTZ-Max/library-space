@@ -45,7 +45,7 @@ const state = reactive({
 
   initQuery: {
     libraryId: route?.query?.id || "",
-    quickDate: route?.query?.date || "",
+    quickDate: route?.query?.date || moment().format("YYYY-MM-DD"),
     floorId: route?.query?.floor || "",
     categoryType: route?.query?.categoryType || "",
   },
@@ -63,6 +63,7 @@ const goToLink = (link) => {
 };
 
 onMounted(() => {
+  initQuickDateList();
   fetchGetSpaceSelectList();
   fetchGetSpaceFilterList();
 });
@@ -73,6 +74,13 @@ watch(
     // fetchGetSpaceInfoList();
   }
 );
+
+const initQuickDateList = () => {
+  const formattedDate = moment().format("MM-DD");
+  state.quickDateList = [
+    { label: `${formattedDate} 今天`, value: moment().format("YYYY-MM-DD") },
+  ];
+};
 
 const fetchGetSpaceSelectList = async () => {
   try {

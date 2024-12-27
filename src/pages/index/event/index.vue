@@ -18,7 +18,7 @@ const state = reactive({
   filterSearch: {
     premiseID: "",
     categoryID: "",
-    date: "",
+    date: moment().format("YYYY-MM-DD"),
   },
   eventImg: "",
   activeIndex: "",
@@ -28,21 +28,25 @@ const state = reactive({
     { value: 1, label: "当前活动" },
     { value: 0, label: "历史活动" },
   ],
-  date: moment().format("YYYY-MM-DD"),
+
   // date: "2024-10-30",
-  selectDate: null,
+  selectDate: moment().format("YYYY-MM-DD"),
   selectType: "",
-  selectDateList: [
-    { value: "2024-01-02", label: "01-02" },
-    { value: "2024-01-03", label: "01-03" },
-    { value: "2024-01-04", label: "01-04" },
-  ],
+  selectDateList: [],
   eventList: [],
 });
 
 onMounted(() => {
+  initQuickDateList();
   fetchGetEventIndex();
 });
+
+const initQuickDateList = () => {
+  const formattedDate = moment().format("MM-DD");
+  state.selectDateList = [
+    { label: `${formattedDate} 今天`, value: moment().format("YYYY-MM-DD") },
+  ];
+};
 
 const onChangeAct = (i) => {
   state.activeIndex = i.id;
@@ -57,6 +61,7 @@ const onChangeQDate = (row) => {
 };
 const handleFilter = () => {
   state.eventFilterShow = false;
+  state.selectDate = state.filterSearch.date;
   fetchCurrentEventList();
 };
 
@@ -70,6 +75,13 @@ const fetchGetEventIndex = async () => {
   try {
     let res = await getEventFilterIndex();
     state.filterOptions = { ...res?.data, showDate: true };
+    state.selectDateList =
+      state.filterOptions?.date?.map((item) => {
+        return {
+          value: item?.date,
+          label: item?.name,
+        };
+      }) || [];
     fetchCurrentEventList();
   } catch (e) {}
 };
@@ -78,7 +90,7 @@ const fetchCurrentEventList = async () => {
   try {
     let params = {
       ilk: state.quickMode,
-      date: state.date,
+      date: state.selectDate,
       premises: state.filterSearch.premiseID,
       category: state.filterSearch.categoryID,
     };
@@ -93,8 +105,9 @@ const fetchCurrentEventList = async () => {
 
 const handleDateChange = (v) => {
   state.selectDate = v;
+  state.filterSearch.date = v;
   console.log(v, state.selectDate);
-  // fetchGetSpaceInfoList();
+  fetchCurrentEventList();
 };
 </script>
 <template>
@@ -136,20 +149,15 @@ const handleDateChange = (v) => {
               <a-select-option
                 v-for="item in state.selectDateList"
                 :value="item?.value"
-                >{{ item?.value }}</a-select-option
+                >{{ item?.label }}</a-select-option
               >
             </a-select>
           </div>
           <div class="select_radius marginLeft">
             <a-select
-              v-model:value="state.selectDate"
+              v-model:value="state.selectType"
               placeholder="名称/活动类型"
             >
-              <template v-for="item in state.selectDateList" :key="item?.value">
-                <a-select-option :value="item?.value">{{
-                  item?.value
-                }}</a-select-option>
-              </template>
             </a-select>
           </div>
 
@@ -168,7 +176,7 @@ const handleDateChange = (v) => {
             <div
               class="libraryItem cardItem"
               :class="{ activeItem: item?.id == state.activeIndex }"
-              @click="onChangeAct(item)"
+              @mousemove="onChangeAct(item)"
             >
               <div class="cardItemImgCon">
                 <img

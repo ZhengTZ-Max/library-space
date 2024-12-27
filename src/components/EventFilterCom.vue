@@ -32,8 +32,8 @@ onMounted(() => {
   <div
     class="filterCon"
     :class="{
-      height_35vh: state.filterOptions?.showDate,
-      height_25vh: !state.filterOptions?.showDate,
+      height_35vh: state.filterOptions?.showDate && systemMode == 'pc',
+      height_25vh: !state.filterOptions?.showDate && systemMode == 'pc',
     }"
   >
     <div class="filterScr">

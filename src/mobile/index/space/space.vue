@@ -36,7 +36,7 @@ const state = reactive({
   loading: false,
   finished: true,
 
-  quickDate: moment().format("YYYY-MM-DD"),
+  quickDate: route?.query?.date || moment().format("YYYY-MM-DD"),
   quickDateList: [],
   filterOptions: {},
   filterSearch: {
@@ -54,7 +54,7 @@ const state = reactive({
 
   initQuery: {
     libraryId: route?.query?.id || "",
-    quickDate: route?.query?.date || "",
+    quickDate: route?.query?.date || moment().format("YYYY-MM-DD"),
     floorId: route?.query?.floor || "",
     categoryType: route?.query?.categoryType || "",
   },
@@ -251,7 +251,6 @@ const onApply = (id) => {
 };
 
 const handleFilter = () => {
-  fetchGetSpaceInfoList();
   state.quickDate = state.filterSearch?.date;
   state.filterShow = false;
   fetchGetSpaceInfoList();

@@ -342,8 +342,7 @@ const getCurrentChooseTimeHaveSelectTime = () => {
     });
   });
 
-  state.CalendarMin_time = list?.length ? list[0]?.info?.min_time : 0;
-  state.CalendarMax_time = list?.length ? list[0]?.info?.max_time : 0;
+
   let mStartTime = list?.length ? list[0]?.info?.start_timestamp : "";
   let mEndTime = list?.length ? list[0]?.info?.end_timestamp : "";
 

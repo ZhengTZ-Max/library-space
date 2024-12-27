@@ -177,7 +177,7 @@ const onApply = (id) => {
                   <span>{{ item?.storey_name }}</span>
                 </div>
 
-                <a-flex class="vertical_scroll" >
+                <a-flex class="vertical_scroll">
                   <div
                     class="boutiqueList"
                     v-for="bout in item?.boutiques"
@@ -216,14 +216,11 @@ const onApply = (id) => {
       </van-pull-refresh>
     </div>
 
-    <a-drawer
-      rootClassName="filterDrawer"
-      width="100%"
-      height="50%"
-      placement="bottom"
-      :open="state.filterShow"
-      @close="state.filterShow = false"
-      :closable="false"
+    <van-popup
+      v-model:show="state.filterShow"
+      position="bottom"
+      :style="{ height: '50%' }"
+      destroy-on-close
     >
       <div class="drawerCon">
         <EventFilter
@@ -246,15 +243,12 @@ const onApply = (id) => {
           >
         </div>
       </div>
-    </a-drawer>
-    <a-drawer
-      rootClassName="filterDrawer"
-      width="100%"
-      height="100%"
-      placement="bottom"
-      :open="state.activityInfoShow"
-      @close="state.activityInfoShow = false"
-      :closable="false"
+    </van-popup>
+    <van-popup
+      v-model:show="state.activityInfoShow"
+      position="bottom"
+      :style="{ height: '100%' }"
+      destroy-on-close
     >
       <div class="libraryPop">
         <LibraryInfo v-if="state.activityInfo?.id" :data="state.activityInfo" />
@@ -277,7 +271,7 @@ const onApply = (id) => {
           >
         </div>
       </div>
-    </a-drawer>
+    </van-popup>
   </div>
 </template>
 <style lang="less" scoped>

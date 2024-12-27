@@ -123,7 +123,7 @@ const onTouchMove = (e) => {};
             </van-row>
 
             <a-flex
-              style="overflow-x: auto; white-space: nowrap; margin-top: 10px"
+              class="vertical_scroll"
               @touchmove.stop="onTouchMove"
             >
               <div
@@ -305,26 +305,35 @@ const onTouchMove = (e) => {};
       }
     }
   }
-  .boutique_mobile {
-    margin-top: 8px;
-    display: flex;
-    flex-wrap: wrap;
-    max-height: 30px;
-    overflow: auto;
+  .vertical_scroll {
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-top: 10px;
+    /* 设置滚动条样式 */
     &::-webkit-scrollbar {
-      display: none; /* 隐藏滚动条 */
+      height: 4px; /* 设置滚动条的高度 */
     }
 
-    scrollbar-width: none; /* Firefox 隐藏滚动条 */
-    -ms-overflow-style: none; /* IE 和 Edge 隐藏滚动条 */
-  }
-  .boutiqueList {
-    border: 1px solid #f28800;
-    font-size: 10px;
-    color: rgba(242, 136, 0, 1);
-    padding: 1px 4px;
-    margin-right: 8px;
-    margin-bottom: 8px;
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(97, 97, 97, 0.05); /* 设置滚动条的颜色 */
+      border-radius: 10px; /* 设置滚动条的圆角 */
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent; /* 设置滚动条轨道的颜色 */
+    }
+
+    /* Firefox 的滚动条样式 */
+    scrollbar-width: thin; /* 滚动条的宽度 */
+    scrollbar-color: rgba(97, 97, 97, 0.05) transparent; /* 滚动条的颜色和轨道的颜色 */
+    .boutiqueList {
+      border: 1px solid #f28800;
+      font-size: 10px;
+      color: rgba(242, 136, 0, 1);
+      padding: 1px 4px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
   }
   .divider {
     margin: 10px 0 !important;

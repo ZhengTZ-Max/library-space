@@ -220,21 +220,23 @@ const onApplyResult = () => {
 const fetchEventDetails = async () => {
   try {
     let res = await getEventDetails({ id: state.id });
-    if (res?.code == 10001) {
-      state.eventDateList = getDefalutList()?.data?.times;
-      state.eventMaxNum = getDefalutList()?.data?.max;
-      console.log(state.eventDateList);
-    } else if (res?.code == 0) {
+    if (res?.code == 0) {
       state.eventInfo = res?.data || {};
       state.eventImg = res?.data?.poster || [];
-      state.eventDateList =
-        res.data?.times && res.data.times.length > 0
-          ? res.data?.times
-          : getDefalutList();
+      state.eventDateList = res.data?.times;
       state.eventMaxNum = state.eventInfo?.max;
       console.log(state.eventDateList);
+    } else {
+      state.eventInfo = {};
+      state.eventImg = [];
+      state.eventDateList = [];
+      state.eventMaxNum = 0;
     }
   } catch (e) {
+    state.eventInfo = {};
+    state.eventImg = [];
+    state.eventDateList = [];
+    state.eventMaxNum = 0;
     console.log(e);
   }
 };
@@ -248,26 +250,14 @@ const fetchApplyActivity = async () => {
     };
     let res = await getApplyActivity(params);
     let result = {};
-    if (res?.code == 0) {
-      result = {
-        result: "success",
-        message: "",
-        eventInfo: state.eventInfo,
-        eventDateIndex: state.eventDateIndex,
-        eventTimeShow: state.eventTimeShow,
-        isClose: false,
-      };
-      
-    } else{
-      result = {
-        result: "failed",
-        message: res?.message || "",
-        eventInfo: state.eventInfo,
-        eventDateIndex: state.eventDateIndex,
-        eventTimeShow: state.eventTimeShow,
-        isClose: false,
-      };
-    }
+    result = {
+      result: res?.code == 0 ? "success" : "failed",
+      message: res?.message || "",
+      eventInfo: state.eventInfo,
+      eventDateIndex: state.eventDateIndex,
+      eventTimeShow: state.eventTimeShow,
+      isClose: false,
+    };
     state.applyResultInfo = result;
     onApplyResult();
   } catch (e) {
@@ -536,7 +526,7 @@ const fetchApplyActivity = async () => {
             align-items: center;
             .toggleLang {
               width: 140px;
-              height: 28px;
+              height: 35px;
               margin-bottom: 25px;
               padding: 4px;
               background: #333f6c;

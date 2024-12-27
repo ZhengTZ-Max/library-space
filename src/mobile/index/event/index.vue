@@ -25,25 +25,23 @@ const state = reactive({
   filterSearch: {
     premiseID: "",
     categoryID: "",
-    date: "",
+    date: moment().format("YYYY-MM-DD"),
   },
   activeKey: "1",
   activeKeyList: [
     { value: "1", label: "当前活动" },
     { value: "0", label: "历史活动" },
   ],
+
+  selectDate: moment().format("YYYY-MM-DD"),
+  selectType: "",
+  selectDateList: [],
+  eventList: [],
+  currentPage: 1,
+  total: 0,
   refreshing: false,
   loading: false,
   finished: true,
-  date: moment().format("YYYY-MM-DD"),
-  selectDate: null,
-  selectType: "",
-  selectDateList: [
-    { value: "2024-01-02", label: "01-02" },
-    { value: "2024-01-03", label: "01-03" },
-    { value: "2024-01-04", label: "01-04" },
-  ],
-  eventList: [],
 });
 
 watch(
@@ -63,23 +61,51 @@ const onClickItem = (id) => {
 
 const handleFilter = () => {
   state.eventFilterShow = false;
-  console.log(state.filterSearch);
+  state.selectDate = state.filterSearch.date;
   fetchCurrentEventList();
 };
 
 onMounted(() => {
+  initQuickDateList();
   fetchGetEventIndex();
 });
+
+const initQuickDateList = () => {
+  const formattedDate = moment().format("MM-DD");
+  state.selectDateList = [
+    { label: `${formattedDate} 今天`, value: moment().format("YYYY-MM-DD") },
+  ];
+};
+
 const onRefresh = () => {
+  state.currentPage = 1;
   fetchCurrentEventList();
 };
 const onLoad = () => {
+  state.currentPage++;
   fetchCurrentEventList();
 };
+
+const handleDateChange = (v) => {
+  state.selectDate = v;
+  state.filterSearch.date = v;
+  console.log(v, state.selectDate);
+  fetchCurrentEventList();
+};
+
 const fetchGetEventIndex = async () => {
   try {
     let res = await getEventFilterIndex();
-    state.filterOptions = res?.data;
+    state.filterOptions = { ...res?.data, showDate: true };
+
+    state.selectDateList =
+      state.filterOptions?.date?.map((item) => {
+        return {
+          value: item?.date,
+          label: item?.name,
+        };
+      }) || [];
+
     fetchCurrentEventList();
   } catch (e) {}
 };
@@ -87,7 +113,7 @@ const fetchCurrentEventList = async () => {
   try {
     let params = {
       ilk: state.activeKey,
-      date: state.date,
+      date: state.selectDate,
       premises: state.filterSearch.premiseID,
       category: state.filterSearch.categoryID,
     };
@@ -137,21 +163,25 @@ const fetchCurrentEventList = async () => {
     </div>
     <div class="select_box">
       <div class="select_radius">
-        <a-select v-model:value="state.selectDate" placeholder="选择日期">
-          <template v-for="item in state.selectDateList" :key="item?.value">
-            <a-select-option value="item?.value">{{
-              item?.value
-            }}</a-select-option>
-          </template>
+        <a-select
+          v-model:value="state.selectDate"
+          @change="handleDateChange"
+          placeholder="选择日期"
+        >
+          <a-select-option
+            v-for="item in state.selectDateList"
+            :value="item?.value"
+            >{{ item?.label }}
+          </a-select-option>
         </a-select>
       </div>
       <div class="select_radius marginLeft">
-        <a-select v-model:value="state.selectDate" placeholder="名称/活动类型">
-          <template v-for="item in state.selectDateList" :key="item?.value">
+        <a-select v-model:value="state.selectType" placeholder="名称/活动类型">
+          <!-- <template v-for="item in state.selectDateList" :key="item?.value">
             <a-select-option value="item?.value">{{
               item?.value
             }}</a-select-option>
-          </template>
+          </template> -->
         </a-select>
       </div>
     </div>
@@ -184,7 +214,7 @@ const fetchCurrentEventList = async () => {
             >
               {{ item?.status_name }}
             </div>
-            <div class="item_img">
+            <div class="item_img" v-if="item?.poster?.length">
               <van-image
                 :src="item?.poster[0]?.file_path"
                 alt="Empty state illustration"
@@ -223,6 +253,13 @@ const fetchCurrentEventList = async () => {
       @close="state.eventFilterShow = false"
       :closable="false"
     >
+    </a-drawer>
+    <van-popup
+      v-model:show="state.eventFilterShow"
+      position="bottom"
+      :style="{ height: '70%' }"
+      destroy-on-close
+    >
       <div class="drawerCon">
         <EventFilter
           v-if="state.filterOptions?.premise?.length"
@@ -243,7 +280,7 @@ const fetchCurrentEventList = async () => {
           >
         </div>
       </div>
-    </a-drawer>
+    </van-popup>
   </div>
 </template>
 <style lang="less" scoped>
@@ -306,7 +343,6 @@ const fetchCurrentEventList = async () => {
           background-color: transparent !important;
           border: none;
           .ant-select-selection-item {
-            color: #fff;
             display: flex;
             align-items: center;
           }
@@ -410,6 +446,9 @@ const fetchCurrentEventList = async () => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  :deep(.filterCon) {
+    flex: 1;
+  }
 }
 .bottomAct {
   padding: 12px;
