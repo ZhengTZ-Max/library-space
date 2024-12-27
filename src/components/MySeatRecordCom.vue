@@ -146,17 +146,9 @@ const onCancelReservation = async () => {
         >取消预约</a-button
       >
     </div>
-    <div v-else-if="state.selectedRecord.timelist">
+    <div v-else>
       <template v-for="item in state.selectedRecord.timelist"
         ><p>{{ item.status_name }}：{{ item.operateTime }}</p></template
-      >
-    </div>
-    <div v-else class="modal-footer">
-      <a-button
-        type="primary"
-        class="cancel-button"
-        @click="emit('close')"
-        >确定</a-button
       >
     </div>
   </div>
