@@ -26,9 +26,10 @@ import Uploader from "@/components/Uploader.vue";
 import SliderCom from "@/components/SliderCom.vue";
 import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
 import ShowInfoToast from "@/components/ShowInfoToast.vue";
+
 import { getUserInfo } from "@/utils";
 
-import { showToast, Toast } from "vant";
+import { showToast, showImagePreview } from "vant";
 
 const router = useRouter();
 const route = useRoute();
@@ -166,6 +167,11 @@ const bottomBtnDisabled = () => {
 
 const onSubmit = (type) => {
   try {
+    if (state.ruleInfo?.type == "swiper") {
+      state.ruleShow = false;
+      state.ruleInfo = {};
+      return false;
+    }
     // let placeholder = lang == "en" ? `placeholder_en` : `placeholder`;
 
     let [startDate, endDate] = state.selectDateInfo;
@@ -467,7 +473,12 @@ const onChangeSlide = (row) => {
 };
 
 const onViewFloor = (row) => {
-  console.log(row);
+  row?.web_plane &&
+    showImagePreview({
+      images: [row?.web_plane],
+      closeable: true,
+      closeIconPosition: "top-left",
+    });
 };
 
 const filterArguments = (key) => {
@@ -774,6 +785,10 @@ const handleShow = (v) => {
     router.replace("/");
   }
 };
+const onViewRule = () => {
+  state.ruleInfo = { content: state.activityApplyInfo?.should, type: "swiper" };
+  state.ruleShow = true;
+};
 </script>
 <template>
   <div class="apply" ref="containerRef">
@@ -810,6 +825,7 @@ const handleShow = (v) => {
               @changeSlide="onChangeSlide"
               @viewInfo="fetchGetActivityDetailInfo"
               @viewFloor="onViewFloor"
+              @viewRule="onViewRule"
             />
           </div>
         </div>
@@ -1180,8 +1196,9 @@ const handleShow = (v) => {
       v-model:open="state.ruleShow"
       :content="state.ruleInfo?.content"
       @onConfirm="() => onSubmit('rule')"
+      :review="state.ruleInfo?.type == 'swiper'"
     >
-      <template v-slot:content>
+      <template v-if="state.ruleInfo?.type != 'swiper'" v-slot:content>
         <div class="showArea">
           <div class="tag">当前预约选择</div>
           <div class="showCon">

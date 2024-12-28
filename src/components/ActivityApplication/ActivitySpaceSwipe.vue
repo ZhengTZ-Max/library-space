@@ -4,7 +4,7 @@ import { useStore } from "vuex";
 import Carousel from "@/components/CarouselCom.vue";
 
 const store = useStore();
-const emits = defineEmits(["viewInfo", "changeSlide", "viewFloor"]);
+const emits = defineEmits(["viewInfo", "changeSlide", "viewFloor", "viewRule"]);
 const systemMode = computed(() => store.state.systemMode);
 
 const props = defineProps({
@@ -54,7 +54,7 @@ const onTouchMove = (e) => {};
           <div class="otherInfo">
             <div
               class="otherInfo_item activeBtn"
-              @click="() => emits('viewFloor')"
+              @click="() => emits('viewFloor', item)"
             >
               查看平面图
               <img
@@ -80,7 +80,7 @@ const onTouchMove = (e) => {};
           </div>
 
           <a-divider dashed />
-          <div class="bottom_button">
+          <div class="bottom_button clickBox" @click="emits('viewRule')">
             查看申请说明<img
               src="@/assets/activity_application/right_arrow_gray.svg"
               alt=""
@@ -122,10 +122,7 @@ const onTouchMove = (e) => {};
               </van-col>
             </van-row>
 
-            <a-flex
-              class="vertical_scroll"
-              @touchmove.stop="onTouchMove"
-            >
+            <a-flex class="vertical_scroll" @touchmove.stop="onTouchMove">
               <div
                 class="boutiqueList"
                 v-for="bout in item?.boutiques"
@@ -136,7 +133,9 @@ const onTouchMove = (e) => {};
             </a-flex>
           </div>
           <a-divider class="divider" dashed />
-          <div class="bottom_button" style="">查看申请说明 ></div>
+          <div class="bottom_button clickBox" @click="emits('viewRule')">
+            查看申请说明 >
+          </div>
         </div>
       </template>
     </Carousel>

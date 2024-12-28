@@ -10,8 +10,13 @@ import {
 } from "@/request/activity_application";
 import EventFilter from "@/components/EventFilterCom.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
+import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
 
 const router = useRouter();
+
+const store = useStore();
+const rules = computed(() => store.state.rules);
+
 const state = reactive({
   activeIndex: "",
   spaceList: [
@@ -95,11 +100,13 @@ const state = reactive({
     categoryID: [],
     date: [],
   },
-  nodeShow: false,
   filterShow: false,
   applicationList: [],
   activityInfo: {},
   activityInfoShow: false,
+
+  ruleShow: false,
+  ruleInfo: { content: "" },
 });
 
 const onChangeAct = (i) => {
@@ -179,6 +186,12 @@ const handleAppt = (row) => {
   });
   console.log(row);
 };
+
+const onShowRule = () => {
+  state.ruleShow = true;
+  let { activity_rule, activity_rule_en } = rules?.value;
+  state.ruleInfo.content = activity_rule+activity_rule+activity_rule+activity_rule;
+};
 </script>
 <template>
   <div class="activity-application">
@@ -196,9 +209,9 @@ const handleAppt = (row) => {
           </a-breadcrumb>
         </div>
         <div class="rightAction">
-          <div class="filters activeBtn" @click="state.nodeShow = true">
+          <div class="filters activeBtn" @click="onShowRule">
             <img src="@/assets/activity_application/node.svg" alt="" />
-            申请须知
+            申请规则
           </div>
           <div class="filters activeBtn" @click="state.filterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
@@ -318,6 +331,16 @@ const handleAppt = (row) => {
     >
       <LibraryInfo v-if="state.activityInfo?.id" :data="state.activityInfo" />
     </a-modal>
+
+    <SpaceRuleConfirm
+      v-if="state.ruleShow"
+      v-model:open="state.ruleShow"
+      :content="state.ruleInfo?.content"
+      title="预约规则"
+      @onConfirm="state.ruleShow = false"
+      :review="true"
+    >
+    </SpaceRuleConfirm>
   </div>
 </template>
 <style lang="less" scoped>
@@ -466,5 +489,4 @@ const handleAppt = (row) => {
     }
   }
 }
-
 </style>

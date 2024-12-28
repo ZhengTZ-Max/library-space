@@ -127,6 +127,7 @@ watch(
       state.sliderConfig.disabledArr = list?.map((e) => {
         return [e?.begin_num, e?.end_num];
       });
+      console.log(state.sliderConfig.disabledArr)
 
       if (exchangeDateTime(v.date, 2) == exchangeDateTime(new Date(), 2)) {
         let h = moment(new Date()).get("hour") * 60;

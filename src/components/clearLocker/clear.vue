@@ -11,9 +11,10 @@
             <template #separator
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
-            <a-breadcrumb-item
-              >选择馆舍<img src="@/assets/seat/titRightIcon.svg" alt=""
-            /></a-breadcrumb-item>
+            <a-breadcrumb-item @click="() => router.replace('/clearLocker')"
+              >选择馆舍</a-breadcrumb-item
+            >
+            <a-breadcrumb-item>选择机柜</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         <div class="rightAction">
@@ -66,7 +67,7 @@
                   v-model:checked="item.check"
                 ></a-checkbox>
 
-                <div class="libiryCon">
+                <div class="libiryCon" @click="item.check = !item.check">
                   <div class="typeInfo">
                     <div
                       class="lockerStatus"
@@ -92,7 +93,7 @@
                         >
                       </p>
                     </div>
-                    <div class="viewInfo clickBox" @click="details(item?.id)">
+                    <div class="viewInfo clickBox" @click.stop="details(item?.id)">
                       详情
                     </div>
                   </div>
@@ -579,6 +580,7 @@ const goBack = () => {
 .libiryCon {
   flex: 1;
   font-size: 12px;
+  cursor: pointer;
 
   .typeInfo {
     padding: 15px 0;

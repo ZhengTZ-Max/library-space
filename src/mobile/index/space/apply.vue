@@ -168,7 +168,7 @@ watch(
       state.sliderConfig.maxRange = Number(max_time);
 
       state.sliderConfig.disabledArr = list?.map((e) => {
-        return [e?.begin_time, e?.end_time];
+        return [e?.begin_num, e?.end_num];
       });
 
       if (exchangeDateTime(v.date, 2) == exchangeDateTime(new Date(), 2)) {

@@ -35,7 +35,7 @@ import ShowInfoToast from "@/components/ShowInfoToast.vue";
 import HiddenArrow from "@/assets/swipe_hidden_arrow.svg";
 import ShowArrow from "@/assets/swipe_show_arrow.svg";
 import { getUserInfo } from "@/utils";
-import { showToast, Toast } from "vant";
+import { showToast, showImagePreview } from "vant";
 
 const router = useRouter();
 const route = useRoute();
@@ -158,6 +158,7 @@ const fetchGetActivityApply = async () => {
     state.argumentArray = res?.data?.argument || [];
 
     state.filterActivityTypeId = state.activityApplyInfo?.categorys[0]?.id;
+    
   } catch (e) {
     console.log(e);
   }
@@ -188,7 +189,12 @@ const onChangeSlide = (row) => {
 };
 
 const onViewFloor = (row) => {
-  console.log(row);
+  row?.web_plane &&
+    showImagePreview({
+      images: [row?.web_plane],
+      closeable: true,
+      closeIconPosition: "top-left",
+    });
 };
 
 const onSelected = (date) => {
@@ -523,6 +529,11 @@ const getArgInfo = (key) => {
 const onSubmit = (type) => {
   try {
     // let placeholder = lang == "en" ? `placeholder_en` : `placeholder`;
+    if (state.ruleInfo?.type == "swiper") {
+      state.ruleShow = false;
+      state.ruleInfo = {};
+      return false;
+    }
 
     let [startDate, endDate] = state.selectDateInfo;
     let {
@@ -699,6 +710,11 @@ const draftActivity = async (data) => {
     console.log(e);
   }
 };
+
+const onViewRule = () => {
+  state.ruleInfo = { content: state.activityApplyInfo?.should, type: "swiper" };
+  state.ruleShow = true;
+};
 </script>
 
 <template>
@@ -714,6 +730,7 @@ const draftActivity = async (data) => {
         @changeSlide="onChangeSlide"
         @viewInfo="fetchGetActivityDetailInfo"
         @viewFloor="onViewFloor"
+        @viewRule="onViewRule"
       />
       <div
         class="hidden_arrow"
@@ -1166,8 +1183,9 @@ const draftActivity = async (data) => {
       v-model:open="state.ruleShow"
       :content="state.ruleInfo?.content"
       @onConfirm="() => onSubmit('rule')"
+      :review="state.ruleInfo?.type == 'swiper'"
     >
-      <template v-slot:content>
+      <template v-if="state.ruleInfo?.type != 'swiper'" v-slot:content>
         <div class="showArea">
           <div class="tag">当前预约选择</div>
           <div class="showCon">

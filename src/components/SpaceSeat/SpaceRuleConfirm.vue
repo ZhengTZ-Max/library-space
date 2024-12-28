@@ -4,7 +4,7 @@ import { useStore } from "vuex";
 const store = useStore();
 const systemMode = computed(() => store.state.systemMode);
 
-const props = defineProps(["content", "open"]);
+const props = defineProps(["title", "content", "open", "review"]);
 const emits = defineEmits(["onConfirm", "update:open"]);
 const state = reactive({
   finished: false,
@@ -18,6 +18,18 @@ const state = reactive({
 onMounted(() => {
   state.spaceRuleShow = props?.open;
 });
+watch(
+  () => props.review,
+  (v) => {
+    if (v) {
+      state.finished = true;
+      state.isConfirm = true;
+    }
+  },
+  {
+    immediate: true,
+  }
+);
 watch(
   () => state.spaceRuleShow,
   (v) => {
@@ -39,7 +51,7 @@ const handleConfirm = () => {
     v-if="systemMode == 'pc'"
     width="50%"
     v-model:open="state.spaceRuleShow"
-    title="使用须知"
+    :title="props?.title || '使用须知'"
     @ok="handleConfirm"
     destroyOnClose
     :okText="!state?.isConfirm ? '请阅读完使用须知' : '已知晓'"
@@ -77,11 +89,7 @@ const handleConfirm = () => {
     @opened="state.moHideList = true"
   >
     <div class="ruleCon" :class="{ ruleConMo: systemMode != 'pc' }">
-      <van-list
-        :finished="state.finished"
-        @load="onLoad"
-        offset="10"
-      >
+      <van-list :finished="state.finished" @load="onLoad" offset="10">
         <div class="propsCon" v-html="props?.content"></div>
       </van-list>
       <div class="bottomAction">

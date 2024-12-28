@@ -20,8 +20,12 @@ import {
 } from "@/request/activity_application";
 import EventFilter from "@/components/EventFilterCom.vue";
 import LibraryInfo from "@/components/LibraryInfo.vue";
+import SpaceRuleConfirm from "@/components/SpaceSeat/SpaceRuleConfirm.vue";
 
 const router = useRouter();
+const store = useStore();
+const rules = computed(() => store.state.rules);
+
 const state = reactive({
   boutiques: [{ name: "电视" }, { name: "投影仪" }],
 
@@ -39,6 +43,9 @@ const state = reactive({
   activityInfo: {},
   activityInfoShow: false,
   applicationList: [],
+
+  ruleShow: false,
+  ruleInfo: { content: "" },
 });
 
 onMounted(() => {
@@ -132,11 +139,17 @@ const onApply = (id) => {
     query: { id },
   });
 };
+
+const onShowRule = () => {
+  state.ruleShow = true;
+  let { activity_rule, activity_rule_en } = rules?.value;
+  state.ruleInfo.content = activity_rule;
+};
 </script>
 <template>
   <div class="activity_application_mobile">
     <div class="top_tabs">
-      <div class="left_title">查看申请须知 ></div>
+      <div class="left_title" @click="onShowRule">查看申请须知 ></div>
       <div @click="state.filterShow = true">
         <img src="@/assets/event/mobile_event_filter.svg" alt="filter" />
       </div>
@@ -272,6 +285,16 @@ const onApply = (id) => {
         </div>
       </div>
     </van-popup>
+
+    <SpaceRuleConfirm
+      v-if="state.ruleShow"
+      v-model:open="state.ruleShow"
+      :content="state.ruleInfo?.content"
+      title="预约规则"
+      @onConfirm="state.ruleShow = false"
+      :review="true"
+    >
+    </SpaceRuleConfirm>
   </div>
 </template>
 <style lang="less" scoped>

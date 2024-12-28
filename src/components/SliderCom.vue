@@ -1,10 +1,11 @@
 <script setup>
-import { reactive, onMounted, ref, watch } from "vue";
+import { reactive, onMounted, ref, watch, computed } from "vue";
 import { useStore } from "vuex";
 import { exchangeDateTime, checkOverlap, convertMinutesToHHMM } from "@/utils";
 
 const store = useStore();
 const sliderRef = ref();
+const systemMode = computed(() => store.state.systemMode);
 
 const emits = defineEmits(["update:value"]);
 const props = defineProps({
@@ -251,7 +252,10 @@ const showErrTimes = () => {
           )}`
         }}</span>
         <span
-          v-if="checkOverlap(state.value, state?.opt?.disabledArr)?.length"
+          v-if="
+            checkOverlap(state.value, state?.opt?.disabledArr)?.length &&
+            systemMode == 'pc'
+          "
           class="sltText"
           style="margin-left: 4px"
           >(时段被占用：{{ showErrTimes() }})</span
@@ -261,6 +265,15 @@ const showErrTimes = () => {
         <span class="selectable">可选</span>
         <span class="noselectable">不可选</span>
       </div>
+    </div>
+    <div
+      v-if="
+        checkOverlap(state.value, state?.opt?.disabledArr)?.length &&
+        systemMode == 'mobile'
+      "
+      class="moSltText sltText"
+    >
+      (时段被占用：{{ showErrTimes() }})
     </div>
 
     <div class="sliderCon" ref="sliderRef">
@@ -288,6 +301,9 @@ const showErrTimes = () => {
 <style lang="less" scoped>
 .sliderCom {
   margin-top: 8px;
+  .moSltText {
+    font-size: 14px;
+  }
   .sliderSlt {
     display: flex;
     align-items: center;
