@@ -110,7 +110,7 @@ const filterCategorys = (list) => {
       <div style="flex: 1">
         <div
           class="libraryIntro"
-          v-html="state.propsData?.sub_title || ''"
+          v-html="state.propsData?.contents || ''"
         ></div>
 
         <!-- 馆舍特征 -->

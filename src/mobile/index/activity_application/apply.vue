@@ -106,8 +106,10 @@ const state = reactive({
     time: "",
   },
   rangeTimeCantSelectTime: [],
-  CalendarStartTime: "",
-  CalendarEndTime: "",
+  CalendarStartHour: "",
+  CalendarEndHour: "",
+  CalendarStartMinute: "",
+  CalendarEndMinute: "",
   draftShow: false,
   submitTimeData: "",
 });
@@ -291,8 +293,10 @@ const getCurrentChooseTimeHaveSelectTime = () => {
 
   const [startHour, startMinute] = startTime.split(":").map(Number);
   const [endHour, endMinute] = endTime.split(":").map(Number);
-  state.CalendarStartTime = startHour;
-  state.CalendarEndTime = endHour;
+  state.CalendarStartHour = startHour;
+  state.CalendarStartMinute = startMinute;
+  state.CalendarEndHour = endHour;
+  state.CalendarEndMinute = endMinute;
 };
 
 // 添加时间段
@@ -421,26 +425,66 @@ const filterArguments = (key) => {
   return state.argumentArray?.some((e) => e.key == key) || false;
 };
 const onDisabledTime = (date) => {
-  let startHour = state.CalendarStartTime;
-  let endHour = state.CalendarEndTime;
-  return {
-    disabledHours: () => {
-      // 获取要禁用的小时
-      const disabledHours = [];
+  try {
+    let startHour = state.CalendarStartHour;
+    let endHour = state.CalendarEndHour;
 
-      // 禁用 0 到 startHour 之前的所有小时
-      for (let i = 0; i < startHour; i++) {
-        disabledHours.push(i);
-      }
+    let startMinute = state.CalendarStartMinute;
+    let endMinute = state.CalendarEndMinute;
 
-      // 禁用 endHour 之后的所有小时
-      for (let i = endHour + 1; i <= 23; i++) {
-        disabledHours.push(i);
-      }
+    if (!startHour) {
+      return {
+        disabledHours: () => {
+          return [];
+        },
+        disabledMinutes: () => {
+          return [];
+        },
+      };
+    }
 
-      return disabledHours;
-    },
-  };
+    return {
+      disabledHours: () => {
+        // 获取要禁用的小时
+        const disabledHours = [];
+
+        // 禁用 0 到 startHour 之前的所有小时
+        for (let i = 0; i < startHour; i++) {
+          disabledHours.push(i);
+        }
+
+        // 禁用 endHour 之后的所有小时
+        for (let i = endHour + 1; i <= 23; i++) {
+          disabledHours.push(i);
+        }
+
+        return disabledHours;
+      },
+      disabledMinutes: (selectedHour) => {
+        // 如果是 startHour，禁用 0 到 startMinute 之前的分钟
+        if (selectedHour === startHour) {
+          const disabledMinutes = [];
+          for (let i = 0; i < startMinute; i++) {
+            disabledMinutes.push(i);
+          }
+          return disabledMinutes;
+        }
+
+        // 如果是 endHour，禁用 endMinute 之后的分钟
+        if (selectedHour === endHour) {
+          const disabledMinutes = [];
+          for (let i = endMinute + 1; i < 60; i++) {
+            disabledMinutes.push(i);
+          }
+          return disabledMinutes;
+        }
+
+        return [];
+      },
+    };
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const fileUpload = (data, type) => {

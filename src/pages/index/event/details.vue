@@ -293,7 +293,7 @@ const fetchApplyActivity = async () => {
                 </div>
               </template>
             </Carousel>
-            <div class="controls">
+            <div class="controls" v-if="state.eventInfo.publicize.length > 0">
               <div></div>
               <div
                 class="toggleLang"
@@ -490,7 +490,7 @@ const fetchApplyActivity = async () => {
   .content {
     margin: 20px 30px;
     border-radius: 10px;
-    height: calc(100% - 100px);
+    height: calc(100% - 110px);
     background: #fff;
     display: flex;
     .left_info {

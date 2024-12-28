@@ -284,7 +284,7 @@ const fetchApplyActivity = async () => {
         :src="state.eventImg[0]?.file_path"
         alt="Empty state illustration"
       />
-      <div class="controls">
+      <div class="controls" v-if="state.eventInfo.publicize.length > 0">
         <div class="toggleLang">
           <div
             class="langItem activeBtn langActive"

@@ -9,7 +9,7 @@
     }
 </route>
 <script setup>
-import { reactive, onMounted, watch, ref } from "vue";
+import { reactive, onMounted, watch, ref, nextTick } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
@@ -25,7 +25,8 @@ import {
 
 import LibraryInfo from "@/components/LibraryInfo.vue";
 import SpaceChooseSpaceFilter from "@/components/SpaceCom/SpaceChooseSpaceFilter.vue";
-
+// 声明 refs 对象
+const refs = ref({});
 const router = useRouter();
 const route = useRoute();
 const state = reactive({
@@ -343,7 +344,7 @@ const getItemTime = (item) => {
                   <span>{{ item?.storey_name }}</span>
                 </div>
 
-                <a-flex class="vertical_scroll" >
+                <a-flex class="vertical_scroll">
                   <div
                     class="boutiqueList"
                     v-for="bout in item?.boutiques"
@@ -385,8 +386,15 @@ const getItemTime = (item) => {
                 <span class="unAllCir" style="margin-left: 30px"></span>
                 <span class="timeStatusText">可预约时段</span>
               </div>
-              <a-flex wrap="wrap" gap="10px" style="margin-top: 10px" >
-                <template v-for="item_ in getItemTime(item)" :key="item">
+              <a-flex
+                gap="10px"
+                class="vertical_scroll_time"
+                justify="space-between"
+              >
+                <template
+                  v-for="item_ in getItemTime(item)"
+                  :key="item_?.timeNum"
+                >
                   <div style="padding-right: 4px">
                     <a-flex vertical align="center">
                       <!-- 此处还要根据后端返回每条数据里的 data 在判断上午还是下午 -->
@@ -646,6 +654,29 @@ const getItemTime = (item) => {
         font-size: 10px;
         color: rgba(97, 97, 97, 1);
       }
+    }
+    .vertical_scroll_time {
+      margin-top: 10px;
+      overflow-x: auto;
+      white-space: nowrap;
+
+      /* 设置滚动条样式 */
+      &::-webkit-scrollbar {
+        height: 4px; /* 设置滚动条的高度 */
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(97, 97, 97, 0.05); /* 设置滚动条的颜色 */
+        border-radius: 10px; /* 设置滚动条的圆角 */
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent; /* 设置滚动条轨道的颜色 */
+      }
+
+      /* Firefox 的滚动条样式 */
+      scrollbar-width: thin; /* 滚动条的宽度 */
+      scrollbar-color: rgba(97, 97, 97, 0.05) transparent; /* 滚动条的颜色和轨道的颜色 */
     }
     .itemAll {
       display: inline-block;
