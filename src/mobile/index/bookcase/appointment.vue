@@ -41,8 +41,8 @@ const state = reactive({
 
   quickMode: "0",
   quickModeList: [
-    { value: 0, label: "地图模式" },
-    { value: 1, label: "列表模式" },
+    { value: 0, label: "V4_map_view" },
+    { value: 1, label: "V4_list_view" },
   ],
 
   bookSelected: {},
@@ -191,7 +191,7 @@ const onViewMap = () => {
               :class="{ itemActive: item?.value == state.quickMode }"
               @click="state.quickMode = item?.value"
             >
-              {{ item?.label }}
+              {{ $t(item?.label) }}
             </div>
           </div>
 
@@ -246,14 +246,14 @@ const onViewMap = () => {
 
       <div class="reservation">
         <p class="selectSeat">
-          已选柜号： <span>{{ state.bookSelected?.no || "-" }}</span>
+          {{ $t('Locker_Selected_number') + '：' }} <span>{{ state.bookSelected?.no || "-" }}</span>
         </p>
       </div>
     </div>
     <div class="bottomAction">
       <van-button round block type="default" @click="router.go(-1)">
         <img src="@/assets/seat/moBackBtn.svg" alt="" />
-        返回
+        {{ $t('Return') }}
       </van-button>
       <van-button
         round
@@ -261,7 +261,7 @@ const onViewMap = () => {
         type="primary"
         :disabled="!state.bookSelected?.id"
         @click="confirmAppt"
-        >立即预约</van-button
+        >{{ $t('visitor_Reservation') }}</van-button
       >
     </div>
     <ShowInfoToast
@@ -273,23 +273,23 @@ const onViewMap = () => {
     >
       <template v-slot:content>
         <div class="toastItem">
-          <span>开始时间：</span>
+          <span>{{ $t('user_begintime') + '：' }}</span>
           <span>{{ state.apptResult?.data?.startTime || "-" }}</span>
         </div>
         <div class="toastItem">
-          <span>结束时间：</span>
+          <span>{{ $t('user_endtime') + '：' }}</span>
           <span>{{ state.apptResult?.data?.endTime || "-" }}</span>
         </div>
         <div class="toastItem">
-          <span>预约地点：</span>
+          <span>{{ $t('Reservation_location') + '：' }}</span>
           <span>{{ state.apptResult?.data?.nameMerge || "-" }}</span>
         </div>
         <div class="toastItem">
-          <span>存书柜号：</span>
+          <span>{{ $t('V4_bookcase_number') + '：' }}</span>
           <span>{{ state.bookSelected?.no || "-" }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
-          <span>预约提醒：</span>
+          <span>{{ $t('Reserved_Reserved') + '：' }}</span>
           <span>{{ state.apptResult?.msg }}</span>
         </div>
       </template>

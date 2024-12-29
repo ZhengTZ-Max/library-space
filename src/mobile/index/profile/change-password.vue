@@ -81,32 +81,32 @@ const onSubmit = async () => {
       <van-cell-group>
         <van-field
           v-model="formState.userId"
-          label="学工号"
-          placeholder="请输入学工号"
+          :label="$t('visitor_Student_ID')"
+          :placeholder="$t('V4_please_enter_your_student_ID')"
           input-align="right"
         />
         <van-field
           v-model="formState.username"
-          label="姓名"
-          placeholder="请输入姓名"
+          :label="$t('user_name')"
+          :placeholder="$t('user_inputname')"
           input-align="right"
         />
         <van-field
           v-model="formState.oldPassword"
-          label="原密码"
-          placeholder="请输入原密码"
+          :label="$t('user_oldpassword')"
+          :placeholder="$t('user_inputoldpassword')"
           input-align="right"
         />
         <van-field
           v-model="formState.newPassword"
-          label="新密码"
-          placeholder="请输入新密码"
+          :label="$t('user_newpassword')"
+          :placeholder="$t('V4_please_enter_the_new_password')"
           input-align="right"
         />
         <van-field
           v-model="formState.confirmPassword"
-          label="确认密码"
-          placeholder="请在此输入新密码"
+          :label="$t('user_conformpassword')"
+          placeholder="请再次输入新密码"
           input-align="right"
         />
       </van-cell-group>
@@ -118,9 +118,11 @@ const onSubmit = async () => {
     <div class="bottomAct">
       <van-button round block type="default" @click="router.go(-1)">
         <img src="@/assets/seat/moBackBtn.svg" alt="" />
-        返回
+        {{ $t("Return") }}
       </van-button>
-      <van-button round block type="primary" @click="onApply">提交</van-button>
+      <van-button round block type="primary" @click="onApply">
+        {{ $t("Submit") }}
+      </van-button>
     </div>
   </div>
 </template>

@@ -52,8 +52,8 @@ const state = reactive({
 
   quickMode: "0",
   quickModeList: [
-    { value: 0, label: "地图模式" },
-    { value: 1, label: "列表模式" },
+    { value: 0, label: "V4_map_view" },
+    { value: 1, label: "V4_list_view" },
   ],
 
   spaceSelected: {},
@@ -552,7 +552,7 @@ const fetchDeleteCollect = async () => {
               :class="{ itemActive: item?.value == state.quickMode }"
               @click="state.quickMode = item?.value"
             >
-              {{ item?.label }}
+              {{ $t(item?.label) }}
             </div>
           </div>
 
@@ -623,35 +623,35 @@ const fetchDeleteCollect = async () => {
       </div>
       <div class="reservation">
         <div v-if="state.spaceInfo?.type != 1" class="studyPermission">
-          <p class="studyTitle">预约权限</p>
+          <p class="studyTitle">{{ $t("Reservation_permission") }}</p>
           <div class="studyBox">
             <p>
-              本期：<span
+              {{ $t("Current") + ":" }}<span
                 :class="{
                   success: getStudyPermission({ index: 0 }),
                   fail: !getStudyPermission({ index: 0 }),
                 }"
                 class="success"
                 >{{
-                  getStudyPermission({ index: 0 }) ? "已获得" : "未获得"
+                  getStudyPermission({ index: 0 }) ? $t("Authorized_by") : $t("Unauthorized")
                 }}</span
               >
             </p>
             <p>
-              下期：<span
+              {{ $t("Next_time") + ":" }}<span
                 :class="{
                   success: getStudyPermission({ index: 1 }),
                   fail: !getStudyPermission({ index: 1 }),
                 }"
                 >{{
-                  getStudyPermission({ index: 1 }) ? "已获得" : "未获得"
+                  getStudyPermission({ index: 1 }) ? $t("Authorized_by") : $t("Unauthorized")
                 }}</span
               >
             </p>
           </div>
         </div>
         <div class="selectDate">
-          <span v-if="state?.spaceInfo?.type == 1">今天</span>
+          <span v-if="state?.spaceInfo?.type == 1">{{ $t("today") }}</span>
           <span v-else>{{
             state.studyOpenTime?.find(
               (e) => e?.id == state.filterSearch?.dateId
@@ -667,7 +667,7 @@ const fetchDeleteCollect = async () => {
         </div>
         <div class="selectSeat">
           <div class="leftText">
-            已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
+            {{ $t("V4_selected_seats") + ":" }} <span>{{ state.spaceSelected?.no || "-" }}</span>
           </div>
           <div
             v-if="state?.spaceInfo?.type == 1 && state.spaceSelected?.no"
@@ -705,8 +705,9 @@ const fetchDeleteCollect = async () => {
     <div class="bottomAction">
       <van-button round block type="default" @click="router.go(-1)">
         <img src="@/assets/seat/moBackBtn.svg" alt="" />
-        返回
+        {{ $t("Return") }}
       </van-button>
+      <!-- visitor_Reservation : 立即预约 -->
       <van-button
         round
         block
@@ -718,8 +719,8 @@ const fetchDeleteCollect = async () => {
         "
         >{{
           !getStudyPermission({ id: state.filterSearch?.dateId })
-            ? "无预约权限"
-            : "立即预约"
+            ? $t("No_reservation_permission")
+            : $t("visitor_Reservation")
         }}</van-button
       >
     </div>
@@ -739,7 +740,7 @@ const fetchDeleteCollect = async () => {
             @click="state.libraryInfoShow = false"
           >
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
-            返回
+            {{ $t("Return") }}
           </van-button>
         </div>
       </div>
@@ -769,7 +770,7 @@ const fetchDeleteCollect = async () => {
             type="default"
             @click="handleFilter('cancel')"
           >
-            取消
+            {{ $t("Cancel") }}
           </van-button>
           <van-button
             round
@@ -783,7 +784,7 @@ const fetchDeleteCollect = async () => {
                   !state?.filterDate?.time[0] ||
                   !state?.filterDate?.time[1]
             "
-            >确认</van-button
+            >{{ $t("visitor_Confirm") }}</van-button
           >
         </div>
       </div>
@@ -805,19 +806,19 @@ const fetchDeleteCollect = async () => {
     >
       <template v-slot:content>
         <div class="toastItem">
-          <span>时间：</span>
+          <span>{{ $t("Time") + ":" }}</span>
           <span>{{ ShowSelectedDateTime() }}</span>
         </div>
         <div class="toastItem">
-          <span>地点：</span>
+          <span>{{ $t("Place") + ":" }}</span>
           <span>{{ ShowArea() }}</span>
         </div>
         <div class="toastItem">
-          <span>座位：</span>
+          <span>{{ $t("V4_seats") + ":" }}</span>
           <span>{{ state.spaceSelected?.no || "-" }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
-          <span>提醒：</span>
+          <span>{{ $t("V4_reminder") + ":" }}</span>
           <span>{{ state.apptResult?.msg }}</span>
         </div>
       </template>

@@ -32,13 +32,15 @@ const handleMsg = (row) => {
 <template>
   <div class="home">
     <div class="bannerLoop">
-      <a-carousel  autoplay>
+      <a-carousel autoplay>
         <div class="reviewImg" v-for="item in bannerList" :key="item?.id">
           <img :src="item?.content" alt="" />
         </div>
       </a-carousel>
 
-      <div class="apptRule" @click="state.showRules = true">预约规则</div>
+      <div class="apptRule" @click="state.showRules = true">
+        {{ $t("menu_rules") }}
+      </div>
     </div>
     <div class="tabsCon">
       <div class="topSlide">
@@ -62,7 +64,7 @@ const handleMsg = (row) => {
           </van-swipe-item>
         </van-swipe>
         <div class="moreBoc" @click="router.push(`/announ`)">
-          <span class="more">查看更多</span>
+          <span class="more">{{ $t("See_More") }}</span>
           <img src="@/assets/home/rightIconPrimary.svg" alt="" />
         </div>
       </div>

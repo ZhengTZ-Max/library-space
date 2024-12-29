@@ -29,8 +29,8 @@ const state = reactive({
   },
   activeKey: "1",
   activeKeyList: [
-    { value: "1", label: "当前活动" },
-    { value: "0", label: "历史活动" },
+    { value: "1", label: "current_activity" },
+    { value: "0", label: "historical_activity" },
   ],
 
   selectDate: moment().format("YYYY-MM-DD"),
@@ -73,7 +73,7 @@ onMounted(() => {
 const initQuickDateList = () => {
   const formattedDate = moment().format("MM-DD");
   state.selectDateList = [
-    { label: `${formattedDate} 今天`, value: moment().format("YYYY-MM-DD") },
+    { label: `${$t('today')}`, value: moment().format("YYYY-MM-DD") },
   ];
 };
 
@@ -154,7 +154,7 @@ const fetchCurrentEventList = async () => {
           :class="{ itemActive: item?.value == state.activeKey }"
           @click="state.activeKey = item?.value"
         >
-          {{ item?.label }}
+          {{ $t(item?.label) }}
         </div>
       </div>
     </div>
@@ -166,7 +166,7 @@ const fetchCurrentEventList = async () => {
         <a-select
           v-model:value="state.selectDate"
           @change="handleDateChange"
-          placeholder="选择日期"
+          :placeholder="$t('visitor_Select_Date')"
         >
           <a-select-option
             v-for="item in state.selectDateList"

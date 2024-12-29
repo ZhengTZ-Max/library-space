@@ -33,32 +33,32 @@ onMounted(() => {
             state.propsData.statusMsg === '未签到' ||
             state.propsData.statusMsg === '使用超时',
         }"
-        title="预约状态"
+        :title="$t('Status')"
         :value="state.propsData.statusMsg"
       />
       <van-cell
         class="info_item"
-        title="预约用户"
+        :title="$t('yuyue_username')"
         :value="state.UserInfo.name + ' (' + state.UserInfo.id + ')'"
       />
       <van-cell
         class="info_item"
-        title="预约时间"
+        :title="$t('yuyue_time')"
         :value="state.propsData.beginTime"
       />
       <van-cell
         class="info_item"
-        title="开始时间"
+        :title="$t('user_begintime')"
         :value="state.propsData.beginTime"
       />
       <van-cell
         class="info_item"
-        title="结束时间"
+        :title="$t('user_endtime')"
         :value="state.propsData.endTime"
       />
       <van-cell
         class="info_item"
-        title="预约地点"
+        :title="$t('Reservation_location')"
         :value="state.propsData.nameMerge"
       />
     </van-cell-group>
@@ -76,7 +76,7 @@ onMounted(() => {
       <template v-else-if="state.propsData.statusMsg === '已取消'">
         <van-cell
           class="info_item"
-          title="取消时间"
+          :title="$t('Cancel_time')"
           :value="state.propsData.beginTime"
         />
       </template>
@@ -90,7 +90,7 @@ onMounted(() => {
         />
         <van-cell
           class="info_item"
-          title="结束时间"
+          :title="$t('user_endtime')"
           :value="state.propsData.finishTime"
         />
       </template>
@@ -99,7 +99,7 @@ onMounted(() => {
       <template v-else-if="state.propsData.statusMsg === '未签到'">
         <van-cell
           class="info_item"
-          title="违约时间"
+          :title="$t('user_renegetime')"
           :value="state.propsData.beginTime"
         />
       </template>
@@ -118,8 +118,8 @@ onMounted(() => {
         />
         <van-cell
           class="info_item_red"
-          title="超时时长"
-          :value="state.propsData.beginTime + '分钟'"
+          :title="$t('V4_timeout_duration')"
+          :value="state.propsData.beginTime + $t('Minutes')"
         />
       </template>
     </van-cell-group>
@@ -127,7 +127,9 @@ onMounted(() => {
       class="bottom_info_btn"
       v-if="state.propsData.statusMsg === '预约成功'"
     >
-      <a-button shape="round" block class="cancel_btn">取消预约</a-button>
+      <a-button shape="round" block class="cancel_btn">
+        {{ $t("visitor_Cancel_Reservation") }}
+      </a-button>
     </div>
   </div>
 </template>

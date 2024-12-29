@@ -291,14 +291,14 @@ const fetchApplyActivity = async () => {
             :class="{ langActive: state.quickMode == 1 }"
             @click="onChangeQMode(1)"
           >
-            图片
+            {{ $t('photo') }}
           </div>
           <div
             class="langItem activeBtn"
             :class="{ langActive: state.quickMode == 2 }"
             @click="onChangeQMode(2)"
           >
-            视频
+            {{ $t('video') }}
           </div>
         </div>
         <div class="share-btn">
@@ -307,7 +307,7 @@ const fetchApplyActivity = async () => {
             alt=""
             class="background-image"
           />
-          <span class="share-text">分享</span>
+          <span class="share-text">{{ $t('V4_share') }}</span>
         </div>
       </div>
     </div>
@@ -327,7 +327,7 @@ const fetchApplyActivity = async () => {
         <span class="left_title_name">{{ state.eventInfo?.title }}</span>
       </div>
 
-      <div class="content_body_title">活动时间</div>
+      <div class="content_body_title">{{ $t('user_activitytime') }}</div>
       <div class="content_body_data_time">
         <a-row v-if="state.eventDateList?.length" :gutter="[5, 5]">
           <template v-for="item in state.eventDateList" :key="item?.date">
@@ -371,16 +371,16 @@ const fetchApplyActivity = async () => {
           </template>
         </a-row>
       </div>
-      <div class="content_body_title">活动人数</div>
+      <div class="content_body_title">{{ $t('V4_number_of_participants') }}</div>
       <div
         v-if="state.eventTimeList?.length"
         style="color: rgba(97, 97, 97, 1)"
       >
         {{ state.eventCurrentNum }}/{{ state.eventMaxNum }}
       </div>
-      <div class="content_body_title">活动地点</div>
+      <div class="content_body_title">{{ $t('user_activityplace') }}</div>
       <div class="content_body_data">{{ state.eventInfo?.nameMerge }}</div>
-      <div class="content_body_title">活动介绍</div>
+      <div class="content_body_title">{{ $t('Activity_Introduction') }}</div>
       <div class="content_body_data">
         {{ state.eventInfo?.content }}
       </div>
@@ -389,10 +389,10 @@ const fetchApplyActivity = async () => {
   <div class="bottomAction">
     <van-button round block type="default" @click="router.go(-1)">
       <img src="@/assets/seat/moBackBtn.svg" alt="" />
-      返回
+      {{ $t('Return') }}
     </van-button>
     <van-button round block type="primary" @click="onApply"
-      >我要报名</van-button
+      >{{ $t('INeedToRegiste') }}</van-button
     >
   </div>
 

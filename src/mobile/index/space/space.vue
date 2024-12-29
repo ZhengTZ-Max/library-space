@@ -291,7 +291,7 @@ const getItemTime = (item) => {
         <a-select
           v-model:value="state.quickDate"
           @change="handleDateChange"
-          placeholder="选择日期"
+          :placeholder="$t('visitor_Select_Date')"
         >
           <template v-for="item in state.quickDateList" :key="index">
             <a-select-option :value="item?.value">{{
@@ -304,7 +304,7 @@ const getItemTime = (item) => {
         <a-input
           :bordered="false"
           v-model:value="state.searchValue"
-          placeholder="名称/人数"
+          :placeholder="$t('V4_name_number_of_participants')"
           style="width: 150px"
         />
       </div>
@@ -319,7 +319,7 @@ const getItemTime = (item) => {
           v-if="state.spaceInfoList?.length > 0"
           v-model:loading="state.loading"
           :finished="state.finished"
-          finished-text="没有更多了"
+          :finished-text="$t('No_more')"
           @load="onLoad"
         >
           <div v-for="item in state.spaceInfoList" :key="item?.id" class="item">
@@ -382,9 +382,9 @@ const getItemTime = (item) => {
             <div>
               <div class="timeStatus">
                 <span class="allCir"></span>
-                <span class="timeStatusText">已被占用</span>
+                <span class="timeStatusText">{{ $t("V4_already_occupied") }}</span>
                 <span class="unAllCir" style="margin-left: 30px"></span>
-                <span class="timeStatusText">可预约时段</span>
+                <span class="timeStatusText">{{ $t("V4_available_reservation_slots") }}</span>
               </div>
               <a-flex
                 gap="10px"
@@ -439,14 +439,14 @@ const getItemTime = (item) => {
             @click="state.spaceInfoShow = false"
           >
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
-            返回
+            {{ $t("Return") }}
           </van-button>
           <van-button
             round
             block
             type="primary"
             @click="onApply(state.spaceInfo?.id)"
-            >申请</van-button
+            >{{ $t("V4_apply") }}</van-button
           >
         </div>
       </div>
@@ -472,10 +472,10 @@ const getItemTime = (item) => {
             type="default"
             @click="state.filterShow = false"
           >
-            取消
+            {{ $t("cancel") }}
           </van-button>
           <van-button round block type="primary" @click="handleFilter"
-            >确认</van-button
+            >{{ $t("visitor_Confirm") }}</van-button
           >
         </div>
       </div>

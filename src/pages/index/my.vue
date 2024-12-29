@@ -17,11 +17,17 @@ const categoryList = computed(() => store.state.categoryList);
 const state = reactive({
   categoryList: [],
   rightNavs: [
-    { id: "3", label: "常用预约", link: "c-appointments" },
-    { id: "1", label: "座位预约记录", link: "seat-record" },
-    { id: "2", label: "空间预约记录", link: "area-record" },
-    { id: "6", label: "活动预约记录", link: "activity-record" },
-    { id: "10", label: "存书柜预约记录", link: "book-locker" },
+    // { id: "3", label: "常用预约", link: "c-appointments" },
+    // { id: "1", label: "座位预约记录", link: "seat-record" },
+    // { id: "2", label: "空间预约记录", link: "area-record" },
+    // { id: "6", label: "活动预约记录", link: "activity-record" },
+    // { id: "10", label: "存书柜预约记录", link: "book-locker" },
+    // { id: "14", label: "失物招领", link: "lostAndFound" },
+    { id: "3", label: "often_reservation", link: "c-appointments" },
+    { id: "1", label: "Seat_Reservation_Record", link: "seat-record" },
+    { id: "2", label: "Space_Reservation_Record", link: "area-record" },
+    { id: "6", label: "Activity_Appointmen_Record", link: "activity-record" },
+    { id: "10", label: "Bookcase_Appointment_Record", link: "book-locker" },
     { id: "14", label: "失物招领", link: "lostAndFound" },
   ],
   isShowDrawer: false,
@@ -130,7 +136,6 @@ const fetchMyInfo = async () => {
     const res = await getMyInfo();
     if (res.code === 0) {
       state.userInfo = res.data || {};
-
     }
     console.log(res);
   } catch (error) {
@@ -250,7 +255,6 @@ const fetchUpdateMyInfo = async (type) => {
       }
       store.dispatch("updateLoginInfo", state.userInfo);
     }
-
   } catch (error) {
     console.log(error);
   }
@@ -259,7 +263,7 @@ const fetchUpdateMyInfo = async (type) => {
 const unbindWx = () => {
   try {
     showConfirmDialog({
-      title: `提示`,
+      title: $t('V4_prompt'),
       message: `是否确认解绑微信登录？`,
     })
       .then(async () => {
@@ -289,7 +293,7 @@ const unbindWx = () => {
     <div class="userInfo">
       <div class="useHelp clickBox" @click="onHelp">
         <img class="helpSvg" src="@/assets/my/help.svg" alt="" />
-        <p class="helpTxt">使用与帮助</p>
+        <p class="helpTxt">{{ $t("user_assistance") }}</p>
         <img class="rightIcon" src="@/assets/my/rightIcon.svg" alt="" />
       </div>
       <div class="info">
@@ -300,7 +304,7 @@ const unbindWx = () => {
         </div>
 
         <div class="infoItem" style="border-top: 1px solid #f5f5f5">
-          <div class="itemLabel">手机号</div>
+          <div class="itemLabel">{{ $t("user_telphone") }}</div>
           <div v-if="!state.isEditMobile">
             <span>{{ state.userInfo?.mobile }}</span>
             <img
@@ -316,7 +320,7 @@ const unbindWx = () => {
                 :bordered="false"
                 style="text-align: right"
                 v-model:value="state.mobile"
-                placeholder="请输入手机号"
+                :placeholder="$t('Please_phone_number')"
               />
               <img
                 @click="state.isEditMobile = false"
@@ -334,7 +338,7 @@ const unbindWx = () => {
           </div>
         </div>
         <div class="infoItem">
-          <div class="itemLabel">邮箱</div>
+          <div class="itemLabel">{{ $t("user_email") }}</div>
           <div v-if="!state.isEditEmail">
             <span>{{ state.userInfo?.email }}</span>
             <img
@@ -350,7 +354,7 @@ const unbindWx = () => {
                 :bordered="false"
                 style="text-align: right"
                 v-model:value="state.email"
-                placeholder="请输入邮箱"
+                :placeholder="$t('Please_Enter_Email')"
               />
               <img
                 @click="state.isEditEmail = false"
@@ -371,19 +375,19 @@ const unbindWx = () => {
           </div> -->
         </div>
         <div class="infoItem">
-          <div class="itemLabel">学工号</div>
+          <div class="itemLabel">{{ $t("visitor_Student_ID") }}</div>
           <div class="itemRight">{{ state.userInfo?.id }}</div>
         </div>
         <div class="infoItem">
-          <div class="itemLabel">部门/专业</div>
+          <div class="itemLabel">{{ $t("dept") }}</div>
           <div class="itemRight">{{ state.userInfo?.deptName }}</div>
         </div>
         <div class="infoItem">
-          <div class="itemLabel">当前状态</div>
+          <div class="itemLabel">{{ $t("status") }}</div>
           <div class="itemRight">{{ userStatusText }}</div>
         </div>
         <div class="infoItem">
-          <div class="itemLabel">卡有效期</div>
+          <div class="itemLabel">{{ $t("Card_Validity") }}</div>
           <div class="itemRight">{{ state.userInfo?.date }}</div>
         </div>
         <div v-if="state.userInfo?.open_id" class="infoItem lastItem">
@@ -400,7 +404,7 @@ const unbindWx = () => {
             shape="round"
             block
             style="margin-right: 20px; color: #868686"
-            >退出登录</a-button
+            >{{ $t("menu_out") }}</a-button
           >
 
           <a-button
@@ -409,7 +413,7 @@ const unbindWx = () => {
             ghost
             block
             @click="onShowDrawer"
-            >修改密码</a-button
+            >{{ $t("user_changepassword") }}</a-button
           >
         </div>
       </div>
@@ -422,7 +426,7 @@ const unbindWx = () => {
             :class="{ activeNav: isRightActiveNav(item.link) }"
             @click="onChangeNav(item)"
           >
-            {{ item.label }}
+            {{ $t(item.label) ? $t(item.label) : item.label }}
           </div>
         </template>
         <!-- <div class="clickBox navItem">座位预约记录</div>
@@ -436,7 +440,7 @@ const unbindWx = () => {
   </div>
 
   <a-drawer
-    title="修改密码"
+    :title="$t('user_changepassword')"
     :open="state.isShowDrawer"
     @close="onClose"
     :closable="false"
@@ -449,28 +453,28 @@ const unbindWx = () => {
       :label-col="{ span: 6, offset: 1 }"
       :wrapper-col="{ span: 16 }"
     >
-      <a-form-item label="学工号：" name="studentId">
+      <a-form-item :label="$t('visitor_Student_ID') + ':'" name="studentId">
         <a-input
           v-model:value="formState.studentId"
-          placeholder="请输入学工号"
+          :placeholder="$t('V4_please_enter_your_student_ID')"
         />
       </a-form-item>
-      <a-form-item label="姓名：" name="name">
-        <a-input v-model:value="formState.name" placeholder="请输入您的姓名" />
+      <a-form-item :label="$t('user_name') + ':'" name="name">
+        <a-input v-model:value="formState.name" :placeholder="$t('user_inputname')" />
       </a-form-item>
-      <a-form-item label="原密码：" name="oldPassword">
+      <a-form-item :label="$t('user_oldpassword') + ':'" name="oldPassword">
         <a-input-password
           v-model:value="formState.oldPassword"
-          placeholder="请输入原密码"
+          :placeholder="$t('user_inputoldpassword')"
         />
       </a-form-item>
-      <a-form-item label="新密码：" name="newPassword">
+      <a-form-item :label="$t('user_newpassword') + ':'" name="newPassword">
         <a-input-password
           v-model:value="formState.newPassword"
-          placeholder="请输入新密码"
+          :placeholder="$t('V4_please_enter_the_new_password')"
         />
       </a-form-item>
-      <a-form-item label="确认密码：" name="confirmPassword">
+      <a-form-item :label="$t('user_conformpassword') + ':'" name="confirmPassword">
         <a-input-password
           v-model:value="formState.confirmPassword"
           placeholder="请再次输入新密码"
@@ -478,9 +482,9 @@ const unbindWx = () => {
       </a-form-item>
     </a-form>
     <template #extra>
-      <a-button class="cancel-button" @click="onHideDrawer">取消</a-button>
+      <a-button class="cancel-button" @click="onHideDrawer">{{ $t("cancel") }}</a-button>
       <a-button type="primary" class="confirm-button" @click="onSubmit"
-        >确认</a-button
+        >{{ $t("visitor_Confirm") }}</a-button
       >
     </template>
   </a-drawer>
@@ -576,7 +580,7 @@ const unbindWx = () => {
         }
       }
 
-      .lastItem{
+      .lastItem {
         border-bottom: none;
       }
       .actionBot {

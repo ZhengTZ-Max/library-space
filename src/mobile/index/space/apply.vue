@@ -894,10 +894,13 @@ const getDateStatus = () => {
       </div>
 
       <div class="select_time">
-        <div class="select_time_title">时间选择</div>
+        <div class="select_time_title">{{ $t("V4_time_selection") }}</div>
         <template v-if="state.spaceApplyInfo?.type_id == 5">
           <div class="select_time_desc">
-            点击您想要选择的日期<span>（可选择多天）</span>
+            {{ $t("V4_click_on_the_date_you_want_to_select")
+            }}<span>{{
+              "(" + $t("V4_multiple_days_can_be_selected") + ")"
+            }}</span>
           </div>
           <div class="calendar_box">
             <Calendar
@@ -908,7 +911,7 @@ const getDateStatus = () => {
             />
           </div>
           <div style="margin-top: 8px" class="timeStatus">
-            <span class="can_book">有预约:</span>
+            <span class="can_book">{{ $t("AppointmentExists" + ":") }}</span>
             <span class="allCir"></span>
             <span style="margin-right: 30px">全天</span>
             <span class="allCir topCir"></span>
@@ -917,7 +920,7 @@ const getDateStatus = () => {
           </div>
           <div v-if="state.spaceApplyInfo?.earlierPeriods == 0">
             <div class="selected_time_selected_text">
-              已选时间：
+              {{ $t("SelectedDate") + ":" }}
               <span v-if="state.selectDateInfo?.length"
                 >{{ showApplyDate() }}
               </span>
@@ -941,7 +944,7 @@ const getDateStatus = () => {
                   size="middle"
                   :showNow="false"
                   v-model:value="item.begin_time"
-                  placeholder="开始时间"
+                  :placeholder="$t('user_begintime')"
                   @change="(v) => onChangeTime(v, item, 'start', index)"
                 />
               </div>
@@ -958,7 +961,7 @@ const getDateStatus = () => {
                   size="middle"
                   :showNow="false"
                   v-model:value="item.end_time"
-                  placeholder="结束时间"
+                  :placeholder="$t('user_endtime')"
                   @change="(v) => onChangeTime(v, item, 'end', index)"
                 />
               </div>
@@ -984,7 +987,7 @@ const getDateStatus = () => {
             "
           >
             <div class="selected_time_selected_text">
-              已选时间：
+              {{ $t("SelectedDate") + ":" }}
               <span v-if="state.selectDateInfo?.length"
                 >{{ showApplyDate() }}
               </span>
@@ -1073,7 +1076,7 @@ const getDateStatus = () => {
               class="input_box"
               :bordered="false"
               v-model:value="state.addPeople"
-              placeholder="请输入学工号"
+              :placeholder="$t('V4_please_enter_your_student_ID')"
             />
             <img
               @click="addPeople"
@@ -1100,12 +1103,20 @@ const getDateStatus = () => {
         </a-row>
         <div class="right_top_right_text">
           <div v-if="state.addPeopleList?.length < 1">
-            还可添加{{ state.spaceApplyInfo?.maxPerson }}人
+            {{
+              $t("V4_can_still_add") +
+              state.spaceApplyInfo?.maxPerson +
+              " " +
+              $t("People")
+            }}
           </div>
           <div v-else>
-            还可添加{{
-              state.spaceApplyInfo?.maxPerson - state.addPeopleList?.length
-            }}人
+            {{
+              $t("V4_can_still_add") +
+              state.spaceApplyInfo?.maxPerson -
+              state.addPeopleList?.length +
+              $t("People")
+            }}
           </div>
         </div>
       </div>
@@ -1113,13 +1124,15 @@ const getDateStatus = () => {
       <div class="activity_info">
         <!-- 申请主题 -->
         <div class="activity_edit_info_item">
-          <div class="activity_edit_info_item_title">申请主题</div>
+          <div class="activity_edit_info_item_title">
+            {{ $t("V4_application_subject") }}
+          </div>
           <div>
             <a-input
               class="edit_input"
               :bordered="false"
               v-model:value="state.filterActivityTheme"
-              placeholder="请填写活动主题"
+              :placeholder="$t('please_enter')"
               size="small"
             />
           </div>
@@ -1128,13 +1141,15 @@ const getDateStatus = () => {
 
         <!-- 申请内容 -->
         <div class="activity_edit_info_item_textarea">
-          <div class="activity_edit_info_item_textarea_title">申请内容</div>
+          <div class="activity_edit_info_item_textarea_title">
+            {{ $t("Application_content") }}
+          </div>
           <a-textarea
             v-model:value="state.filterActivityContent"
             show-count
             class="edit_textarea"
             :bordered="false"
-            placeholder="请填写活动内容"
+            placeholder="请输入申请内容"
             :autoSize="{ minRows: 1, maxRows: 3 }"
             :maxlength="200"
           />
@@ -1142,23 +1157,27 @@ const getDateStatus = () => {
         <div class="drive_line" />
         <!-- 手机号 -->
         <div class="activity_edit_info_item">
-          <div class="activity_edit_info_item_title">联系电话</div>
+          <div class="activity_edit_info_item_title">
+            {{ $t("user_phone") }}
+          </div>
           <div>
             <a-input
               class="edit_input"
               :bordered="false"
               v-model:value="state.filterActivityMobile"
-              placeholder="请填写联系电话"
+              :placeholder="$t('Please_type_your_phone_number')"
               size="small"
             />
           </div>
         </div>
         <!-- 是否公开 -->
         <div class="activity_edit_info_item">
-          <div class="activity_edit_info_item_title">是否公开</div>
+          <div class="activity_edit_info_item_title">
+            {{ $t("Is_it_public") }}
+          </div>
           <a-radio-group v-model:value="state.isOpen">
-            <a-radio :value="0" :key="0">是</a-radio>
-            <a-radio :value="1" :key="1">否</a-radio>
+            <a-radio :value="0" :key="0">{{ $t("yes") }}</a-radio>
+            <a-radio :value="1" :key="1">{{ $t("no") }}</a-radio>
           </a-radio-group>
         </div>
       </div>
@@ -1168,7 +1187,7 @@ const getDateStatus = () => {
         v-if="state.spaceApplyInfo?.isMouldShow == 1"
       >
         <div class="upload_file_box_content">
-          <div class="upload_file_box_title">上传附件</div>
+          <div class="upload_file_box_title">{{ $t("UploadAttachments") }}</div>
           <Uploader
             class="margin_left_10"
             filePath="seminar"
@@ -1210,15 +1229,16 @@ const getDateStatus = () => {
     <div class="bottomAction_box">
       <van-button round block type="default" @click="router.go(-1)">
         <img src="@/assets/seat/moBackBtn.svg" alt="" />
-        返回
+        {{ $t("Return") }}
       </van-button>
+      <!-- 立即预约 -->
       <van-button
         :disabled="bottomBtnDisabled()"
         round
         block
         type="primary"
         @click="onSubmit"
-        >立即预约</van-button
+        >{{ $t("visitor_Reservation") }}</van-button
       >
     </div>
     <!-- 底部按钮 -->
@@ -1242,7 +1262,7 @@ const getDateStatus = () => {
             @click="state.spaceDetailInfoShow = false"
           >
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
-            返回
+            {{ $t("Return") }}
           </van-button>
         </div>
       </div>
@@ -1256,14 +1276,14 @@ const getDateStatus = () => {
     >
       <template v-slot:content>
         <div class="showArea">
-          <div class="tag">当前预约选择</div>
+          <div class="tag">{{ $t("V4_current_reservation_selection") }}</div>
           <div class="showCon">
             <div class="item">
               <p>
-                空间：<span>{{ showAreaName() || "" }}</span>
+                {{ $t("Space") + ":" }}<span>{{ showAreaName() || "" }}</span>
               </p>
               <p>
-                时间：<span>{{ showApplyDate() || "" }}</span>
+                {{ $t("Time") + ":" }}<span>{{ showApplyDate() || "" }}</span>
               </p>
             </div>
             <div v-if="showPeopleName()" class="item">
@@ -1285,17 +1305,17 @@ const getDateStatus = () => {
     >
       <template v-slot:content>
         <div class="toastItem">
-          <span>申请人：</span>
+          <span>{{ $t("V4_applicant") + ":" }}</span>
           <span>{{ state?.UserInfo?.name || "" }}</span>
         </div>
         <div class="toastItem">
-          <span>预约时间：</span>
+          <span>{{ $t("yuyue_time") + ":" }}</span>
           <span>
             <span>{{ showApplyDate() || "" }}</span>
           </span>
         </div>
         <div class="toastItem">
-          <span>预约地点：</span>
+          <span>{{ $t("Reservation_location") + ":" }}</span>
           <span>{{ showAreaName() || "" }}</span>
         </div>
         <div v-if="showPeopleName()" class="toastItem">
@@ -1303,7 +1323,7 @@ const getDateStatus = () => {
           <span>{{ showPeopleName() || "" }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
-          <span>预约提醒：</span>
+          <span>{{ $t("visitor_Reservation_Remind") + ":" }}</span>
           <span>{{ state.apptResult?.msg }}</span>
         </div>
       </template>

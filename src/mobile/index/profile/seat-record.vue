@@ -238,7 +238,7 @@ const fetchQuery = () => {
           v-if="state.data.length > 0"
           v-model:loading="state.loading"
           :finished="state.finished"
-          finished-text="没有更多了"
+          :finished-text="$t('No_more')"
           @load="onLoad"
         >
           <div
@@ -274,7 +274,7 @@ const fetchQuery = () => {
 
               <div v-if="item.status_name === '预约成功'">
                 <a-button type="primary" shape="round" size="small" block
-                  >取消</a-button
+                  >{{ $t("Cancel") }}</a-button
                 >
               </div>
             </div>
@@ -342,7 +342,7 @@ const fetchQuery = () => {
     <div v-if="state.quickMode == 3" class="query_result">
       <div class="query_result_info">
         <div class="query_result_info_item">
-          查询结果<span class="span_gray">(请点击查询)</span>
+          {{ $t("Query_Results") }}<span class="span_gray">(请点击查询)</span>
           <div class="margin10 query_result_info_item_text">
             本期(2024-01-22至2024-01-28)预约权限:<span>100</span>
           </div>
@@ -353,7 +353,7 @@ const fetchQuery = () => {
 
         <div class="filterCon">
           <div class="filterScr">
-            <div class="filterFilter">馆舍</div>
+            <div class="filterFilter">{{ $t("Library") }}</div>
             <div class="fiterItem">
               <a-radio-group v-model:value="state.filterRows.premiseID">
                 <a-radio
@@ -365,7 +365,7 @@ const fetchQuery = () => {
                 >
               </a-radio-group>
             </div>
-            <div class="filterFilter">楼层</div>
+            <div class="filterFilter">{{ $t("Floor") }}</div>
             <div class="fiterItem">
               <a-radio-group v-model:value="state.filterRows.categoryID">
                 <a-radio
@@ -377,7 +377,7 @@ const fetchQuery = () => {
                 >
               </a-radio-group>
             </div>
-            <div class="filterFilter">区域</div>
+            <div class="filterFilter">{{ $t("Area") }}</div>
             <div class="fiterItem">
               <a-radio-group v-model:value="state.filterRows.areaID">
                 <a-radio
@@ -394,7 +394,7 @@ const fetchQuery = () => {
       </div>
       <div style="margin: 15px 10px">
         <a-button type="primary" shape="round" block @click="fetchQuery"
-          >立即查询</a-button
+          >{{ $t("Visitor_query") }}</a-button
         >
       </div>
     </div>
@@ -415,7 +415,7 @@ const fetchQuery = () => {
             @click="state.showItemDetails = false"
           >
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
-            返回
+            {{ $t("Return") }}
           </van-button>
         </div>
       </div>

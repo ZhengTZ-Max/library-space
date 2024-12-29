@@ -25,9 +25,9 @@ const state = reactive({
   activeKey: "1",
 
   activeKeyList: [
-    { value: "1", label: "申请记录" },
+    { value: "1", label: "ApplicationRecord" },
     { value: "2", label: "报名记录" },
-    { value: "3", label: "草稿箱" },
+    { value: "3", label: "Drafts" },
   ],
   currentPage: 1,
   pageSize: 10,
@@ -149,7 +149,7 @@ const onClickItem = (id) => {
           :class="{ itemActive: item?.value == state.activeKey }"
           @click="state.activeKey = item?.value"
         >
-          {{ item?.label }}
+          {{ $t(item?.label) ? $t(item?.label) : item?.label }}
         </div>
       </div>
     </div>
@@ -160,7 +160,7 @@ const onClickItem = (id) => {
           v-if="state.data.length > 0"
           v-model:loading="state.loading"
           :finished="state.finished"
-          finished-text="没有更多了"
+          :finished-text="$t('No_more')"
           @load="onLoad"
         >
           <div

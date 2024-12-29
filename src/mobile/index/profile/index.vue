@@ -33,31 +33,31 @@ const state = reactive({
   rightNavs: [
     {
       id: "3",
-      label: "常用预约",
+      label: "often_reservation",
       link: "common",
       icon: OftenIcon,
     },
     {
       id: "1",
-      label: "座位预约记录",
+      label: "Seat_Reservation_Record",
       link: "seat-record",
       icon: SeatRecordIcon,
     },
     {
       id: "2",
-      label: "空间预约记录",
+      label: "Space_Reservation_Record",
       link: "area-record",
       icon: SpaceRecordIcon,
     },
     {
       id: "6",
-      label: "活动预约记录",
+      label: "Activity_Appointmen_Record",
       link: "activity-record",
       icon: ActivityRecordIcon,
     },
     {
       id: "10",
-      label: "存书柜预约记录",
+      label: "Bookcase_Appointment_Record",
       link: "book-locker",
       icon: BookLockerIcon,
     },
@@ -69,7 +69,7 @@ const state = reactive({
     },
     {
       id: "15",
-      label: "帮助与反馈",
+      label: "help_feedback",
       link: "feedback",
       icon: FeedBackIcon,
     },
@@ -80,13 +80,13 @@ const state = reactive({
   myInfoNavs: [
     {
       id: "16",
-      label: "个人信息",
+      label: "Personal_Information",
       link: "my-info",
       icon: MyInfoIcon,
     },
     {
       id: "17",
-      label: "修改密码",
+      label: "user_changepassword",
       link: "change-password",
       icon: ChangePasswordIcon,
     },
@@ -157,7 +157,7 @@ const goToLink = (link) => {
 const unbindWx = () => {
   try {
     showConfirmDialog({
-      title: `提示`,
+      title: $t('V4_prompt'),
       message: `是否确认解绑微信登录？`,
     })
       .then(async () => {
@@ -214,7 +214,7 @@ const unbindWx = () => {
           <van-cell
             v-for="item in state.filterRightNavs"
             :key="item.id"
-            :title="item.label"
+            :title="$t(item.label) ? $t(item.label) : item.label"
             :icon="item.icon"
             size="large"
             is-link
@@ -228,7 +228,7 @@ const unbindWx = () => {
           <van-cell
             v-for="item in state.myInfoNavs"
             :key="item.id"
-            :title="item.label"
+            :title="$t(item.label) ? $t(item.label) : item.label"
             :icon="item.icon"
             size="large"
             is-link
@@ -244,7 +244,7 @@ const unbindWx = () => {
         </template>
 
         <button class="footer-button" :class="{ 'w-100': !state.userInfo?.open_id }" @click="handleOut">
-          退出登录
+          {{ $t("menu_out") }}
         </button>
       </div>
     </div>

@@ -42,8 +42,8 @@ const state = reactive({
   quickDateList: [],
   quickMode: "1",
   quickModeList: [
-    { value: 0, label: "地图模式" },
-    { value: 1, label: "列表模式" },
+    { value: 0, label: "V4_map_view" },
+    { value: 1, label: "V4_list_view" },
   ],
   spaceList: [],
   floorList: [],
@@ -104,9 +104,9 @@ const initQuickDateList = (list) => {
     state.quickDateList = list?.map((e) => {
       let label = "";
       if (moment().format("YYYY-MM-DD") == e) {
-        label = "今天";
+        label = $t("today");
       } else if (exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == e) {
-        label = "明天";
+        label = $t("tomorrow");
       } else {
         label = exchangeDateTime(e, 4);
       }
@@ -289,7 +289,7 @@ const fetchInfo = async (id) => {
 
           <div class="filters activeBtn" @click="state.spaceFilterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            筛选
+            {{ $t("Screen") }}
           </div>
         </div>
       </div>
@@ -321,7 +321,8 @@ const fetchInfo = async (id) => {
                   <span>{{ item?.storeyName }}</span>
                 </div>
                 <div class="num">
-                  总数 <span>{{ item?.total_num || "-" }}</span> 空闲
+                  {{ $t("Total") }} <span>{{ item?.total_num || "-" }}</span>
+                  {{ $t("Avl") }}
                   <span>{{ item?.free_num || "-" }}</span>
                 </div>
                 <div class="actionApt">
@@ -336,7 +337,7 @@ const fetchInfo = async (id) => {
                     round
                     type="primary"
                     @click="handleAppt(item)"
-                    >预约</van-button
+                    >{{ $t("Reservation") }}</van-button
                   >
                 </div>
               </div>
@@ -396,14 +397,14 @@ const fetchInfo = async (id) => {
             @click="state.libraryInfoShow = false"
           >
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
-            返回
+            {{ $t("Return") }}
           </van-button>
           <van-button
             round
             block
             type="primary"
             @click="handleAppt(state.spaceInfo)"
-            >预约</van-button
+            >{{ $t("Reservation") }}</van-button
           >
         </div>
       </div>
@@ -431,10 +432,10 @@ const fetchInfo = async (id) => {
             type="default"
             @click="state.spaceFilterShow = false"
           >
-            取消
+            {{ $t("cancel") }}
           </van-button>
           <van-button round block type="primary" @click="handleFilter"
-            >确认</van-button
+            >{{ $t("visitor_Confirm") }}</van-button
           >
         </div>
       </div>

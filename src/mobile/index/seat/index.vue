@@ -158,7 +158,7 @@ const goToLink = (row) => {
                   class="rightBadge viewMore clickBox"
                   @click.stop="handleShowInfo(item)"
                 >
-                  <span> 查看详情 </span>
+                  <span> {{ $t("V4_view_details") }} </span>
                   <img src="@/assets/home/rightIconW.svg" alt="" />
                 </div>
                 <img class="cardItemImg" :src="item?.firstImg" alt="" />
@@ -172,11 +172,11 @@ const goToLink = (row) => {
                   /> -->
                   <div class="bottomItem">
                     <div class="num">
-                      <span>空闲{{ item?.free_num || "-" }}</span>
-                      <span>/总数{{ item?.total_num || "-" }}</span>
+                      <span>{{ $t("Avl") + ":" + item?.free_num || "-" }}</span>
+                      <span>/{{ $t("Total") + ":" + item?.total_num || "-" }}</span>
                     </div>
                     <div class="action" @click="goToLink(item)">
-                      <span>预约</span>
+                      <span>{{ $t("Reservation") }}</span>
                       <img src="@/assets/home/rightIconW.svg" alt="" />
                     </div>
                   </div>
@@ -204,10 +204,10 @@ const goToLink = (row) => {
             @click="state.libraryInfoShow = false"
           >
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
-            返回
+            {{ $t("Return") }}
           </van-button>
           <van-button round block type="primary" @click="goToLink"
-            >预约</van-button
+            >{{ $t("Reservation") }}</van-button
           >
         </div>
       </div>

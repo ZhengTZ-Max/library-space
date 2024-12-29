@@ -107,13 +107,13 @@ const fetchUpdateMyInfo = async () => {
   <div class="my-info">
     <div class="top_info" :class="{ height_calc: state.isEdit }">
       <div class="mobile_email_info">
-        <div class="mobile_email_title">手机号</div>
+        <div class="mobile_email_title">{{ $t("user_telphone") }}</div>
 
         <div style="display: flex">
           <a-input
             v-model:value="state.mobile"
             :bordered="false"
-            placeholder="请输入手机号"
+            :placeholder="$t('Please_phone_number')"
             class="mobile_email_input"
             :disabled="!state.isEdit"
             size="small"
@@ -128,13 +128,13 @@ const fetchUpdateMyInfo = async () => {
       </div>
       <div class="divider"></div>
       <div class="mobile_email_info">
-        <div class="mobile_email_title">邮箱</div>
+        <div class="mobile_email_title">{{ $t("user_email") }}</div>
 
         <div style="display: flex">
           <a-input
             v-model:value="state.email"
             :bordered="false"
-            placeholder="请输入邮箱"
+            :placeholder="$t('Please_Enter_Email')"
             class="mobile_email_input"
             :disabled="!state.isEdit"
             size="small"
@@ -150,22 +150,22 @@ const fetchUpdateMyInfo = async () => {
       <van-cell-group>
         <van-cell
           class="info_item"
-          title="学工号"
+          :title="$t('visitor_Student_ID')"
           :value="state.userInfo?.card"
         />
         <van-cell
           class="info_item"
-          title="部门/专业"
+          :title="$t('dept')"
           :value="state.userInfo?.deptName"
         />
         <van-cell
           class="info_item"
-          title="当前状态"
+          :title="$t('status')"
           :value="state.status"
         />
         <van-cell
           class="info_item"
-          title="卡有效期"
+          :title="$t('Card_Validity')"
           :value="state.userInfo?.date"
         />
       </van-cell-group>
@@ -177,9 +177,11 @@ const fetchUpdateMyInfo = async () => {
     <div class="bottomAct" v-if="state.isEdit">
       <van-button round block type="default" @click="router.go(-1)">
         <img src="@/assets/seat/moBackBtn.svg" alt="" />
-        返回
+        {{ $t("Return") }}
       </van-button>
-      <van-button round block type="primary" @click="onApply">提交</van-button>
+      <van-button round block type="primary" @click="onApply">
+        {{ $t("Submit") }}
+      </van-button>
     </div>
   </div>
 </template>

@@ -136,7 +136,7 @@ const handleFilter = () => {
         <div class="rightAction">
           <div class="filters activeBtn" @click="state.BookFilterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            筛选
+            {{ $t("Screen") }}
           </div>
         </div>
       </div>
@@ -173,7 +173,8 @@ const handleFilter = () => {
                   <span>{{ item?.storeyName }}</span>
                 </div>
                 <div class="num">
-                  总数 <span>{{ item?.total_num || "-" }}</span> 空闲
+                  {{ $t("Total") }} <span>{{ item?.total_num || "-" }}</span>
+                  {{ $t("Avl") }}
                   <span>{{ item?.free_num || "-" }}</span>
                 </div>
                 <div class="actionApt">
@@ -186,7 +187,7 @@ const handleFilter = () => {
                     round
                     type="primary"
                     @click="handleAppt(item)"
-                    >预约</van-button
+                    >{{ $t('visitor_Reservation') }}</van-button
                   >
                 </div>
               </div>
@@ -219,10 +220,10 @@ const handleFilter = () => {
             type="default"
             @click="state.BookFilterShow = false"
           >
-            取消
+            {{ $t('visitor_Cancel') }}
           </van-button>
           <van-button round block type="primary" @click="handleFilter"
-            >确认</van-button
+            >{{ $t('visitor_Confirm') }}</van-button
           >
         </div>
       </div>

@@ -81,7 +81,7 @@ const handleShowInfo = (item) => {};
           v-if="state.libraryList?.length > 0"
           v-model:loading="state.loading"
           :finished="state.finished"
-          finished-text="没有更多了"
+          :finished-text="$t('No_more')"
           @load="onLoad"
         >
           <div class="librarySlt">
@@ -94,7 +94,7 @@ const handleShowInfo = (item) => {};
                         class="rightBadge viewMore clickBox"
                         @click.stop="handleShowInfo(item)"
                       >
-                        <span> 查看详情 </span>
+                        <span> {{ $t("V4_view_details") }} </span>
                         <img src="@/assets/home/rightIconW.svg" alt="" />
                       </div>
                       <img class="cardItemImg" :src="item?.firstImg" alt="" />
@@ -103,10 +103,10 @@ const handleShowInfo = (item) => {};
 
                         <div class="bottomItem">
                           <div class="num">
-                            <span>空间总数{{ item?.total || "-" }}</span>
+                            <span>{{ $t("V4_total_spaces")  + item?.total || "-" }}</span>
                           </div>
                           <div class="action" @click="goToLink(item)">
-                            <span>预约</span>
+                            <span>{{ $t("Reservation") }}</span>
                             <img src="@/assets/home/rightIconW.svg" alt="" />
                           </div>
                         </div>

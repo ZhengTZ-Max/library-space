@@ -756,19 +756,21 @@ const onViewRule = () => {
       </div>
     </div>
     <div class="select_time">
-      <div class="select_time_title">时间选择</div>
+      <div class="select_time_title">{{ $t("V4_time_selection") }}</div>
       <div class="select_time_desc">
-        点击您想要选择的日期<span>（可选择多天）</span>
+        {{ $t("V4_click_on_the_date_you_want_to_select")
+        }}<span>{{ "(" + $t("V4_multiple_days_can_be_selected") + ")" }}</span>
       </div>
       <div class="calendar_box">
         <Calendar :calendarInfo="state.calendarInfo" @onSelected="onSelected" />
       </div>
-      <span class="can_book">有预约:</span>
+      <span class="can_book">{{ $t("AppointmentExists") + ":" }}</span>
       <div
         class="selected_time_selected_text"
         v-if="state.selectDateInfo.length"
       >
-        已选时间：<span v-if="state.selectSlideShow"
+        {{ $t("SelectedDate") + ":"
+        }}<span v-if="state.selectSlideShow"
           >{{ exchangeDateTime(state.selectDateInfo[0], 2) }}
         </span>
         <span v-if="state.selectChooseTime"
@@ -801,7 +803,7 @@ const onViewRule = () => {
             :minuteStep="state.chooseTimeConfig.step"
             v-model:value="item.begin_time"
             :disabledTime="onDisabledTime"
-            placeholder="开始时间"
+            :placeholder="$t('user_begintime')"
             @change="(v) => onChangeTime(v, item, 'start', index)"
           />
         </div>
@@ -818,7 +820,7 @@ const onViewRule = () => {
             :minuteStep="state.chooseTimeConfig.step"
             v-model:value="item.end_time"
             :disabledTime="onDisabledTime"
-            placeholder="结束时间"
+            :placeholder="$t('user_endtime')"
             @change="(v) => onChangeTime(v, item, 'end', index)"
           />
         </div>
@@ -842,7 +844,7 @@ const onViewRule = () => {
       <!-- 类型 -->
       <div class="activity_edit_info_item">
         <div class="activity_edit_info_item_title">
-          <span class="required">*</span>活动类型
+          <span class="required">*</span>{{ $t('ActivityType')}}
         </div>
         <div>
           <a-radio-group v-model:value="state.filterActivityTypeId">
@@ -861,7 +863,7 @@ const onViewRule = () => {
       <template v-if="filterArguments('title')">
         <div class="activity_edit_info_item">
           <div class="activity_edit_info_item_title">
-            <span class="required">*</span>申请主题
+            <span class="required">*</span>{{ $t('V4_application_subject') }}
           </div>
           <div>
             <a-input
@@ -879,7 +881,7 @@ const onViewRule = () => {
         <!-- 申请内容 -->
         <div class="activity_edit_info_item_textarea">
           <div class="activity_edit_info_item_textarea_title">
-            <span class="required">*</span>申请内容
+            <span class="required">*</span>{{ $t('Application_content') }}
           </div>
           <a-textarea
             v-model:value="state.filterActivityContent"
@@ -917,14 +919,14 @@ const onViewRule = () => {
         <!-- 手机号 -->
         <div class="activity_edit_info_item">
           <div class="activity_edit_info_item_title">
-            <span class="required">*</span>联系电话
+            <span class="required">*</span>{{ $t('user_phone') }}
           </div>
           <div>
             <a-input
               class="edit_input"
               :bordered="false"
               v-model:value="state.filterActivityMobile"
-              placeholder="请填写联系电话"
+              :placeholder="$t('Please_type_your_phone_number')"
               size="small"
             />
           </div>
@@ -934,12 +936,12 @@ const onViewRule = () => {
 
     <!-- 文件上传 -->
     <div class="file_upload">
-      <div class="file_upload_text">上传活动资料</div>
+      <div class="file_upload_text">{{ $t('V4_upload_event_materials') }}</div>
 
       <!-- 活动海报 -->
       <template v-if="filterArguments('poster')">
         <div class="item_for_file_title">
-          <div><span style="color: red">*</span>活动海报</div>
+          <div><span style="color: red">*</span>{{ $t('V4_event_poster') }}</div>
 
           <Uploader
             :initFileList="state.initApprove"
@@ -950,7 +952,7 @@ const onViewRule = () => {
             accept=".png, .jpg, .jpeg"
             list-type="picture"
           >
-            <div class="item_for_file_title_right_upload">+图片</div>
+            <div class="item_for_file_title_right_upload">{{ '+' + $t('photo') }}</div>
           </Uploader>
         </div>
         <div v-if="state.poster.length > 0" class="item_for_file_content">
@@ -979,7 +981,7 @@ const onViewRule = () => {
       <!-- 审批附件 -->
       <template v-if="filterArguments('approve')">
         <div class="item_for_file_title">
-          <div><span style="color: red">*</span>审批附件</div>
+          <div><span style="color: red">*</span>{{ $t('V4_approval_attachments')}}</div>
 
           <Uploader
             :initFileList="state.initApprove"
@@ -1019,7 +1021,7 @@ const onViewRule = () => {
       <!-- 宣传片 -->
       <template v-if="filterArguments('publicize')">
         <div class="item_for_file_title">
-          <div>宣传片</div>
+          <div>{{ $t('V4_promotional_video') }}</div>
 
           <Uploader
             :initFileList="state.initApprove"
@@ -1030,7 +1032,7 @@ const onViewRule = () => {
             accept=".png, .jpg, .jpeg"
             list-type="picture"
           >
-            <div class="item_for_file_title_right_upload">+视频</div>
+            <div class="item_for_file_title_right_upload">{{ '+' + $t('video') }}</div>
           </Uploader>
         </div>
         <div v-if="state.publicize.length > 0" class="item_for_file_content">
@@ -1058,7 +1060,7 @@ const onViewRule = () => {
       <!-- 活动策划案 -->
       <template v-if="filterArguments('plan')">
         <div class="item_for_file_title">
-          <div><span style="color: red">*</span>活动策划案</div>
+          <div><span style="color: red">*</span>{{ $t('V4_event_plan') }}</div>
 
           <Uploader
             filePath="activity"
@@ -1146,10 +1148,10 @@ const onViewRule = () => {
     <div class="bottomAction_box">
       <van-button round block type="default" @click="router.go(-1)">
         <img src="@/assets/seat/moBackBtn.svg" alt="" />
-        返回
+        {{ $t('visitor_Return') }}
       </van-button>
       <van-button round block type="primary" @click="onSubmit"
-        >立即申请</van-button
+        >{{ $t('V4_apply_now') }}</van-button
       >
     </div>
 
@@ -1172,7 +1174,7 @@ const onViewRule = () => {
             @click="state.activityDetailInfoShow = false"
           >
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
-            返回
+            {{ $t('Return') }}
           </van-button>
         </div>
       </div>
@@ -1187,19 +1189,19 @@ const onViewRule = () => {
     >
       <template v-if="state.ruleInfo?.type != 'swiper'" v-slot:content>
         <div class="showArea">
-          <div class="tag">当前预约选择</div>
+          <div class="tag">{{ $t('V4_current_reservation_selection') }}</div>
           <div class="showCon">
             <div class="item">
               <p>
-                空间：<span>{{ showAreaName() }}</span>
+                {{ $t('Space') + '：'}}<span>{{ showAreaName() }}</span>
               </p>
               <p>
-                类型：<span>{{ showAreaType() }}</span>
+                {{ $t('type') + '：'}}<span>{{ showAreaType() }}</span>
               </p>
             </div>
             <div class="item">
               <p>
-                日期：<span
+                {{ $t('Date') + '：'}}<span
                   >{{
                     state.selectDateInfo?.length == 2
                       ? `${exchangeDateTime(
@@ -1211,12 +1213,12 @@ const onViewRule = () => {
                 </span>
               </p>
               <p>
-                人数：<span>≤{{ state.filterActivityMaxPeople || "" }}</span>
+                {{ $t('Number_Of_People') + '：'}}<span>≤{{ state.filterActivityMaxPeople || "" }}</span>
               </p>
             </div>
             <div class="item">
               <p>
-                时间：<span>{{ showAreaTimes() }}</span>
+                {{ $t('Time') + '：'}}<span>{{ showAreaTimes() }}</span>
               </p>
             </div>
           </div>
@@ -1233,19 +1235,19 @@ const onViewRule = () => {
     >
       <template v-slot:content>
         <div class="toastItem">
-          <span>申请人：</span>
+          <span>{{ $t('Applicant') + '：' }}</span>
           <span>{{ state.apptResult?.userName || "" }}</span>
         </div>
         <div class="toastItem">
-          <span>预约时间：</span>
+          <span>{{ $t('user_booktime') + '：' }}</span>
           <span>{{ state.apptResult?.time || "" }}</span>
         </div>
         <div class="toastItem">
-          <span>预约地点：</span>
+          <span>{{ $t('Reservation_location') + '：' }}</span>
           <span>{{ state.apptResult?.location || "" }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
-          <span>预约提醒：</span>
+          <span>{{ $t('V4_appointment_reminder') + '：' }}</span>
           <span>{{ state.apptResult?.msg }}</span>
         </div>
       </template>
@@ -1253,13 +1255,13 @@ const onViewRule = () => {
 
     <van-dialog
       v-model:show="state.draftShow"
-      title="提示"
+      :title="$t('V4_prompt')"
       message-align="center"
       show-cancel-button
       @cancel="state.draftShow = false"
       @confirm="() => onSubmit('draft')"
-      confirmButtonText="保存"
-      cancelButtonText="不保存"
+      :confirmButtonText="$t('user_submit')"
+      :cancelButtonText="$t('visitor_Cancel')"
       cancelButtonColor="#808080"
     >
       <div

@@ -95,7 +95,7 @@ const onCancel = async () => {
               state.propsData.status === '11' ||
               state.propsData.status === '33',
           }"
-          title="预约状态"
+          :title="$t('Status')"
           :value="state.propsData.status_name"
         />
 
@@ -117,33 +117,33 @@ const onCancel = async () => {
               state.propsData.status_name === '状态异常',
             info_item_status_orange: state.propsData.status === '3',
           }"
-          title="预约状态"
+          :title="$t('Status')"
           :value="state.propsData.status_name"
         />
 
         <van-cell
           class="info_item"
-          title="预约用户"
+          :title="$t('yuyue_username')"
           :value="state.UserInfo.name + ' (' + state.UserInfo.id + ')'"
         />
         <van-cell
           class="info_item"
-          title="预约时间"
+          :title="$t('yuyue_time')"
           :value="state.propsData.examTime"
         />
         <van-cell
           class="info_item"
-          title="开始时间"
+          :title="$t('user_begintime')"
           :value="state.propsData.beginTime"
         />
         <van-cell
           class="info_item"
-          title="结束时间"
+          :title="$t('user_endtime')"
           :value="state.propsData.endTime"
         />
         <van-cell
           class="info_item"
-          title="预约地点"
+          :title="$t('Reservation_location')"
           :value="state.propsData.nameMerge"
         />
         <van-cell
@@ -180,7 +180,7 @@ const onCancel = async () => {
       "
     >
       <a-button shape="round" block class="cancel_btn" @click="onCancel"
-        >取消预约</a-button
+        >{{ $t("cancelappointment") }}</a-button
       >
     </div>
   </div>

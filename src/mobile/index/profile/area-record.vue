@@ -22,8 +22,8 @@ const router = useRouter();
 const state = reactive({
   activeKey: "1",
   activeKeyList: [
-    { value: "1", label: "普通空间" },
-    { value: "2", label: "大型空间" },
+    { value: "1", label: "V4_regular_space" },
+    { value: "2", label: "H_Room_Large" },
   ],
   UserInfo: getUserInfo(),
   currentPage: 1,
@@ -33,7 +33,7 @@ const state = reactive({
 
   quickMode: 1,
   quickModeList: [
-    { value: 1, label: "预约记录" },
+    { value: 1, label: "visitor_Reservation_List" },
     { value: 2, label: "违约记录" },
   ],
   status_name: "预约成功",
@@ -171,7 +171,7 @@ const onClickItem = (item) => {
           :class="{ itemActive: item?.value == state.activeKey }"
           @click="state.activeKey = item?.value"
         >
-          {{ item?.label }}
+          {{ $t(item?.label) ? $t(item?.label) : item?.label }}
         </div>
       </div>
     </div>
@@ -183,7 +183,7 @@ const onClickItem = (item) => {
         :class="{ itemActive: item?.value == state.quickMode }"
         @click="onChangeQMode(item)"
       >
-        {{ item?.label }}
+        {{ $t(item?.label) ? $t(item?.label) : item?.label }}
       </div>
     </div>
 
@@ -193,7 +193,7 @@ const onClickItem = (item) => {
           v-if="state.data.length > 0"
           v-model:loading="state.loading"
           :finished="state.finished"
-          finished-text="没有更多了"
+          :finished-text="$t('No_more')"
           @load="onLoad"
         >
           <div
@@ -212,7 +212,7 @@ const onClickItem = (item) => {
 
               <div v-if="item.status_name === '预约成功'">
                 <a-button type="primary" shape="round" size="small" block
-                  >取消</a-button
+                  >{{ $t('cancel') }}</a-button
                 >
               </div>
             </div>
@@ -264,7 +264,7 @@ const onClickItem = (item) => {
             @click="state.showItemDetails = false"
           >
             <!-- <img src="@/assets/seat/moBackBtn.svg" alt="" /> -->
-            确定
+            {{ $t('ok') }}
           </van-button>
         </div>
       </div>

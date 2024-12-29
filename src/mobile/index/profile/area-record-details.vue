@@ -35,34 +35,34 @@ onMounted(() => {
               state.propsData.status_name === '预约待审核',
             info_item_status_blue: state.propsData.status_name === '使用中',
           }"
-          title="预约状态"
+          :title="$t('Status')"
           :value="state.propsData.status_name"
         />
         <van-cell
           class="info_item"
-          title="预约用户"
+          :title="$t('yuyue_username')"
           :value="
             state.propsData.member_name + ' (' + state.propsData.member_id + ')'
           "
         />
         <van-cell
           class="info_item"
-          title="预约时间"
+          :title="$t('yuyue_time')"
           :value="state.propsData.create_time"
         />
         <van-cell
           class="info_item"
-          title="开始时间"
+          :title="$t('user_begintime')"
           :value="state.propsData.begin_time"
         />
         <van-cell
           class="info_item"
-          title="结束时间"
+          :title="$t('user_endtime')"
           :value="state.propsData.end_time"
         />
         <van-cell
           class="info_item"
-          title="预约地点"
+          :title="$t('Reservation_location')"
           :value="state.propsData.nameMerge"
         />
         <van-cell
@@ -73,7 +73,7 @@ onMounted(() => {
       </van-cell-group>
       <!-- 全部成员 -->
       <div class="all_member">
-        <div>全部成员</div>
+        <div>{{ $t('All_Members') }}</div>
         <div class="right_value">
           <div v-for="member in state.propsData.teams" :key="member.member_id">
             <span :class="{ isMySelf: member.member_id === state.UserInfo.id }"

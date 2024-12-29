@@ -123,14 +123,14 @@ const onSelectDate = (item) => {
               :class="{ langActive: state.quickMode == 1 }"
               @click="onChangeQMode(1)"
             >
-              图片
+            {{ $t('photo') }}
             </div>
             <div
               class="langItem activeBtn"
               :class="{ langActive: state.quickMode == 2 }"
               @click="onChangeQMode(2)"
             >
-              视频
+            {{ $t('video') }}
             </div>
           </div>
         </div>
@@ -142,23 +142,23 @@ const onSelectDate = (item) => {
               alt=""
               class="background-image"
             />
-            <span class="share-text" @click="state.onShare = true">分享</span>
+            <span class="share-text" @click="state.onShare = true">{{ $t('V4_share') }}</span>
           </div>
         </div>
       </div>
 
       <div class="item">
-        <div class="item_left">活动状态</div>
+        <div class="item_left">{{ $t('activity_status') }}</div>
         <div class="item_right">{{ state.selectedDetails?.status_name }}</div>
       </div>
       <a-divider />
       <div class="item">
-        <div class="item_left">活动名称</div>
+        <div class="item_left">{{ $t('user_activityname') }}</div>
         <div class="item_right">{{ state.selectedDetails?.title }}</div>
       </div>
       <a-divider />
       <div class="item_data_time">
-        <div class="item_left">活动日期</div>
+        <div class="item_left">{{ $t('activity_Date') }}</div>
         <div class="date-options">
           <div
             v-for="(item, index) in state.selectedDetails.time"
@@ -178,7 +178,7 @@ const onSelectDate = (item) => {
       </div>
       <a-divider />
       <div class="item_data_time">
-        <div class="item_left">活动时间</div>
+        <div class="item_left">{{ $t('user_activitytime') }}</div>
         <div class="time-options">
           <div
             v-for="(item, index) in state.selectedTimeList"
@@ -194,17 +194,17 @@ const onSelectDate = (item) => {
       </div>
       <a-divider />
       <div class="item">
-        <div class="item_left">报名人数</div>
+        <div class="item_left">{{ $t('Enrollment_quantity') }}</div>
         <div class="item_right">xxx</div>
       </div>
       <a-divider />
       <div class="item">
-        <div class="item_left">活动地点</div>
+        <div class="item_left">{{ $t('user_activityplace') }}</div>
         <div class="item_right">{{ state.selectedDetails?.nameMerge }}</div>
       </div>
       <a-divider />
       <div class="item_description">
-        <div class="item_top">活动介绍</div>
+        <div class="item_top">{{ $t('Activity_Introduction') }}</div>
         <div class="item_bottom">
           {{ state.selectedDetails?.content }}
         </div>
@@ -228,7 +228,7 @@ const onSelectDate = (item) => {
     </div>
 
     <div class="bottom_info_btn" v-if="state.selectedDetails?.status_name == '报名成功'">
-      <a-button shape="round" block class="cancel_btn">取消报名</a-button>
+      <a-button shape="round" block class="cancel_btn">{{ $t('Cancel_Enrollment') }}</a-button>
     </div>
 
     <van-dialog

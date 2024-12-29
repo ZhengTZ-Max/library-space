@@ -176,14 +176,14 @@ const filterFileUpload = (files) => {
               :class="{ langActive: state.quickMode == 1 }"
               @click="onChangeQMode(1)"
             >
-              图片
+              {{ $t('photo') }}
             </div>
             <div
               class="langItem activeBtn"
               :class="{ langActive: state.quickMode == 2 }"
               @click="onChangeQMode(2)"
             >
-              视频
+              {{ $t('video') }}
             </div>
           </div>
         </div>
@@ -195,19 +195,19 @@ const filterFileUpload = (files) => {
               alt=""
               class="background-image"
             />
-            <span class="share-text" @click="state.onShare = true">分享</span>
+            <span class="share-text" @click="state.onShare = true">{{ $t('V4_share') }}</span>
           </div>
         </div>
       </div>
 
       <div class="item">
-        <div class="item_left">活动状态</div>
+        <div class="item_left">{{ $t('activity_status') }}</div>
         <div class="item_right">{{ state.selectedDetails?.status_name }}</div>
       </div>
       <a-divider />
       <div class="item_can_edit">
         <div class="item_can_edit_top">
-          <div>活动名称</div>
+          <div>{{ $t('user_activityname') }}</div>
           <div class="item_can_edit_right">
             <div class="item_right">{{ state.selectedDetails?.title }}</div>
             <div
@@ -221,7 +221,7 @@ const filterFileUpload = (files) => {
       </div>
       <a-divider />
       <div class="item">
-        <div class="item_left">活动日期</div>
+        <div class="item_left">{{ $t('activity_Date') }}</div>
         <div class="item_right">
           {{ state.selectedDetails?.begin_date }} ~
           {{ state.selectedDetails?.end_date }}
@@ -229,7 +229,7 @@ const filterFileUpload = (files) => {
       </div>
       <a-divider />
       <div class="item">
-        <div class="item_left">活动时间</div>
+        <div class="item_left">{{ $t('user_activitytime') }}</div>
         <div class="item_right">
           {{ state.selectedDetails?.begin_time }} ~
           {{ state.selectedDetails?.end_time }}
@@ -237,18 +237,18 @@ const filterFileUpload = (files) => {
       </div>
       <a-divider />
       <div class="item">
-        <div class="item_left">可报名人数</div>
+        <div class="item_left">{{ $t('Number_of_registrations') }}</div>
         <div class="item_right">{{ state.selectedDetails?.max }}</div>
       </div>
       <a-divider />
       <div class="item">
-        <div class="item_left">活动地点</div>
+        <div class="item_left">{{ $t('user_activityplace') }}</div>
         <div class="item_right">{{ state.selectedDetails?.nameMerge }}</div>
       </div>
       <a-divider />
       <div class="item_can_edit">
         <div class="item_can_edit_top">
-          <div class="item_comments_left">活动介绍</div>
+          <div class="item_comments_left">{{ $t('Activity_Introduction') }}</div>
           <div
             v-if="state.isEdit"
             class="item_can_edit_right"
@@ -265,7 +265,7 @@ const filterFileUpload = (files) => {
       <!-- 不可编辑 文件列表 -->
       <div v-if="!state.isEdit">
         <div class="item_for_file" v-if="state.selectedDetails?.approve">
-          <div class="item_for_file_title">审批附件</div>
+          <div class="item_for_file_title">{{ $t('V4_approval_attachments') }}</div>
           <div class="item_for_file_content">
             <van-image
               style="width: 45px; height: 45px"
@@ -284,7 +284,7 @@ const filterFileUpload = (files) => {
         </div>
         <a-divider />
         <div class="item_for_file" v-if="state.selectedDetails?.plan">
-          <div class="item_for_file_title">活动策划案</div>
+          <div class="item_for_file_title">{{ $t('V4_event_plan') }}</div>
           <div class="item_for_file_content">
             <van-image
               style="width: 45px; height: 45px"
@@ -308,7 +308,7 @@ const filterFileUpload = (files) => {
         <!-- 活动海报 -->
         <div class="item_for_file">
           <div class="item_for_file_title">
-            <div><span style="color: red">*</span>活动海报</div>
+            <div><span style="color: red">*</span>{{ $t('V4_event_poster') }}</div>
             <Uploader
               :initFileList="state.poster"
               filePath="activity"
@@ -318,7 +318,7 @@ const filterFileUpload = (files) => {
               accept=".png, .jpg, .jpeg"
               list-type="picture"
             >
-              <div class="item_for_file_title_right_upload">+图片</div>
+              <div class="item_for_file_title_right_upload">{{'+' + $t('photo') }}</div>
             </Uploader>
           </div>
           <div class="item_for_file_content" v-if="state.poster.length > 0">
@@ -346,7 +346,7 @@ const filterFileUpload = (files) => {
         <!-- 审批附件 -->
         <div class="item_for_file">
           <div class="item_for_file_title">
-            <div><span style="color: red">*</span>审批附件</div>
+            <div><span style="color: red">*</span>{{ $t('V4_approval_attachments') }}</div>
             <Uploader
               :initFileList="state.approve"
               filePath="activity"
@@ -384,7 +384,7 @@ const filterFileUpload = (files) => {
         <!-- 宣传片 -->
         <div class="item_for_file">
           <div class="item_for_file_title">
-            <div>宣传片</div>
+            <div>{{ $t('V4_promotional_video') }}</div>
             <Uploader
               :initFileList="state.plan"
               filePath="activity"
@@ -394,7 +394,7 @@ const filterFileUpload = (files) => {
               accept=".mp4,.mov"
               list-type="picture"
             >
-              <div class="item_for_file_title_right_upload">+视频</div>
+              <div class="item_for_file_title_right_upload">{{'+' + $t('video') }}</div>
             </Uploader>
           </div>
           <div class="item_for_file_content" v-if="state.plan.length > 0">
@@ -422,7 +422,7 @@ const filterFileUpload = (files) => {
         <!-- 活动策划案 -->
         <div class="item_for_file">
           <div class="item_for_file_title">
-            <div><span style="color: red">*</span>活动策划案</div>
+            <div><span style="color: red">*</span>{{ $t('V4_event_plan') }}</div>
             <Uploader
               :initFileList="state.plan"
               filePath="activity"
@@ -511,7 +511,7 @@ const filterFileUpload = (files) => {
     </div>
     <div class="bottomAct" v-if="state.isEdit">
       <van-button round block type="default" @click="state.isEdit = false"
-        >取消</van-button
+        >{{ $t('cancel') }}</van-button
       >
       <van-button round block type="primary" @click="submitEdit"
         >提交修改</van-button
@@ -520,7 +520,7 @@ const filterFileUpload = (files) => {
 
     <van-dialog
       v-model:show="state.onShowTextAreaForName"
-      title="活动名称"
+      :title="$t('user_activityname')"
       message-align="center"
       show-cancel-button
     >
@@ -534,7 +534,7 @@ const filterFileUpload = (files) => {
     </van-dialog>
     <van-dialog
       v-model:show="state.onShowTextAreaForDescription"
-      title="活动介绍"
+      :title="$t('Activity_Introduction')"
       message-align="center"
       show-cancel-button
     >

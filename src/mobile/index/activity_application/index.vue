@@ -161,7 +161,7 @@ const onShowRule = () => {
           v-if="state.applicationList.length > 0"
           v-model:loading="state.loading"
           :finished="state.finished"
-          finished-text="没有更多了"
+          :finished-text="$t('No_more')"
           @load="onLoad"
         >
           <div
@@ -200,12 +200,12 @@ const onShowRule = () => {
                   </div>
                 </a-flex>
                 <div class="num">
-                  <span>可容纳人数</span>
-                  <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} 人</span>
+                  <span>{{ $t('Capacity_Capacity') }}</span>
+                  <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} {{ $t('People') }}</span>
                 </div>
 
                 <div class="action">
-                  <span @click="handleShowInfo(item)">查看详情 ></span>
+                  <span @click="handleShowInfo(item)">{{ $t('V4_view_details') }} ></span>
 
                   <van-button
                     plain
@@ -215,7 +215,7 @@ const onShowRule = () => {
                     size="mini"
                     style="padding: 4px 15px; font-size: 12px"
                     @click="onApply(item?.id)"
-                    >申请</van-button
+                    >{{ $t('V4_apply') }}</van-button
                   >
                 </div>
               </van-col>
@@ -249,10 +249,10 @@ const onShowRule = () => {
             type="default"
             @click="state.filterShow = false"
           >
-            取消
+            {{ $t('cancel') }}
           </van-button>
           <van-button round block type="primary" @click="handleFilter"
-            >确认</van-button
+            >{{ $t('visitor_Confirm') }}</van-button
           >
         </div>
       </div>
@@ -273,14 +273,14 @@ const onShowRule = () => {
             @click="state.activityInfoShow = false"
           >
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
-            返回
+            {{ $t('Return') }}
           </van-button>
           <van-button
             round
             block
             type="primary"
             @click="onApply(state.activityInfo?.id)"
-            >预约</van-button
+            >{{ $t('visitor_Reservation') }}</van-button
           >
         </div>
       </div>

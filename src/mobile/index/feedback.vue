@@ -30,9 +30,9 @@ import FeedbackSubmitMobile from "@/components/Feedback/FeedbackSubmitMobile.vue
 const state = reactive({
   activeKey: "1",
   activeKeyList: [
-    { label: "反馈列表", value: "1" },
-    { label: "意见反馈", value: "2" },
-    { label: "设备报修", value: "3" },
+    { label: "V4_feedback_list", value: "1" },
+    { label: "feedback", value: "2" },
+    { label: "Device_Repair", value: "3" },
   ],
   isOptionDetails: false,
 
@@ -324,7 +324,7 @@ const fetchSubmit = async (params) => {
             :class="{ itemActive: item?.value == state.activeKey }"
             @click="state.activeKey = item?.value"
           >
-            {{ item?.label }}
+            {{ $t(item?.label) }}
           </div>
         </div>
       </div>
@@ -341,7 +341,7 @@ const fetchSubmit = async (params) => {
             v-if="state.data.length > 0"
             v-model:loading="state.loading"
             :finished="state.finished"
-            finished-text="没有更多了"
+            :finished-text="$t('No_more')"
             @load="onLoad"
           >
             <div
@@ -361,7 +361,7 @@ const fetchSubmit = async (params) => {
                       device: item?.type == '2',
                     }"
                   >
-                    {{ item?.type === "1" ? "意见反馈" : "设备报修" }}
+                    {{ item?.type === "1" ? $t("feedback") : $t("Device_Repair") }}
                   </div>
                   <div class="time">{{ item?.create_time }}</div>
                 </div>
@@ -391,10 +391,10 @@ const fetchSubmit = async (params) => {
         <div class="option_bottomAction">
           <van-button round block type="default">
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
-            返回
+            {{ $t("Return") }}
           </van-button>
           <van-button round block type="primary" @click="onApply"
-            >提交</van-button
+            >{{ $t("Submit") }}</van-button
           >
         </div>
       </div>
@@ -412,7 +412,7 @@ const fetchSubmit = async (params) => {
           @click="state.isOptionDetails = false"
         >
           <img src="@/assets/seat/moBackBtn.svg" alt="" />
-          返回
+          {{ $t("Return") }}
         </van-button>
       </div>
     </div>

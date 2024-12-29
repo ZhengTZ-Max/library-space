@@ -34,7 +34,7 @@ const state = reactive({
 
   quickMode: 1,
   quickModeList: [
-    { value: 1, label: "预约记录" },
+    { value: 1, label: "visitor_Reservation_List" },
     { value: 0, label: "违约记录" },
   ],
 
@@ -124,7 +124,7 @@ const onClickItem = (item) => {
           :class="{ itemActive: item?.value == state.activeKey }"
           @click="state.activeKey = item?.value"
         >
-          {{ item?.label }}
+          {{ $t(item?.label) ? $t(item?.label) : item?.label }}
         </div>
       </div>
     </div>
@@ -137,7 +137,7 @@ const onClickItem = (item) => {
         :class="{ itemActive: item?.value == state.quickMode }"
         @click="state.quickMode = item?.value"
       >
-        {{ item?.label }}
+        {{ $t(item?.label) ? $t(item?.label) : item?.label }}
       </div>
     </div>
 
@@ -146,7 +146,7 @@ const onClickItem = (item) => {
         v-if="state.data.length > 0"
         v-model:loading="state.loading"
         :finished="state.finished"
-        finished-text="没有更多了"
+        :finished-text="$t('No_more')"
         @load="onLoad"
       >
         <div
@@ -171,7 +171,7 @@ const onClickItem = (item) => {
 
             <div v-if="item.statusMsg == '预约成功'">
               <a-button type="primary" shape="round" size="small" block
-                >取消</a-button
+                >{{ $t("cancel") }}</a-button
               >
             </div>
           </div>
@@ -208,7 +208,7 @@ const onClickItem = (item) => {
             @click="state.showItemDetails = false"
           >
             <img src="@/assets/seat/moBackBtn.svg" alt="" />
-            返回
+            {{ $t("Return") }}
           </van-button>
         </div>
       </div>

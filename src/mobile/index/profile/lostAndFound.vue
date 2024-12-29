@@ -90,7 +90,7 @@ const onClickItem = (item) => {
           v-if="state.data.length > 0"
           v-model:loading="state.loading"
           :finished="state.finished"
-          finished-text="没有更多了"
+          :finished-text="$t('No_more')"
           @load="onLoad"
         >
           <div
