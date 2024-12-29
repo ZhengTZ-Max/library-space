@@ -5,15 +5,19 @@ import { useStore } from "vuex";
 import moment from "moment";
 
 import { exchangeDateTime } from "@/utils";
-import { getLockerList, getLockerFilter } from "@/request/bookcase";
-import BookFilter from "@/components/BookcaseCom/BookFilterCom.vue";
+import {
+  // getLockerList,
+  // getLockerFilter,
+  getAllArea,
+  getLostlocker,
+} from "@/request/collection";
+import CollectionFilterCom from "@/components/CollectionCom/CollectionFilterCom.vue";
 
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 const containerRef = ref();
 const state = reactive({
-  BookFilterShow: false,
   activeIndex: "",
 
   initQuery: {
@@ -23,51 +27,33 @@ const state = reactive({
     seatType: route?.query?.seatType || "",
   },
 
-  quickDate: route?.query?.date || "",
-  quickDateList: [],
-
-  bookcaseList: [],
-  floorList: [],
-
-  spaceInfo: {},
+  lostlockerList: [],
 
   filterOptions: [],
   filterSearch: {
+    date: "",
     library: "",
     floor: "",
-    bookType: [],
+    areaId: "",
   },
 
-  floorMapOpt: {
-    list: [],
-    background: "",
-  },
+  searchDate: "",
+  collectionFilterShow: false,
+  collectionInfoShow: false,
 });
 
 onMounted(() => {
   fetchFilter();
-  if (!state.initQuery?.quickDate) {
-    state.initQuery.quickDate = exchangeDateTime(new Date(), 2);
-    // router.go(-1);
-  }
 });
-
-watch(
-  () => state.bookcaseList,
-  (v) => {
-    if (v?.length) {
-      state.activeIndex = v[0]?.id;
-    }
-  }
-);
 
 const onChangeAct = (i) => {
   state.activeIndex = i.id;
+  state.collectionInfoShow = true;
 };
 
 const fetchFilter = async () => {
   try {
-    let res = await getLockerFilter();
+    let res = await getAllArea();
     state.filterOptions = res?.data;
     // initQueryFn();
     fetchLibrary();
@@ -78,21 +64,22 @@ const fetchFilter = async () => {
 
 const fetchLibrary = async () => {
   try {
-    let { library, floor, bookType } = state.filterSearch;
+    let { date, areaId } = state.filterSearch;
     let params = {
-      premisesIds: (library && [library]) || "",
-      categoryIds: bookType?.length ? bookType : "",
-      storeyIds: (floor && [floor]) || "",
+      start: date && exchangeDateTime(date, 2),
+      areaId,
+      page: 1,
+      size: 20,
     };
 
-    let res = await getLockerList(params);
+    let res = await getLostlocker(params);
 
     if (res.code != 0) {
       return false;
     }
 
-    state.bookcaseList = res?.data?.list || [];
-    // state.floorList = res?.data?.storey || [];
+    state.lostlockerList = res?.data?.list || [];
+    state.searchDate = res?.data?.minDate;
     // getFloorArea();
   } catch (e) {
     console.log(e);
@@ -115,25 +102,23 @@ const handleAppt = (row) => {
 
 const handleFilter = () => {
   fetchLibrary();
-  state.BookFilterShow = false;
+  state.collectionFilterShow = false;
 };
+
+const onReviewImg = (v) => {};
 </script>
 <template>
   <div class="bookcase" ref="containerRef">
     <a-affix offset-top="0" :target="() => containerRef">
       <div class="header">
         <div class="leftTit">
-          <a-breadcrumb>
-            <template #separator
-              ><img src="@/assets/seat/titRightIcon.svg" alt=""
-            /></template>
-            <a-breadcrumb-item
-              >选择存书柜<img src="@/assets/seat/titRightIcon.svg" alt=""
-            /></a-breadcrumb-item>
-          </a-breadcrumb>
+          <a-button> + 物品收取</a-button>
         </div>
         <div class="rightAction">
-          <div class="filters activeBtn" @click="state.BookFilterShow = true">
+          <div
+            class="filters activeBtn"
+            @click="state.collectionFilterShow = true"
+          >
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
             筛选
           </div>
@@ -142,51 +127,37 @@ const handleFilter = () => {
     </a-affix>
 
     <div class="librarySlt">
-      <a-row v-if="state.bookcaseList?.length" :gutter="[60, 80]">
-        <template v-for="item in state.bookcaseList" :key="item?.id">
+      <a-row v-if="state.lostlockerList?.length" :gutter="[60, 80]">
+        <template v-for="item in state.lostlockerList" :key="item?.id">
           <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
-            <div
-              class="libraryItem cardItem"
-              :class="{ activeItem: item?.id == state.activeIndex }"
-              @click="onChangeAct(item)"
-            >
+            <div class="libraryItem cardItem" @click="onChangeAct(item)">
               <div class="cardItemImgCon">
                 <a-image
                   class="cardItemImg"
-                  :src="item?.firstimg"
-                  :preview="false"
+                  src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
                 >
-                  <template #placeholder>
-                    <a-image
-                      class="cardItemImg"
-                      style="width: 100%; height: 100%"
-                      :src="PlaceImg"
-                      :preview="false"
-                    />
-                  </template>
                 </a-image>
-                <div class="leftBadge basicsBadge">{{ item?.atName }}</div>
-                <div class="posBot">
-                  <span>- {{ item?.atName }} -</span>
+                <div class="leftBadge basicsBadge">
+                  {{ item?.lockerPremises }}
                 </div>
               </div>
               <div class="bottomItem">
                 <div class="title">
-                  <span>{{ item?.name }}</span>
-                  <span>{{ item?.storeyName }}</span>
+                  <span>{{ item?.name }}号柜：{{ item?.boxId }}格</span>
+                  <span>{{ item?.lockerFloor }}</span>
                 </div>
-                <div class="num">
-                  总数 <span>{{ item?.total_num || "-" }}</span> 空闲
-                  <span>{{ item?.free_num || "-" }}</span>
+                <div class="details"><span>收物日期</span> 2024-01-29</div>
+                <div class="details">
+                  <span>收物地点</span> 基础馆-1F-自修B区
                 </div>
               </div>
-              <div
+              <!-- <div
                 v-if="item?.id == state.activeIndex"
                 class="action clickBoxT"
                 @click="handleAppt(item)"
               >
                 立即预约
-              </div>
+              </div> -->
             </div>
           </a-col>
         </template>
@@ -196,8 +167,8 @@ const handleFilter = () => {
 
     <a-modal
       width="50%"
-      v-model:open="state.BookFilterShow"
-      title="空间筛选"
+      v-model:open="state.collectionFilterShow"
+      title="物品筛选"
       @ok="handleFilter"
       okText="确认"
       cancelText="取消"
@@ -212,11 +183,53 @@ const handleFilter = () => {
       :okButtonProps="{ size: 'middle' }"
       centered
     >
-      <BookFilter
+      <CollectionFilterCom
         v-if="state.filterOptions?.length"
         :data="state.filterOptions"
         :initSearch="state.filterSearch"
+        :minDate="state.searchDate"
       />
+    </a-modal>
+
+    <a-modal
+      width="50%"
+      v-model:open="state.collectionInfoShow"
+      title="扫码取物"
+      okText=""
+      cancelText="取消"
+      :cancelButtonProps="{
+        size: 'middle',
+        style: {
+          color: '#8C8F9E',
+          background: '#F3F4F7',
+          borderColor: '#CECFD5',
+        },
+      }"
+      :okButtonProps="{
+        size: 'middle',
+        style: {
+          display: 'none',
+        },
+      }"
+      centered
+    >
+      <div class="qrInfo libraryItem">
+        <div class="cardItemImgCon">
+          <a-image
+            class="cardItemImg"
+            src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+          >
+          </a-image>
+          <!-- <div class="leftBadge basicsBadge">14213</div> -->
+        </div>
+        <div class="bottomItem">
+          <div class="title">
+            <span>基础馆-1F-1号柜：08格</span>
+          </div>
+          <div class="details"><span>收物日期</span> 2024-01-29</div>
+          <div class="details"><span>收物地点</span> 基础馆-1F-自修B区</div>
+        </div>
+      </div>
     </a-modal>
   </div>
 </template>
@@ -270,6 +283,11 @@ const handleFilter = () => {
     .libraryItem {
       position: relative;
       box-sizing: initial;
+      .cardItemImgCon {
+        :deep(.ant-image) {
+          width: 100%;
+        }
+      }
     }
     .basicsBadge {
       padding: 3px 8px;
@@ -305,7 +323,7 @@ const handleFilter = () => {
       font-size: 16px;
     }
     .bottomItem {
-      padding: 14px 10px 5px 10px;
+      padding: 10px 4px 10px 4px;
 
       .title {
         margin-bottom: 20px;
@@ -321,29 +339,14 @@ const handleFilter = () => {
           }
         }
       }
-      .num {
-        margin-bottom: 6px;
+
+      .details {
         font-size: 14px;
-        color: #616161;
-        display: flex;
-        align-items: center;
+        color: #202020;
+        margin-top: 12px;
         span {
-          &:nth-child(1) {
-            font-size: 16px;
-            color: #202020;
-            margin-left: 2px;
-            margin-right: 40px;
-          }
-          &:nth-child(2) {
-            font-size: 16px;
-            color: #1a49c0;
-            margin-left: 2px;
-          }
+          color: #616161;
         }
-      }
-      .boutiqueList {
-        font-size: 14px;
-        color: #868686;
       }
     }
     .action {
@@ -432,6 +435,42 @@ const handleFilter = () => {
     display: inline-flex;
     column-gap: 36px;
     row-gap: 20px;
+  }
+}
+.qrInfo {
+  margin: 40px;
+  display: flex;
+  align-items: center;
+  .cardItemImgCon {
+    width: 220px;
+    margin-right: 80px;
+  }
+  .bottomItem {
+    padding: 10px 4px 10px 4px;
+
+    .title {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 16px;
+      color: #616161;
+      span {
+        &:nth-child(1) {
+          font-size: 16px;
+          color: #202020;
+        }
+      }
+    }
+
+    .details {
+      font-size: 14px;
+      color: #202020;
+      margin-top: 12px;
+      span {
+        color: #616161;
+      }
+    }
   }
 }
 </style>
