@@ -156,6 +156,19 @@ watch(
   { immediate: true }
 );
 
+watch(
+  () => state.filterActivityMaxPeople,
+  (v) => {
+    if (v) {
+      if (Number(v) > Number(state.activityApplyInfo.max_person)) {
+        showToast({ message: "最大人数不能大于活动最大人数30" });
+        state.filterActivityMaxPeople = "30";
+        return false;
+      }
+    }
+  }
+);
+
 const bottomBtnDisabled = () => {
   let submitErr = false;
   if (checkOverlap(state.sliderVal, state.sliderConfig?.disabledArr)?.length) {
@@ -843,7 +856,9 @@ const onViewRule = () => {
                     "(" + $t("V4_multiple_days_can_be_selected") + ")"
                   }}</span>
                 </div>
-                <span class="can_book">{{ $t('AppointmentExists') + ":" }}</span>
+                <span class="can_book">{{
+                  $t("AppointmentExists") + ":"
+                }}</span>
               </div>
               <div class="calendar_box">
                 <Calendar
@@ -854,7 +869,8 @@ const onViewRule = () => {
             </van-col>
             <van-col v-if="state.selectChooseTime" span="10" offset="2">
               <div class="selected_time_text">
-                {{ $t("SelectedDate") + ":" }}<span
+                {{ $t("SelectedDate") + ":"
+                }}<span
                   >{{ exchangeDateTime(state.selectDateInfo[0], 2) }} ~
                   {{ exchangeDateTime(state.selectDateInfo[1], 2) }}</span
                 >
@@ -920,7 +936,8 @@ const onViewRule = () => {
           >
             <div class="sliderSlt">
               <div>
-                {{ $t("SelectedDate") + ":" }}<span class="sltText">{{
+                {{ $t("SelectedDate") + ":"
+                }}<span class="sltText">{{
                   exchangeDateTime(state?.selectDateInfo[0], 2)
                 }}</span>
               </div>
@@ -934,10 +951,14 @@ const onViewRule = () => {
       </div>
       <div class="right">
         <div class="right_top">
-          <div class="right_top_title">{{ $t("V4_application_information") }}</div>
+          <div class="right_top_title">
+            {{ $t("V4_application_information") }}
+          </div>
           <!-- 活动类型 -->
           <a-flex class="right_top_item" gap="middle" align="center">
-            <div><span class="required">*</span>{{ $t('ActivityType') + ":" }}</div>
+            <div>
+              <span class="required">*</span>{{ $t("ActivityType") + ":" }}
+            </div>
             <div style="flex: 1">
               <a-radio-group v-model:value="state.filterActivityTypeId">
                 <a-radio
@@ -956,7 +977,10 @@ const onViewRule = () => {
             align="center"
             v-if="filterArguments('title')"
           >
-            <div><span class="required">*</span>{{ $t('V4_application_subject') + ":" }}</div>
+            <div>
+              <span class="required">*</span
+              >{{ $t("V4_application_subject") + ":" }}
+            </div>
             <div style="flex: 1">
               <a-input
                 placeholder="填写后将在活动报名页面展示"
@@ -973,7 +997,10 @@ const onViewRule = () => {
             align="top"
             v-if="filterArguments('content')"
           >
-            <div><span class="required">*</span>{{ $t('Application_content') + ":" }}</div>
+            <div>
+              <span class="required">*</span
+              >{{ $t("Application_content") + ":" }}
+            </div>
             <div style="flex: 1">
               <a-textarea
                 placeholder="填写后将在活动报名页面展示"
@@ -1011,7 +1038,9 @@ const onViewRule = () => {
                 align="top"
                 v-if="filterArguments('mobile')"
               >
-                <div><span class="required">*</span>{{ $t('user_phone') + ":" }}</div>
+                <div>
+                  <span class="required">*</span>{{ $t("user_phone") + ":" }}
+                </div>
                 <div style="flex: 1">
                   <a-input
                     :placeholder="$t('Please_type_your_phone_number')"
@@ -1024,12 +1053,15 @@ const onViewRule = () => {
           </a-flex>
         </div>
         <div class="right_bottom">
-          <div class="right_bottom_title">{{ $t('V4_upload_event_materials') }}</div>
+          <div class="right_bottom_title">
+            {{ $t("V4_upload_event_materials") }}
+          </div>
           <van-row class="upload_item">
             <!-- 审批附件 -->
             <van-col span="14" v-if="filterArguments('approve')">
               <div class="upload_file_title">
-                <span style="color: #ff4d4f">*</span>{{ $t('V4_approval_attachments') + ":" }}
+                <span style="color: #ff4d4f">*</span
+                >{{ $t("V4_approval_attachments") + ":" }}
               </div>
               <Uploader
                 :initFileList="state.initApprove"
@@ -1052,7 +1084,8 @@ const onViewRule = () => {
             <!-- 活动海报 -->
             <van-col span="10" v-if="filterArguments('poster')">
               <div class="upload_file_title">
-                <span style="color: #ff4d4f">*</span>{{ $t('V4_event_poster') + ":" }}
+                <span style="color: #ff4d4f">*</span
+                >{{ $t("V4_event_poster") + ":" }}
               </div>
               <Uploader
                 filePath="activity"
@@ -1076,7 +1109,8 @@ const onViewRule = () => {
             <!-- 活动策划案 -->
             <van-col span="14" v-if="filterArguments('plan')">
               <div class="upload_file_title">
-                <span style="color: #ff4d4f">*</span>{{ $t('V4_event_plan') + ":" }}
+                <span style="color: #ff4d4f">*</span
+                >{{ $t("V4_event_plan") + ":" }}
               </div>
 
               <Uploader
@@ -1098,7 +1132,9 @@ const onViewRule = () => {
             </van-col>
             <!-- 宣传片 -->
             <van-col span="10" v-if="filterArguments('publicize')">
-              <div class="upload_file_title">{{ $t('V4_promotional_video') + ":" }}</div>
+              <div class="upload_file_title">
+                {{ $t("V4_promotional_video") + ":" }}
+              </div>
               <Uploader
                 filePath="activity"
                 :maxCount="1"
@@ -1146,7 +1182,7 @@ const onViewRule = () => {
               type="primary"
               style="width: 100px"
               @click="onSubmit"
-              >{{ $t('V4_apply_now') }}</van-button
+              >{{ $t("V4_apply_now") }}</van-button
             >
           </div>
           <div class="bottom_btn_draft">
@@ -1189,7 +1225,7 @@ const onViewRule = () => {
           class="space_detail_btn"
           @click="state.activityDetailInfoShow = false"
         >
-          {{ $t('feedback_details_close') }}
+          {{ $t("feedback_details_close") }}
         </button>
       </div>
     </a-modal>
@@ -1203,19 +1239,20 @@ const onViewRule = () => {
     >
       <template v-if="state.ruleInfo?.type != 'swiper'" v-slot:content>
         <div class="showArea">
-          <div class="tag">{{ $t('V4_current_reservation_selection') }}</div>
+          <div class="tag">{{ $t("V4_current_reservation_selection") }}</div>
           <div class="showCon">
             <div class="item">
               <p>
-                {{ $t('Space') + '：'}}<span>{{ showAreaName() }}</span>
+                {{ $t("Space") + "：" }}<span>{{ showAreaName() }}</span>
               </p>
               <p>
-                {{ $t('type') + ":" }}<span>{{ showAreaType() }}</span>
+                {{ $t("type") + ":" }}<span>{{ showAreaType() }}</span>
               </p>
             </div>
             <div class="item">
               <p>
-                {{ $t('Date') + ":" }}<span
+                {{ $t("Date") + ":"
+                }}<span
                   >{{
                     state.selectDateInfo?.length == 2
                       ? `${exchangeDateTime(
@@ -1227,12 +1264,13 @@ const onViewRule = () => {
                 </span>
               </p>
               <p>
-                {{ $t('Number_Of_People') + ":" }}<span>≤{{ state.filterActivityMaxPeople || "" }}</span>
+                {{ $t("Number_Of_People") + ":"
+                }}<span>≤{{ state.filterActivityMaxPeople || "" }}</span>
               </p>
             </div>
             <div class="item">
               <p>
-                {{ $t('Time') + ":" }}<span>{{ showAreaTimes() }}</span>
+                {{ $t("Time") + ":" }}<span>{{ showAreaTimes() }}</span>
               </p>
             </div>
           </div>
@@ -1249,19 +1287,19 @@ const onViewRule = () => {
     >
       <template v-slot:content>
         <div class="toastItem">
-          <span>{{ $t('V4_applicant') + ":" }}</span>
+          <span>{{ $t("V4_applicant") + ":" }}</span>
           <span>{{ state.apptResult?.userName || "" }}</span>
         </div>
         <div class="toastItem">
-          <span>{{ $t('user_booktime') + ":" }}</span>
+          <span>{{ $t("user_booktime") + ":" }}</span>
           <span>{{ state.apptResult?.time || "" }}</span>
         </div>
         <div class="toastItem">
-          <span>{{ $t('Reservation_location') + ":" }}</span>
+          <span>{{ $t("Reservation_location") + ":" }}</span>
           <span>{{ state.apptResult?.location || "" }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
-          <span>{{ $t('visitor_Reservation_Remind') + ":" }}</span>
+          <span>{{ $t("visitor_Reservation_Remind") + ":" }}</span>
           <span>{{ state.apptResult?.msg }}</span>
         </div>
       </template>

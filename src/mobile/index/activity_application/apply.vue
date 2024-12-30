@@ -126,6 +126,19 @@ watch(
   { immediate: true }
 );
 
+watch(
+  () => state.filterActivityMaxPeople,
+  (v) => {
+    if (v) {
+      if (Number(v) > Number(state.activityApplyInfo.max_person)) {
+        showToast({ message: "最大人数不能大于活动最大人数30" });
+        state.filterActivityMaxPeople = "30";
+        return false;
+      }
+    }
+  }
+);
+
 const fetchGetActivityApply = async () => {
   try {
     let params = {
