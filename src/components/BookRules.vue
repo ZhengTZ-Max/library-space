@@ -54,14 +54,14 @@ const initRuleList = () => {
   let list = [
     {
       id: 1,
-      title: store?.state?.lang?.currentLang?.Seat_reservation || "座位预约",
+      title: store?.state?.lang?.currentLang?.Seat_reservation || $t("Seat_reservation"),
       key: "seat_declare",
     },
     {
       id: 2,
       title:
         store?.state?.lang?.currentLang?.Seminar_room_reservation ||
-        "研讨室预约",
+        $t("Seminar_room_reservation"),
       key: "seminar_declare",
     },
 
@@ -78,18 +78,18 @@ const initRuleList = () => {
     // },
     {
       id: 7,
-      title: store?.state?.lang?.currentLang?.Postgraduate_seats || "考研规则",
+      title: store?.state?.lang?.currentLang?.Postgraduate_seats || $t("study_Rules"),
       key: "study_rule",
     },
     {
       id: 10,
       title:
-        store?.state?.lang?.currentLang?.Bookcase_reservation || "存书柜预约",
+        store?.state?.lang?.currentLang?.Bookcase_reservation || $t("V4_bookcase_reservation"),
       key: "locker_declare",
     },
     {
       id: 14,
-      title: store?.state?.lang?.currentLang?.lost_and_found || "物品招领柜",
+      title: store?.state?.lang?.currentLang?.lost_and_found || $t("V4_lost_and_found_cabinet"),
       key: "LOST_AND_FOUND",
     },
   ];
@@ -214,7 +214,7 @@ const onChangeMo = (row) => {
         display: 'none',
       },
     }"
-    okText="确认"
+    :okText="$t('visitor_Confirm')"
     :okButtonProps="{
       size: 'middle',
       ghost: true,

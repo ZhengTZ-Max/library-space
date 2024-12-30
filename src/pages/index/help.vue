@@ -44,12 +44,12 @@ const goBack = () => {
   <div class="help-page">
     <div class="back" @click="goBack">
       <img src="@/assets/header/back.svg" alt="" />
-      <span class="back-text">返回上级页面</span>
+      <span class="back-text">{{ $t("V4_back_to_the_previous_page") }}</span>
     </div>
 
     <div class="content">
       <div class="menu">
-        <div class="menu-title">使用帮助</div>
+        <div class="menu-title">{{ $t("user_assistance") }}</div>
         <a-menu
           mode="vertical"
           :selectedKeys="[selectedKey]"

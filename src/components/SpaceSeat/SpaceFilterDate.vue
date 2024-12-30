@@ -295,7 +295,7 @@ const isShowErrMsg = () => {
 <template>
   <div class="filterCon" :class="{ filterConMo: systemMode != 'pc' }">
     <div class="filterScr">
-      <div class="filterFilter">日期</div>
+      <div class="filterFilter">{{$t("Date")}}</div>
       <div class="fiterItem">
         <a-radio-group
           v-model:value="state.filterRows.date"
@@ -310,7 +310,7 @@ const isShowErrMsg = () => {
         </a-radio-group>
       </div>
 
-      <div class="filterFilter">时间</div>
+      <div class="filterFilter">{{$t("Time")}}</div>
       <div class="fiterItem">
         <template v-if="state.filterDateType == 3">
           <a-time-range-picker
@@ -387,7 +387,7 @@ const isShowErrMsg = () => {
           <van-time-picker
             v-model="state.moTimePickerVal"
             :filter="onDisabledTimeMo"
-            title="选择时间"
+            :title="$t('SelectTime')"
             @confirm="onChangeTimesMo"
           />
         </div>

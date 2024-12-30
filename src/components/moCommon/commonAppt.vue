@@ -33,8 +33,8 @@ const radioStyle = reactive({
 const state = reactive({
   quickMode: "1",
   quickModeList: [
-    { value: "1", label: "座位" },
-    { value: "2", label: "空间" },
+    { value: "1", label: $t("V4_seats") },
+    { value: "2", label: $t("Space") },
   ],
 
   activeType: "collect",
@@ -245,7 +245,7 @@ const onSeatAppt = async (row) => {
     };
     showConfirmDialog({
       title: `确认预约`,
-      message: `地点：${row.name_merge}\n座位：${row.space_name}\n时间：${params.day} ${findTimeRow?.show_time}`,
+      message: `${$t("Place")}：${row.name_merge}\n${$t("V4_seats")}：${row.space_name}\n${$t("Time")}：${params.day} ${findTimeRow?.show_time}`,
       messageAlign: "left",
     })
       .then(async () => {
@@ -260,7 +260,7 @@ const onSeatAppt = async (row) => {
         state.apptResult = {
           seatInfo: res?.data,
           show: true,
-          title: res?.code == 0 ? "预约成功" : "预约失败",
+          title: res?.code == 0 ? $t("yuyue_success") : $t("V4_reservation_failed"),
           type: res?.code == 0 ? "success" : "error",
           msg: (res?.code != 0 && res?.message) || "",
         };
@@ -314,14 +314,14 @@ const handleShow = (v) => {
           :class="{ langActive: state.activeType == 'collect' }"
           class="langItem activeBtn"
         >
-          收藏
+          {{ $t("V4_favorites") }}
         </div>
         <div
           @click="state.activeType = 'common'"
           :class="{ langActive: state.activeType == 'common' }"
           class="langItem activeBtn"
         >
-          常用
+          {{ $t("V4_frequently_used") }}
         </div>
       </div>
       <div
@@ -329,7 +329,7 @@ const handleShow = (v) => {
         v-if="!(state.quickMode === '2') && (state.dateList?.length && state.timeList?.length)"
       >
         <div class="timeItem">
-          <span>日期：</span>
+          <span>{{ $t("Date") }}：</span>
           <div style="width: 100%">
             <a-radio-group
               v-model:value="state.dateValue"
@@ -345,7 +345,7 @@ const handleShow = (v) => {
           </div>
         </div>
         <div class="timeItem" style="margin-top: 12px" >
-          <span>时间：</span>
+          <span>{{$t("Time")}}：</span>
           <div style="width: 100%">
             <a-radio-group v-model:value="state.timeValue" @change="onChangeDateOrTime">
               <a-radio
@@ -362,7 +362,7 @@ const handleShow = (v) => {
       <div class="apptList">
         <div v-if="state?.seatList?.length > 0" v-for="item in state?.seatList" class="adsItem">
           <div class="addressInfo">
-            <span>地点：{{ item?.name_merge }}</span>
+            <span>{{$t("Place")}}：{{ item?.name_merge }}</span>
             <img
               v-if="state.activeType == 'collect'"
               class="activeBtn"
@@ -373,7 +373,7 @@ const handleShow = (v) => {
           </div>
           <div class="addressSeat" :class="{ action_space: state.quickMode == 2 }">
             <span v-if="state.quickMode == 1"
-              >座位：{{ item?.space_name }}</span
+              >{{$t("V4_seats")}}：{{ item?.space_name }}</span
             >
             <div class="action" >
               <van-button
@@ -383,7 +383,7 @@ const handleShow = (v) => {
                 type="primary"
                 @click="onApplyOrJumpDetail(item)"
               >
-                预约
+                {{ $t("Reservation") }}
               </van-button>
             </div>
           </div>
@@ -401,19 +401,19 @@ const handleShow = (v) => {
     >
       <template v-slot:content>
         <div class="toastItem">
-          <span>时间：</span>
+          <span>{{$t("Time")}}：</span>
           <span>{{ state.apptResult?.seatInfo?.time }}</span>
         </div>
         <div class="toastItem">
-          <span>地点：</span>
+          <span>{{$t("Place")}}：</span>
           <span>{{ state.apptResult?.seatInfo?.seat }}</span>
         </div>
         <div class="toastItem">
-          <span>座位：</span>
+          <span>{{$t("V4_seats")}}：</span>
           <span>{{ state.apptResult?.seatInfo?.no }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
-          <span>提醒：</span>
+          <span>{{$t("V4_reminder")}}：</span>
           <span>{{ state.apptResult?.msg }}</span>
         </div>
       </template>

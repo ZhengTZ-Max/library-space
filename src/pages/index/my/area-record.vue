@@ -16,7 +16,7 @@ const state = reactive({
   data: [],
   quickMode: 1,
   quickModeList: [
-    { value: 1, label: "预约记录" },
+    { value: 1, label: $t("visitor_Reservation_List") },
     { value: 2, label: "违约记录" },
   ],
   isModalVisible: false,
@@ -27,22 +27,22 @@ const state = reactive({
 
 const columns = [
   {
-    title: "空间",
+    title: $t("Space"),
     dataIndex: "area",
     key: "area",
   },
   {
-    title: "时间",
+    title: $t("Time"),
     dataIndex: "time",
     key: "time",
   },
   {
-    title: "状态",
+    title: $t("V4_status"),
     dataIndex: "status_name",
     key: "status_name",
   },
   {
-    title: "操作",
+    title: $t("user_operation"),
     key: "action",
   },
 ];
@@ -135,8 +135,8 @@ const onChangePage = (page, pageSize) => {
       size="middle"
       @change="onChangeTab"
     >
-      <a-tab-pane key="1" tab="普通空间"></a-tab-pane>
-      <a-tab-pane key="2" tab="大型空间"></a-tab-pane>
+      <a-tab-pane key="1" :tab="$t('V4_regular_space')"></a-tab-pane>
+      <a-tab-pane key="2" :tab="$t('H_Room_Large')"></a-tab-pane>
     </a-tabs>
     <div class="quickBtns" style="width: 200px">
       <div
@@ -207,15 +207,15 @@ const onChangePage = (page, pageSize) => {
               >
                 <span>
                   <a class="red" type="primary" @click="onShowModal(record)"
-                    >取消</a
+                    >{{$t("cancel")}}</a
                   >
                   <a-divider type="vertical" />
-                  <a type="primary" @click="onShowModal(record)">查看</a>
+                  <a type="primary" @click="onShowModal(record)">{{ $t("feedback_list_view") }}</a>
                 </span>
               </template>
               <template v-else>
                 <span>
-                  <a type="primary" @click="onShowModal(record)">查看</a>
+                  <a type="primary" @click="onShowModal(record)">{{ $t("feedback_list_view") }}</a>
                 </span>
               </template>
             </template>
@@ -235,7 +235,7 @@ const onChangePage = (page, pageSize) => {
     <a-modal
       class="result-modal"
       v-model:visible="state.isModalVisible"
-      title="预约详情"
+      :title="$t('yuyue_detail')"
       :footer="null"
       @ok="onHideModal"
     >
@@ -252,7 +252,7 @@ const onChangePage = (page, pageSize) => {
                   状态异常			其它
                 -->
         <p>
-          预约状态：<span
+          {{ $t("Status") + "："}}:<span
             :class="
               state.selectedRecord.status === '1' || state.selectedRecord.status === '1'
                 ? 'status-wait'
@@ -268,17 +268,17 @@ const onChangePage = (page, pageSize) => {
           >
         </p>
         <p>
-          预约用户：{{ state.selectedRecord.member_name }}({{
+          {{ $t("yuyue_username") + "：" }}{{ state.selectedRecord.member_name }}({{
             state.selectedRecord.member_id
           }})
         </p>
-        <p>预约时间：{{ state.selectedRecord.create_time }}</p>
-        <p>开始时间：{{ state.selectedRecord.begin_time }}</p>
-        <p>结束时间：{{ state.selectedRecord.end_time }}</p>
-        <p>预约地点：{{ state.selectedRecord.nameMerge }}</p>
+        <p>{{ $t("yuyue_time") + "："}} {{ state.selectedRecord.create_time }}</p>
+        <p>{{ $t("user_begintime") + "："}} {{ state.selectedRecord.begin_time }}</p>
+        <p>{{ $t("user_endtime") + "：" }} {{ state.selectedRecord.end_time }}</p>
+        <p>{{ $t("Reservation_location") + "："}} {{ state.selectedRecord.nameMerge }}</p>
         <p>预约信息：{{ state.selectedRecord.title }}</p>
         <div class="members-row">
-          <span>全部成员：</span>
+          <span>{{ $t("All_Members") + "：" }}</span>
           <div class="members">
             <div
               v-for="member in state.selectedRecord.teams"
@@ -316,7 +316,7 @@ const onChangePage = (page, pageSize) => {
             v-if="state.selectedRecord.status != '21'"
             class="cancel-button-success"
             @click="onHideModal"
-            >确定</a-button
+            >{{ $t("ok") }}</a-button
           >
         </div>
         <!-- <div

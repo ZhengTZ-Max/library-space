@@ -52,8 +52,8 @@ const state = reactive({
 
   quickMode: "0",
   quickModeList: [
-    { value: 0, label: "V4_map_view" },
-    { value: 1, label: "V4_list_view" },
+    { value: 0, label: $t("V4_map_view") },
+    { value: 1, label: $t("V4_list_view") },
   ],
 
   spaceSelected: {},
@@ -552,7 +552,7 @@ const fetchDeleteCollect = async () => {
               :class="{ itemActive: item?.value == state.quickMode }"
               @click="state.quickMode = item?.value"
             >
-              {{ $t(item?.label) }}
+              {{ item?.label }}
             </div>
           </div>
 
@@ -720,7 +720,7 @@ const fetchDeleteCollect = async () => {
         >{{
           !getStudyPermission({ id: state.filterSearch?.dateId })
             ? $t("No_reservation_permission")
-            : $t("visitor_Reservation")
+            : $t("book_now")
         }}</van-button
       >
     </div>

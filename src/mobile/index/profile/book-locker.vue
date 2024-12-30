@@ -34,7 +34,7 @@ const state = reactive({
 
   quickMode: 1,
   quickModeList: [
-    { value: 1, label: "visitor_Reservation_List" },
+    { value: 1, label: $t("visitor_Reservation_List") },
     { value: 0, label: "违约记录" },
   ],
 
@@ -112,9 +112,7 @@ const onClickItem = (item) => {
 };
 </script>
 <template>
-  <div
-    class="book-locker"
-  >
+  <div class="book-locker">
     <div class="cHeader">
       <div class="quickMode">
         <div
@@ -124,7 +122,7 @@ const onClickItem = (item) => {
           :class="{ itemActive: item?.value == state.activeKey }"
           @click="state.activeKey = item?.value"
         >
-          {{ $t(item?.label) ? $t(item?.label) : item?.label }}
+          {{ item?.label }}
         </div>
       </div>
     </div>
@@ -137,7 +135,7 @@ const onClickItem = (item) => {
         :class="{ itemActive: item?.value == state.quickMode }"
         @click="state.quickMode = item?.value"
       >
-        {{ $t(item?.label) ? $t(item?.label) : item?.label }}
+        {{ item?.label }}
       </div>
     </div>
 
@@ -170,9 +168,9 @@ const onClickItem = (item) => {
             <span v-else>{{ item.time }}</span>
 
             <div v-if="item.statusMsg == '预约成功'">
-              <a-button type="primary" shape="round" size="small" block
-                >{{ $t("cancel") }}</a-button
-              >
+              <a-button type="primary" shape="round" size="small" block>{{
+                $t("cancel")
+              }}</a-button>
             </div>
           </div>
 

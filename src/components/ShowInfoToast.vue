@@ -42,7 +42,7 @@ const handleConfirm = () => {
         display: 'none',
       },
     }"
-    :okText="props?.okText || '确认'"
+    :okText="props?.okText || $t('visitor_Confirm')"
     :okButtonProps="{
       size: 'middle',
       ghost: true,
@@ -58,7 +58,7 @@ const handleConfirm = () => {
     <template v-slot:footer>
       <div v-if="props?.okText != 'none'" class="footerCon">
         <a-button size="small" type="link" @click="handleConfirm">{{
-          props?.okText || "确认"
+          props?.okText || $t("visitor_Confirm")
         }}</a-button>
       </div>
     </template>

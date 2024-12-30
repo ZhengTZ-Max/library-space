@@ -29,8 +29,8 @@ const state = reactive({
   },
   activeKey: "1",
   activeKeyList: [
-    { value: "1", label: "current_activity" },
-    { value: "0", label: "historical_activity" },
+    { value: "1", label: $t("current_activity") },
+    { value: "0", label: $t("historical_activity") },
   ],
 
   selectDate: moment().format("YYYY-MM-DD"),
@@ -154,7 +154,7 @@ const fetchCurrentEventList = async () => {
           :class="{ itemActive: item?.value == state.activeKey }"
           @click="state.activeKey = item?.value"
         >
-          {{ $t(item?.label) }}
+          {{ item?.label }}
         </div>
       </div>
     </div>
@@ -192,7 +192,7 @@ const fetchCurrentEventList = async () => {
           v-if="state.eventList.length > 0"
           v-model:loading="state.loading"
           :finished="state.finished"
-          finished-text="没有更多了"
+          :finished-text="$t('No_more')"
           @load="onLoad"
         >
           <div

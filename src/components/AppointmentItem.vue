@@ -181,9 +181,9 @@ const handleSign = async (row) => {
 
 const handleLeave = async (row) => {
   try {
-    let title = store?.state?.lang?.currentLang?.rightback || "临时离开";
+    let title = store?.state?.lang?.currentLang?.rightback || $t("rightback");
     let message = `${
-      store?.state?.lang?.currentLang?.popup_window_Confirm || "是否确认"
+      store?.state?.lang?.currentLang?.popup_window_Confirm || $t("popup_window_Confirm")
     } ${title}？`;
 
     showConfirmDialog({
@@ -213,9 +213,9 @@ const handleLeave = async (row) => {
 
 const handleCheckout = async (row) => {
   try {
-    let title = store?.state?.lang?.currentLang?.leave || "完全离开";
+    let title = store?.state?.lang?.currentLang?.leave || $t("leave");
     let message = `${
-      store?.state?.lang?.currentLang?.popup_window_Confirm || "是否确认"
+      store?.state?.lang?.currentLang?.popup_window_Confirm || $t("popup_window_Confirm")
     } ${title}？`;
     showConfirmDialog({
       title,
@@ -300,16 +300,16 @@ const showStudyText = (row) => {
   let color = "";
 
   if (row?.earlierPeriodsSignIn == -1) {
-    str = "预约未开始";
+    str = $t("current_day_no_start");
     color = "var(--van-primary-color)";
   } else if (row?.earlierPeriodsSignIn == 1) {
-    str = "当日已签到";
+    str = $t("current_day_sign_in");
     color = "green";
   } else if (row?.earlierPeriodsSignIn == 2) {
-    str = "当日已违约";
+    str = $t("current_day_renege");
     color = "#e58100";
   } else if (row?.earlierPeriodsSignIn == 0) {
-    str = "当日未签到";
+    str = $t("current_day_no_sign");
     color = "#e58100";
   }
 
@@ -335,7 +335,7 @@ const handleSignOut = async (data) => {
   try {
     let title = store?.state?.lang?.currentLang?.leave || "结束使用";
     let message = `${
-      store?.state?.lang?.currentLang?.popup_window_Confirm || "是否确认"
+      store?.state?.lang?.currentLang?.popup_window_Confirm || $t("popup_window_Confirm")
     } ${title}？`;
     showConfirmDialog({
       title,
@@ -432,29 +432,29 @@ const toggleLine = async (data) => {
         <div class="seatType">
           {{
             data?.type == 1
-              ? "普通座位"
+              ? $t("V4_regular_seat")
               : data?.type == 3
-              ? "研习座位"
-              : "考研座位"
+              ? $t("V4_study_seat")
+              : $t("V4_seat_KYZW")
           }}
         </div>
       </div>
 
       <div class="intro">
         <div class="introFirst">
-          <p>地点：{{ data?.areaName }}</p>
+          <p>{{$t("Place")}}：{{ data?.areaName }}</p>
           <!-- <div class="areaView">
             区域平面图
             <img src="@/assets/home/rightIcon.svg" alt="" />
           </div> -->
         </div>
         <div class="seatCon">
-          <span>座位：{{ data?.no }}</span>
+          <span>{{$t("V4_seats")}}：{{ data?.no }}</span>
           <span class="viewPosition" @click="fetchReviewPosition(data)"
             >查看位置</span
           >
         </div>
-        <div>时间：{{ data?.showTime }}</div>
+        <div>{{$t("Time")}}：{{ data?.showTime }}</div>
         <div class="action">
           <div
             v-if="
@@ -498,7 +498,7 @@ const toggleLine = async (data) => {
               style="background-color: var(--primary-color)"
               @click.stop="handleSign(data)"
             >
-              {{ store?.state?.lang?.currentLang?.signin || "签到" }}
+              {{ store?.state?.lang?.currentLang?.signin || $t("signin") }}
             </van-button>
 
             <van-button
@@ -507,7 +507,7 @@ const toggleLine = async (data) => {
               v-if="checkShow(data, 'back-sign')"
               @click.stop="handleSign(data)"
             >
-              {{ store?.state?.lang?.currentLang?.return_signin || "返回签到" }}
+              {{ store?.state?.lang?.currentLang?.return_signin || $t("return_signin") }}
             </van-button>
 
             <van-button
@@ -516,7 +516,7 @@ const toggleLine = async (data) => {
               v-if="checkShow(data, 'leave')"
               @click.stop="handleLeave(data)"
             >
-              {{ store?.state?.lang?.currentLang?.rightback || "临时离开" }}
+              {{ store?.state?.lang?.currentLang?.rightback || $t("rightback") }}
             </van-button>
             <van-button
               class="btn all-leave"
@@ -524,7 +524,7 @@ const toggleLine = async (data) => {
               v-if="checkShow(data, 'all-leave')"
               @click.stop="handleCheckout(data)"
             >
-              {{ store?.state?.lang?.currentLang?.leave || "完全离开" }}
+              {{ store?.state?.lang?.currentLang?.leave || $t("leave") }}
             </van-button>
 
             <van-button
@@ -535,7 +535,7 @@ const toggleLine = async (data) => {
               color="#F28800"
               @click.stop="onCancel(data)"
             >
-              {{ store?.state?.lang?.currentLang?.signin || "取消" }}
+              {{ store?.state?.lang?.currentLang?.signin || $t("cancel") }}
             </van-button>
           </div>
         </div>
@@ -562,14 +562,14 @@ const toggleLine = async (data) => {
           alt=""
           srcset=""
         />
-        <span>已约空间</span>
+        <span>{{$t("V4_booked_space")}}</span>
         <div class="seatType spaceType">
           {{
             data?.type == 2
-              ? "研讨室"
+              ? $t("seminarroom")
               : data?.type == 3
-              ? "研习座位"
-              : "考研座位"
+              ? $t("V4_study_seat")
+              : $t("V4_seat_KYZW")
           }}
         </div>
       </div>
@@ -579,11 +579,11 @@ const toggleLine = async (data) => {
           <p>地点：{{ data?.areaName }}</p>
         </div> -->
         <div class="seatCon">
-          <span>地点：{{ data?.areaName }}</span>
+          <span>{{$t("Place")}}：{{ data?.areaName }}</span>
 
           <span class="viewPosition" @click="onViewFloor(data)">查看位置</span>
         </div>
-        <div class="applyTime"><span>时间：</span>{{ data?.showTime }}</div>
+        <div class="applyTime"><span>{{$t("Time")}}：</span>{{ data?.showTime }}</div>
         <div class="action">
           <div
             v-if="
@@ -622,7 +622,7 @@ const toggleLine = async (data) => {
               color="#F28800"
               @click.stop="onCancel(data)"
             >
-              {{ store?.state?.lang?.currentLang?.signin || "取消" }}
+              {{ store?.state?.lang?.currentLang?.signin || $t("cancel") }}
             </van-button>
             <van-button
               v-else-if="checkShow(data, 'cancel')"
@@ -632,7 +632,7 @@ const toggleLine = async (data) => {
               color="#F28800"
               @click.stop="onCancel(data)"
             >
-              {{ store?.state?.lang?.currentLang?.signin || "取消" }}
+              {{ store?.state?.lang?.currentLang?.signin || $t("cancel") }}
             </van-button>
           </div>
         </div>
@@ -648,7 +648,7 @@ const toggleLine = async (data) => {
           srcset=""
         />
         <span>已约书柜</span>
-        <div class="seatType spaceType">存书柜</div>
+        <div class="seatType spaceType">{{ $t("V4_store_library") }}</div>
       </div>
 
       <div class="intro">
@@ -656,14 +656,14 @@ const toggleLine = async (data) => {
           <p>地点：{{ data?.areaName }}</p>
         </div> -->
         <div class="seatCon">
-          <span>地点：{{ data?.nameMerge }}</span>
+          <span>{{$t("Place")}}：{{ data?.nameMerge }}</span>
 
           <span class="viewPosition" @click="onViewFloor(data)">查看位置</span>
         </div>
         <div class="seatCon">
-          <span>柜号：{{ data?.name }}</span>
+          <span>{{$t("V4_cabinet_number")}}：{{ data?.name }}</span>
         </div>
-        <div class="applyTime"><span>时间：</span>{{ data?.showTime }}</div>
+        <div class="applyTime"><span>{{$t("Time")}}：</span>{{ data?.showTime }}</div>
         <div class="action">
           <div class="tips">
             <div class="clock" v-if="data?.use_time !== 0">
@@ -692,7 +692,7 @@ const toggleLine = async (data) => {
               color="#F28800"
               @click.stop="onCancel(data)"
             >
-              {{ store?.state?.lang?.currentLang?.signin || "取消" }}
+              {{ store?.state?.lang?.currentLang?.signin || $t("cancel") }}
             </van-button>
           </div>
         </div>

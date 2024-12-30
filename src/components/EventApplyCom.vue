@@ -34,11 +34,11 @@ const onApply = () => {
   <div>
     <a-divider />
     <div class="dialog_item">
-      <span>联系电话</span>
+      <span>{{$t("user_phone")}}</span>
       <a-input
         class="dialog_input"
         v-model:value="state.inputInfo.phone"
-        placeholder="请输入联系电话"
+        :placeholder="$t('Please_type_your_phone_number')"
       />
     </div>
     <div class="dialog_item mt-20">
@@ -46,12 +46,12 @@ const onApply = () => {
       <a-input
         class="dialog_input"
         v-model:value="state.inputInfo.email"
-        placeholder="请输入邮箱"
+        :placeholder="$t('Please_Enter_Email')"
       />
     </div>
     <a-divider />
     <a-button type="link" class="bottom_button"  @click="onApply"
-      >确认</a-button
+      >{{$t("visitor_Confirm")}}</a-button
     >
   </div>
 </template>

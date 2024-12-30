@@ -25,8 +25,8 @@ const state = reactive({
   eventStatus: "",
   quickMode: 1,
   quickModeList: [
-    { value: 1, label: "当前活动" },
-    { value: 0, label: "历史活动" },
+    { value: 1, label: "current_activity" },
+    { value: 0, label: "historical_activity" },
   ],
 
   // date: "2024-10-30",
@@ -120,7 +120,7 @@ const handleDateChange = (v) => {
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
             <a-breadcrumb-item
-              >选择活动<img src="@/assets/seat/titRightIcon.svg" alt=""
+              >{{ $t("V4_select_an_event") }}<img src="@/assets/seat/titRightIcon.svg" alt=""
             /></a-breadcrumb-item>
             <!-- <a-breadcrumb-item>1</a-breadcrumb-item> -->
           </a-breadcrumb>
@@ -135,7 +135,7 @@ const handleDateChange = (v) => {
                 :class="{ itemActive: item?.value == state.quickMode }"
                 @click="onChangeQDate(item)"
               >
-                {{ item?.label }}
+                {{ $t(item?.label) }}
               </div>
             </div>
           </div>
@@ -144,7 +144,7 @@ const handleDateChange = (v) => {
             <a-select
               v-model:value="state.selectDate"
               @change="handleDateChange"
-              placeholder="选择日期"
+              :placeholder="$t('visitor_Select_Date')"
             >
               <a-select-option
                 v-for="item in state.selectDateList"
@@ -163,7 +163,7 @@ const handleDateChange = (v) => {
 
           <div class="filters activeBtn" @click="state.eventFilterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            筛选
+            {{ $t("Screen") }}
           </div>
         </div>
       </div>
@@ -217,7 +217,7 @@ const handleDateChange = (v) => {
                 class="action clickBoxT"
                 @click="goToLink(item?.id)"
               >
-                立即报名
+                {{ $t("V4_sign_up_now") }}
               </div>
             </div>
           </a-col>
@@ -229,11 +229,11 @@ const handleDateChange = (v) => {
     <a-modal
       width="50%"
       v-model:open="state.eventFilterShow"
-      title="空间筛选"
+      :title="$t('V4_space_filter')"
       @ok="handleFilter"
       destroyOnClose
-      okText="确认"
-      cancelText="取消"
+      :okText="$t('visitor_Confirm')"
+      :cancelText="$t('cancel')"
       :cancelButtonProps="{
         size: 'middle',
         style: {

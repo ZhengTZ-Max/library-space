@@ -124,7 +124,7 @@ const isShowTabs = () => {
           v-if="state.config.seat.list?.length"
           @click="state.tabActive = 'seat'"
         >
-          座位
+          {{ $t("V4_seats") }}
         </div>
         <div
           class="itemTab"
@@ -132,7 +132,7 @@ const isShowTabs = () => {
           v-if="state.config.space.list?.length"
           @click="state.tabActive = 'space'"
         >
-          空间
+          {{ $t("Space") }}
         </div>
         <div
           class="itemTab"
@@ -140,7 +140,7 @@ const isShowTabs = () => {
           v-if="state.config.book.list?.length"
           @click="state.tabActive = 'book'"
         >
-          存书柜
+          {{ $t("V4_store_library") }}
         </div>
       </div>
       <Transition>
@@ -154,7 +154,7 @@ const isShowTabs = () => {
 
         <div v-else class="shrink clickBox" @click="onToggleCard('shrink')">
           <img class="currentApp" src="@/assets/home/currentApp.svg" alt="" />
-          <span>当前预约</span>
+          <span>{{ $t("menu_space") }}</span>
           <img class="shrinkIcon" src="@/assets/home/shrinkIcon.svg" alt="" />
         </div>
       </Transition>

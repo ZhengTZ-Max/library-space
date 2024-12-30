@@ -227,7 +227,7 @@ const fetchGetIlkAddress = async (id) => {
 <template>
   <div class="option_content" v-if="state.propsData.activeKey == '2'">
     <div class="feedback_option_tab_item" @click="state.isCategoryArea = true">
-      <div class="feedback_option_tab_item_left">反馈区域</div>
+      <div class="feedback_option_tab_item_left">{{$t("V4_feedback_area")}}</div>
       <div class="feedback_option_tab_item_right">
         <div :class="{ no_select: !state.propsData.categoryAreaName }">
           {{
@@ -241,7 +241,7 @@ const fetchGetIlkAddress = async (id) => {
     </div>
     <a-divider />
     <div class="feedback_option_tab_item" @click="onShowCategoryType">
-      <div class="feedback_option_tab_item_left">反馈类型</div>
+      <div class="feedback_option_tab_item_left">{{$t("feedback_type")}}</div>
       <div class="feedback_option_tab_item_right">
         <div :class="{ no_select: !state.propsData.categoryTypeName }">
           {{
@@ -255,7 +255,7 @@ const fetchGetIlkAddress = async (id) => {
     </div>
     <a-divider />
     <div class="feedback_option_tab_col">
-      <div class="feedback_option_tab_item_top">反馈内容</div>
+      <div class="feedback_option_tab_item_top">{{$t("Feedback_content")}}</div>
       <div>
         <a-textarea
           style="margin-bottom: 15px"
@@ -283,32 +283,32 @@ const fetchGetIlkAddress = async (id) => {
       </Uploader>
     </div>
     <div class="feedback_option_tab_col">
-      <div class="feedback_option_tab_item_top">手机号</div>
+      <div class="feedback_option_tab_item_top">{{$t("phone")}}</div>
       <a-input
         v-model:value="state.propsData.phone"
         class="input"
         :bordered="false"
-        placeholder="请输入手机号"
+        :placeholder="$t('Please_phone_number')"
       />
     </div>
     <a-divider />
     <div class="feedback_option_tab_col">
-      <div class="feedback_option_tab_item_top">邮箱</div>
+      <div class="feedback_option_tab_item_top">{{$t("user_email")}}</div>
       <a-input
         v-model:value="state.propsData.email"
         class="input"
         :bordered="false"
-        placeholder="请输入邮箱"
+        :placeholder="$t('Please_Enter_Email')"
       />
     </div>
   </div>
   <div class="option_content" v-if="state.propsData.activeKey == '3'">
     <div class="feedback_option_tab_item" @click="state.isShowIlkType = true">
-      <div class="feedback_option_tab_item_left">报修类型</div>
+      <div class="feedback_option_tab_item_left">{{$t("type_of_repair")}}</div>
       <div class="feedback_option_tab_item_right">
         <div :class="{ no_select: !state.propsData.ilkTypeName }">
           {{
-            state.propsData.ilkTypeName ? state.propsData.ilkTypeName : "请选择"
+            state.propsData.ilkTypeName ? state.propsData.ilkTypeName : $t("V4_please_select")
           }}
         </div>
         <img src="@/assets/activity_application/right_arrow_gray.svg" alt="" />
@@ -316,13 +316,13 @@ const fetchGetIlkAddress = async (id) => {
     </div>
     <a-divider />
     <div class="feedback_option_tab_item" @click="onShowIlkArea">
-      <div class="feedback_option_tab_item_left">报修区域</div>
+      <div class="feedback_option_tab_item_left">{{$t("Repair_Area")}}</div>
       <div class="feedback_option_tab_item_right">
         <div :class="{ no_select: !state.propsData.concatenatedNames }">
           {{
             state.propsData.concatenatedNames
               ? state.propsData.concatenatedNames
-              : "请选择"
+              : $t("V4_please_select")
           }}
         </div>
         <img src="@/assets/activity_application/right_arrow_gray.svg" alt="" />
@@ -330,43 +330,43 @@ const fetchGetIlkAddress = async (id) => {
     </div>
     <a-divider />
     <div class="feedback_option_tab_item" v-if="!state.propsData.ilkTypeIsSpace">
-      <div class="feedback_option_tab_item_left">报修座位</div>
+      <div class="feedback_option_tab_item_left">{{$t("V4_report_a_seat")}}</div>
       <div class="feedback_option_tab_item_right">
         <a-input
           style="text-align: right; padding: 0 10px"
           v-model:value="state.propsData.ilkSeat"
           :bordered="false"
           :size="middle"
-          placeholder="请输入"
+          :placeholder="$t('please_enter')"
         />
       </div>
     </div>
 
     <div class="feedback_option_tab_item" style="margin-top: 10px">
-      <div class="feedback_option_tab_item_left">报修区域是否暂停使用</div>
+      <div class="feedback_option_tab_item_left">{{$t("TRAI_suspended")}}</div>
       <div class="feedback_option_tab_item_right">
         <a-radio-group v-model:value="state.propsData.ilkIsStop">
-          <a-radio :value="0" :key="0">是</a-radio>
-          <a-radio :value="1" :key="1">否</a-radio>
+          <a-radio :value="0" :key="0">{{$t("yes")}}</a-radio>
+          <a-radio :value="1" :key="1">{{$t("no")}}</a-radio>
         </a-radio-group>
       </div>
     </div>
     <a-divider />
     <div class="feedback_option_tab_item">
-      <div class="feedback_option_tab_item_left">联系电话</div>
+      <div class="feedback_option_tab_item_left">{{$t("user_phone")}}</div>
       <div class="feedback_option_tab_item_right">
         <a-input
           style="text-align: right; padding: 0 10px"
           v-model:value="state.propsData.ilkMobile"
           :bordered="false"
           :size="middle"
-          placeholder="请输入"
+          :placeholder="$t('please_enter')"
         />
       </div>
     </div>
     <a-divider />
     <div class="feedback_option_tab_col">
-      <div class="feedback_option_tab_item_top">报修内容</div>
+      <div class="feedback_option_tab_item_top">{{$t("Repair_Content")}}</div>
       <div>
         <a-textarea
           style="margin-bottom: 15px"
@@ -405,7 +405,7 @@ const fetchGetIlkAddress = async (id) => {
   >
     <div class="filterCon">
       <div class="filterCategory">
-        <div class="filterFilter">反馈区域</div>
+        <div class="filterFilter">{{$t("V4_feedback_area")}}</div>
         <div class="fiterItem">
           <a-radio-group v-model:value="state.propsData.categoryAreaId">
             <a-radio
@@ -426,10 +426,10 @@ const fetchGetIlkAddress = async (id) => {
           type="default"
           @click="state.isCategoryArea = false"
         >
-          取消
+          {{$t("cancel")}}
         </van-button>
         <van-button round block type="primary" @click="handleFilterArea"
-          >确认</van-button
+          >{{$t("visitor_Confirm")}}</van-button
         >
       </div>
     </div>
@@ -444,7 +444,7 @@ const fetchGetIlkAddress = async (id) => {
   >
     <div class="filterCon">
       <div class="filterCategory" v-if="state.isCategoryType">
-        <div class="filterFilter">反馈类型</div>
+        <div class="filterFilter">{{$t("feedback_type")}}</div>
         <div class="fiterItem">
           <a-radio-group v-model:value="state.propsData.categoryTypeId">
             <a-radio
@@ -465,10 +465,10 @@ const fetchGetIlkAddress = async (id) => {
           type="default"
           @click="state.isCategoryType = false"
         >
-          取消
+          {{$t("cancel")}}
         </van-button>
         <van-button round block type="primary" @click="handleFilterType"
-          >确认</van-button
+          >{{$t("visitor_Confirm")}}</van-button
         >
       </div>
     </div>
@@ -483,7 +483,7 @@ const fetchGetIlkAddress = async (id) => {
   >
     <div class="filterCon">
       <div class="filterCategory">
-        <div class="filterFilter">报修类型</div>
+        <div class="filterFilter">{{$t("type_of_repair")}}</div>
         <div class="fiterItem">
           <a-radio-group v-model:value="state.propsData.ilkTypeId">
             <a-radio
@@ -503,10 +503,10 @@ const fetchGetIlkAddress = async (id) => {
           type="default"
           @click="state.isShowIlkType = false"
         >
-          取消
+          {{$t("cancel")}}
         </van-button>
         <van-button round block type="primary" @click="handleFilterIlkType"
-          >确认</van-button
+          >{{$t("visitor_Confirm")}}</van-button
         >
       </div>
     </div>
@@ -532,10 +532,10 @@ const fetchGetIlkAddress = async (id) => {
           type="default"
           @click="state.isShowIlkArea = false"
         >
-          取消
+          {{$t("cancel")}}
         </van-button>
         <van-button round block type="primary" @click="handleFilterIlkArea"
-          >确认</van-button
+          >{{$t("visitor_Confirm")}}</van-button
         >
       </div>
     </div>

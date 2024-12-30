@@ -65,14 +65,14 @@ const onChange = (v) => {
             </div>
 
             <div class="info">
-              <span>总数 {{ item?.total_num }}</span>
+              <span>{{$t("Tot")}} {{ item?.total_num }}</span>
               <span
-                >空闲 <span class="available">{{ item?.free_num }}</span></span
+                >{{$t("Avl")}} <span class="available">{{ item?.free_num }}</span></span
               >
             </div>
             <div class="links">
               <p class="activeBtn" @click="() => emits('viewFloor')">
-                查看平面图
+                {{ $t("View_Plan") }}
                 <img src="@/assets/home/rightIcon.svg" alt="" />
               </p>
               <p
@@ -80,7 +80,7 @@ const onChange = (v) => {
                 class="activeBtn"
                 @click="() => emits('viewInfo')"
               >
-                查看详情
+                {{ $t("V4_view_details") }}
                 <img src="@/assets/home/rightIcon.svg" alt="" />
               </p>
             </div>

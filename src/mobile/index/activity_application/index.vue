@@ -149,7 +149,7 @@ const onShowRule = () => {
 <template>
   <div class="activity_application_mobile">
     <div class="top_tabs">
-      <div class="left_title" @click="onShowRule">查看申请须知 ></div>
+      <div class="left_title" @click="onShowRule">{{ $t("V4_view_application_instructions") }} ></div>
       <div @click="state.filterShow = true">
         <img src="@/assets/event/mobile_event_filter.svg" alt="filter" />
       </div>
@@ -280,7 +280,7 @@ const onShowRule = () => {
             block
             type="primary"
             @click="onApply(state.activityInfo?.id)"
-            >{{ $t('visitor_Reservation') }}</van-button
+            >{{ $t('V4_apply') }}</van-button
           >
         </div>
       </div>
@@ -290,7 +290,7 @@ const onShowRule = () => {
       v-if="state.ruleShow"
       v-model:open="state.ruleShow"
       :content="state.ruleInfo?.content"
-      title="预约规则"
+      :title="$t('menu_rules')"
       @onConfirm="state.ruleShow = false"
       :review="true"
     >

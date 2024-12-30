@@ -49,14 +49,14 @@ const onTouchMove = (e) => {};
             <div class="title_right">{{ item.storey_name }}</div>
           </div>
           <div class="seatNum">
-            可容纳人数<span>{{ item.minPerson }} ~ {{ item.maxPerson }}人</span>
+            {{ $t("Capacity_Capacity") }}<span>{{ item.minPerson }} ~ {{ item.maxPerson }}人</span>
           </div>
           <div class="otherInfo">
             <div
               class="otherInfo_item activeBtn"
               @click="() => emits('viewFloor', item)"
             >
-              查看平面图
+              {{ $t("View_Plan") }}
               <img
                 src="@/assets/activity_application/right_arrow_gray.svg"
                 alt=""
@@ -66,7 +66,7 @@ const onTouchMove = (e) => {};
               class="otherInfo_item activeBtn"
               @click="() => emits('viewInfo')"
             >
-              查看详情
+              {{ $t("V4_view_details") }}
               <img
                 src="@/assets/activity_application/right_arrow_gray.svg"
                 alt=""
@@ -81,7 +81,7 @@ const onTouchMove = (e) => {};
 
           <a-divider dashed />
           <div class="bottom_button clickBox" @click="emits('viewRule')">
-            查看申请说明<img
+            {{ $t("V4_view_application_instructions") }}<img
               src="@/assets/activity_application/right_arrow_gray.svg"
               alt=""
             />
@@ -111,13 +111,13 @@ const onTouchMove = (e) => {};
                   <span>{{ item?.storey_name }}</span>
                 </div>
                 <div class="num">
-                  <span>可容纳人数</span>
-                  <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} 人</span>
+                  <span>{{ $t("Capacity_Capacity") }}</span>
+                  <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} {{ $t("People") }}</span>
                 </div>
 
                 <div class="action">
-                  <span @click="() => emits('viewFloor')">查看平面图 ></span>
-                  <span @click="() => emits('viewInfo')">查看详情 ></span>
+                  <span @click="() => emits('viewFloor')">{{ $t("View_Plan") }} ></span>
+                  <span @click="() => emits('viewInfo')">{{ $t("V4_view_details") }} ></span>
                 </div>
               </van-col>
             </van-row>
@@ -134,7 +134,7 @@ const onTouchMove = (e) => {};
           </div>
           <a-divider class="divider" dashed />
           <div class="bottom_button clickBox" @click="emits('viewRule')">
-            查看申请说明 >
+            {{ $t("V4_view_application_instructions") }} >
           </div>
         </div>
       </template>

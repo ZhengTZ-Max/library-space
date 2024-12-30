@@ -12,7 +12,7 @@
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
             <a-breadcrumb-item @click="() => router.replace('/clearLocker')"
-              >选择馆舍</a-breadcrumb-item
+              >{{ $t("visitor_Select_Library") }}</a-breadcrumb-item
             >
             <a-breadcrumb-item>选择机柜</a-breadcrumb-item>
           </a-breadcrumb>
@@ -20,7 +20,7 @@
         <div class="rightAction">
           <div class="filters activeBtn" @click="state.popoverShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            筛选
+            {{$t("Screen")}}
           </div>
         </div>
       </div>
@@ -30,7 +30,7 @@
         <a-checkbox
           v-model:checked="state.listConfig.allCheck"
           @change="changeCheckbox"
-          >全选</a-checkbox
+          >{{ $t("Visitor_Select_All") }}</a-checkbox
         >
 
         <div
@@ -39,7 +39,7 @@
           @click="state.popoverShow = true"
         >
           <img src="@/assets/seat/filtersIcon.svg" alt="" />
-          筛选
+          {{ $t("Screen") }}
         </div>
       </div>
       <div class="refresh-wrap">
@@ -84,9 +84,9 @@
                     <div class="lockerInfo">
                       <p class="lockerTitle">{{ item?.nameMerge }}</p>
                       <p class="showNum">
-                        <span>·总数{{ item?.all }}</span>
+                        <span>·{{ $t("Tot") }}{{ item?.all }}</span>
                         <span style="color: #5d89f6"
-                          >·空闲{{ item?.empty }}</span
+                          >·{{ $t("Avl") }}{{ item?.empty }}</span
                         >
                         <span style="color: #ff5d5d"
                           >·异常{{ item?.unusually }}</span
@@ -94,7 +94,7 @@
                       </p>
                     </div>
                     <div class="viewInfo clickBox" @click.stop="details(item?.id)">
-                      详情
+                      {{ $t("Visitor_details") }}
                     </div>
                   </div>
                 </div>
@@ -122,7 +122,7 @@
           class="btn"
           type="primary"
           @click="fetchCleanLocker"
-          >清柜</van-button
+          >{{ $t("V4_clear_cabinet") }}</van-button
         >
       </div>
     </div>
@@ -137,7 +137,7 @@
   >
     <div class="popupCon">
       <div class="formBox">
-        <p class="formTit">馆舍</p>
+        <p class="formTit">{{ $t("Library") }}</p>
 
         <Tabs
           multiple
@@ -148,7 +148,7 @@
           @onChange="onChangeFloor"
         />
 
-        <p class="formTit">类型</p>
+        <p class="formTit">{{ $t("type") }}</p>
         <Tabs
           :list="state.typeCategoryList"
           activeKey="id"
@@ -158,8 +158,8 @@
         />
       </div>
       <div class="formBtn">
-        <van-button class="btn_left" @click="resetting">重置 </van-button>
-        <van-button class="btn_right" @click="queryList">查询 </van-button>
+        <van-button class="btn_left" @click="resetting">{{ $t("Visitor_Reset") }} </van-button>
+        <van-button class="btn_right" @click="queryList">{{ $t("Visitor_query") }} </van-button>
       </div>
     </div>
   </van-popup>

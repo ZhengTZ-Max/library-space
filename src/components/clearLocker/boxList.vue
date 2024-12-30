@@ -3,8 +3,8 @@
     <div class="boxInfo">
       <p class="boxNum">{{ state.boxInfo?.lockerName || "-" }}</p>
       <p class="showNum">
-        <span>·总数{{ state.boxInfo?.all || 0 }}</span>
-        <span style="color: #5d89f6">·空闲{{ state.boxInfo?.empty || 0 }}</span>
+        <span>·{{ $t("Tot") }}{{ state.boxInfo?.all || 0 }}</span>
+        <span style="color: #5d89f6">·{{$t("Avl")}} {{ state.boxInfo?.empty || 0 }}</span>
         <span style="color: #ff5d5d"
           >·异常{{ state.boxInfo?.unusually || 0 }}</span
         >
@@ -14,12 +14,12 @@
       <a-checkbox
         v-model:checked="state.listConfig.allCheck"
         @change="changeCheckbox"
-        >全选</a-checkbox
+        >{{ $t("Visitor_Select_All") }}</a-checkbox
       >
 
       <div class="filters" @click="state.popoverShow = true">
         <img src="@/assets/seat/filtersIcon.svg" alt="" />
-        筛选
+        {{ $t("Screen") }}
       </div>
     </div>
     <div class="refresh-wrap">

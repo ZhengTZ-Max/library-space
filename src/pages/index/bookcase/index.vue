@@ -128,14 +128,14 @@ const handleFilter = () => {
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
             <a-breadcrumb-item
-              >选择存书柜<img src="@/assets/seat/titRightIcon.svg" alt=""
+              >{{ $t("V4_select_a_bookcase") }}<img src="@/assets/seat/titRightIcon.svg" alt=""
             /></a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         <div class="rightAction">
           <div class="filters activeBtn" @click="state.BookFilterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            筛选
+            {{ $t("Screen") }}
           </div>
         </div>
       </div>
@@ -176,7 +176,7 @@ const handleFilter = () => {
                   <span>{{ item?.storeyName }}</span>
                 </div>
                 <div class="num">
-                  总数 <span>{{ item?.total_num || "-" }}</span> 空闲
+                  {{ $t("Tot") }} <span>{{ item?.total_num || "-" }}</span> {{ $t("Avl") }}
                   <span>{{ item?.free_num || "-" }}</span>
                 </div>
               </div>
@@ -185,7 +185,7 @@ const handleFilter = () => {
                 class="action clickBoxT"
                 @click="handleAppt(item)"
               >
-                立即预约
+                {{ $t("book_now") }}
               </div>
             </div>
           </a-col>
@@ -197,10 +197,10 @@ const handleFilter = () => {
     <a-modal
       width="50%"
       v-model:open="state.BookFilterShow"
-      title="空间筛选"
+      :title="$t('V4_space_filter')"
       @ok="handleFilter"
-      okText="确认"
-      cancelText="取消"
+      :okText="$t('visitor_Confirm')"
+      :cancelText="$t('cancel')"
       :cancelButtonProps="{
         size: 'middle',
         style: {

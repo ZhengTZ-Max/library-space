@@ -76,7 +76,7 @@ const onCancelReservation = async () => {
                   状态异常			其它
                 -->
     <p v-if="state.selectedRecord.activeKey == '1'">
-      预约状态：<span
+      {{$t("Status")}}：<span
         :class="
           state.selectedRecord.status === '2' ||
           state.selectedRecord.status === '9'
@@ -104,7 +104,7 @@ const onCancelReservation = async () => {
                   状态异常  其它 灰色
                 -->
     <p v-else>
-      预约状态：<span
+      {{$t("Status")}}：<span
         :class="
           state.selectedRecord.status === '1'
             ? 'status-success'
@@ -116,12 +116,12 @@ const onCancelReservation = async () => {
       >
     </p>
     <p>
-      预约用户：{{ state.userInfo.name }}({{ state.selectedRecord.booker }})
+      {{$t("yuyue_username")}}：{{ state.userInfo.name }}({{ state.selectedRecord.booker }})
     </p>
-    <p>预约时间：{{ state.selectedRecord.examTime }}</p>
-    <p>开始时间：{{ state.selectedRecord.beginTime }}</p>
-    <p>结束时间：{{ state.selectedRecord.endTime }}</p>
-    <p>预约地点：{{ state.selectedRecord.nameMerge }}</p>
+    <p>{{$t("yuyue_time")}}：{{ state.selectedRecord.examTime }}</p>
+    <p>{{$t("Activity_begintime")}}：{{ state.selectedRecord.beginTime }}</p>
+    <p>{{$t("Activity_endtime")}}：{{ state.selectedRecord.endTime }}</p>
+    <p>{{$t("Reservation_location")}}：{{ state.selectedRecord.nameMerge }}</p>
     <p>
       座位号：{{ state.selectedRecord.name || state.selectedRecord?.spacename }}
     </p>
@@ -143,7 +143,7 @@ const onCancelReservation = async () => {
         type="primary"
         class="cancel-button"
         @click="onCancelReservation"
-        >取消预约</a-button
+        >{{$t("cancelappointment")}}</a-button
       >
     </div>
     <div v-else>

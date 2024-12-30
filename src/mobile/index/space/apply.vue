@@ -874,7 +874,7 @@ const getDateStatus = () => {
           v-if="state.swipeShow"
           @click="state.swipeShow = false"
         >
-          <a-image :src="HiddenArrow" />
+          <a-image :src="HiddenArrow" :preview="false" />
         </div>
 
         <div class="show_arrow_box" v-if="!state.swipeShow">
@@ -888,7 +888,7 @@ const getDateStatus = () => {
             v-if="!state.swipeShow"
             @click="state.swipeShow = true"
           >
-            <a-image :src="ShowArrow" />
+            <a-image :src="ShowArrow" :preview="false" />
           </div>
         </div>
       </div>
@@ -1238,7 +1238,7 @@ const getDateStatus = () => {
         block
         type="primary"
         @click="onSubmit"
-        >{{ $t("visitor_Reservation") }}</van-button
+        >{{ $t("book_now") }}</van-button
       >
     </div>
     <!-- 底部按钮 -->

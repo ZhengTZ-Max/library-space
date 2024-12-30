@@ -36,44 +36,44 @@ const state = reactive({
 
 const columns = [
   {
-    title: "活动海报",
+    title: $t("V4_event_poster"),
     dataIndex: "image",
     key: "image",
   },
   {
-    title: "活动名称",
+    title: $t("user_activityname"),
     dataIndex: "title",
     key: "title",
   },
   {
-    title: "地点",
+    title: $t("Place"),
     dataIndex: "nameMerge",
     key: "nameMerge",
   },
   {
-    title: "时间",
+    title: $t("Time"),
     dataIndex: "show_date",
     key: "show_date",
   },
   {
-    title: "状态",
+    title: $t("V4_status"),
     dataIndex: "status_name",
     key: "status_name",
   },
   {
-    title: "操作",
+    title: $t("user_operation"),
     key: "action",
   },
 ];
 
 const columnsForDraft = [
   {
-    title: "活动海报",
+    title: $t("V4_event_poster"),
     dataIndex: "image",
     key: "image",
   },
   {
-    title: "活动名称",
+    title: $t("user_activityname"),
     dataIndex: "name",
     key: "name",
   },
@@ -83,7 +83,7 @@ const columnsForDraft = [
     key: "time_last",
   },
   {
-    title: "操作",
+    title: $t("user_operation"),
     key: "action",
   },
 ];
@@ -243,9 +243,9 @@ const onDealWithDate = () => {
       size="middle"
       @change="onChangeTab"
     >
-      <a-tab-pane key="1" tab="申请记录"></a-tab-pane>
+      <a-tab-pane key="1" :tab="$t('ApplicationRecord')"></a-tab-pane>
       <a-tab-pane key="2" tab="报名记录"></a-tab-pane>
-      <a-tab-pane key="3" tab="草稿箱"></a-tab-pane>
+      <a-tab-pane key="3" :tab="$t('Drafts')"></a-tab-pane>
     </a-tabs>
 
     <div class="table" v-if="state.activeKey !== '3'">
@@ -288,15 +288,15 @@ const onDealWithDate = () => {
               <template v-if="record.status_name === '等待审核'">
                 <span>
                   <a class="red" type="primary" @click="onShowDrawer(record)"
-                    >取消</a
+                    >{{ $t("cancel") }}</a
                   >
                   <a-divider type="vertical" />
-                  <a type="primary" @click="onShowDrawer(record)">修改</a>
+                  <a type="primary" @click="onShowDrawer(record)">{{ $t("V4_modify") }}</a>
                 </span>
               </template>
               <template v-else>
                 <span>
-                  <a type="primary" @click="onShowDrawer(record)">查看</a>
+                  <a type="primary" @click="onShowDrawer(record)">{{ $t("feedback_list_view") }}</a>
                 </span>
               </template>
             </template>
@@ -352,7 +352,7 @@ const onDealWithDate = () => {
       <div class="drawer-title">
         <div class="title-text">
           <div class="indicator_title"></div>
-          <span class="text">活动详情</span>
+          <span class="text">{{ $t("V4_event_details") }}</span>
         </div>
         <img src="@/assets/close.svg" alt="" />
       </div>

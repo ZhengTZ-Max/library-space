@@ -54,8 +54,8 @@ const state = reactive({
 
   quickMode: "0",
   quickModeList: [
-    { value: 0, label: "地图模式" },
-    { value: 1, label: "列表模式" },
+    { value: 0, label: $t("V4_map_view") },
+    { value: 1, label: $t("V4_list_view") },
   ],
 
   spaceSelected: {},
@@ -554,12 +554,12 @@ const fetchDeleteCollect = async () => {
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
             <a-breadcrumb-item @click="goToLink('/seat')"
-              >选择馆舍</a-breadcrumb-item
+              >{{ $t("visitor_Select_Library") }}</a-breadcrumb-item
             >
             <a-breadcrumb-item @click="goToLink(-1)"
-              >选择空间</a-breadcrumb-item
+              >{{ $t("V4_select_a_space") }}</a-breadcrumb-item
             >
-            <a-breadcrumb-item>选择座位</a-breadcrumb-item>
+            <a-breadcrumb-item>{{ $t("selectseat") }}</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         <div class="rightAction">
@@ -641,35 +641,35 @@ const fetchDeleteCollect = async () => {
 
           <div class="reservation">
             <div v-if="state.spaceInfo?.type != 1" class="studyPermission">
-              <p class="studyTitle">预约权限</p>
+              <p class="studyTitle">{{ $t("Reservation_permission") }}</p>
               <div class="studyBox">
                 <p>
-                  本期：<span
+                  {{ $t("Current") }}：<span
                     :class="{
                       success: getStudyPermission({ index: 0 }),
                       fail: !getStudyPermission({ index: 0 }),
                     }"
                     class="success"
                     >{{
-                      getStudyPermission({ index: 0 }) ? "已获得" : "未获得"
+                      getStudyPermission({ index: 0 }) ? $t("Authorized_by") : $t("Unauthorized")
                     }}</span
                   >
                 </p>
                 <p>
-                  下期：<span
+                  {{ $t("Next_time") }}：<span
                     :class="{
                       success: getStudyPermission({ index: 1 }),
                       fail: !getStudyPermission({ index: 1 }),
                     }"
                     >{{
-                      getStudyPermission({ index: 1 }) ? "已获得" : "未获得"
+                      getStudyPermission({ index: 1 }) ? $t("Authorized_by") : $t("Unauthorized")
                     }}</span
                   >
                 </p>
               </div>
             </div>
             <div class="selectDate">
-              <span v-if="state?.spaceInfo?.type == 1">今天</span>
+              <span v-if="state?.spaceInfo?.type == 1">{{ $t("today") }}</span>
               <span v-else>{{
                 state.studyOpenTime?.find(
                   (e) => e?.id == state.filterSearch?.dateId
@@ -685,7 +685,7 @@ const fetchDeleteCollect = async () => {
             </div>
             <div class="selectSeat">
               <div class="leftText">
-                已选座位： <span>{{ state.spaceSelected?.no || "-" }}</span>
+                {{ $t("Selected_seat") + "：" }} <span>{{ state.spaceSelected?.no || "-" }}</span>
               </div>
               <div
                 v-if="state?.spaceInfo?.type == 1 && state.spaceSelected?.no"
@@ -721,8 +721,8 @@ const fetchDeleteCollect = async () => {
             "
             >{{
               !getStudyPermission({ id: state.filterSearch?.dateId })
-                ? "无预约权限"
-                : "立即预约"
+                ? $t("No_reservation_permission")
+                : $t("book_now")
             }}</a-button
           >
         </template>
@@ -736,7 +736,7 @@ const fetchDeleteCollect = async () => {
       title="空间详情"
       @ok="handleAppt"
       destroyOnClose
-      cancelText="关闭"
+      :cancelText="$t('feedback_details_close')"
       :cancelButtonProps="{
         size: 'middle',
         style: {
@@ -754,12 +754,12 @@ const fetchDeleteCollect = async () => {
     <a-modal
       width="35%"
       v-model:open="state.spaceFilterShow"
-      title="选择时间"
+      :title="$t('SelectTime')"
       @ok="handleFilter"
       @cancel="handleFilter('cancel')"
       destroyOnClose
-      okText="确认"
-      cancelText="取消"
+      :okText="$t('visitor_Confirm')"
+      :cancelText="$t('cancel')"
       :cancelButtonProps="{
         size: 'middle',
         style: {
@@ -818,19 +818,19 @@ const fetchDeleteCollect = async () => {
     >
       <template v-slot:content>
         <div class="toastItem">
-          <span>时间：</span>
+          <span>{{ $t("Time") }}：</span>
           <span>{{ ShowSelectedDateTime() }}</span>
         </div>
         <div class="toastItem">
-          <span>地点：</span>
+          <span>{{ $t("Place") }}：</span>
           <span>{{ ShowArea() }}</span>
         </div>
         <div class="toastItem">
-          <span>座位：</span>
+          <span>{{ $t("V4_seats") }}：</span>
           <span>{{ state.spaceSelected?.no || "-" }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
-          <span>提醒：</span>
+          <span>{{ $t("V4_reminder") }}：</span>
           <span>{{ state.apptResult?.msg }}</span>
         </div>
       </template>

@@ -25,9 +25,9 @@ onMounted(() => {
           alt="Empty state illustration"
         />
         <div class="share-popup-title">{{ state.data.title }}</div>
-        <div class="share-popup-item">活动地点</div>
+        <div class="share-popup-item">{{$t("user_activityplace")}}</div>
         <div class="share-popup-item_value">{{ state.data.nameMerge }}</div>
-        <div class="share-popup-item">活动时间</div>
+        <div class="share-popup-item">{{ $t("user_activitytime") }}</div>
         <div class="share-popup-item_value">
           {{ state.data.begin_date }} {{ state.data.begin_time }} ~
           {{ state.data.end_date }} {{ state.data.end_time }}

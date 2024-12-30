@@ -134,7 +134,7 @@ const filterFileUpload = (files) => {
         v-if="state.propsData.selectedDetails.status_name == '等待审核'"
       >
         <div class="uploadFile-item">
-          <div><span style="color: #ff4d4f">*</span>活动海报:</div>
+          <div><span style="color: #ff4d4f">*</span>{{$t("V4_event_poster")}}:</div>
           <Uploader
             :initFileList="state.poster"
             filePath="activity"
@@ -148,7 +148,7 @@ const filterFileUpload = (files) => {
           </Uploader>
         </div>
         <div class="uploadFile-item">
-          <div>宣传片:</div>
+          <div>{{$t("V4_promotional_video")}}:</div>
           <Uploader
             :initFileList="state.publicize"
             filePath="activity"
@@ -162,7 +162,7 @@ const filterFileUpload = (files) => {
           </Uploader>
         </div>
       </div>
-      <div class="controls">
+      <div class="controls" v-if="state.propsData.selectedDetails.publicize.length > 0">
         <div
           class="toggleLang"
           :class="{ toggleLangPc: store.state.systemMode == 'pc' }"
@@ -172,14 +172,14 @@ const filterFileUpload = (files) => {
             :class="{ langActive: state.quickMode == '1' }"
             @click="state.quickMode = '1'"
           >
-            图片
+            {{$t("photo")}}
           </div>
           <div
             class="langItem activeBtn"
             :class="{ langActive: state.quickMode == '2' }"
             @click="state.quickMode = '2'"
           >
-            视频
+            {{$t("video")}}
           </div>
         </div>
         <div class="share-btn">
@@ -188,7 +188,7 @@ const filterFileUpload = (files) => {
             alt=""
             class="background-image"
           />
-          <span class="share-text" @click="state.onShare = true">分享</span>
+          <span class="share-text" @click="state.onShare = true">{{$t("V4_share")}}</span>
         </div>
       </div>
     </div>
@@ -202,43 +202,43 @@ const filterFileUpload = (files) => {
     >
       <div class="content-details">
         <div class="info-item status">
-          <span class="label">活动状态：</span>
+          <span class="label">{{$t("activity_status")}}：</span>
           <span :class="statusClass">{{
             state.propsData?.selectedDetails?.status_name
           }}</span>
         </div>
         <div class="info-item">
-          <span class="label">活动名称：</span>
+          <span class="label">{{$t("user_activityname")}}：</span>
           <span class="value">{{
             state.propsData?.selectedDetails?.title
           }}</span>
         </div>
         <div class="info-item">
-          <span class="label">活动日期：</span>
+          <span class="label">{{$t("activity_Date")}}：</span>
           <span class="value"
             >{{ state.propsData?.selectedDetails?.begin_date }} ~
             {{ state.propsData?.selectedDetails?.end_date }}</span
           >
         </div>
         <div class="info-item">
-          <span class="label">活动时间：</span>
+          <span class="label">{{$t("user_activitytime")}}：</span>
           <span class="value"
             >{{ state.propsData?.selectedDetails?.begin_time }} ~
             {{ state.propsData?.selectedDetails?.end_time }}</span
           >
         </div>
         <div class="info-item">
-          <span class="label">可报名人数：</span>
+          <span class="label">{{$t("Number_of_registrations")}}：</span>
           <span class="value">{{ state.propsData?.selectedDetails?.max }}</span>
         </div>
         <div class="info-item">
-          <span class="label">活动地点：</span>
+          <span class="label">{{$t("user_activityplace")}}：</span>
           <span class="value">{{
             state.propsData?.selectedDetails?.nameMerge
           }}</span>
         </div>
         <div class="info_item_description">
-          <span class="label_description">活动介绍：</span>
+          <span class="label_description">{{$t("Activity_Introduction")}}：</span>
           <div class="value-wrapper">
             <p class="value">
               {{ state.propsData?.selectedDetails?.content }}
@@ -249,7 +249,7 @@ const filterFileUpload = (files) => {
           class="attachment-section"
           v-if="state.propsData?.selectedDetails?.approve"
         >
-          <div class="label">审批附件：</div>
+          <div class="label">{{$t("V4_approval_attachments")}}：</div>
           <div class="file-item">
             <img
               :src="
@@ -269,7 +269,7 @@ const filterFileUpload = (files) => {
           class="attachment-section"
           v-if="state.propsData?.selectedDetails?.plan"
         >
-          <div class="label">活动策划案：</div>
+          <div class="label">{{$t("V4_event_plan")}}：</div>
           <div class="file-item">
             <img
               :src="
@@ -295,43 +295,43 @@ const filterFileUpload = (files) => {
     >
       <div class="content-details">
         <div class="info-item status">
-          <span class="label">活动状态：</span>
+          <span class="label">{{$t("activity_status")}}：</span>
           <span :class="statusClass">{{
             state.propsData?.selectedDetails?.status_name
           }}</span>
         </div>
         <div class="info-item">
-          <span class="label">活动名称 :</span>
+          <span class="label">{{ $t("user_activityname") }}:</span>
           <a-input v-model:value="state.propsData.selectedDetails.title" />
         </div>
         <div class="info-item">
-          <span class="label">活动日期：</span>
+          <span class="label">{{$t("activity_Date")}}：</span>
           <div class="disable_input_item">
             {{ state.propsData?.selectedDetails?.begin_date }} ~
             {{ state.propsData?.selectedDetails?.end_date }}
           </div>
         </div>
         <div class="info-item">
-          <span class="label">活动时间：</span>
+          <span class="label">{{$t("user_activitytime")}}：</span>
           <div class="disable_input_item">
             {{ state.propsData?.selectedDetails?.begin_time }} ~
             {{ state.propsData?.selectedDetails?.end_time }}
           </div>
         </div>
         <div class="info-item">
-          <span class="label">可报名人数：</span>
+          <span class="label">{{$t("Number_of_registrations")}}：</span>
           <div class="disable_input_item">
             {{ state.propsData?.selectedDetails?.max }}
           </div>
         </div>
         <div class="info-item">
-          <span class="label">活动地点：</span>
+          <span class="label">{{$t("user_activityplace")}}：</span>
           <div class="disable_input_item">
             {{ state.propsData?.selectedDetails?.nameMerge }}
           </div>
         </div>
         <div class="info_item_description">
-          <span class="label_description">活动介绍：</span>
+          <span class="label_description">{{$t("Activity_Introduction")}}：</span>
           <div class="value-wrapper">
             <a-textarea
               style="width: 100%"
@@ -346,7 +346,7 @@ const filterFileUpload = (files) => {
         <div class="bottom-upload-box">
           <div class="bottom-upload-item">
             <div class="bottom-upload-item-title">
-              <span style="color: #ff4d4f">*</span>审批附件:
+              <span style="color: #ff4d4f">*</span>{{$t("V4_approval_attachments")}}:
             </div>
             <Uploader
               :initFileList="state.approve"
@@ -368,7 +368,7 @@ const filterFileUpload = (files) => {
           </div>
           <div class="bottom-upload-item">
             <div class="bottom-upload-item-title">
-              <span style="color: #ff4d4f">*</span>活动策划案:
+              <span style="color: #ff4d4f">*</span>{{$t("V4_event_plan")}}:
             </div>
             <Uploader
               :initFileList="state.plan"
@@ -426,19 +426,19 @@ const filterFileUpload = (files) => {
     <div v-if="state.propsData?.activeKey === '2'">
       <div class="content-details">
         <div class="info-item status">
-          <span class="label">活动状态：</span>
+          <span class="label">{{$t("activity_status")}}：</span>
           <span :class="statusClass">{{
             state.propsData?.selectedDetails?.status_name
           }}</span>
         </div>
         <div class="info-item">
-          <span class="label">活动名称：</span>
+          <span class="label">{{$t("user_activityname")}}：</span>
           <span class="value">{{
             state.propsData?.selectedDetails?.title
           }}</span>
         </div>
         <div class="schedule-row">
-          <span class="label">活动日期：</span>
+          <span class="label">{{$t("activity_Date")}}：</span>
           <div class="date-options">
             <div
               v-for="(item, index) in state.propsData?.selectedDetails?.time"
@@ -450,14 +450,14 @@ const filterFileUpload = (files) => {
               @click="onSelectDate(item)"
             >
               <div class="leftBadge basicsBadge">
-                {{ item.isAppointment ? "已预约" : "未预约" }}
+                {{ item.isAppointment ? $t("已预约") : "未预约" }}
               </div>
               {{ item.date }}
             </div>
           </div>
         </div>
         <div class="schedule-row">
-          <span class="label">活动时间：</span>
+          <span class="label">{{$t("user_activitytime")}}：</span>
           <div class="time-options">
             <div
               v-for="(item, index) in state.propsData?.selectedTimeList"
@@ -466,23 +466,23 @@ const filterFileUpload = (files) => {
             >
               {{ item.start_time }} ~ {{ item.end_time }}
               <div class="leftBadge basicsBadge">
-                {{ item.is_subscribe === 1 ? "已预约" : "未预约" }}
+                {{ item.is_subscribe === 1 ? $t("已预约") : "未预约" }}
               </div>
             </div>
           </div>
         </div>
         <div class="info-item">
-          <span class="label">报名人数：</span>
+          <span class="label">{{$t("Enrollment_quantity")}}：</span>
           <span class="value">{{ state.propsData?.selectedDetails?.max }}</span>
         </div>
         <div class="info-item">
-          <span class="label">活动地点：</span>
+          <span class="label">{{$t("user_activityplace")}}：</span>
           <span class="value">{{
             state.propsData?.selectedDetails?.nameMerge
           }}</span>
         </div>
         <div class="info_item_description">
-          <span class="label_description">活动介绍：</span>
+          <span class="label_description">{{$t("Activity_Introduction")}}：</span>
           <div class="value-wrapper">
             <p class="value">
               {{ state.propsData?.selectedDetails?.content }}
@@ -528,7 +528,7 @@ const filterFileUpload = (files) => {
             shape="round"
             size="large"
             @click="onHideDrawer"
-            >取消报名</a-button
+            >{{$t("Cancel_Enrollment")}}</a-button
           >
         </div>
       </div>

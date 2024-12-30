@@ -35,8 +35,8 @@ const state = reactive({
 
   quickMode: 1,
   quickModeList: [
-    { value: 1, label: "收藏" },
-    { value: 2, label: "常用" },
+    { value: 1, label: $t("V4_favorites") },
+    { value: 2, label: $t("V4_frequently_used") },
   ],
 
   dates: [],
@@ -58,29 +58,29 @@ const state = reactive({
 
 const columns = [
   {
-    title: "地点",
+    title: $t("Place"),
     dataIndex: "location",
     key: "location",
   },
   {
-    title: "座位",
+    title: $t("V4_seats"),
     dataIndex: "seating",
     key: "seating",
   },
   {
-    title: "操作",
+    title: $t("user_operation"),
     key: "action",
   },
 ];
 const columnsForSpace = [
   {
-    title: "地点",
+    title: $t("Place"),
     dataIndex: "location",
     key: "location",
   },
 
   {
-    title: "操作",
+    title: $t("user_operation"),
     key: "action",
   },
 ];
@@ -169,11 +169,11 @@ const dealwitchTime = (res) => {
       state.datesSelectList = res.data.map((item) => {
         let label = "";
         if (moment().format("YYYY-MM-DD") == item.day) {
-          label = "今天";
+          label = $t("today");
         } else if (
           exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == item.day
         ) {
-          label = "明天";
+          label = $t("tomorrow");
         } else if (moment().add(2, "days").format("YYYY-MM-DD") == item.day) {
           label = "后天";
         } else {
@@ -363,8 +363,8 @@ const handleShow = (v) => {
 <template>
   <div class="table">
     <a-tabs v-model:activeKey="state.activeKey" size="middle">
-      <a-tab-pane key="1" tab="座位"></a-tab-pane>
-      <a-tab-pane key="2" tab="空间"></a-tab-pane>
+      <a-tab-pane key="1" :tab="$t('V4_seats')"></a-tab-pane>
+      <a-tab-pane key="2" :tab="$t('Space')"></a-tab-pane>
     </a-tabs>
     <div class="header">
       <div class="quickBtns">
@@ -384,7 +384,7 @@ const handleShow = (v) => {
         class="date-time-selector"
       >
         <div class="date-selector">
-          <span>日期：</span>
+          <span>{{ $t("Date") + "：" }}</span>
           <a-radio-group
             v-model:value="state.dateValue"
             @change="onChangeDateOrTime"
@@ -400,7 +400,7 @@ const handleShow = (v) => {
           </a-radio-group>
         </div>
         <div class="time-selector">
-          <span>时间：</span>
+          <span>{{ $t("Time") + "：" }}</span>
           <a-radio-group
             v-model:value="state.timeValue"
             @change="onChangeDateOrTime"
@@ -442,10 +442,10 @@ const handleShow = (v) => {
                   class="red"
                   type="primary"
                   @click="onCancelCollect(record)"
-                  >取消收藏</a
+                  >{{ $t("V4_remove_from_favorites") }}</a
                 >
                 <a-divider v-if="state.quickMode == 1" type="vertical" />
-                <a type="primary" @click="onApplyOrJumpDetail(record)">预约</a>
+                <a type="primary" @click="onApplyOrJumpDetail(record)">{{ $t("Reservation") }}</a>
               </span>
             </template>
           </template>
@@ -470,10 +470,10 @@ const handleShow = (v) => {
                   class="red"
                   type="primary"
                   @click="onCancelCollect(record)"
-                  >取消收藏</a
+                  >{{ $t("V4_remove_from_favorites") }}</a
                 >
                 <a-divider v-if="state.quickMode == 1" type="vertical" />
-                <a type="primary" @click="onApplyOrJumpDetail(record)">预约</a>
+                <a type="primary" @click="onApplyOrJumpDetail(record)">{{ $t("Reservation") }}</a>
               </span>
             </template>
           </template>
@@ -500,19 +500,19 @@ const handleShow = (v) => {
   >
     <template v-slot:content>
       <div class="toastItem">
-        <span>时间：</span>
+        <span>{{ $t("Time") + "：" }}</span>
         <span>{{ state.apptResult?.seatInfo?.time }}</span>
       </div>
       <div class="toastItem">
-        <span>地点：</span>
+        <span>{{ $t("Place") + "：" }}</span>
         <span>{{ state.apptResult?.seatInfo?.seat }}</span>
       </div>
       <div class="toastItem">
-        <span>座位：</span>
+        <span>{{ $t("V4_seats") + "：" }}</span>
         <span>{{ state.apptResult?.seatInfo?.no }}</span>
       </div>
       <div v-if="state.apptResult?.msg" class="toastItem">
-        <span>提醒：</span>
+        <span>{{ $t("V4_reminder") + "：" }}</span>
         <span>{{ state.apptResult?.msg }}</span>
       </div>
     </template>

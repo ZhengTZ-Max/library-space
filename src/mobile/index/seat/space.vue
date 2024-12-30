@@ -42,8 +42,8 @@ const state = reactive({
   quickDateList: [],
   quickMode: "1",
   quickModeList: [
-    { value: 0, label: "V4_map_view" },
-    { value: 1, label: "V4_list_view" },
+    { value: 0, label: $t("V4_map_view") },
+    { value: 1, label: $t("V4_list_view") },
   ],
   spaceList: [],
   floorList: [],
@@ -96,8 +96,8 @@ const initQueryFn = () => {
 
 const initQuickDateList = (list) => {
   state.quickDateList = [
-    { label: "今天", value: moment().format("YYYY-MM-DD") },
-    { label: "明天", value: moment().add(1, "days").format("YYYY-MM-DD") },
+    { label: $t("today"), value: moment().format("YYYY-MM-DD") },
+    { label: $t("tomorrow"), value: moment().add(1, "days").format("YYYY-MM-DD") },
   ];
 
   if (list?.length) {

@@ -72,7 +72,7 @@ const handleFloorChange = (e) => {
 <template>
   <div class="filterCon">
     <div class="filterScr">
-      <div class="filterFilter">馆舍</div>
+      <div class="filterFilter">{{$t("Library")}}</div>
       <div class="fiterItem">
         <a-radio-group
           v-model:value="state.filterRows.ilkAreaID"
@@ -87,7 +87,7 @@ const handleFloorChange = (e) => {
           >
         </a-radio-group>
       </div>
-      <div class="filterFilter">楼层</div>
+      <div class="filterFilter">{{$t("Floor")}}</div>
       <div class="fiterItem">
         <a-radio-group
           v-model:value="state.filterRows.ilkFloorID"
@@ -102,7 +102,7 @@ const handleFloorChange = (e) => {
           >
         </a-radio-group>
       </div>
-      <div class="filterFilter">区域</div>
+      <div class="filterFilter">{{$t("Area")}}</div>
       <div class="fiterItem">
         <a-radio-group v-model:value="state.filterRows.ilkSpaceID">
           <a-radio

@@ -22,7 +22,7 @@ const state = reactive({
 
   quickMode: 1,
   quickModeList: [
-    { value: 1, label: "预约记录" },
+    { value: 1, label: $t("visitor_Reservation_List") },
     { value: 0, label: "违约记录" },
   ],
 
@@ -77,22 +77,22 @@ const onHideModal = () => {
 
 const columns = [
   {
-    title: "存书柜",
+    title: $t("V4_store_library"),
     dataIndex: "location",
     key: "location",
   },
   {
-    title: "时间",
+    title: $t("Time"),
     dataIndex: "time",
     key: "time",
   },
   {
-    title: "状态",
+    title: $t("V4_status"),
     dataIndex: "status",
     key: "status",
   },
   {
-    title: "操作",
+    title: $t("user_operation"),
     key: "action",
   },
 ];
@@ -198,16 +198,20 @@ const onCancel = async (record) => {
             <template v-if="column.key === 'action'">
               <template v-if="record.statusMsg === '预约成功'">
                 <span>
-                  <a class="red" type="primary" @click="onCancel(record)"
-                    >取消</a
-                  >
+                  <a class="red" type="primary" @click="onCancel(record)">{{
+                    $t("cancel")
+                  }}</a>
                   <a-divider type="vertical" />
-                  <a type="primary" @click="onShowModal(record)">查看</a>
+                  <a type="primary" @click="onShowModal(record)">{{
+                    $t("feedback_list_view")
+                  }}</a>
                 </span>
               </template>
               <template v-else>
                 <span>
-                  <a type="primary" @click="onShowModal(record)">查看</a>
+                  <a type="primary" @click="onShowModal(record)">{{
+                    $t("feedback_list_view")
+                  }}</a>
                 </span>
               </template>
             </template>
@@ -229,14 +233,15 @@ const onCancel = async (record) => {
   <a-modal
     class="result-modal"
     v-model:visible="state.isModalVisible"
-    title="预约详情"
+    :title="$t('yuyue_detail')"
     :footer="null"
     @ok="onHideModal"
   >
     <a-divider />
     <div v-if="state.selectedRecord" class="modal-content">
       <p>
-        预约状态：<span
+        {{ $t("Status") + "："
+        }}<span
           :class="
             state.selectedRecord.statusMsg === '预约成功'
               ? 'status-success'
@@ -250,11 +255,20 @@ const onCancel = async (record) => {
           >{{ state.selectedRecord.statusMsg }}</span
         >
       </p>
-      <p>预约用户：{{ state.userInfo.name }}({{ state.userInfo.id }})</p>
-      <p>预约时间：{{ state.selectedRecord.createTime }}</p>
-      <p>开始时间：{{ state.selectedRecord.startTime }}</p>
-      <p>结束时间：{{ state.selectedRecord.endTime }}</p>
-      <p>预约地点：{{ state.selectedRecord.nameMerge }}</p>
+      <p>
+        {{ $t("yuyue_username") + "：" }}{{ state.userInfo.name }}({{
+          state.userInfo.id
+        }})
+      </p>
+      <p>{{ $t("yuyue_time") + "：" }}{{ state.selectedRecord.createTime }}</p>
+      <p>
+        {{ $t("user_begintime") + "：" }}{{ state.selectedRecord.startTime }}
+      </p>
+      <p>{{ $t("user_endtime") + "：" }}{{ state.selectedRecord.endTime }}</p>
+      <p>
+        {{ $t("Reservation_location") + "："
+        }}{{ state.selectedRecord.nameMerge }}
+      </p>
 
       <a-divider dashed />
 
@@ -266,14 +280,14 @@ const onCancel = async (record) => {
           type="primary"
           class="cancel-button-success"
           @click="onCancel(state.selectedRecord)"
-          >取消预约</a-button
+          >{{ $t("visitor_Cancel_Reservation") }}</a-button
         >
       </div>
       <p v-else-if="state.selectedRecord.statusMsg === '未签到'">
-        违约时间：{{ state.selectedRecord.checkInTime }}
+        {{ $t("user_renegetime") + "：" }}{{ state.selectedRecord.checkInTime }}
       </p>
       <p v-else-if="state.selectedRecord.statusMsg === '已取消'">
-        取消时间：{{ state.selectedRecord.checkInTime }}
+        {{$t("Cancel_time") + "：" }}{{ state.selectedRecord.checkInTime }}
       </p>
       <div v-else-if="state.selectedRecord.statusMsg === '已结束'">
         <p>存物时间：{{ state.selectedRecord.startTime }}</p>
@@ -282,7 +296,7 @@ const onCancel = async (record) => {
       <div v-else-if="state.selectedRecord.statusMsg === '使用超时'">
         <p>存物时间：{{ state.selectedRecord.startTime }}</p>
         <p>取物时间：{{ state.selectedRecord.endTime }}</p>
-        <p>超时时间：<span class="red">152分钟</span></p>
+        <p>{{ $t("V4_timeout_duration") + "：" }}<span class="red">152 {{ $t("Minutes") }}</span></p>
       </div>
       <p v-else>存物时间：{{ state.selectedRecord.checkInTime }}</p>
     </div>

@@ -39,11 +39,11 @@ onMounted(() => {
             :disabled="item?.isvalid != 1"
             >{{ `${item?.startDay} ~ ${item?.endDay}` }}
             <span style="margin: 0 12px">{{
-              i == 0 ? "(本期)" : "(下期)"
+              i == 0 ? `(${$t("Current")})` : `(${$t("Next_time")})`
             }}</span>
-            <span v-if="item?.isvalid != 1" style="color: #1a49c0"
-              >无预约权限</span
-            ></a-radio
+            <span v-if="item?.isvalid != 1" style="color: #1a49c0">{{
+              $t("No_reservation_permission")
+            }}</span></a-radio
           >
         </a-radio-group>
       </div>

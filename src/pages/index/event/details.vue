@@ -99,116 +99,6 @@ const onChangeTimeAct = (row) => {
   state.eventTimeShow = row?.show_time;
 };
 
-const getDefalutList = () => {
-  return {
-    code: 0,
-    message: "操作成功",
-    data: {
-      id: "1402",
-      title: "v4申请活动标题",
-      status: -1,
-      max: "25",
-      nameMerge: "活动馆舍-一层-活动区域",
-      ennameMerge: "new prem--ActivityArea001",
-      content: "v4申请活动内容",
-      ddl_time: "2024-04-19 16:59:30",
-      status_name: "未开始",
-      status_en_name: "Not started",
-      times: [
-        {
-          date: "2024-04-18",
-          list: [
-            {
-              id: "1942",
-              show_time: "10:00-20:00",
-              count: 1,
-            },
-          ],
-        },
-        {
-          date: "2024-04-19",
-          list: [
-            {
-              id: "1943",
-              show_time: "10:00-20:00",
-              count: 0,
-            },
-          ],
-        },
-        {
-          date: "2024-04-20",
-          list: [
-            {
-              id: "1944",
-              show_time: "10:00-20:00",
-              count: 1,
-            },
-          ],
-        },
-        {
-          date: "2024-04-21",
-          list: [
-            {
-              id: "1945",
-              show_time: "08:00-09:00",
-              count: 1,
-            },
-            {
-              id: "1946",
-              show_time: "10:00-20:00",
-              count: 1,
-            },
-            {
-              id: "1947",
-              show_time: "21:00-22:00",
-              count: 1,
-            },
-          ],
-        },
-        {
-          date: "2024-04-22",
-          list: [
-            {
-              id: "1948",
-              show_time: "10:00-20:00",
-              count: 1,
-            },
-          ],
-        },
-        {
-          date: "2024-04-23",
-          list: [
-            {
-              id: "1949",
-              show_time: "10:00-20:00",
-              count: 1,
-            },
-          ],
-        },
-        {
-          date: "2024-04-24",
-          list: [
-            {
-              id: "1950",
-              show_time: "10:00-20:00",
-              count: 1,
-            },
-          ],
-        },
-        {
-          date: "2024-04-25",
-          list: [
-            {
-              id: "1951",
-              show_time: "10:00-20:00",
-              count: 1,
-            },
-          ],
-        },
-      ],
-    },
-  };
-};
 
 const onApply = () => {
   state.isApply = true;
@@ -275,9 +165,9 @@ const fetchApplyActivity = async () => {
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
             <a-breadcrumb-item @click="goToLink('/event')"
-              >选择活动</a-breadcrumb-item
+              >{{ $t("V4_select_an_event") }}</a-breadcrumb-item
             >
-            <a-breadcrumb-item>立即报名</a-breadcrumb-item>
+            <a-breadcrumb-item>{{ $t("V4_sign_up_now") }}</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
       </div>
@@ -304,14 +194,14 @@ const fetchApplyActivity = async () => {
                   :class="{ langActive: state.quickMode == 1 }"
                   @click="onChangeQMode(1)"
                 >
-                  图片
+                  {{ $t("photo") }}
                 </div>
                 <div
                   class="langItem activeBtn"
                   :class="{ langActive: state.quickMode == 2 }"
                   @click="onChangeQMode(2)"
                 >
-                  视频
+                  {{ $t("video") }}
                 </div>
               </div>
               <div class="share-btn">
@@ -320,7 +210,7 @@ const fetchApplyActivity = async () => {
                   alt=""
                   class="background-image"
                 />
-                <span class="share-text">分享</span>
+                <span class="share-text">{{ $t("V4_share") }}</span>
               </div>
             </div>
           </div>
@@ -343,11 +233,11 @@ const fetchApplyActivity = async () => {
           </div>
           <div class="left_bottom_detail">
             <div class="left_bottom_detail_item">
-              <span>活动地点：</span>
+              <span>{{ $t("user_activityplace") + "： " }}</span>
               <span>{{ state.eventInfo?.nameMerge }}</span>
             </div>
             <div class="left_bottom_detail_item">
-              <span>活动介绍：</span>
+              <span>{{ $t("Activity_Introduction") + "： " }}</span>
               <span>
                 {{ state.eventInfo?.content }}
               </span>
@@ -357,7 +247,7 @@ const fetchApplyActivity = async () => {
       </div>
       <div class="right_info">
         <div class="right_info_box">
-          <div class="right_info_title">活动日期</div>
+          <div class="right_info_title">{{ $t("activity_Date") }}</div>
           <a-row v-if="state.eventDateList?.length" :gutter="[15, 15]">
             <template v-for="item in state.eventDateList" :key="item?.date">
               <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
@@ -379,7 +269,7 @@ const fetchApplyActivity = async () => {
             </template>
           </a-row>
           <a-empty v-else />
-          <div class="right_info_title" style="margin-top: 50px">活动时间</div>
+          <div class="right_info_title" style="margin-top: 50px">{{ $t("user_activitytime") }}</div>
           <a-row v-if="state.eventTimeList?.length" :gutter="[15, 15]">
             <template v-for="item in state.eventTimeList" :key="item?.id">
               <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
@@ -400,7 +290,7 @@ const fetchApplyActivity = async () => {
             </template>
           </a-row>
 
-          <div class="right_info_title" style="margin-top: 50px">报名人数</div>
+          <div class="right_info_title" style="margin-top: 50px">{{ $t("Enrollment_quantity") }}</div>
           <div
             v-if="state.eventTimeList?.length"
             style="color: rgba(97, 97, 97, 1)"
@@ -413,7 +303,7 @@ const fetchApplyActivity = async () => {
               shape="round"
               style="width: 200px"
               @click="onApply"
-              >我要报名</a-button
+              >{{ $t("INeedToRegiste") }}</a-button
             >
           </div>
         </div>
@@ -422,7 +312,7 @@ const fetchApplyActivity = async () => {
     <a-modal
       width="40%"
       v-model:open="state.isApply"
-      title="联系方式"
+      :title="$t('V4_contact_information')"
       destroyOnClose
       :footer="null"
       @cancel="state.isApply = false"

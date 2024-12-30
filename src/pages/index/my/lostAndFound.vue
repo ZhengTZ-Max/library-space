@@ -48,17 +48,17 @@ const onChangePage = (page, pageSize) => {
 
 const columns = [
   {
-    title: "物品图片",
+    title: $t("V4_item_images"),
     dataIndex: "image",
     key: "image",
   },
   {
-    title: "物品招领柜",
+    title: $t("V4_lost_and_found_cabinet"),
     dataIndex: "location",
     key: "location",
   },
   {
-    title: "违约时间",
+    title: $t("user_renegetime"),
     dataIndex: "time",
     key: "time",
   },
@@ -79,7 +79,7 @@ const columns = [
   <div class="record">
     <div class="my-appointment">
       <div class="indicator"></div>
-      <span class="text">我的违约</span>
+      <span class="text">{{ $t("user_myrenege") }}</span>
     </div>
 
     <div class="table">

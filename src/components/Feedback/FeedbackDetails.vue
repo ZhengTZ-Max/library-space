@@ -18,15 +18,15 @@ onMounted(() => {
     <!-- 意见反馈 -->
     <div v-if="state.propsData?.record?.type == '1'">
       <a-flex class="feedback_item">
-        <div>反馈类型：</div>
+        <div>{{ $t("feedback_type") }}:</div>
         <div style="flex: 1">{{ state.propsData?.detail?.cate_id }}</div>
       </a-flex>
       <a-flex class="feedback_item">
-        <div>反馈内容：</div>
+        <div>{{ $t("Feedback_content") }}:</div>
         <div style="flex: 1">{{ state.propsData?.record?.content }}</div>
       </a-flex>
       <a-flex class="feedback_item">
-        <div>反馈图片：</div>
+        <div>{{ $t("V4_feedback_images") }}:</div>
         <div style="flex: 1">
           <img
             :src="state.propsData?.defaultPic"
@@ -36,7 +36,7 @@ onMounted(() => {
         </div>
       </a-flex>
       <a-flex class="feedback_item">
-        <div>手机号：</div>
+        <div>{{$t("phone")}}：</div>
         <div style="flex: 1">{{ state.propsData?.detail?.mobile }}</div>
       </a-flex>
       <a-divider dashed />
@@ -44,23 +44,23 @@ onMounted(() => {
     <div v-else>
       <!-- 设备报修 -->
       <a-flex class="feedback_item">
-        <div>报修类型：</div>
+        <div>{{$t("Repair_Type")}}：</div>
         <div style="flex: 1">xxx类型</div>
       </a-flex>
       <a-flex class="feedback_item">
-        <div>报修区域：</div>
+        <div>{{$t("Repair_Area")}}：</div>
         <div style="flex: 1">xxx区域</div>
       </a-flex>
       <a-flex class="feedback_item">
-        <div>报修区域是否暂停使用：</div>
+        <div>{{$t("TRAI_suspended")}}：</div>
         <div style="flex: 1">是</div>
       </a-flex>
       <a-flex class="feedback_item">
-        <div>联系电话：</div>
+        <div>{{$t("user_phone")}}：</div>
         <div style="flex: 1">{{ state.propsData?.detail?.mobile }}</div>
       </a-flex>
       <a-flex class="feedback_item">
-        <div>报修内容：</div>
+        <div>{{$t("Repair_Content")}}：</div>
         <div style="flex: 1">{{ state.propsData?.record?.content }}</div>
       </a-flex>
       <a-flex class="feedback_item">
@@ -79,7 +79,7 @@ onMounted(() => {
   </div>
 
   <div v-if="state.propsData?.detail?.reply?.length">
-    <div class="feedback_item">平台回复:</div>
+    <div class="feedback_item">{{$t("platform_response")}}:</div>
 
     <div>
       <template v-for="item in state.propsData?.detail?.reply" :key="item">

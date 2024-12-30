@@ -112,7 +112,7 @@ const onReviewImg = (v) => {};
     <a-affix offset-top="0" :target="() => containerRef">
       <div class="header">
         <div class="leftTit">
-          <a-button> + 物品收取</a-button>
+          <a-button>{{ " + " + $t("V4_item_collection") }}</a-button>
         </div>
         <div class="rightAction">
           <div
@@ -120,7 +120,7 @@ const onReviewImg = (v) => {};
             @click="state.collectionFilterShow = true"
           >
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            筛选
+            {{ $t("Screen") }}
           </div>
         </div>
       </div>
@@ -146,9 +146,9 @@ const onReviewImg = (v) => {};
                   <span>{{ item?.name }}号柜：{{ item?.boxId }}格</span>
                   <span>{{ item?.lockerFloor }}</span>
                 </div>
-                <div class="details"><span>收物日期</span> 2024-01-29</div>
+                <div class="details"><span>{{ $t("V4_collection_date") }}</span> 2024-01-29</div>
                 <div class="details">
-                  <span>收物地点</span> 基础馆-1F-自修B区
+                  <span>{{ $t("V4_collection_location") }}</span> 基础馆-1F-自修B区
                 </div>
               </div>
               <!-- <div
@@ -170,8 +170,8 @@ const onReviewImg = (v) => {};
       v-model:open="state.collectionFilterShow"
       title="物品筛选"
       @ok="handleFilter"
-      okText="确认"
-      cancelText="取消"
+      :okText="$t('visitor_Confirm')"
+      :cancelText="$t('cancel')"
       :cancelButtonProps="{
         size: 'middle',
         style: {
@@ -196,7 +196,7 @@ const onReviewImg = (v) => {};
       v-model:open="state.collectionInfoShow"
       title="扫码取物"
       okText=""
-      cancelText="取消"
+      :cancelText="$t('cancel')"
       :cancelButtonProps="{
         size: 'middle',
         style: {
@@ -226,8 +226,8 @@ const onReviewImg = (v) => {};
           <div class="title">
             <span>基础馆-1F-1号柜：08格</span>
           </div>
-          <div class="details"><span>收物日期</span> 2024-01-29</div>
-          <div class="details"><span>收物地点</span> 基础馆-1F-自修B区</div>
+          <div class="details"><span>{{ $t("V4_collection_date") }}</span> 2024-01-29</div>
+          <div class="details"><span>{{ $t("V4_collection_location") }}</span> 基础馆-1F-自修B区</div>
         </div>
       </div>
     </a-modal>

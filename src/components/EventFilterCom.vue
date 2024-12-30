@@ -37,7 +37,7 @@ onMounted(() => {
     }"
   >
     <div class="filterScr">
-      <div class="filterFilter">馆舍</div>
+      <div class="filterFilter">{{ $t("Library") }}</div>
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.premiseID">
           <a-checkbox
@@ -49,7 +49,7 @@ onMounted(() => {
           >
         </a-checkbox-group>
       </div>
-      <div class="filterFilter">活动类型</div>
+      <div class="filterFilter">{{ $t("ActivityType") }}</div>
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.categoryID">
           <a-checkbox
@@ -62,7 +62,7 @@ onMounted(() => {
         </a-checkbox-group>
       </div>
       <div class="filterFilter" v-if="state.filterOptions?.showDate">
-        活动时间
+        {{ $t("user_activitytime") }}
       </div>
       <div class="fiterItem" v-if="state.filterOptions?.showDate">
         <a-checkbox-group v-model:value="state.filterRows.date">

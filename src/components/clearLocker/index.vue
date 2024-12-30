@@ -12,7 +12,7 @@
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
             <a-breadcrumb-item
-              >选择馆舍<img src="@/assets/seat/titRightIcon.svg" alt=""
+              >{{ $t("visitor_Select_Library") }}<img src="@/assets/seat/titRightIcon.svg" alt=""
             /></a-breadcrumb-item>
           </a-breadcrumb>
         </div>
@@ -41,9 +41,9 @@
             </div>
             <div class="lockerInfo">
               <p class="showNum">
-                <span>·总数{{ row?.all }}</span>
+                <span>·{{ $t("Tot") }}{{ row?.all }}</span>
                 <span style="color: #5d89f6"
-                  >·空闲 {{ row?.empty }} ({{ row?.emptyPCT }})</span
+                  >·{{ $t("Avl") }} {{ row?.empty }} ({{ row?.emptyPCT }})</span
                 >
               </p>
               <p class="showNum">
@@ -54,7 +54,7 @@
               </p>
             </div>
             <div class="viewInfo clickBox" @click="details(item?.id, row?.id)">
-              详情
+              {{ $t("Visitor_details") }}
             </div>
           </div>
         </div>

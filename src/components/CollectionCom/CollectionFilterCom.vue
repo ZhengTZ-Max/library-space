@@ -112,7 +112,7 @@ const filterDisabledDate = (current) => {
       </template>
     </a-input> -->
     <div class="filterScr">
-      <div class="filterFilter">日期</div>
+      <div class="filterFilter">{{ $t("Date") }}</div>
       <div class="filterItem">
         <a-date-picker
           :disabled-date="filterDisabledDate"
@@ -120,7 +120,7 @@ const filterDisabledDate = (current) => {
           v-model:value="state.filterRows.date"
         />
       </div>
-      <div style="margin-top: 24px" class="filterFilter">馆舍</div>
+      <div style="margin-top: 24px" class="filterFilter">{{ $t("Library") }}</div>
       <div class="fiterItem">
         <a-radio-group v-model:value="state.filterRows.library">
           <a-radio
@@ -133,7 +133,7 @@ const filterDisabledDate = (current) => {
         </a-radio-group>
       </div>
       <template v-if="state.floorList?.length">
-        <div class="filterFilter">楼层</div>
+        <div class="filterFilter">{{ $t("Floor") }}</div>
         <div class="fiterItem">
           <a-radio-group v-model:value="state.filterRows.floor">
             <a-radio
@@ -147,7 +147,7 @@ const filterDisabledDate = (current) => {
         </div>
       </template>
       <template v-if="state.typeList?.length">
-        <div class="filterFilter">阅览室</div>
+        <div class="filterFilter">{{ $t("V4_reading_room") }}</div>
         <div class="fiterItem">
           <a-radio-group v-model:value="state.filterRows.areaId">
             <a-radio

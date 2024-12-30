@@ -19,80 +19,7 @@ const rules = computed(() => store.state.rules);
 
 const state = reactive({
   activeIndex: "",
-  spaceList: [
-    {
-      id: "1",
-      name: "空间1",
-      typeName: "图书馆",
-      boutique: [
-        { name: "投影仪", id: "1" },
-        { name: "电脑", id: "2" },
-        { name: "WIFI开放", id: "3" },
-      ],
-      firstImg:
-        "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-    },
-    {
-      id: "2",
-      name: "空间2",
-      typeName: "图书馆",
-      boutique: [
-        { name: "投影仪", id: "1" },
-        { name: "电脑", id: "2" },
-        { name: "WIFI开放", id: "3" },
-      ],
-      firstImg:
-        "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-    },
-    {
-      id: "3",
-      name: "空间3",
-      typeName: "图书馆",
-      boutique: [
-        { name: "投影仪", id: "1" },
-        { name: "电脑", id: "2" },
-        { name: "WIFI开放", id: "3" },
-      ],
-      firstImg:
-        "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-    },
-    {
-      id: "4",
-      name: "空间4",
-      typeName: "图书馆",
-      boutique: [
-        { name: "投影仪", id: "1" },
-        { name: "电脑", id: "2" },
-        { name: "WIFI开放", id: "3" },
-      ],
-      firstImg:
-        "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-    },
-    {
-      id: "5",
-      name: "空间5",
-      typeName: "图书馆",
-      boutique: [
-        { name: "投影仪", id: "1" },
-        { name: "电脑", id: "2" },
-        { name: "WIFI开放", id: "3" },
-      ],
-      firstImg:
-        "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-    },
-    {
-      id: "6",
-      name: "空间6",
-      typeName: "图书馆",
-      boutique: [
-        { name: "投影仪", id: "1" },
-        { name: "电脑", id: "2" },
-        { name: "WIFI开放", id: "3" },
-      ],
-      firstImg:
-        "https://img0.baidu.com/it/u=695429082,110886343&fm=253&fmt=auto&app=138&f=JPEG?w=1354&h=570",
-    },
-  ],
+
 
   filterOptions: {},
   filterSearch: {
@@ -203,7 +130,7 @@ const onShowRule = () => {
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
             <a-breadcrumb-item
-              >选择空间<img src="@/assets/seat/titRightIcon.svg" alt=""
+              >{{ $t("V4_select_a_space") }}<img src="@/assets/seat/titRightIcon.svg" alt=""
             /></a-breadcrumb-item>
             <!-- <a-breadcrumb-item>1</a-breadcrumb-item> -->
           </a-breadcrumb>
@@ -215,7 +142,7 @@ const onShowRule = () => {
           </div>
           <div class="filters activeBtn" @click="state.filterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            筛选
+            {{ $t("Screen") }}
           </div>
         </div>
       </div>
@@ -249,7 +176,7 @@ const onShowRule = () => {
                   class="rightBadge viewMore clickBox"
                   @click.stop="handleShowInfo(item)"
                 >
-                  <span> 查看详情 </span>
+                  <span> {{ $t("V4_view_details") }} </span>
                   <img src="@/assets/home/rightIconW.svg" alt="" />
                 </div>
                 <div class="posBot">
@@ -262,8 +189,8 @@ const onShowRule = () => {
                   <span>{{ item?.storey_name }}</span>
                 </div>
                 <div class="num">
-                  <span>可容纳人数</span>
-                  <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} 人</span>
+                  <span>{{ $t("Capacity_Capacity") }}</span>
+                  <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} {{ $t("People") }}</span>
                 </div>
                 <div class="boutique">
                   <div class="boutiqueList" v-for="bout in item?.boutiques">
@@ -276,7 +203,7 @@ const onShowRule = () => {
                 class="action clickBoxT"
                 @click="handleAppt(item)"
               >
-                立即申请
+                {{ $t("V4_apply_now") }}
               </div>
             </div>
           </a-col>
@@ -287,11 +214,11 @@ const onShowRule = () => {
     <a-modal
       width="50%"
       v-model:open="state.filterShow"
-      title="空间筛选"
+      :title="$t('V4_space_filter')"
       @ok="handleFilter"
       destroyOnClose
-      okText="确认"
-      cancelText="取消"
+      :okText="$t('visitor_Confirm')"
+      :cancelText="$t('cancel')"
       :cancelButtonProps="{
         size: 'middle',
         style: {
@@ -316,8 +243,8 @@ const onShowRule = () => {
       title="空间详情"
       @ok="handleAppt(state.activityInfo)"
       destroyOnClose
-      okText="申请"
-      cancelText="关闭"
+      :okText="$t('V4_apply')"
+      :cancelText="$t('feedback_details_close')"
       :cancelButtonProps="{
         size: 'middle',
         style: {
@@ -336,7 +263,7 @@ const onShowRule = () => {
       v-if="state.ruleShow"
       v-model:open="state.ruleShow"
       :content="state.ruleInfo?.content"
-      title="预约规则"
+      :title="$t('menu_rules')"
       @onConfirm="state.ruleShow = false"
       :review="true"
     >

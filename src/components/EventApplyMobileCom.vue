@@ -40,26 +40,26 @@ const onApply = () => {
         padding-bottom: 20px;
       "
     >
-      联系方式
+      {{ $t("V4_contact_information") }}
     </div>
 
     <a-input
       class="dialog_input"
       v-model:value="state.inputInfo.phone"
-      placeholder="联系电话"
+      :placeholder="$t('user_phone')"
     />
     <a-input
       class="dialog_input"
       v-model:value="state.inputInfo.email"
-      placeholder="邮箱"
+      :placeholder="$t('user_email')"
     />
 
     <!-- <a-button type="link" class="bottom_button" @click="onApply">确认</a-button> -->
     <div class="profile_footer">
-      <button class="footer-button" @click="goToLink('/mo/...')">取消</button>
+      <button class="footer-button" @click="goToLink('/mo/...')">{{$t("cancel")}}</button>
       <div class="divider"></div>
       <a-button type="link" color="primary" @click="onApply"
-        >确认</a-button
+        >{{$t("visitor_Confirm")}}</a-button
       >
     </div>
   </div>

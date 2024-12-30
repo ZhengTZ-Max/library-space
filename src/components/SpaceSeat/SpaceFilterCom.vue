@@ -76,7 +76,7 @@ const filterFloor = () => {
       </template>
     </a-input>
     <div class="filterScr">
-      <div class="filterFilter">馆舍</div>
+      <div class="filterFilter">{{$t("Library")}}</div>
       <div class="fiterItem">
         <a-checkbox-group
           v-if="systemMode != 'pc'"
@@ -105,7 +105,7 @@ const filterFloor = () => {
           >
         </a-radio-group>
       </div>
-      <div class="filterFilter">楼层</div>
+      <div class="filterFilter">{{$t("Floor")}}</div>
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.floor">
           <a-checkbox
@@ -119,7 +119,7 @@ const filterFloor = () => {
           >
         </a-checkbox-group>
       </div>
-      <div class="filterFilter">座位类型</div>
+      <div class="filterFilter">{{$t("Seat_Type")}}</div>
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.seatType">
           <a-checkbox
@@ -133,7 +133,7 @@ const filterFloor = () => {
           >
         </a-checkbox-group>
       </div>
-      <div class="filterFilter">日期</div>
+      <div class="filterFilter">{{$t("Date")}}</div>
       <div class="fiterItem">
         <a-radio-group v-model:value="state.filterRows.date">
           <a-radio
@@ -147,7 +147,7 @@ const filterFloor = () => {
           >
         </a-radio-group>
       </div>
-      <div class="filterFilter">特征</div>
+      <div class="filterFilter">{{$t("Features")}}</div>
       <div class="fiterItem">
         <a-checkbox-group v-model:value="state.filterRows.boutique">
           <a-checkbox

@@ -23,21 +23,21 @@ onMounted(() => {
   <div class="option_details_box">
     <div v-if="state.detail.type == '1'">
       <div class="option_details_item">
-        <div class="option_details_item_left">反馈类型</div>
+        <div class="option_details_item_left">{{ $t("feedback_type") }}</div>
         <div class="option_details_item_right">
           {{ state.detail?.cate_name }}
         </div>
       </div>
       <a-divider />
       <div class="option_details_item_content">
-        <div class="option_details_item_content_title">反馈内容</div>
+        <div class="option_details_item_content_title">{{ $t("Feedback_content") }}</div>
         <div class="option_details_item_content_content">
           {{ state.detail?.content }}
         </div>
       </div>
       <a-divider />
       <div class="option_details_item_content">
-        <div class="option_details_item_content_title">反馈图片</div>
+        <div class="option_details_item_content_title">{{ $t("V4_feedback_images") }}</div>
         <div class="option_details_item_content_content">
           <img
             :src="state.detail?.pic_urls[0]?.file_path"
@@ -48,7 +48,7 @@ onMounted(() => {
       </div>
       <a-divider />
       <div class="option_details_item">
-        <div class="option_details_item_left">手机号</div>
+        <div class="option_details_item_left">{{ $t("phone") }}</div>
         <div class="option_details_item_right">
           {{ state.detail?.mobile }}
         </div>
@@ -56,40 +56,40 @@ onMounted(() => {
     </div>
     <div v-if="state.detail.type == '2'">
       <div class="option_details_item">
-        <div class="option_details_item_left">报修类型</div>
+        <div class="option_details_item_left">{{ $t("Repair_Type") }}</div>
         <div class="option_details_item_right">
           {{ state.detail?.type_name }}
         </div>
       </div>
       <a-divider />
       <div class="option_details_item">
-        <div class="option_details_item_left">报修区域</div>
+        <div class="option_details_item_left">{{ $t("Repair_Area") }}</div>
         <div class="option_details_item_right">
           {{ state.detail?.nameMerge }}
         </div>
       </div>
       <a-divider />
       <div class="option_details_item" v-if="state.detail.type_name != '空间'">
-        <div class="option_details_item_left">报修座位</div>
+        <div class="option_details_item_left">{{ $t("V4_report_a_seat") }}</div>
         <div class="option_details_item_right">
           {{ state.detail?.space_name }}
         </div>
       </div>
       <a-divider />
       <div class="option_details_item">
-        <div class="option_details_item_left">报修区域是否暂停使用：</div>
+        <div class="option_details_item_left">{{ $t("TRAI_suspended") }}</div>
         <div class="option_details_item_right">是</div>
       </div>
       <a-divider />
       <div class="option_details_item">
-        <div class="option_details_item_left">联系电话</div>
+        <div class="option_details_item_left">{{ $t("user_phone") }}</div>
         <div class="option_details_item_right">
           {{ state.detail?.mobile }}
         </div>
       </div>
       <a-divider />
       <div class="option_details_item_content">
-        <div class="option_details_item_content_title">报修内容</div>
+        <div class="option_details_item_content_title">{{ $t("Repair_Content") }}</div>
         <div class="option_details_item_content_content">
           {{ state.detail?.content }}
         </div>
@@ -108,7 +108,7 @@ onMounted(() => {
     </div>
 
     <div class="reply_box" v-if="state.detail.reply?.length > 0">
-      <div class="reply_box_title">平台回复</div>
+      <div class="reply_box_title">{{ $t("platform_response") }}</div>
       <div>
         <template v-for="item in state.detail.reply" :key="item">
           <a-flex :vertical="true">

@@ -262,8 +262,8 @@ const showErrTimes = () => {
         >
       </div>
       <div class="sltDot">
-        <span class="selectable">可选</span>
-        <span class="noselectable">不可选</span>
+        <span class="selectable">{{ $t("V4_available") }}</span>
+        <span class="noselectable">{{ $t("V4_unavailable") }}</span>
       </div>
     </div>
     <div

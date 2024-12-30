@@ -57,14 +57,14 @@ const onChange = (v) => {
             </div>
 
             <div class="info">
-              <span>总数 {{ item?.total_num }}</span>
+              <span>{{$t("Tot")}} {{ item?.total_num }}</span>
               <span
-                >空闲 <span class="available">{{ item?.free_num }}</span></span
+                >{{$t("Avl")}} <span class="available">{{ item?.free_num }}</span></span
               >
             </div>
             <div class="links">
               <p class="activeBtn" @click="() => emits('viewFloor')">
-                查看所在位置
+                {{ $t("Locker_View_location") }}
                 <img src="@/assets/home/rightIcon.svg" alt="" />
               </p>
               <!-- <p class="activeBtn" @click="() => emits('viewInfo')">

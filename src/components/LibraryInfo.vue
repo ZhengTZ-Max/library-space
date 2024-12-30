@@ -101,8 +101,8 @@ const filterCategorys = (list) => {
         <div class="seatNum">
           {{ filterCategorys(state.propsData?.categorys || []) }} (
           <span
-            >可容纳{{ state.propsData?.minPerson }} ~
-            {{ state.propsData?.maxPerson }}人</span
+            >{{ $t("Accommodates") }}{{ state.propsData?.minPerson }} ~
+            {{ state.propsData?.maxPerson }} {{ $t("people") }}</span
           >)
         </div>
       </div>
@@ -131,7 +131,7 @@ const filterCategorys = (list) => {
             state.propsData?.sub_title && state.propsData?.type != 'library'
           "
         >
-          <p class="subtitle" style="margin-top: 20px">注意事项</p>
+          <p class="subtitle" style="margin-top: 20px">{{ $t("V4_notes") }}</p>
           <div
             class="notice libraryIntro"
             v-html="state.propsData?.sub_title"
@@ -150,8 +150,9 @@ const filterCategorys = (list) => {
 
       <!-- 座位数 -->
       <div class="seatNum" v-if="state.propsData?.type == 'library'">
-        座位 ( <span>空闲{{ state.propsData?.free_num || "-" }}</span
-        ><span>/总数{{ state.propsData?.total_num || "-" }}</span> )
+        {{ $t("V4_seats") }} (
+        <span>{{ $t("Avl") }}{{ state.propsData?.free_num || "-" }}</span
+        ><span>/{{ $t("Tot") }}{{ state.propsData?.total_num || "-" }}</span> )
       </div>
       <div class="seatNum" v-if="state.propsData?.type == 'space'">
         <span
@@ -164,8 +165,8 @@ const filterCategorys = (list) => {
       <div class="seatNum" v-if="state.propsData?.type == 'activity'">
         {{ filterCategorys(state.propsData?.categorys || []) }} (
         <span
-          >可容纳{{ state.propsData?.minPerson }} ~
-          {{ state.propsData?.maxPerson }}人</span
+          >{{ $t("Accommodates") }} {{ state.propsData?.minPerson }} ~
+          {{ state.propsData?.maxPerson }} {{ $t("people") }}</span
         >)
       </div>
       <div class="libraryIntro" v-html="state.propsData?.contents || ''"></div>
@@ -186,7 +187,7 @@ const filterCategorys = (list) => {
       <template
         v-if="state.propsData?.sub_title && state.propsData?.type != 'library'"
       >
-        <p class="subtitle" style="margin-top: 20px">注意事项</p>
+        <p class="subtitle" style="margin-top: 20px">{{ $t("V4_notes") }}</p>
         <div
           class="notice libraryIntro"
           v-html="state.propsData?.sub_title"

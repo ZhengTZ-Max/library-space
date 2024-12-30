@@ -24,32 +24,32 @@
           v-if="[1, 8]?.includes(state.apptResult?.seatInfo?.status)"
           class="toastItem"
         >
-          <span>时间：</span>
+          <span>{{ $t("Time") }}：</span>
           <span>{{ state.apptResult?.seatInfo?.show_time }}</span>
         </div>
         <div class="toastItem">
-          <span>地点：</span>
+          <span>{{ $t("Place") }}：</span>
           <span>{{ state.apptResult?.seatInfo?.show_area }}</span>
         </div>
         <div
           v-if="[1, 8]?.includes(state.apptResult?.seatInfo?.status)"
           class="toastItem"
         >
-          <span>座位：</span>
+          <span>{{ $t("V4_seats") }}：</span>
           <span>{{ state.apptResult?.seatInfo?.show_seat }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
-          <span>提醒：</span>
+          <span>{{ $t("V4_reminder") }}：</span>
           <span>{{ state.apptResult?.msg }}</span>
         </div>
         <div v-if="state.apptResult?.seatInfo?.status == 4" class="changeSeat">
-          <van-button class="btn cancel" @click="toVerify"> 取消 </van-button>
+          <van-button class="btn cancel" @click="toVerify"> {{ $t("cancel") }} </van-button>
           <van-button
             class="btn sign"
             type="primary"
             @click="handleAction('changeSeat')"
           >
-            确认换座
+            {{ $t("Confirm_seat_change") }}
           </van-button>
         </div>
 
@@ -61,7 +61,7 @@
             type="primary"
             @click="handleAction('sign')"
           >
-            返回签到
+            {{ $t("return_signin") }}
           </van-button>
           <van-button
             block
@@ -70,7 +70,7 @@
             type="primary"
             @click="handleAction('leave')"
           >
-            临时离开
+            {{ $t("rightback") }}
           </van-button>
           <van-button
             block
@@ -79,9 +79,9 @@
             color="#e58100"
             @click="handleAction('checkout')"
           >
-            完全离开
+            {{ $t("leave") }}
           </van-button>
-          <van-button block class="btn cancel" round> 取消 </van-button>
+          <van-button block class="btn cancel" round> {{ $t("cancel") }} </van-button>
         </div>
       </template>
     </ShowInfoToast>
@@ -157,7 +157,7 @@ const checkSeat = async () => {
       resultShow = {
         ...resultShow,
         type: "success",
-        title: "预约成功",
+        title: $t("yuyue_success"),
       };
     } else if ([3].includes(Number(status))) {
       resultShow = {
@@ -169,7 +169,7 @@ const checkSeat = async () => {
     } else if ([4].includes(Number(status))) {
       resultShow = {
         ...resultShow,
-        title: "需要换的座位是",
+        title: $t("Seat_change_tips"),
         hideIcon: true,
         okText: "none",
       };

@@ -33,8 +33,8 @@ const state = reactive({
   quickDateList: [],
   quickMode: "1",
   quickModeList: [
-    { value: 0, label: "地图模式" },
-    { value: 1, label: "列表模式" },
+    { value: 0, label: $t("V4_map_view") },
+    { value: 1, label: $t("V4_list_view") },
   ],
   spaceList: [],
   floorList: [],
@@ -98,17 +98,17 @@ const initQueryFn = () => {
 
 const initQuickDateList = (list) => {
   state.quickDateList = [
-    { label: "今天", value: moment().format("YYYY-MM-DD") },
-    { label: "明天", value: moment().add(1, "days").format("YYYY-MM-DD") },
+    { label: $t("today"), value: moment().format("YYYY-MM-DD") },
+    { label: $t("tomorrow"), value: moment().add(1, "days").format("YYYY-MM-DD") },
   ];
 
   if (list?.length) {
     state.quickDateList = list?.map((e) => {
       let label = "";
       if (moment().format("YYYY-MM-DD") == e) {
-        label = "今天";
+        label = $t("today");
       } else if (exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == e) {
-        label = "明天";
+        label = $t("tomorrow");
       } else {
         label = exchangeDateTime(e, 4);
       }
@@ -278,9 +278,9 @@ const onFloor = (row) => {
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
             <a-breadcrumb-item @click="goToLink('/seat')"
-              >选择馆舍</a-breadcrumb-item
+              >{{ $t("visitor_Select_Library") }}</a-breadcrumb-item
             >
-            <a-breadcrumb-item>选择空间</a-breadcrumb-item>
+            <a-breadcrumb-item>{{ $t("V4_select_a_space") }}</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         <div class="rightAction">
@@ -313,7 +313,7 @@ const onFloor = (row) => {
 
           <div class="filters activeBtn" @click="state.spaceFilterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            筛选
+            {{ $t("Screen") }}
           </div>
         </div>
       </div>
@@ -355,7 +355,7 @@ const onFloor = (row) => {
                   class="rightBadge viewMore clickBox"
                   @click.stop="handleShowInfo(item)"
                 >
-                  <span> 查看详情 </span>
+                  <span> {{ $t("V4_view_details") }} </span>
                   <img src="@/assets/home/rightIconW.svg" alt="" />
                 </div>
                 <div class="posBot" v-if="item?.show_category == 1">
@@ -368,7 +368,8 @@ const onFloor = (row) => {
                   <span>{{ item?.storeyName }}</span>
                 </div>
                 <div class="num">
-                  总数 <span>{{ item?.total_num || "-" }}</span> 空闲
+                  {{ $t("Tot") }} <span>{{ item?.total_num || "-" }}</span>
+                  {{ $t("Avl") }}
                   <span>{{ item?.free_num || "-" }}</span>
                 </div>
                 <p class="boutiqueList ellipsis-2">
@@ -380,7 +381,7 @@ const onFloor = (row) => {
                 class="action clickBoxT"
                 @click="handleAppt(item)"
               >
-                立即预约
+                {{ $t("book_now") }}
               </div>
             </div>
           </a-col>
@@ -418,8 +419,8 @@ const onFloor = (row) => {
           >
             <p class="floorNum">{{ item?.name }}</p>
             <div class="floorTotal">
-              <span>空闲{{ item?.free_num }}</span>
-              <span>/总数{{ item?.total_num }}</span>
+              <span>{{ $t("Avl") }}{{ item?.free_num }}</span>
+              <span>/{{ $t("Tot") }}{{ item?.total_num }}</span>
             </div>
           </div>
         </a-col>
@@ -432,8 +433,8 @@ const onFloor = (row) => {
       title="空间详情"
       @ok="handleAppt(state.spaceInfo)"
       destroyOnClose
-      okText="预约"
-      cancelText="关闭"
+      :okText="$t('Reservation')"
+      :cancelText="$t('feedback_details_close')"
       :cancelButtonProps="{
         size: 'middle',
         style: {
@@ -451,11 +452,11 @@ const onFloor = (row) => {
     <a-modal
       width="50%"
       v-model:open="state.spaceFilterShow"
-      title="空间筛选"
+      :title="$t('V4_space_filter')"
       @ok="handleFilter"
       destroyOnClose
-      okText="确认"
-      cancelText="取消"
+      :okText="$t('visitor_Confirm')"
+      :cancelText="$t('cancel')"
       :cancelButtonProps="{
         size: 'middle',
         style: {

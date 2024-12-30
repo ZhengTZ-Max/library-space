@@ -51,11 +51,13 @@ const handleConfirm = () => {
     v-if="systemMode == 'pc'"
     width="50%"
     v-model:open="state.spaceRuleShow"
-    :title="props?.title || '使用须知'"
+    :title="props?.title || $t('Instructions')"
     @ok="handleConfirm"
     destroyOnClose
-    :okText="!state?.isConfirm ? '请阅读完使用须知' : '已知晓'"
-    cancelText="取消"
+    :okText="
+      !state?.isConfirm ? $t('V4_please_read_the_instructions') : $t('Known')
+    "
+    :cancelText="$t('cancel')"
     :cancelButtonProps="{
       size: 'middle',
       style: {
@@ -100,7 +102,7 @@ const handleConfirm = () => {
           @click="state.spaceRuleShow = false"
         >
           <img src="@/assets/seat/moBackBtn.svg" alt="" />
-          取消
+          {{ $t("cancel") }}
         </van-button>
         <van-button
           round
@@ -108,7 +110,11 @@ const handleConfirm = () => {
           type="primary"
           @click="handleConfirm"
           :disabled="!state?.isConfirm"
-          >{{ !state?.isConfirm ? "请阅读完使用须知" : "已知晓" }}</van-button
+          >{{
+            !state?.isConfirm
+              ? $t("V4_please_read_the_instructions")
+              : $t("Known")
+          }}</van-button
         >
       </div>
     </div>

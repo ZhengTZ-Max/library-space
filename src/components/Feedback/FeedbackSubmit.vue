@@ -63,6 +63,15 @@ const state = reactive({
 });
 onMounted(() => {
   state.propsData = props?.data || {};
+  if (state.propsData?.categoryAreaId.length == 0) {
+    state.propsData.categoryAreaId = null;
+  }
+  if (state.propsData?.categoryTypeId.length == 0) {
+    state.propsData.categoryTypeId = null;
+  }
+  if (state.propsData?.ilkTypeId.length == 0) {
+    state.propsData.ilkTypeId = null;
+  }
 });
 
 const handleCategoryChange = (value) => {
@@ -191,7 +200,7 @@ const filterFileUpload = (files) => {
   <div class="feedback_submit">
     <div v-if="state.propsData?.submitType == '1'">
       <a-flex class="feedback_item" gap="middle" align="center">
-        <div>反馈区域：</div>
+        <div>{{$t("V4_feedback_area")}}：</div>
         <a-select
           style="flex: 1"
           v-model:value="state.propsData.categoryAreaId"
@@ -210,7 +219,7 @@ const filterFileUpload = (files) => {
       </a-flex>
 
       <a-flex class="feedback_item" gap="middle" align="center">
-        <div>反馈类型：</div>
+        <div>{{$t("feedback_type")}}：</div>
         <a-select
           style="flex: 1"
           v-model:value="state.propsData.categoryTypeId"
@@ -228,13 +237,13 @@ const filterFileUpload = (files) => {
         </a-select>
       </a-flex>
       <a-flex class="feedback_item" gap="middle" align="top">
-        <div>反馈内容：</div>
+        <div>{{$t("Feedback_content")}}：</div>
         <a-textarea
           style="flex: 1"
           v-model:value="state.propsData.categoryInputContent"
           show-count
           class="edit_textarea"
-          placeholder="请输入要反馈的详细内容"
+          :placeholder="$t('Please_enter_TC')"
           :autoSize="{ minRows: 3, maxRows: 6 }"
           :maxlength="200"
         />
@@ -255,27 +264,27 @@ const filterFileUpload = (files) => {
         </div>
       </a-flex>
       <a-flex class="feedback_item" gap="middle" align="center">
-        <div>手机号：</div>
+        <div>{{$t("phone")}}：</div>
         <div style="flex: 1">
           <a-input
             v-model:value="state.propsData.phone"
-            placeholder="请输入手机号"
+            :placeholder="$t('Please_phone_number')"
           />
         </div>
       </a-flex>
       <a-flex class="feedback_item" gap="middle" align="center">
-        <div>邮箱：</div>
+        <div>{{$t("user_email")}}：</div>
         <div style="flex: 1; margin-left: 15px">
           <a-input
             v-model:value="state.propsData.email"
-            placeholder="请输入邮箱"
+            :placeholder="$t('Please_Enter_Email')"
           />
         </div>
       </a-flex>
     </div>
     <div v-else>
       <a-flex class="feedback_item" gap="middle" align="center">
-        <div>报修类型：</div>
+        <div>{{$t("type_of_repair")}}：</div>
         <a-select
           style="flex: 1"
           v-model:value="state.propsData.ilkTypeId"
@@ -293,7 +302,7 @@ const filterFileUpload = (files) => {
         </a-select>
       </a-flex>
       <a-flex class="feedback_item" gap="middle" align="center">
-        <div>报修区域：</div>
+        <div>{{$t("Repair_Area")}}：</div>
         <div
           class="filter_box"
           :class="{
@@ -314,7 +323,7 @@ const filterFileUpload = (files) => {
         align="center"
         v-if="!state.propsData.ilkTypeIsSpace"
       >
-        <div>报修座位：</div>
+        <div>{{$t("V4_report_a_seat")}}：</div>
         <div style="flex: 1">
           <a-input
             v-model:value="state.propsData.ilkSeat"
@@ -323,25 +332,25 @@ const filterFileUpload = (files) => {
         </div>
       </a-flex>
       <a-flex class="feedback_item" gap="middle" align="center">
-        <div>报修区域是否暂停使用：</div>
+        <div>{{$t("TRAI_suspended")}}：</div>
         <div style="flex: 1">
           <a-radio-group v-model:value="state.propsData.ilkIsStop">
-            <a-radio :value="0" :key="0">是</a-radio>
-            <a-radio :value="1" :key="1">否</a-radio>
+            <a-radio :value="0" :key="0">{{$t("yes")}}</a-radio>
+            <a-radio :value="1" :key="1">{{$t("no")}}</a-radio>
           </a-radio-group>
         </div>
       </a-flex>
       <a-flex class="feedback_item" gap="middle" align="center">
-        <div>联系电话：</div>
+        <div>{{$t("user_phone")}}：</div>
         <div style="flex: 1">
           <a-input
             v-model:value="state.propsData.ilkMobile"
-            placeholder="请输入联系电话"
+            :placeholder="$t('Please_type_your_phone_number')"
           />
         </div>
       </a-flex>
       <a-flex class="feedback_item" gap="middle" align="top">
-        <div>报修内容：</div>
+        <div>{{$t("Repair_Content")}}：</div>
         <a-textarea
           style="flex: 1"
           v-model:value="state.propsData.ilkContent"
@@ -372,11 +381,11 @@ const filterFileUpload = (files) => {
     <a-modal
       width="50%"
       v-model:open="state.isShowIlkAreaDrawer"
-      title="报修区域"
+      :title="$t('Repair_Area')"
       @ok="handleFilter"
       destroyOnClose
-      okText="确认"
-      cancelText="取消"
+      :okText="$t('visitor_Confirm')"
+      :cancelText="$t('cancel')"
       :cancelButtonProps="{
         size: 'middle',
         style: {

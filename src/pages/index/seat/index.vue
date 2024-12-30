@@ -61,17 +61,17 @@ watch(
 
 const initQuickDateList = (list) => {
   state.quickDateList = [
-    { label: "今天", value: moment().format("YYYY-MM-DD") },
-    { label: "明天", value: moment().add(1, "days").format("YYYY-MM-DD") },
+    { label: $t("today"), value: moment().format("YYYY-MM-DD") },
+    { label: $t("tomorrow"), value: moment().add(1, "days").format("YYYY-MM-DD") },
   ];
 
   if (list?.length) {
     state.quickDateList = list?.map((e) => {
       let label = "";
       if (moment().format("YYYY-MM-DD") == e) {
-        label = "今天";
+        label = $t("today");
       } else if (exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == e) {
-        label = "明天";
+        label = $t("tomorrow");
       } else {
         label = exchangeDateTime(e, 4);
       }
@@ -159,7 +159,9 @@ const onFloor = (row) => {
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
             <a-breadcrumb-item
-              >选择馆舍<img src="@/assets/seat/titRightIcon.svg" alt=""
+              >{{ $t("visitor_Select_Library") }}<img
+                src="@/assets/seat/titRightIcon.svg"
+                alt=""
             /></a-breadcrumb-item>
             <!-- <a-breadcrumb-item>1</a-breadcrumb-item> -->
           </a-breadcrumb>
@@ -211,7 +213,7 @@ const onFloor = (row) => {
                   <span
                     v-if="item?.show_detail == 1"
                     @click.stop="handleShowInfo(item)"
-                    >查看详情</span
+                    >{{ $t("V4_view_details") }}</span
                   >
                   <img
                     v-if="item?.show_detail == 1"
@@ -223,11 +225,11 @@ const onFloor = (row) => {
               </div>
               <div class="bottomItem">
                 <div class="num">
-                  <span>空闲{{ item?.free_num || "-" }}</span>
-                  <span>/总数{{ item?.total_num || "-" }}</span>
+                  <span>{{$t("Avl")}}{{ item?.free_num || "-" }}</span>
+                  <span>/{{$t("Tot")}}{{ item?.total_num || "-" }}</span>
                 </div>
                 <div class="action" @click="goToLink(item?.id)">
-                  <span>预约</span>
+                  <span>{{ $t("Reservation") }}</span>
                   <img src="@/assets/home/rightIconPrimary.svg" alt="" />
                 </div>
               </div>
@@ -253,8 +255,8 @@ const onFloor = (row) => {
           <div class="quickFloor" @click="onFloor(item)">
             <p class="floorNum">{{ item?.name }}</p>
             <div class="floorTotal">
-              <span>空闲{{ item?.free_num }}</span>
-              <span>/总数{{ item?.total_num }}</span>
+              <span>{{$t("Avl")}}{{ item?.free_num }}</span>
+              <span>/{{$t("Tot")}}{{ item?.total_num }}</span>
             </div>
           </div>
         </a-col>
@@ -267,8 +269,8 @@ const onFloor = (row) => {
       title="馆舍详情"
       @ok="handleAppt"
       destroyOnClose
-      okText="预约"
-      cancelText="关闭"
+      :okText="$t('Reservation')"
+      :cancelText="$t('feedback_details_close')"
       :cancelButtonProps="{
         size: 'middle',
         style: {

@@ -97,7 +97,7 @@ const filterTypes = () => {
       </template>
     </a-input> -->
     <div class="filterScr">
-      <div class="filterFilter">馆舍</div>
+      <div class="filterFilter">{{ $t("Visitor_library") }}</div>
       <div class="fiterItem">
         <a-radio-group v-model:value="state.filterRows.library">
           <a-radio
@@ -110,7 +110,7 @@ const filterTypes = () => {
         </a-radio-group>
       </div>
       <template v-if="state.floorList?.length">
-        <div class="filterFilter">楼层</div>
+        <div class="filterFilter">{{ $t("Floor") }}</div>
         <div class="fiterItem">
           <a-radio-group v-model:value="state.filterRows.floor">
             <a-radio
@@ -124,7 +124,7 @@ const filterTypes = () => {
         </div>
       </template>
       <template v-if="state.typeList?.length">
-        <div class="filterFilter">座位类型</div>
+        <div class="filterFilter">{{ $t("Seat_Type") }}</div>
         <div class="fiterItem">
           <a-checkbox-group v-model:value="state.filterRows.bookType">
             <a-checkbox

@@ -78,7 +78,7 @@ watch(
 const initQuickDateList = () => {
   const formattedDate = moment().format("MM-DD");
   state.quickDateList = [
-    { label: `${formattedDate} 今天`, value: moment().format("YYYY-MM-DD") },
+    { label: `${formattedDate} ${$t("today")}`, value: moment().format("YYYY-MM-DD") },
   ];
 };
 
@@ -99,7 +99,7 @@ const fetchGetSpaceSelectList = async () => {
         // return date === today ? `${formattedDate} 今天` : formattedDate;
         return {
           value: date,
-          label: date === today ? `${formattedDate} 今天` : formattedDate,
+          label: date === today ? `${formattedDate} ${$t("today")}` : formattedDate,
         };
       }) || [];
 
@@ -306,9 +306,9 @@ const handleDateChange = (v) => {
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
             <a-breadcrumb-item @click="goToLink('/space')"
-              >选择馆舍</a-breadcrumb-item
+              >{{ $t("visitor_Select_Library") }}</a-breadcrumb-item
             >
-            <a-breadcrumb-item>选择空间</a-breadcrumb-item>
+            <a-breadcrumb-item>{{ $t("V4_select_a_space") }}</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         <div class="rightAction">
@@ -316,7 +316,7 @@ const handleDateChange = (v) => {
             <a-select
               v-model:value="state.quickDate"
               @change="handleDateChange"
-              placeholder="选择日期"
+              :placeholder="$t('visitor_Select_Date')"
             >
               <template v-for="item in state.quickDateList" :key="item">
                 <a-select-option :value="item?.value">{{
@@ -336,7 +336,7 @@ const handleDateChange = (v) => {
 
           <div class="filters activeBtn" @click="state.spaceFilterShow = true">
             <img src="@/assets/seat/filtersIcon.svg" alt="" />
-            筛选
+            {{ $t("Screen") }}
           </div>
         </div>
       </div>
@@ -371,7 +371,7 @@ const handleDateChange = (v) => {
                   class="rightBadge viewMore clickBox"
                   @click.stop="handleShowInfo(item)"
                 >
-                  <span> 查看详情 </span>
+                  <span> {{ $t("V4_view_details") }} </span>
                   <img src="@/assets/home/rightIconW.svg" alt="" />
                 </div>
                 <div class="posBot">
@@ -384,12 +384,12 @@ const handleDateChange = (v) => {
                   <span>{{ item?.storey_name }}</span>
                 </div>
                 <div class="num">
-                  <span>可容纳人数</span>
+                  <span>{{ $t("Capacity_Capacity") }}</span>
                   <span
                     >{{ item?.minPerson }}
                     <span v-if="item?.minPerson != item?.maxPerson"
                       >~ {{ item?.maxPerson }}</span
-                    >人</span
+                    >{{ $t("People") }}</span
                   >
                 </div>
                 <div class="boutique">
@@ -403,9 +403,9 @@ const handleDateChange = (v) => {
                 <!-- 示例 -->
                 <div class="timeStatus">
                   <span class="allCir"></span>
-                  <span class="timeStatusText">已被占用</span>
+                  <span class="timeStatusText">{{ $t("V4_already_occupied") }}</span>
                   <span class="unAllCir" style="margin-left: 30px"></span>
-                  <span class="timeStatusText">可预约时段</span>
+                  <span class="timeStatusText">{{ $t("V4_available_reservation_slots") }}</span>
                 </div>
 
                 <a-flex wrap="wrap" gap="10px" style="margin-top: 10px">
@@ -435,7 +435,7 @@ const handleDateChange = (v) => {
                 class="action clickBoxT"
                 @click="handleAppt(item)"
               >
-                立即预约
+                {{ $t("book_now") }}
               </div>
             </div>
           </a-col>
@@ -449,8 +449,8 @@ const handleDateChange = (v) => {
       title="空间详情"
       @ok="handleAppt(state.spaceInfo)"
       destroyOnClose
-      okText="预约"
-      cancelText="关闭"
+      :okText="$t('Reservation')"
+      :cancelText="$t('feedback_details_close')"
       :cancelButtonProps="{
         size: 'middle',
         style: {
@@ -468,11 +468,11 @@ const handleDateChange = (v) => {
     <a-modal
       width="50%"
       v-model:open="state.spaceFilterShow"
-      title="空间筛选"
+      :title="$t('V4_space_filter')"
       @ok="handleFilter"
       destroyOnClose
-      okText="确认"
-      cancelText="取消"
+      :okText="$t('visitor_Confirm')"
+      :cancelText="$t('cancel')"
       :cancelButtonProps="{
         size: 'middle',
         style: {

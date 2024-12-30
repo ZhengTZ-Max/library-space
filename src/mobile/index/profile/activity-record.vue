@@ -25,9 +25,9 @@ const state = reactive({
   activeKey: "1",
 
   activeKeyList: [
-    { value: "1", label: "ApplicationRecord" },
+    { value: "1", label: $t("ApplicationRecord") },
     { value: "2", label: "报名记录" },
-    { value: "3", label: "Drafts" },
+    { value: "3", label: $t("Drafts") },
   ],
   currentPage: 1,
   pageSize: 10,
@@ -149,7 +149,7 @@ const onClickItem = (id) => {
           :class="{ itemActive: item?.value == state.activeKey }"
           @click="state.activeKey = item?.value"
         >
-          {{ $t(item?.label) ? $t(item?.label) : item?.label }}
+          {{ item?.label }}
         </div>
       </div>
     </div>

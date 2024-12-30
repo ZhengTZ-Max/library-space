@@ -46,17 +46,17 @@ watch(
 
 const initQuickDateList = (list) => {
   state.quickDateList = [
-    { label: "今天", value: moment().format("YYYY-MM-DD") },
-    { label: "明天", value: moment().add(1, "days").format("YYYY-MM-DD") },
+    { label: $t("today"), value: moment().format("YYYY-MM-DD") },
+    { label: $t("tomorrow"), value: moment().add(1, "days").format("YYYY-MM-DD") },
   ];
 
   if (list?.length) {
     state.quickDateList = list?.map((e) => {
       let label = "";
       if (moment().format("YYYY-MM-DD") == e) {
-        label = "今天";
+        label = $t("today");
       } else if (exchangeDateTime(new Date(), 25).format("YYYY-MM-DD") == e) {
-        label = "明天";
+        label = $t("tomorrow");
       } else {
         label = exchangeDateTime(e, 4);
       }

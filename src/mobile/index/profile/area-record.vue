@@ -22,8 +22,8 @@ const router = useRouter();
 const state = reactive({
   activeKey: "1",
   activeKeyList: [
-    { value: "1", label: "V4_regular_space" },
-    { value: "2", label: "H_Room_Large" },
+    { value: "1", label: $t("V4_regular_space") },
+    { value: "2", label: $t("H_Room_Large") },
   ],
   UserInfo: getUserInfo(),
   currentPage: 1,
@@ -33,7 +33,7 @@ const state = reactive({
 
   quickMode: 1,
   quickModeList: [
-    { value: 1, label: "visitor_Reservation_List" },
+    { value: 1, label: $t("visitor_Reservation_List") },
     { value: 2, label: "违约记录" },
   ],
   status_name: "预约成功",
@@ -171,7 +171,7 @@ const onClickItem = (item) => {
           :class="{ itemActive: item?.value == state.activeKey }"
           @click="state.activeKey = item?.value"
         >
-          {{ $t(item?.label) ? $t(item?.label) : item?.label }}
+          {{ item?.label }}
         </div>
       </div>
     </div>
@@ -183,7 +183,7 @@ const onClickItem = (item) => {
         :class="{ itemActive: item?.value == state.quickMode }"
         @click="onChangeQMode(item)"
       >
-        {{ $t(item?.label) ? $t(item?.label) : item?.label }}
+        {{ item?.label }}
       </div>
     </div>
 

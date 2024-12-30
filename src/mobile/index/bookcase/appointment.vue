@@ -41,8 +41,8 @@ const state = reactive({
 
   quickMode: "0",
   quickModeList: [
-    { value: 0, label: "V4_map_view" },
-    { value: 1, label: "V4_list_view" },
+    { value: 0, label: $t("V4_map_view") },
+    { value: 1, label: $t("V4_list_view") },
   ],
 
   bookSelected: {},
@@ -191,7 +191,7 @@ const onViewMap = () => {
               :class="{ itemActive: item?.value == state.quickMode }"
               @click="state.quickMode = item?.value"
             >
-              {{ $t(item?.label) }}
+              {{ item?.label }}
             </div>
           </div>
 
@@ -261,7 +261,7 @@ const onViewMap = () => {
         type="primary"
         :disabled="!state.bookSelected?.id"
         @click="confirmAppt"
-        >{{ $t('visitor_Reservation') }}</van-button
+        >{{ $t('V4_apply_now') }}</van-button
       >
     </div>
     <ShowInfoToast

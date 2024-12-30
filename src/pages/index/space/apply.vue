@@ -127,7 +127,7 @@ watch(
       state.sliderConfig.disabledArr = list?.map((e) => {
         return [e?.begin_num, e?.end_num];
       });
-      console.log(state.sliderConfig.disabledArr)
+      console.log(state.sliderConfig.disabledArr);
 
       if (exchangeDateTime(v.date, 2) == exchangeDateTime(new Date(), 2)) {
         let h = moment(new Date()).get("hour") * 60;
@@ -333,7 +333,6 @@ const getCurrentChooseTimeHaveSelectTime = () => {
   state.chooseTimeConfig.min_range = list[0]?.info?.min_time;
   state.chooseTimeConfig.max_range = list[0]?.info?.max_time;
 
-
   list.forEach((e) => {
     e.info.list.forEach((item) => {
       state.rangeTimeCantSelectTime.push({
@@ -342,7 +341,6 @@ const getCurrentChooseTimeHaveSelectTime = () => {
       });
     });
   });
-
 
   let mStartTime = list?.length ? list[0]?.info?.start_timestamp : "";
   let mEndTime = list?.length ? list[0]?.info?.end_timestamp : "";
@@ -444,14 +442,18 @@ const chooseTimeIsInRange = (value, item, type, index) => {
   const timeDifference = (dateE.getTime() - dateS.getTime()) / (1000 * 60);
   // 判断时间差
   if (timeDifference > state.chooseTimeConfig.max_range) {
-    message.warning(`预约时间最长时间不能超过${state.chooseTimeConfig.max_range}分钟`);
+    message.warning(
+      `预约时间最长时间不能超过${state.chooseTimeConfig.max_range}分钟`
+    );
     if (type == "start") {
       item.begin_time = null;
     } else {
       item.end_time = null;
     }
   } else if (timeDifference < state.chooseTimeConfig.min_range) {
-    message.warning(`预约时间最短时间不能低于${state.chooseTimeConfig.min_range}分钟`);
+    message.warning(
+      `预约时间最短时间不能低于${state.chooseTimeConfig.min_range}分钟`
+    );
     if (type == "start") {
       item.begin_time = null;
     } else {
@@ -790,13 +792,15 @@ const getDateStatus = () => {
             <template #separator
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
-            <a-breadcrumb-item @click="goToLink('/space')"
-              >选择馆舍</a-breadcrumb-item
-            >
-            <a-breadcrumb-item @click="goToLink('/space/space', true)"
-              >选择空间</a-breadcrumb-item
-            >
-            <a-breadcrumb-item>填写申请信息</a-breadcrumb-item>
+            <a-breadcrumb-item @click="goToLink('/space')">{{
+              $t("visitor_Select_Library")
+            }}</a-breadcrumb-item>
+            <a-breadcrumb-item @click="goToLink('/space/space', true)">{{
+              $t("V4_select_a_space")
+            }}</a-breadcrumb-item>
+            <a-breadcrumb-item>{{
+              $t("V4_fill_out_the_application_form")
+            }}</a-breadcrumb-item>
             <!-- <a-breadcrumb-item>1</a-breadcrumb-item> -->
           </a-breadcrumb>
         </div>
@@ -821,7 +825,7 @@ const getDateStatus = () => {
           </div>
         </div>
         <div class="left_bottom">
-          <div class="left_bottom_title">时间选择</div>
+          <div class="left_bottom_title">{{ $t("V4_time_selection") }}</div>
           <van-row
             v-if="state.spaceApplyInfo?.type_id == 5"
             class="time_select_box"
@@ -829,7 +833,10 @@ const getDateStatus = () => {
             <van-col span="12">
               <div class="time_select_box_text">
                 <div class="time_select_box_text_left">
-                  点击您想要选择的日期<span>（可选择多天）</span>
+                  {{ $t("V4_click_on_the_date_you_want_to_select")
+                  }}<span
+                    >（{{ $t("V4_multiple_days_can_be_selected") }}）</span
+                  >
                 </div>
               </div>
               <div class="calendar_box">
@@ -841,7 +848,7 @@ const getDateStatus = () => {
                 />
               </div>
               <div style="margin-top: 8px" class="timeStatus">
-                <span class="can_book">有预约:</span>
+                <span class="can_book">{{ $t("AppointmentExists") }}:</span>
                 <span class="allCir"></span>
                 <span style="margin-right: 30px">全天</span>
                 <span class="allCir topCir"></span>
@@ -855,17 +862,14 @@ const getDateStatus = () => {
               offset="2"
             >
               <div
-              v-if="state.selectDateInfo?.length"
+                v-if="state.selectDateInfo?.length"
                 class="selected_time_text"
                 :style="{
                   marginTop: !state.selectDateInfo?.length ? '70%' : '',
                 }"
               >
-                已选时间：
-                <span 
-                  >{{ showApplyDate() }}
-                </span>
-                
+                {{$t("SelectedDate")}}：
+                <span>{{ showApplyDate() }} </span>
               </div>
               <template v-if="state.selectDateInfo?.length">
                 <div
@@ -885,7 +889,7 @@ const getDateStatus = () => {
                       :minuteStep="15"
                       :showNow="false"
                       v-model:value="item.begin_time"
-                      placeholder="开始时间"
+                      :placeholder="$t('user_begintime')"
                       @change="(v) => onChangeTime(v, item, 'start', index)"
                     />
                   </div>
@@ -902,7 +906,7 @@ const getDateStatus = () => {
                       :showNow="false"
                       :disabledTime="onDisabledTime"
                       v-model:value="item.end_time"
-                      placeholder="结束时间"
+                      :placeholder="$t('user_endtime')"
                       @change="(v) => onChangeTime(v, item, 'end', index)"
                     />
                   </div>
@@ -937,7 +941,7 @@ const getDateStatus = () => {
                   textAlign: 'left',
                 }"
               >
-                已选时间：
+                {{$t("SelectedDate")}}：
                 <span v-if="state.selectDateInfo?.length">{{
                   showApplyDate()
                 }}</span>
@@ -1007,7 +1011,7 @@ const getDateStatus = () => {
                 size="middle"
                 :bordered="false"
                 v-model:value="state.addPeople"
-                placeholder="请输入学工号"
+                :placeholder="$t('V4_please_enter_your_student_ID')"
               />
               <img
                 @click="addPeople"
@@ -1043,23 +1047,24 @@ const getDateStatus = () => {
 
           <div class="right_top_right_text">
             <div v-if="state.addPeopleList?.length < 1">
-              还可添加{{ state.spaceApplyInfo?.maxPerson }}人
+              {{ $t("V4_can_still_add") }}{{ state.spaceApplyInfo?.maxPerson }}
+              {{ $t("People") }}
             </div>
             <div v-else>
-              还可添加{{
+              {{ $t("V4_can_still_add") }}{{
                 state.spaceApplyInfo?.maxPerson - state.addPeopleList?.length
-              }}人
+              }}{{ $t("People") }}
             </div>
           </div>
         </div>
         <div class="right_bottom">
-          <div class="right_bottom_title">完善信息</div>
+          <div class="right_bottom_title">{{ $t("visitor_Improve_Information") }}</div>
           <!-- 申请主题 -->
           <a-flex class="right_bottom_item" gap="middle" align="center">
-            <div>申请主题:</div>
+            <div>{{ $t("V4_application_subject") }}:</div>
             <div style="flex: 1">
               <a-input
-                placeholder="填写后将在活动报名页面展示"
+                :placeholder="$t('V4_please_enter_the_application_subject')"
                 v-model:value="state.filterActivityTheme"
                 size="middle"
               />
@@ -1067,7 +1072,7 @@ const getDateStatus = () => {
           </a-flex>
           <!-- 申请内容 -->
           <a-flex class="right_bottom_item" gap="middle" align="start">
-            <div>申请内容:</div>
+            <div>{{ $t("Application_content") }}:</div>
             <div style="flex: 1">
               <a-textarea
                 placeholder="填写后将在活动报名页面展示"
@@ -1081,10 +1086,10 @@ const getDateStatus = () => {
           </a-flex>
           <!-- 联系电话 -->
           <a-flex class="right_bottom_item" gap="middle" align="center">
-            <div>联系电话:</div>
+            <div>{{ $t("user_phone") }}:</div>
             <div style="flex: 1">
               <a-input
-                placeholder="请输入联系电话"
+                :placeholder="$t('Please_type_your_phone_number')"
                 v-model:value="state.filterActivityMobile"
                 size="middle"
               />
@@ -1092,11 +1097,11 @@ const getDateStatus = () => {
           </a-flex>
           <!-- 是否公开 -->
           <a-flex class="right_bottom_item" gap="middle" align="center">
-            <div>是否公开:</div>
+            <div>{{ $t("Is_it_public") }}:</div>
             <div style="flex: 1">
               <a-radio-group v-model:value="state.isOpen">
-                <a-radio :value="0" :key="0">是</a-radio>
-                <a-radio :value="1" :key="1">否</a-radio>
+                <a-radio :value="0" :key="0">{{ $t("yes") }}</a-radio>
+                <a-radio :value="1" :key="1">{{ $t("no") }}</a-radio>
               </a-radio-group>
             </div>
           </a-flex>
@@ -1108,7 +1113,7 @@ const getDateStatus = () => {
             gap="middle"
             align="start"
           >
-            <div>上传附件:</div>
+            <div>{{ $t("UploadAttachments") }}:</div>
             <div style="flex: 1">
               <Uploader
                 class="margin_left_10"
@@ -1132,7 +1137,7 @@ const getDateStatus = () => {
               type="primary"
               style="width: 200px"
               @click="onSubmit"
-              >立即预约</van-button
+              >{{ $t("book_now") }}</van-button
             >
           </div>
         </div>
@@ -1145,8 +1150,8 @@ const getDateStatus = () => {
       title="空间详情"
       @ok="state.spaceDetailInfoShow = false"
       destroyOnClose
-      okText="确认"
-      cancelText="关闭"
+      :okText="$t('visitor_Confirm')"
+      :cancelText="$t('feedback_details_close')"
       :cancelButtonProps="{
         size: 'middle',
         style: {
@@ -1172,14 +1177,14 @@ const getDateStatus = () => {
     >
       <template v-slot:content>
         <div class="showArea">
-          <div class="tag">当前预约选择</div>
+          <div class="tag">{{ $t("V4_current_reservation_selection") }}</div>
           <div class="showCon">
             <div class="item">
               <p>
-                空间：<span>{{ showAreaName() || "" }}</span>
+                {{$t("Space")}}：<span>{{ showAreaName() || "" }}</span>
               </p>
               <p>
-                时间：<span>{{ showApplyDate() || "" }}</span>
+                {{ $t("Time") }}：<span>{{ showApplyDate() || "" }}</span>
               </p>
             </div>
             <div v-if="showPeopleName()" class="item">
@@ -1201,25 +1206,25 @@ const getDateStatus = () => {
     >
       <template v-slot:content>
         <div class="toastItem">
-          <span>申请人：</span>
+          <span>{{$t("V4_applicant")}}：</span>
           <span>{{ state?.UserInfo?.name || "" }}</span>
         </div>
         <div class="toastItem">
-          <span>预约时间：</span>
+          <span>{{ $t("user_booktime") }}：</span>
           <span>
             <span>{{ showApplyDate() || "" }}</span>
           </span>
         </div>
         <div class="toastItem">
-          <span>预约地点：</span>
+          <span>{{ $t("Reservation_location") }}：</span>
           <span>{{ showAreaName() || "" }}</span>
         </div>
         <div v-if="showPeopleName()" class="toastItem">
-          <span>参与人员：</span>
+          <span>参与成员：</span>
           <span>{{ showPeopleName() || "" }}</span>
         </div>
         <div v-if="state.apptResult?.msg" class="toastItem">
-          <span>预约提醒：</span>
+          <span>{{$t("Reserved_Reserved")}}：</span>
           <span>{{ state.apptResult?.msg }}</span>
         </div>
       </template>

@@ -40,34 +40,43 @@ const onApply = () => {
         />
         <img v-else src="@/assets/event/failed.svg" alt="失败图像" />
         <span>{{
-          state.applyResultInfo.result === "success" ? "报名成功" : "报名失败"
+          state.applyResultInfo.result === "success"
+            ? $t("V4_registration_successful")
+            : $t("V4_registration_failed")
         }}</span>
       </div>
       <div class="result_info_item">
-        <span>活动名称:</span>
+        <span>{{ $t("user_activityname") }}:</span>
         <span>{{ state.applyResultInfo.eventInfo.title }}</span>
       </div>
       <div class="result_info_item">
-        <span>活动时间:</span>
-        <span>{{ state.applyResultInfo.eventDateIndex }} {{ state.applyResultInfo.eventTimeShow }}</span>
-
+        <span>{{ $t("user_activitytime") }}:</span>
+        <span
+          >{{ state.applyResultInfo.eventDateIndex }}
+          {{ state.applyResultInfo.eventTimeShow }}</span
+        >
       </div>
       <div class="result_info_item">
-        <span>活动地点:</span>
+        <span>{{ $t("user_activityplace") }}:</span>
         <span>{{ state.applyResultInfo.eventInfo.nameMerge }}</span>
       </div>
-      <div v-if="state.applyResultInfo.result === 'failed'" class="result_info_item">
-        <span>报名提醒:</span>
-        <span>报名失败原因{{ state.applyResultInfo.message }}</span>
+      <div
+        v-if="state.applyResultInfo.result === 'failed'"
+        class="result_info_item"
+      >
+        <span>{{ $t("Reserved_Reserved") }}:</span>
+        <span>{{ state.applyResultInfo.message }}</span>
       </div>
     </div>
     <a-divider />
-    <a-button type="link" class="bottom_button" @click="onApply">确认</a-button>
+    <a-button type="link" class="bottom_button" @click="onApply">
+      {{ $t("visitor_Confirm") }}</a-button
+    >
   </div>
 </template>
 <style lang="less" scoped>
 .dialog_item {
-padding: 20px;
+  padding: 20px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -95,7 +104,6 @@ padding: 20px;
   padding: 0 !important;
   margin: 0 !important;
   margin-bottom: 10px !important;
-
 }
 .result_info_item {
   display: flex;

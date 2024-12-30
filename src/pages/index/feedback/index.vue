@@ -70,22 +70,22 @@ onMounted(() => {
 
 const columns = [
   {
-    title: "反馈内容",
+    title: $t("Feedback_content"),
     dataIndex: "content",
     key: "content",
   },
   {
-    title: "类型",
+    title: $t("feedback_list_type"),
     dataIndex: "type",
     key: "type",
   },
   {
-    title: "提交时间",
+    title: $t("fubmission_time"),
     dataIndex: "create_time",
     key: "create_time",
   },
   {
-    title: "操作",
+    title: $t("feedback_list_operation"),
     key: "action",
   },
 ];
@@ -331,12 +331,12 @@ const fetchSubmit = async (params) => {
     <div class="cardCon">
       <div class="cardItem clickBox" @click="onShowSubmitModal('1')">
         <img src="@/assets/feedback/opinion.svg" alt="" />
-        <span>意见反馈</span>
+        <span>{{ $t("feedback") }}</span>
         <img src="@/assets/feedback/rightIcon.svg" alt="" />
       </div>
       <div class="cardItem clickBox" @click="onShowSubmitModal('2')">
         <img src="@/assets/feedback/equipment.svg" alt="" />
-        <span>设备报修</span>
+        <span>{{ $t("Device_Repair") }}</span>
         <img src="@/assets/feedback/rightIcon.svg" alt="" />
       </div>
     </div>
@@ -363,7 +363,7 @@ const fetchSubmit = async (params) => {
                   class="custom-tag"
                   :color="record.type === '1' ? 'processing' : 'warning'"
                 >
-                  {{ record.type === "1" ? "意见反馈" : "设备报修" }}
+                  {{ record.type === "1" ? $t("feedback") : $t("Device_Repair") }}
                 </a-tag>
               </span>
             </template>
@@ -374,7 +374,7 @@ const fetchSubmit = async (params) => {
 
             <template v-if="column.key === 'action'">
               <span>
-                <a type="primary" @click="onShowModal(record)">查看</a>
+                <a type="primary" @click="onShowModal(record)">{{ $t("feedback_list_view") }}</a>
               </span>
             </template>
           </template>
@@ -403,7 +403,7 @@ const fetchSubmit = async (params) => {
       <div class="drawer_title">
         <div class="title_text">
           <div class="indicator_title"></div>
-          <div>反馈详情</div>
+          <div>{{ $t("V4_feedback_details") }}</div>
         </div>
         <div>
           <img
@@ -439,15 +439,15 @@ const fetchSubmit = async (params) => {
         <div class="title_text">
           <div class="indicator_title"></div>
           <div>
-            {{ state.submitInfo.submitType == "1" ? "意见反馈" : "设备报修" }}
+            {{ state.submitInfo.submitType == "1" ? $t("feedback") : $t("Device_Repair") }}
           </div>
         </div>
         <div>
           <a-button class="cancel_btn" @click="state.isShowSubmitDrawer = false"
-            >取消</a-button
+            >{{ $t("cancel") }}</a-button
           >
           <a-button class="submit_btn" type="primary" @click="onSubmit"
-            >确认</a-button
+            >{{ $t("visitor_Confirm") }}</a-button
           >
         </div>
       </div>

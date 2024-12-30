@@ -25,9 +25,9 @@ const state = reactive({
 
   activeKey: "1",
   activeKeyList: [
-    { value: "1", label: "普通座位" },
-    { value: "3", label: "研习座位" },
-    { value: "4", label: "考研座位" },
+    { value: "1", label: $t("H_Seat") },
+    { value: "3", label: $t("V4_study_seat") },
+    { value: "4", label: $t("V4_seat_KYZW") },
   ],
   currentPage: 1,
   pageSize: 10,
@@ -36,9 +36,9 @@ const state = reactive({
 
   quickMode: 1,
   quickModeList: [
-    { value: 1, label: "预约记录" },
+    { value: 1, label: $t("visitor_Reservation_List") },
     { value: 2, label: "违约记录" },
-    { value: 3, label: "权限查询" },
+    { value: 3, label: $t("Authority_check") },
   ],
   status_name: "预约成功",
 
@@ -273,9 +273,9 @@ const fetchQuery = () => {
               </template>
 
               <div v-if="item.status_name === '预约成功'">
-                <a-button type="primary" shape="round" size="small" block
-                  >{{ $t("Cancel") }}</a-button
-                >
+                <a-button type="primary" shape="round" size="small" block>{{
+                  $t("Cancel")
+                }}</a-button>
               </div>
             </div>
 
@@ -344,10 +344,12 @@ const fetchQuery = () => {
         <div class="query_result_info_item">
           {{ $t("Query_Results") }}<span class="span_gray">(请点击查询)</span>
           <div class="margin10 query_result_info_item_text">
-            本期(2024-01-22至2024-01-28)预约权限:<span>100</span>
+            {{ $t("Current") }}(2024-01-22至2024-01-28)
+            {{ $t("Reservation_permission") }}:<span>100</span>
           </div>
           <div class="query_result_info_item_text">
-            下期(2024-01-22至2024-01-28)预约权限:<span>100</span>
+            {{ $t("Next_time") }}(2024-01-22至2024-01-28)
+            {{ $t("Reservation_permission") }}:<span>100</span>
           </div>
         </div>
 
@@ -393,9 +395,9 @@ const fetchQuery = () => {
         </div>
       </div>
       <div style="margin: 15px 10px">
-        <a-button type="primary" shape="round" block @click="fetchQuery"
-          >{{ $t("Visitor_query") }}</a-button
-        >
+        <a-button type="primary" shape="round" block @click="fetchQuery">{{
+          $t("Visitor_query")
+        }}</a-button>
       </div>
     </div>
 
