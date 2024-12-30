@@ -210,7 +210,7 @@ export function SeatQrChange(data) {
 // touch扫码 delete/checkin/checkout/leave[取消/签到/签离/临时离开]
 export function touch_qr_books(data) {
   return service({
-    url: "/api/Seat/touch_qr_books",
+    url: "/v4/space/qr_touch",
     method: "post",
     isLoading: true,
     // loadingMsg:"正在预约",

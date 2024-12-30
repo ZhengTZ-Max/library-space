@@ -112,7 +112,15 @@ const onReviewImg = (v) => {};
     <a-affix offset-top="0" :target="() => containerRef">
       <div class="header">
         <div class="leftTit">
-          <a-button>{{ " + " + $t("V4_item_collection") }}</a-button>
+          <a-button type="primary" shape="round" size="m">{{
+            " + " + $t("V4_item_collection")
+          }}</a-button>
+          <a-button shape="round" size="m" class="clearBtn">
+            <template #icon>
+              <img src="@/assets/collection/clearC.svg" alt="" />
+            </template>
+            清柜</a-button
+          >
         </div>
         <div class="rightAction">
           <div
@@ -133,6 +141,7 @@ const onReviewImg = (v) => {};
             <div class="libraryItem cardItem" @click="onChangeAct(item)">
               <div class="cardItemImgCon">
                 <a-image
+                  @click.stop=""
                   class="cardItemImg"
                   src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
                 >
@@ -146,9 +155,12 @@ const onReviewImg = (v) => {};
                   <span>{{ item?.name }}号柜：{{ item?.boxId }}格</span>
                   <span>{{ item?.lockerFloor }}</span>
                 </div>
-                <div class="details"><span>{{ $t("V4_collection_date") }}</span> 2024-01-29</div>
                 <div class="details">
-                  <span>{{ $t("V4_collection_location") }}</span> 基础馆-1F-自修B区
+                  <span>{{ $t("V4_collection_date") }}</span> 2024-01-29
+                </div>
+                <div class="details">
+                  <span>{{ $t("V4_collection_location") }}</span>
+                  基础馆-1F-自修B区
                 </div>
               </div>
               <!-- <div
@@ -226,8 +238,12 @@ const onReviewImg = (v) => {};
           <div class="title">
             <span>基础馆-1F-1号柜：08格</span>
           </div>
-          <div class="details"><span>{{ $t("V4_collection_date") }}</span> 2024-01-29</div>
-          <div class="details"><span>{{ $t("V4_collection_location") }}</span> 基础馆-1F-自修B区</div>
+          <div class="details">
+            <span>{{ $t("V4_collection_date") }}</span> 2024-01-29
+          </div>
+          <div class="details">
+            <span>{{ $t("V4_collection_location") }}</span> 基础馆-1F-自修B区
+          </div>
         </div>
       </div>
     </a-modal>
@@ -249,6 +265,22 @@ const onReviewImg = (v) => {};
       img {
         width: 22px;
         height: 22px;
+      }
+      button {
+        width: 160px;
+      }
+      .clearBtn {
+        margin-left: 20px;
+        background: rgba(26, 73, 192, 0.07);
+        border: 1px solid rgba(26, 73, 192, 0.14);
+        font-size: 14px;
+        color: #1a49c0;
+        img{
+          width: 12px;
+          height: 12px;
+          margin-right: 4px;
+          transform: translateY(-2px);
+        }
       }
     }
     .rightAction {
