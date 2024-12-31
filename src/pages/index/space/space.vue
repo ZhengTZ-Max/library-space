@@ -216,6 +216,7 @@ const fetchGetSpaceInfoList = async () => {
     state.spaceInfoList = res?.data?.data || [];
     if (state.spaceInfoList?.length) {
       state.activeIndex = state.spaceInfoList[0]?.id;
+      dealWithTime(state.spaceInfoList[0]);
     }
   } catch (error) {
     state.spaceInfoList = [];

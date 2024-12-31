@@ -354,7 +354,7 @@ const getItemTime = (item) => {
                   </div>
                 </a-flex>
                 <div class="num">
-                  <span>可容纳人数</span>
+                  <span>{{ $t("Capacity_Capacity") }}</span>
                   <span
                     >{{ item?.minPerson }}
                     <span v-if="item?.minPerson != item?.maxPerson"
@@ -364,7 +364,7 @@ const getItemTime = (item) => {
                 </div>
 
                 <div class="action">
-                  <span @click="handleShowInfo(item)">查看详情 ></span>
+                  <span @click="handleShowInfo(item)">{{ $t("V4_view_details") }} ></span>
 
                   <van-button
                     plain
@@ -374,7 +374,7 @@ const getItemTime = (item) => {
                     size="mini"
                     style="padding: 4px 15px; font-size: 12px"
                     @click="onApply(item?.id)"
-                    >申请</van-button
+                    >{{ $t("V4_apply") }}</van-button
                   >
                 </div>
               </van-col>

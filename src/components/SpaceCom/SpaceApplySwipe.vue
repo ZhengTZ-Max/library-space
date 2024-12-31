@@ -35,9 +35,14 @@ const initFirst = () => {
 const onChange = (v) => {
   emits("changeSlide", state.list[v]);
 };
+
+const onTouchMove = (e) => {};
 </script>
 <template>
-  <div class="container">
+  <div
+    class="container"
+    :class="systemMode === 'pc' ? 'pc-mode' : 'mobile-mode'"
+  >
     <Carousel ref="carouselRef" :afterChange="onChange">
       <template v-slot:content v-if="systemMode == 'pc'">
         <div v-for="item in state.list" :key="item?.id">
@@ -46,7 +51,8 @@ const onChange = (v) => {
             <div class="title_right">{{ item.storey_name }}</div>
           </div>
           <div class="seatNum">
-            {{ $t("Capacity_Capacity") }}<span>{{ item.minPerson }} ~ {{ item.maxPerson }}人</span>
+            {{ $t("Capacity_Capacity")
+            }}<span>{{ item.minPerson }} ~ {{ item.maxPerson }}人</span>
           </div>
           <div class="otherInfo">
             <div
@@ -70,28 +76,38 @@ const onChange = (v) => {
               />
             </div>
           </div>
-          <div class="boutique">
-            <div class="boutiqueList" v-for="bout in item?.boutiques">
+
+          <a-flex class="vertical_scroll">
+            <div
+              class="boutiqueList"
+              v-for="bout in item?.boutiques"
+              :key="bout?.id"
+            >
               {{ bout.name }}
             </div>
-          </div>
-
+          </a-flex>
           <a-divider dashed />
           <div class="contentInfo">
-            <div class="contentInfo_left">{{$t("V4_contact_person")}}: <span>胡老师</span></div>
             <div class="contentInfo_left">
-              {{$t("user_phone")}}: <span>13800000000</span>
+              {{ $t("V4_contact_person") }}: <span>胡老师</span>
+            </div>
+            <div class="contentInfo_left">
+              {{ $t("user_phone") }}: <span>13800000000</span>
             </div>
           </div>
           <div class="contentInfo">
             <div class="contentInfo_left">
-              {{$t("V4_contact_address")}}: <span>北京市海淀区</span>
+              {{ $t("V4_contact_address") }}: <span>北京市海淀区</span>
             </div>
           </div>
         </div>
       </template>
       <template v-slot:content v-else>
-        <div class="item" v-for="item in state.list" :key="item?.id">
+        <div
+          class="item"
+          v-for="item in state.list"
+          :key="item?.id"
+        >
           <div style="padding: 16px; padding-bottom: 0">
             <van-row>
               <van-col span="10" class="img_col">
@@ -118,12 +134,16 @@ const onChange = (v) => {
                 </div>
 
                 <div class="action">
-                  <span @click="() => emits('viewFloor')">{{$t("View_Plan")}} ></span>
-                  <span @click="() => emits('viewInfo')">{{$t("V4_view_details")}} ></span>
+                  <span @click="() => emits('viewFloor')"
+                    >{{ $t("View_Plan") }} ></span
+                  >
+                  <span @click="() => emits('viewInfo')"
+                    >{{ $t("V4_view_details") }} ></span
+                  >
                 </div>
               </van-col>
             </van-row>
-            <div class="boutique_mobile">
+            <a-flex class="vertical_scroll" @touchmove.stop="onTouchMove">
               <div
                 class="boutiqueList"
                 v-for="bout in item?.boutiques"
@@ -131,18 +151,20 @@ const onChange = (v) => {
               >
                 {{ bout.name }}
               </div>
-            </div>
+            </a-flex>
           </div>
           <a-divider class="divider" dashed />
           <div class="contentInfo">
-            <div class="contentInfo_left">{{$t("V4_contact_person")}}: <span>胡老师</span></div>
             <div class="contentInfo_left">
-              {{$t("user_phone")}}: <span>13800000000</span>
+              {{ $t("V4_contact_person") }}: <span>胡老师</span>
+            </div>
+            <div class="contentInfo_left">
+              {{ $t("user_phone") }}: <span>13800000000</span>
             </div>
           </div>
           <div class="contentInfo">
             <div class="contentInfo_left">
-              {{$t("V4_contact_address")}}: <span>北京市海淀区</span>
+              {{ $t("V4_contact_address") }}: <span>北京市海淀区</span>
             </div>
           </div>
         </div>
@@ -201,25 +223,14 @@ const onChange = (v) => {
     color: rgba(134, 134, 134, 1);
   }
 }
-.boutique {
-  margin-top: 15px;
-  display: flex;
-  flex-wrap: wrap;
-  .boutiqueList {
-    border: 1px solid #f28800;
-    font-size: 12px;
-    color: rgba(242, 136, 0, 1);
-    padding: 2px 6px;
-    margin-right: 10px;
-    margin-top: 10px;
-  }
-}
+
 .ant-divider-horizontal {
   margin-top: 21px;
   margin-bottom: 15px;
 }
 
 .contentInfo {
+  padding: 0 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -318,21 +329,9 @@ const onChange = (v) => {
       }
     }
   }
-  .boutique_mobile {
-    margin-top: 8px;
-    display: flex;
-    flex-wrap: wrap;
-    .boutiqueList {
-      border: 1px solid #f28800;
-      font-size: 10px;
-      color: rgba(242, 136, 0, 1);
-      padding: 1px 4px;
-      margin-right: 8px;
-      margin-bottom: 8px;
-    }
-  }
+
   .divider {
-    margin: 10px 0 !important;
+    margin: 5px 0 !important;
   }
   .bottom_button {
     margin: 15px;
@@ -350,15 +349,63 @@ const onChange = (v) => {
   }
 }
 
-:deep(.carouseDots) {
-  bottom: 20px !important;
-}
-:deep(.slick-prev) {
-  left: 0 !important;
+.vertical_scroll {
+  overflow-x: auto;
+  white-space: nowrap;
+  margin-top: 10px;
+  /* 设置滚动条样式 */
+  &::-webkit-scrollbar {
+    height: 4px; /* 设置滚动条的高度 */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(97, 97, 97, 0.05); /* 设置滚动条的颜色 */
+    border-radius: 10px; /* 设置滚动条的圆角 */
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent; /* 设置滚动条轨道的颜色 */
+  }
+
+  /* Firefox 的滚动条样式 */
+  scrollbar-width: thin; /* 滚动条的宽度 */
+  scrollbar-color: rgba(97, 97, 97, 0.05) transparent; /* 滚动条的颜色和轨道的颜色 */
+  .boutiqueList {
+    border: 1px solid #f28800;
+    font-size: 10px;
+    color: rgba(242, 136, 0, 1);
+    padding: 1px 4px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
 }
 
-:deep(.slick-next) {
-  right: 0 !important;
+.pc-mode {
+  :deep(.carouseDots) {
+    bottom: 5px !important;
+  }
+  :deep(.slick-prev) {
+    bottom: 0 !important;
+    left: 0 !important;
+  }
+
+  :deep(.slick-next) {
+    right: 0 !important;
+    bottom: 0 !important;
+  }
+}
+
+.mobile-mode {
+  :deep(.carouseDots) {
+    bottom: 10px !important;
+  }
+  :deep(.slick-prev) {
+    display: none !important;
+  }
+
+  :deep(.slick-next) {
+    display: none !important;
+  }
 }
 
 :deep(.slick-slide) {

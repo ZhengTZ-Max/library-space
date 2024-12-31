@@ -40,16 +40,20 @@ const onChange = (v) => {
 const onTouchMove = (e) => {};
 </script>
 <template>
-  <div class="container">
+  <div
+    class="container"
+    :class="systemMode == 'pc' ? 'pc-mode' : 'mobile-mode'"
+  >
     <Carousel ref="carouselRef" :afterChange="onChange">
       <template v-slot:content v-if="systemMode == 'pc'">
-        <div v-for="item in state.list" :key="item?.id">
+        <div v-for="(item, index) in state.list" :key="item?.id">
           <div class="title">
             <div class="title_left">{{ item.name }}</div>
             <div class="title_right">{{ item.storey_name }}</div>
           </div>
           <div class="seatNum">
-            {{ $t("Capacity_Capacity") }}<span>{{ item.minPerson }} ~ {{ item.maxPerson }}人</span>
+            {{ $t("Capacity_Capacity")
+            }}<span>{{ item.minPerson }} ~ {{ item.maxPerson }}人</span>
           </div>
           <div class="otherInfo">
             <div
@@ -73,6 +77,7 @@ const onTouchMove = (e) => {};
               />
             </div>
           </div>
+
           <div class="boutique">
             <div class="boutiqueList" v-for="bout in item?.boutiques">
               {{ bout.name }}
@@ -81,7 +86,8 @@ const onTouchMove = (e) => {};
 
           <a-divider dashed />
           <div class="bottom_button clickBox" @click="emits('viewRule')">
-            {{ $t("V4_view_application_instructions") }}<img
+            {{ $t("V4_view_application_instructions")
+            }}<img
               src="@/assets/activity_application/right_arrow_gray.svg"
               alt=""
             />
@@ -112,12 +118,19 @@ const onTouchMove = (e) => {};
                 </div>
                 <div class="num">
                   <span>{{ $t("Capacity_Capacity") }}</span>
-                  <span>{{ item?.minPerson }} ~ {{ item?.maxPerson }} {{ $t("People") }}</span>
+                  <span
+                    >{{ item?.minPerson }} ~ {{ item?.maxPerson }}
+                    {{ $t("People") }}</span
+                  >
                 </div>
 
                 <div class="action">
-                  <span @click="() => emits('viewFloor')">{{ $t("View_Plan") }} ></span>
-                  <span @click="() => emits('viewInfo')">{{ $t("V4_view_details") }} ></span>
+                  <span @click="() => emits('viewFloor')"
+                    >{{ $t("View_Plan") }} ></span
+                  >
+                  <span @click="() => emits('viewInfo')"
+                    >{{ $t("V4_view_details") }} ></span
+                  >
                 </div>
               </van-col>
             </van-row>
@@ -195,9 +208,11 @@ const onTouchMove = (e) => {};
 .boutique {
   margin-top: 15px;
   display: flex;
-  max-height: 140px;
+  max-height: calc(28px * 3 + 20px);
   flex-wrap: wrap;
-  overflow: auto;
+  overflow: hidden;
+
+
   &::-webkit-scrollbar {
     display: none; /* 隐藏滚动条 */
   }
@@ -214,7 +229,7 @@ const onTouchMove = (e) => {};
   }
 }
 .ant-divider-horizontal {
-  margin-top: 21px;
+  margin-top: 15px;
   margin-bottom: 15px;
 }
 
@@ -353,17 +368,31 @@ const onTouchMove = (e) => {};
   }
 }
 
-:deep(.carouseDots) {
-  bottom: 20px !important;
-}
-:deep(.slick-prev) {
-  display: none !important;
-  left: 0 !important;
-}
+.pc-mode {
+  :deep(.carouseDots) {
+    bottom: 20px !important;
+  }
+  :deep(.slick-prev) {
+    // display: none !important;
+    left: 0 !important;
+  }
 
-:deep(.slick-next) {
-  display: none !important;
-  right: 0 !important;
+  :deep(.slick-next) {
+    // display: none !important;
+    right: 0 !important;
+  }
+}
+.mobile-mode {
+  :deep(.carouseDots) {
+    bottom: 10px !important;
+  }
+  :deep(.slick-prev) {
+    display: none !important;
+  }
+
+  :deep(.slick-next) {
+    display: none !important;
+  }
 }
 
 :deep(.slick-slide) {
