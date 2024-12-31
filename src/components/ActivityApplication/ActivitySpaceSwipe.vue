@@ -370,15 +370,15 @@ const onTouchMove = (e) => {};
 
 .pc-mode {
   :deep(.carouseDots) {
-    bottom: 20px !important;
+    bottom: 5px !important;
   }
   :deep(.slick-prev) {
-    // display: none !important;
+    bottom: 0 !important;
     left: 0 !important;
   }
 
   :deep(.slick-next) {
-    // display: none !important;
+    bottom: 0 !important;
     right: 0 !important;
   }
 }
