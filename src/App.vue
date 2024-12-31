@@ -12,6 +12,7 @@ import {
   getGlobalConfig,
   getGlobalLang,
   getNotice,
+  getBookingRules
 } from "@/request";
 import { getCategory } from "@/request/home";
 
@@ -55,6 +56,7 @@ onMounted(() => {
   fetchLangConfig();
   fetchNotice();
   fetchCategory();
+  fetchRules();
   window.$computedWidth();
 });
 
@@ -126,6 +128,19 @@ const fetchLangConfig = async () => {
   } catch (e) {
     console.log(e);
   }
+};
+
+const fetchRules = async () => {
+  try {
+    let BookRule = sessionStorage.getItem("BookRule");
+
+    if (BookRule) {
+      store.dispatch("setRules", JSON.parse(BookRule));
+    } else {
+      let res = await getBookingRules();
+      store.dispatch("setRules", res?.data);
+    }
+  } catch (e) {}
 };
 
 const onReset = (v) => {
