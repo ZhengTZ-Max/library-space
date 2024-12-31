@@ -326,7 +326,7 @@ export const tabType = [
     id: "14",
     name: "物品招领",
     enname: "Lost  Item Locker",
-    path: "",
+    path: "/collection",
   },
   {
     id: "15",

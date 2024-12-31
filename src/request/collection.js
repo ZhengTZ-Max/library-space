@@ -14,14 +14,24 @@ export function getLostlocker(data) {
 
 // 物品招领-区域列表
 export function getAllArea(data) {
-    return service({
-      url: "/reserve/lostlocker/getAllArea",
-      method: "POST",
-      isLoading: true,
-      // loadingMsg: "",
-      // customLoading: true, //是否自定义loading
-      data,
-    });
-  }
+  return service({
+    url: "/reserve/lostlocker/getAllArea",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}
 
-
+// 物品招领-物品详情
+export function getLostInfo(data) {
+  return service({
+    url: "/reserve/lostlocker/info",
+    method: "POST",
+    isLoading: true,
+    // loadingMsg: "",
+    // customLoading: true, //是否自定义loading
+    data,
+  });
+}

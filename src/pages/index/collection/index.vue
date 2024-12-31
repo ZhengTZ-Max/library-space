@@ -10,6 +10,7 @@ import {
   // getLockerFilter,
   getAllArea,
   getLostlocker,
+  getLostInfo,
 } from "@/request/collection";
 import CollectionFilterCom from "@/components/CollectionCom/CollectionFilterCom.vue";
 
@@ -17,6 +18,17 @@ const store = useStore();
 const router = useRouter();
 const route = useRoute();
 const containerRef = ref();
+
+const form = reactive({
+  name: "",
+  url: "",
+  owner: "",
+  type: "",
+  approver: "",
+  dateTime: null,
+  description: "",
+});
+
 const state = reactive({
   activeIndex: "",
 
@@ -40,6 +52,8 @@ const state = reactive({
   searchDate: "",
   collectionFilterShow: false,
   collectionInfoShow: false,
+
+  showRightCon: false,
 });
 
 onMounted(() => {
@@ -48,7 +62,20 @@ onMounted(() => {
 
 const onChangeAct = (i) => {
   state.activeIndex = i.id;
-  state.collectionInfoShow = true;
+  fetchInfo(i);
+  // state.collectionInfoShow = true;
+};
+
+const fetchInfo = async (row) => {
+  try {
+    let params = {
+      boxId: row?.boxId,
+    };
+    const res = await getLostInfo(params);
+    state.collectionInfoShow = true;
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const fetchFilter = async () => {
@@ -112,9 +139,13 @@ const onReviewImg = (v) => {};
     <a-affix offset-top="0" :target="() => containerRef">
       <div class="header">
         <div class="leftTit">
-          <a-button type="primary" shape="round" size="m">{{
-            " + " + $t("V4_item_collection")
-          }}</a-button>
+          <a-button
+            @click="state.showRightCon = true"
+            type="primary"
+            shape="round"
+            size="m"
+            >{{ " + " + $t("V4_item_collection") }}</a-button
+          >
           <a-button shape="round" size="m" class="clearBtn">
             <template #icon>
               <img src="@/assets/collection/clearC.svg" alt="" />
@@ -247,6 +278,67 @@ const onReviewImg = (v) => {};
         </div>
       </div>
     </a-modal>
+
+    <a-drawer
+      title="物品收取"
+      :width="720"
+      :open="state.showRightCon"
+      :body-style="{ paddingBottom: '80px' }"
+      :footer-style="{ textAlign: 'right' }"
+      @close="state.showRightCon = false"
+    >
+      <a-form size="m" :model="form">
+        <a-row :gutter="8">
+          <a-col :span="24">
+            <a-form-item label="Name" name="name" :labelCol="{ span: 2 }">
+              <a-input
+                v-model:value="form.name"
+                placeholder="Please enter user name"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item label="Owner" name="owner" :labelCol="{ span: 2 }">
+              <a-select
+                v-model:value="form.owner"
+                placeholder="Please a-s an owner"
+              >
+                <a-select-option value="xiao">Xiaoxiao Fu</a-select-option>
+                <a-select-option value="mao">Maomao Zhou</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item label="Owner" name="owner" :labelCol="{ span: 2 }">
+              <a-select
+                v-model:value="form.owner"
+                placeholder="Please a-s an owner"
+              >
+                <a-select-option value="xiao">Xiaoxiao Fu</a-select-option>
+                <a-select-option value="mao">Maomao Zhou</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item label="Owner" name="owner" :labelCol="{ span: 2 }">
+              <a-select
+                v-model:value="form.owner"
+                placeholder="Please a-s an owner"
+              >
+                <a-select-option value="xiao">Xiaoxiao Fu</a-select-option>
+                <a-select-option value="mao">Maomao Zhou</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
+      <template #extra>
+        <a-space>
+          <a-button size="m">Cancel</a-button>
+          <a-button size="m" type="primary">Submit</a-button>
+        </a-space>
+      </template>
+    </a-drawer>
   </div>
 </template>
 <style lang="less" scoped>
@@ -275,7 +367,7 @@ const onReviewImg = (v) => {};
         border: 1px solid rgba(26, 73, 192, 0.14);
         font-size: 14px;
         color: #1a49c0;
-        img{
+        img {
           width: 12px;
           height: 12px;
           margin-right: 4px;

@@ -43,7 +43,9 @@
           <span>{{ state.apptResult?.msg }}</span>
         </div>
         <div v-if="state.apptResult?.seatInfo?.status == 4" class="changeSeat">
-          <van-button class="btn cancel" @click="toVerify"> {{ $t("cancel") }} </van-button>
+          <van-button class="btn cancel" @click="toVerify">
+            {{ $t("cancel") }}
+          </van-button>
           <van-button
             class="btn sign"
             type="primary"
@@ -81,7 +83,9 @@
           >
             {{ $t("leave") }}
           </van-button>
-          <van-button block class="btn cancel" round> {{ $t("cancel") }} </van-button>
+          <van-button block class="btn cancel" round>
+            {{ $t("cancel") }}
+          </van-button>
         </div>
       </template>
     </ShowInfoToast>
@@ -128,6 +132,22 @@ const checkInfo = async () => {
   // let time = await verifyTime();
   // console.log(time);
 
+  let qrTime = state.qrInfo?.t;
+  let qrType = state.qrInfo?.type;
+  if (qrTime) {
+    // 定义过期时间
+    qrTime = Number(qrTime) + 60000;
+    if (new Date(decryptTime(qrTime)) <= currentTime) {
+      showDialog({
+        title: "提示",
+        message: "二维码已失效，请到座位系统中预约.",
+      }).then(() => {
+        toVerify();
+      });
+      return false;
+    }
+  }
+
   if (!token && qrInfo?.area_id) {
     sessionStorage.setItem("StorageQr", route?.fullPath);
     toVerify();
@@ -154,11 +174,13 @@ const checkSeat = async () => {
     };
     let status = res?.data?.status;
     if ([1].includes(Number(status))) {
+      
       resultShow = {
         ...resultShow,
         type: "success",
         title: $t("yuyue_success"),
       };
+
     } else if ([3].includes(Number(status))) {
       resultShow = {
         ...resultShow,
