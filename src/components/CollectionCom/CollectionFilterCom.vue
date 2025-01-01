@@ -20,6 +20,9 @@ const props = defineProps({
   minDate: {
     type: String,
   },
+  type: {
+    type: String,
+  },
 });
 const state = reactive({
   filterOptions: [],
@@ -90,7 +93,10 @@ const filterTypes = () => {
 
 const filterDisabledDate = (current) => {
   // return current && current > moment().endOf("day")
-  return (props?.minDate && moment(props?.minDate) > current || current && current > moment().endOf("day"))
+  return (
+    (props?.minDate && moment(props?.minDate) > current) ||
+    (current && current > moment().endOf("day"))
+  );
   // if (!()) {
   //   return false;
   // } else if (props?.minDate && moment(props?.minDate) < current) {
@@ -112,15 +118,19 @@ const filterDisabledDate = (current) => {
       </template>
     </a-input> -->
     <div class="filterScr">
-      <div class="filterFilter">{{ $t("Date") }}</div>
-      <div class="filterItem">
-        <a-date-picker
-          :disabled-date="filterDisabledDate"
-          size="middle"
-          v-model:value="state.filterRows.date"
-        />
+      <template v-if="props?.type != 'area'">
+        <div class="filterFilter">{{ $t("Date") }}</div>
+        <div class="filterItem" style="margin-bottom: 24px">
+          <a-date-picker
+            :disabled-date="filterDisabledDate"
+            size="middle"
+            v-model:value="state.filterRows.date"
+          />
+        </div>
+      </template>
+      <div class="filterFilter">
+        {{ $t("Library") }}
       </div>
-      <div style="margin-top: 24px" class="filterFilter">{{ $t("Library") }}</div>
       <div class="fiterItem">
         <a-radio-group v-model:value="state.filterRows.library">
           <a-radio

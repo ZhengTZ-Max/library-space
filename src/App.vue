@@ -12,7 +12,7 @@ import {
   getGlobalConfig,
   getGlobalLang,
   getNotice,
-  getBookingRules
+  getBookingRules,
 } from "@/request";
 import { getCategory } from "@/request/home";
 
@@ -163,7 +163,9 @@ const onResizing = (v) => {
       },
     }"
   >
-    <router-view v-onReset:150="onReset" v-resizing="onResizing" />
+    <!-- <a-watermark content="2025蛇年大吉"> -->
+      <router-view v-onReset:150="onReset" v-resizing="onResizing" />
+    <!-- </a-watermark> -->
   </a-config-provider>
 </template>
 

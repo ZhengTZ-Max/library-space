@@ -155,6 +155,8 @@ const checkInfo = async () => {
     state.qrInfo = qrInfo;
     StorageQr && sessionStorage.removeItem("StorageQr");
     checkSeat();
+  } else {
+    toVerify();
   }
 };
 
@@ -174,13 +176,11 @@ const checkSeat = async () => {
     };
     let status = res?.data?.status;
     if ([1].includes(Number(status))) {
-      
       resultShow = {
         ...resultShow,
         type: "success",
         title: $t("yuyue_success"),
       };
-
     } else if ([3].includes(Number(status))) {
       resultShow = {
         ...resultShow,

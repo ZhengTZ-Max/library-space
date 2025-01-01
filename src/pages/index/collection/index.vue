@@ -3,7 +3,7 @@ import { reactive, onMounted, watch, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
-
+import { DownOutlined } from "@ant-design/icons-vue";
 import { exchangeDateTime } from "@/utils";
 import {
   // getLockerList,
@@ -13,6 +13,7 @@ import {
   getLostInfo,
 } from "@/request/collection";
 import CollectionFilterCom from "@/components/CollectionCom/CollectionFilterCom.vue";
+import Uploader from "@/components/Uploader.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -28,6 +29,47 @@ const form = reactive({
   dateTime: null,
   description: "",
 });
+
+const clearColumns = [
+  {
+    title: "Name",
+    dataIndex: "name",
+  },
+  {
+    title: "Age",
+    dataIndex: "age",
+  },
+  {
+    title: "Address",
+    dataIndex: "address",
+  },
+];
+const data = [
+  {
+    key: "1",
+    name: "John Brown",
+    age: 32,
+    address: "New York No. 1 Lake Park",
+  },
+  {
+    key: "2",
+    name: "Jim Green",
+    age: 42,
+    address: "London No. 1 Lake Park",
+  },
+  {
+    key: "3",
+    name: "Joe Black",
+    age: 32,
+    address: "Sidney No. 1 Lake Park",
+  },
+  {
+    key: "4",
+    name: "Disabled User",
+    age: 99,
+    address: "Sidney No. 1 Lake Park",
+  },
+];
 
 const state = reactive({
   activeIndex: "",
@@ -54,6 +96,21 @@ const state = reactive({
   collectionInfoShow: false,
 
   showRightCon: false,
+  showAreaSelect: false,
+  areaSelectRow: {
+    library: "",
+    floor: "",
+    areaId: "",
+  },
+  areaUploadImg: [],
+
+  showClearRightCon: false,
+
+  clearSearch: {
+    library: "",
+    type: "",
+    hour: "",
+  },
 });
 
 onMounted(() => {
@@ -131,7 +188,21 @@ const handleFilter = () => {
   fetchLibrary();
   state.collectionFilterShow = false;
 };
-
+const handleAreaSelect = () => {};
+const rowSelection = {
+  onChange: (selectedRowKeys, selectedRows) => {
+    console.log(
+      `selectedRowKeys: ${selectedRowKeys}`,
+      "selectedRows: ",
+      selectedRows
+    );
+  },
+  getCheckboxProps: (record) => ({
+    disabled: record.name === "Disabled User",
+    // Column configuration not to be checked
+    name: record.name,
+  }),
+};
 const onReviewImg = (v) => {};
 </script>
 <template>
@@ -146,7 +217,12 @@ const onReviewImg = (v) => {};
             size="m"
             >{{ " + " + $t("V4_item_collection") }}</a-button
           >
-          <a-button shape="round" size="m" class="clearBtn">
+          <a-button
+            shape="round"
+            size="m"
+            class="clearBtn"
+            @click="state.showClearRightCon = true"
+          >
             <template #icon>
               <img src="@/assets/collection/clearC.svg" alt="" />
             </template>
@@ -236,6 +312,32 @@ const onReviewImg = (v) => {};
 
     <a-modal
       width="50%"
+      v-model:open="state.showAreaSelect"
+      title="物品筛选"
+      @ok="handleAreaSelect"
+      :okText="$t('visitor_Confirm')"
+      :cancelText="$t('cancel')"
+      :cancelButtonProps="{
+        size: 'middle',
+        style: {
+          color: '#8C8F9E',
+          background: '#F3F4F7',
+          borderColor: '#CECFD5',
+        },
+      }"
+      :okButtonProps="{ size: 'middle' }"
+      centered
+    >
+      <CollectionFilterCom
+        v-if="state.filterOptions?.length"
+        :data="state.filterOptions"
+        :initSearch="state.areaSelectRow"
+        type="area"
+      />
+    </a-modal>
+
+    <a-modal
+      width="50%"
       v-model:open="state.collectionInfoShow"
       title="扫码取物"
       okText=""
@@ -281,61 +383,144 @@ const onReviewImg = (v) => {};
 
     <a-drawer
       title="物品收取"
-      :width="720"
+      :width="820"
       :open="state.showRightCon"
       :body-style="{ paddingBottom: '80px' }"
       :footer-style="{ textAlign: 'right' }"
       @close="state.showRightCon = false"
+      class="collectionDrawer"
     >
       <a-form size="m" :model="form">
-        <a-row :gutter="8">
+        <a-row style="margin-top: 24px; padding-right: 12px" :gutter="0">
           <a-col :span="24">
-            <a-form-item label="Name" name="name" :labelCol="{ span: 2 }">
-              <a-input
+            <a-form-item
+              label="存放区域："
+              name="owner"
+              :labelCol="{ span: 3 }"
+            >
+              <div class="selector" @click="state.showAreaSelect = true">
+                请选择
+                <DownOutlined />
+              </div>
+              <!-- <a-select placeholder="Please a-s an owner">
+              </a-select> -->
+            </a-form-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-item label="收取地点：" name="name" :labelCol="{ span: 3 }">
+              <div class="selector" @click="state.showAreaSelect = true">
+                请选择
+                <DownOutlined />
+              </div>
+              <!-- <a-input
                 v-model:value="form.name"
                 placeholder="Please enter user name"
-              />
+              /> -->
             </a-form-item>
           </a-col>
           <a-col :span="24">
-            <a-form-item label="Owner" name="owner" :labelCol="{ span: 2 }">
-              <a-select
-                v-model:value="form.owner"
-                placeholder="Please a-s an owner"
+            <a-form-item
+              label="上传图片："
+              name="owner"
+              :labelCol="{ span: 3 }"
+            >
+              <Uploader
+                :initFileList="state.areaUploadImg"
+                filePath="activity"
+                :showUploadList="true"
+                :maxCount="1"
+                accept=".png, .jpg, .jpeg"
+                list-type="picture-card"
               >
-                <a-select-option value="xiao">Xiaoxiao Fu</a-select-option>
-                <a-select-option value="mao">Maomao Zhou</a-select-option>
-              </a-select>
+                <img src="@/assets/feedback_uploadimg.svg" alt="" />
+              </Uploader>
             </a-form-item>
           </a-col>
-          <a-col :span="24">
-            <a-form-item label="Owner" name="owner" :labelCol="{ span: 2 }">
-              <a-select
-                v-model:value="form.owner"
-                placeholder="Please a-s an owner"
-              >
-                <a-select-option value="xiao">Xiaoxiao Fu</a-select-option>
-                <a-select-option value="mao">Maomao Zhou</a-select-option>
-              </a-select>
+          <!-- <a-col :span="24">
+            <a-form-item label="Owner" name="owner" :labelCol="{ span: 3 }">
+              <div class="selector">
+                请选择
+                <DownOutlined />
+              </div>
             </a-form-item>
-          </a-col>
-          <a-col :span="24">
-            <a-form-item label="Owner" name="owner" :labelCol="{ span: 2 }">
-              <a-select
-                v-model:value="form.owner"
-                placeholder="Please a-s an owner"
-              >
-                <a-select-option value="xiao">Xiaoxiao Fu</a-select-option>
-                <a-select-option value="mao">Maomao Zhou</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
+          </a-col> -->
         </a-row>
       </a-form>
       <template #extra>
         <a-space>
           <a-button size="m">Cancel</a-button>
           <a-button size="m" type="primary">Submit</a-button>
+        </a-space>
+      </template>
+    </a-drawer>
+
+    <a-drawer
+      title="清柜"
+      :width="960"
+      :open="state.showClearRightCon"
+      :body-style="{ paddingBottom: '80px' }"
+      :footer-style="{ textAlign: 'right' }"
+      @close="state.showClearRightCon = false"
+      class="collectionClearDrawer"
+    >
+      <div class="clearCon">
+        <div class="clearHead">
+          <a-select
+            size="m"
+            v-model:value="state.clearSearch.library"
+            style="width: 200px"
+            placeholder="请选择馆舍"
+            allowClear
+          >
+            <a-select-option value="jack">Jack</a-select-option>
+            <a-select-option value="lucy">Lucy</a-select-option>
+            <a-select-option value="Yiminghe">yiminghe</a-select-option>
+          </a-select>
+          <a-select
+            size="m"
+            v-model:value="state.clearSearch.type"
+            style="width: 200px; margin: 0 20px"
+            placeholder="类型"
+            allowClear
+          >
+            <a-select-option value="jack">Jack</a-select-option>
+            <a-select-option value="lucy">Lucy</a-select-option>
+            <a-select-option value="Yiminghe">yiminghe</a-select-option>
+          </a-select>
+
+          <a-input
+            style="width: 200px"
+            size="m"
+            v-model:value="state.clearSearch.hour"
+            suffix="小时"
+          />
+
+          <a-button shape="round" size="m" class="clearBtn">
+            <template #icon>
+              <img src="@/assets/collection/clearSearch.svg" alt="" />
+            </template>
+            搜索</a-button
+          >
+        </div>
+
+        <div class="clearTable">
+          <a-table
+            :row-selection="rowSelection"
+            :columns="clearColumns"
+            :data-source="data"
+          >
+            <template #bodyCell="{ column, text }">
+              <template v-if="column.dataIndex === 'name'">
+                <a>{{ text }}</a>
+              </template>
+            </template>
+          </a-table>
+        </div>
+      </div>
+      <template #extra>
+        <a-space>
+          <a-button size="m">Cancel</a-button>
+          <a-button size="m" type="primary">立即清柜</a-button>
         </a-space>
       </template>
     </a-drawer>
@@ -593,6 +778,52 @@ const onReviewImg = (v) => {};
       margin-top: 12px;
       span {
         color: #616161;
+      }
+    }
+  }
+}
+.collectionDrawer {
+  .selector {
+    border: 1px solid #d9d9d9;
+    padding: 4px 11px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    color: #d9d9d9;
+
+    span {
+      color: rgba(0, 0, 0, 0.25);
+    }
+    &:hover {
+      border-color: var(--primary-color);
+    }
+  }
+}
+
+.collectionClearDrawer {
+  .clearCon {
+    padding: 30px 40px;
+    .clearHead {
+      display: flex;
+      align-items: center;
+      .clearBtn {
+        width: 82px;
+        margin-left: 20px;
+        background: rgba(26, 73, 192, 0.07);
+        border: 1px solid rgba(26, 73, 192, 0.14);
+        font-size: 14px;
+        color: #1a49c0;
+        img {
+          width: 12px;
+          height: 12px;
+          margin-right: 4px;
+          transform: translateY(-2px);
+        }
+      }
+
+      :deep(.ant-select-selector) {
+        border-radius: 20px;
       }
     }
   }
