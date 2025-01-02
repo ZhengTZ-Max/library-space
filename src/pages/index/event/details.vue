@@ -183,7 +183,7 @@ const fetchApplyActivity = async () => {
                 </div>
               </template>
             </Carousel>
-            <div class="controls" v-if="state.eventInfo.publicize.length > 0">
+            <div class="controls" v-if="state.eventInfo.publicize?.length > 0">
               <div></div>
               <div
                 class="toggleLang"

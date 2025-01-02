@@ -131,8 +131,8 @@ watch(
   (v) => {
     if (v) {
       if (Number(v) > Number(state.activityApplyInfo.max_person)) {
-        showToast({ message: "最大人数不能大于活动最大人数30" });
-        state.filterActivityMaxPeople = "30";
+        showToast({ message: `最大人数不能大于活动最大人数${state.activityApplyInfo.max_person}` });
+        state.filterActivityMaxPeople = "";
         return false;
       }
     }
@@ -1199,45 +1199,7 @@ const onViewRule = () => {
       :content="state.ruleInfo?.content"
       @onConfirm="() => onSubmit('rule')"
       :review="state.ruleInfo?.type == 'swiper'"
-    >
-      <template v-if="state.ruleInfo?.type != 'swiper'" v-slot:content>
-        <div class="showArea">
-          <div class="tag">{{ $t('V4_current_reservation_selection') }}</div>
-          <div class="showCon">
-            <div class="item">
-              <p>
-                {{ $t('Space') + '：'}}<span>{{ showAreaName() }}</span>
-              </p>
-              <p>
-                {{ $t('type') + '：'}}<span>{{ showAreaType() }}</span>
-              </p>
-            </div>
-            <div class="item">
-              <p>
-                {{ $t('Date') + '：'}}<span
-                  >{{
-                    state.selectDateInfo?.length == 2
-                      ? `${exchangeDateTime(
-                          state?.selectDateInfo[0],
-                          2
-                        )} ~ ${exchangeDateTime(state?.selectDateInfo[1], 2)}`
-                      : `${exchangeDateTime(state?.selectDateInfo[0], 2)}`
-                  }}
-                </span>
-              </p>
-              <p>
-                {{ $t('Number_Of_People') + '：'}}<span>≤{{ state.filterActivityMaxPeople || "" }}</span>
-              </p>
-            </div>
-            <div class="item">
-              <p>
-                {{ $t('Time') + '：'}}<span>{{ showAreaTimes() }}</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </template>
-    </SpaceRuleConfirm>
+    />
 
     <ShowInfoToast
       v-if="state.apptResult.show"
@@ -1248,7 +1210,7 @@ const onViewRule = () => {
     >
       <template v-slot:content>
         <div class="toastItem">
-          <span>{{ $t('Applicant') + '：' }}</span>
+          <span>{{ $t('V4_applicant') + '：' }}</span>
           <span>{{ state.apptResult?.userName || "" }}</span>
         </div>
         <div class="toastItem">

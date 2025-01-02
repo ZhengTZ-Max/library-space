@@ -287,30 +287,32 @@ const getItemTime = (item) => {
 <template>
   <div class="space_space_mobile">
     <div class="header">
-      <div class="select_radius">
-        <a-select
-          v-model:value="state.quickDate"
-          @change="handleDateChange"
-          :placeholder="$t('visitor_Select_Date')"
-        >
-          <template v-for="item in state.quickDateList" :key="index">
-            <a-select-option :value="item?.value">{{
-              item?.label
-            }}</a-select-option>
-          </template>
-        </a-select>
-      </div>
-      <div class="select_radius marginLeftAndRight">
-        <a-input
-          :bordered="false"
-          v-model:value="state.searchValue"
-          :placeholder="$t('V4_name_number_of_participants')"
-          style="width: 150px"
-        />
-      </div>
-      <div @click="state.filterShow = true">
-        <img src="@/assets/event/mobile_event_filter.svg" alt="filter" />
-      </div>
+      <a-flex class="vertical_scroll" align="center">
+        <div class="select_radius">
+          <a-select
+            v-model:value="state.quickDate"
+            @change="handleDateChange"
+            :placeholder="$t('visitor_Select_Date')"
+          >
+            <template v-for="item in state.quickDateList" :key="index">
+              <a-select-option :value="item?.value">{{
+                item?.label
+              }}</a-select-option>
+            </template>
+          </a-select>
+        </div>
+        <div class="select_radius marginLeftAndRight">
+          <a-input
+            :bordered="false"
+            v-model:value="state.searchValue"
+            :placeholder="$t('V4_name_number_of_participants')"
+            style="width: 150px"
+          />
+        </div>
+        <div @click="state.filterShow = true">
+          <img src="@/assets/event/mobile_event_filter.svg" alt="filter" />
+        </div>
+      </a-flex>
     </div>
 
     <div class="refreshCon">
@@ -364,7 +366,9 @@ const getItemTime = (item) => {
                 </div>
 
                 <div class="action">
-                  <span @click="handleShowInfo(item)">{{ $t("V4_view_details") }} ></span>
+                  <span @click="handleShowInfo(item)"
+                    >{{ $t("V4_view_details") }} ></span
+                  >
 
                   <van-button
                     plain
@@ -382,9 +386,13 @@ const getItemTime = (item) => {
             <div>
               <div class="timeStatus">
                 <span class="allCir"></span>
-                <span class="timeStatusText">{{ $t("V4_already_occupied") }}</span>
+                <span class="timeStatusText">{{
+                  $t("V4_already_occupied")
+                }}</span>
                 <span class="unAllCir" style="margin-left: 30px"></span>
-                <span class="timeStatusText">{{ $t("V4_available_reservation_slots") }}</span>
+                <span class="timeStatusText">{{
+                  $t("V4_available_reservation_slots")
+                }}</span>
               </div>
               <a-flex
                 gap="10px"
@@ -474,9 +482,9 @@ const getItemTime = (item) => {
           >
             {{ $t("cancel") }}
           </van-button>
-          <van-button round block type="primary" @click="handleFilter"
-            >{{ $t("visitor_Confirm") }}</van-button
-          >
+          <van-button round block type="primary" @click="handleFilter">{{
+            $t("visitor_Confirm")
+          }}</van-button>
         </div>
       </div>
     </van-popup>
@@ -501,6 +509,28 @@ const getItemTime = (item) => {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    .vertical_scroll {
+      overflow-x: auto;
+      white-space: nowrap;
+      /* 设置滚动条样式 */
+      &::-webkit-scrollbar {
+        height: 4px; /* 设置滚动条的高度 */
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(97, 97, 97, 0.05); /* 设置滚动条的颜色 */
+        border-radius: 10px; /* 设置滚动条的圆角 */
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent; /* 设置滚动条轨道的颜色 */
+      }
+
+      /* Firefox 的滚动条样式 */
+      scrollbar-width: thin; /* 滚动条的宽度 */
+      scrollbar-color: rgba(97, 97, 97, 0.05) transparent; /* 滚动条的颜色和轨道的颜色 */
+    }
     .marginLeftAndRight {
       margin-left: 10px;
       margin-right: 10px;

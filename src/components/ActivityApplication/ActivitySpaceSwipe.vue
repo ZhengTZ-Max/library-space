@@ -56,7 +56,7 @@ const onTouchMove = (e) => {};
             }}<span>{{ item.minPerson }} ~ {{ item.maxPerson }}人</span>
           </div>
           <div class="otherInfo">
-            <div
+            <!-- <div
               class="otherInfo_item activeBtn"
               @click="() => emits('viewFloor', item)"
             >
@@ -65,12 +65,12 @@ const onTouchMove = (e) => {};
                 src="@/assets/activity_application/right_arrow_gray.svg"
                 alt=""
               />
-            </div>
+            </div> -->
             <div
               class="otherInfo_item activeBtn"
               @click="() => emits('viewInfo')"
             >
-              {{ $t("V4_view_details") }}
+              更多介绍
               <img
                 src="@/assets/activity_application/right_arrow_gray.svg"
                 alt=""
@@ -125,11 +125,11 @@ const onTouchMove = (e) => {};
                 </div>
 
                 <div class="action">
-                  <span @click="() => emits('viewFloor')"
+                  <!-- <span @click="() => emits('viewFloor')"
                     >{{ $t("View_Plan") }} ></span
-                  >
+                  > -->
                   <span @click="() => emits('viewInfo')"
-                    >{{ $t("V4_view_details") }} ></span
+                    >更多介绍 ></span
                   >
                 </div>
               </van-col>

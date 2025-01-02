@@ -161,8 +161,8 @@ watch(
   (v) => {
     if (v) {
       if (Number(v) > Number(state.activityApplyInfo.max_person)) {
-        showToast({ message: "最大人数不能大于活动最大人数30" });
-        state.filterActivityMaxPeople = "30";
+        showToast({ message: `最大人数不能大于活动最大人数${state.activityApplyInfo.max_person}` });
+        state.filterActivityMaxPeople = "";
         return false;
       }
     }
@@ -1241,17 +1241,13 @@ const onViewRule = () => {
         <div class="showArea">
           <div class="tag">{{ $t("V4_current_reservation_selection") }}</div>
           <div class="showCon">
-            <div class="item">
-              <p>
-                {{ $t("Space") + "：" }}<span>{{ showAreaName() }}</span>
-              </p>
-              <p>
-                {{ $t("type") + ":" }}<span>{{ showAreaType() }}</span>
-              </p>
-            </div>
-            <div class="item">
-              <p>
-                {{ $t("Date") + ":"
+            <a-flex justify="space-between" align="flex-start">
+              <a-flex vertical>
+                <p>
+                  {{ $t("Space") + "：" }}<span>{{ showAreaName() }}</span>
+                </p>
+                <p>
+                {{ $t("Date") + "："
                 }}<span
                   >{{
                     state.selectDateInfo?.length == 2
@@ -1264,15 +1260,52 @@ const onViewRule = () => {
                 </span>
               </p>
               <p>
-                {{ $t("Number_Of_People") + ":"
+                {{ $t("Time") + "：" }}<span>{{ showAreaTimes() }}</span>
+              </p>
+              </a-flex>
+              <a-flex vertical >
+                <p>
+                  {{ $t("type") + "：" }}<span>{{ showAreaType() }}</span>
+                </p>
+                <p>
+                {{ $t("Number_Of_People") + "："
+                }}<span>≤{{ state.filterActivityMaxPeople || "" }}</span>
+              </p>
+              </a-flex>
+            </a-flex>
+
+            <!-- <div class="item">
+              <p>
+                {{ $t("Space") + "：" }}<span>{{ showAreaName() }}</span>
+              </p>
+              <p>
+                {{ $t("type") + "：" }}<span>{{ showAreaType() }}</span>
+              </p>
+            </div>
+            <div class="item">
+              <p>
+                {{ $t("Date") + "："
+                }}<span
+                  >{{
+                    state.selectDateInfo?.length == 2
+                      ? `${exchangeDateTime(
+                          state?.selectDateInfo[0],
+                          2
+                        )} ~ ${exchangeDateTime(state?.selectDateInfo[1], 2)}`
+                      : `${exchangeDateTime(state?.selectDateInfo[0], 2)}`
+                  }}
+                </span>
+              </p>
+              <p>
+                {{ $t("Number_Of_People") + "："
                 }}<span>≤{{ state.filterActivityMaxPeople || "" }}</span>
               </p>
             </div>
             <div class="item">
               <p>
-                {{ $t("Time") + ":" }}<span>{{ showAreaTimes() }}</span>
+                {{ $t("Time") + "：" }}<span>{{ showAreaTimes() }}</span>
               </p>
-            </div>
+            </div> -->
           </div>
         </div>
       </template>

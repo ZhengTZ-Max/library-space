@@ -284,7 +284,7 @@ const fetchApplyActivity = async () => {
         :src="state.eventImg[0]?.file_path"
         alt="Empty state illustration"
       />
-      <div class="controls" v-if="state.eventInfo.publicize.length > 0">
+      <div class="controls" v-if="state.eventInfo.publicize?.length > 0">
         <div class="toggleLang">
           <div
             class="langItem activeBtn langActive"
@@ -396,8 +396,8 @@ const fetchApplyActivity = async () => {
     >
   </div>
 
-  <van-popup v-model:show="state.isApply" round @close="state.isApply = false">
-    <EventApplyMobileCom :data="state.applyInfo" />
+  <van-popup v-model:show="state.isApply" round @close="state.isApply = false" >
+    <EventApplyMobileCom :data="state.applyInfo" @onClose="state.isApply = false" />
   </van-popup>
   <van-popup
     v-model:show="state.isApplyResult"

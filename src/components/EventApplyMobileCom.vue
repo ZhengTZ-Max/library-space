@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, onMounted, watch, ref } from "vue";
 import { getUserInfo } from "@/utils";
-
+const emits = defineEmits(["onClose"]);
 const props = defineProps({
   data: {
     type: Object,
@@ -56,7 +56,7 @@ const onApply = () => {
 
     <!-- <a-button type="link" class="bottom_button" @click="onApply">确认</a-button> -->
     <div class="profile_footer">
-      <button class="footer-button" @click="goToLink('/mo/...')">{{$t("cancel")}}</button>
+      <button class="footer-button" @click="emits('onClose')">{{$t("cancel")}}</button>
       <div class="divider"></div>
       <a-button type="link" color="primary" @click="onApply"
         >{{$t("visitor_Confirm")}}</a-button
