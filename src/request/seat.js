@@ -218,3 +218,25 @@ export function touch_qr_books(data) {
     data,
   });
 }
+
+// 个人中心  座位预约记录  权限查询 - 获取查询树
+export function getQueryTree(data) {
+  return service({
+    url: "/v4/member/studyTree",
+    method: "post",
+    isLoading: true,
+    // loadingMsg:"正在预约",
+    // customLoading:true, //是否自定义loading
+    data,
+  });
+}
+
+// 个人中心  座位预约记录  权限查询 - 获取查询结果
+export function getQuerySeat(data) {
+  return service({
+    url: "/v4/member/checkStudyOpenTime",
+    method: "post",
+    isLoading: true,
+    data,
+  });
+}

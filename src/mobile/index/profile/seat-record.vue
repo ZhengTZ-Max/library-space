@@ -16,6 +16,7 @@ import { useStore } from "vuex";
 import SeatRecordDetails from "@/mobile/index/profile/seat-record-details.vue";
 // import MySeatRecordCom from "@/components/MySeatRecordCom.vue";
 import { getSeatRecordList, getSeatRenegeList } from "@/request/sear-record";
+import { getQueryTree, getQuerySeat } from "@/request/seat";
 import { exchangeDateTime } from "@/utils";
 
 const router = useRouter();
@@ -46,25 +47,26 @@ const state = reactive({
   loading: false,
   finished: true,
 
-  filterRows: {
-    premiseID: "",
-    categoryID: "",
-    areaID: "",
+  queryResult: {
+    isShow: false,
+    location: "",
+    currentPeriod: {
+      period: "",
+      status: "",
+    },
+    nextPeriod: {
+      period: "",
+      status: "",
+    },
   },
-  filterOptions: {
-    premise: [
-      { id: 1, name: "图书馆" },
-      { id: 2, name: "基础馆" },
-    ],
-    category: [
-      { id: 1, name: "1楼" },
-      { id: 2, name: "2楼" },
-    ],
-    area: [
-      { id: 1, name: "1区" },
-      { id: 2, name: "2区" },
-    ],
-  },
+
+  roomValue: "",
+  floorValue: "",
+  areaValue: "",
+
+  queryTree: [],
+  floorList: [],
+  areaList: [],
 });
 
 watch(
@@ -111,6 +113,7 @@ const fetch = () => {
 
 onMounted(() => {
   fetch();
+  fetchQueryTree();
 });
 
 const onRefresh = () => {
@@ -183,6 +186,25 @@ const fetchSeatRenegeList = async () => {
   }
 };
 
+const fetchQueryTree = async () => {
+  try {
+    const res = await getQueryTree();
+    if (res?.code === 0) {
+      state.queryTree = res?.data || [];
+
+      state.roomValue = res?.data?.[0]?.id;
+
+      state.floorList = state.queryTree[0]?.children || [];
+      state.floorValue = state.floorList[0]?.id;
+
+      state.areaList = state.floorList[0]?.children || [];
+      state.areaValue = state.areaList[0]?.id;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const onClickItem = (item) => {
   state.showItemDetails = true;
 
@@ -191,8 +213,62 @@ const onClickItem = (item) => {
   console.log(state.itemDetails);
 };
 
-const fetchQuery = () => {
-  console.log(state.filterRows);
+const onChangeRoom = (value) => {
+  state.floorList =
+    state.queryTree.find((item) => item.id === value)?.children || [];
+  state.floorValue = state.floorList[0]?.id;
+
+  state.areaList = state.floorList[0]?.children || [];
+  state.areaValue = state.areaList[0]?.id;
+};
+const onChangeFloor = (value) => {
+  state.areaList =
+    state.floorList.find((item) => item.id === value)?.children || [];
+  state.areaValue = state.areaList[0]?.id;
+};
+
+const onQueryConfirm = async () => {
+  try {
+    const roomStr = state.queryTree.find(
+      (item) => item.id === state.roomValue
+    )?.name;
+    const floorStr = state.floorList.find(
+      (item) => item.id === state.floorValue
+    )?.name;
+    const areaStr = state.areaList.find(
+      (item) => item.id === state.areaValue
+    )?.name;
+    const location = `${roomStr}-${floorStr}-${areaStr}`;
+
+    state.queryResult.location = location;
+
+    let params = {
+      area: state.areaValue,
+    };
+    const res = await getQuerySeat(params);
+    if (res?.code === 0) {
+      state.queryResult.isShow = true;
+      let data = res?.data || [];
+      for (const [index, item] of data.entries()) {
+        if (index == 0) {
+          state.queryResult.currentPeriod.period = `${item.startDay}至${item.endDay}`;
+          state.queryResult.currentPeriod.status = item.isvalid;
+        } else if (index == 1) {
+          state.queryResult.nextPeriod.period = `${item.startDay}至${item.endDay}`;
+          state.queryResult.nextPeriod.status = item.isvalid;
+        }
+      }
+      state.isModalVisibleForQuery = false;
+    } else {
+      state.queryResult.isShow = false;
+      showToast({
+        message: res?.message || res?.msg,
+      });
+    }
+  } catch (e) {
+    state.queryResult.isShow = false;
+    console.log(e);
+  }
 };
 </script>
 <template>
@@ -341,15 +417,37 @@ const fetchQuery = () => {
 
     <div v-if="state.quickMode == 3" class="query_result">
       <div class="query_result_info">
-        <div class="query_result_info_item">
+        <div class="query_result_info_item" v-if="state.queryResult.isShow">
           {{ $t("Query_Results") }}<span class="span_gray">(请点击查询)</span>
           <div class="margin10 query_result_info_item_text">
-            {{ $t("Current") }}(2024-01-22至2024-01-28)
-            {{ $t("Reservation_permission") }}:<span>100</span>
+            {{ $t("Current") }}（{{ state.queryResult.currentPeriod.period }}）
+            {{ $t("Reservation_permission") }}:<span
+              :class="
+                state.queryResult.currentPeriod.status == 1
+                  ? 'status-success'
+                  : 'text-default'
+              "
+              >{{
+                state.queryResult.currentPeriod.status == 1
+                  ? $t("Authorized_by")
+                  : $t("Unauthorized")
+              }}
+            </span>
           </div>
           <div class="query_result_info_item_text">
-            {{ $t("Next_time") }}(2024-01-22至2024-01-28)
-            {{ $t("Reservation_permission") }}:<span>100</span>
+            {{ $t("Next_time") }}（{{ state.queryResult.nextPeriod.period }}）
+            {{ $t("Reservation_permission") }}:<span
+              :class="
+                state.queryResult.nextPeriod.status == 1
+                  ? 'status-success'
+                  : 'text-default'
+              "
+              >{{
+                state.queryResult.nextPeriod.status == 1
+                  ? $t("Authorized_by")
+                  : $t("Unauthorized")
+              }}
+            </span>
           </div>
         </div>
 
@@ -357,10 +455,13 @@ const fetchQuery = () => {
           <div class="filterScr">
             <div class="filterFilter">{{ $t("Library") }}</div>
             <div class="fiterItem">
-              <a-radio-group v-model:value="state.filterRows.premiseID">
+              <a-radio-group
+                v-model:value="state.roomValue"
+                @change="onChangeRoom"
+              >
                 <a-radio
                   class="width_half"
-                  v-for="item in state.filterOptions?.premise"
+                  v-for="item in state.queryTree"
                   :value="item?.id"
                   :key="item?.id"
                   >{{ item?.name }}</a-radio
@@ -369,10 +470,13 @@ const fetchQuery = () => {
             </div>
             <div class="filterFilter">{{ $t("Floor") }}</div>
             <div class="fiterItem">
-              <a-radio-group v-model:value="state.filterRows.categoryID">
+              <a-radio-group
+                v-model:value="state.floorValue"
+                @change="onChangeFloor"
+              >
                 <a-radio
                   class="width_half"
-                  v-for="item in state.filterOptions?.category"
+                  v-for="item in state.floorList"
                   :value="item?.id"
                   :key="item?.id"
                   >{{ item?.name }}</a-radio
@@ -381,10 +485,12 @@ const fetchQuery = () => {
             </div>
             <div class="filterFilter">{{ $t("Area") }}</div>
             <div class="fiterItem">
-              <a-radio-group v-model:value="state.filterRows.areaID">
+              <a-radio-group
+                v-model:value="state.areaValue"
+              >
                 <a-radio
                   class="width_half"
-                  v-for="item in state.filterOptions?.area"
+                  v-for="item in state.areaList"
                   :value="item?.id"
                   :key="item?.id"
                   >{{ item?.name }}</a-radio
@@ -395,7 +501,7 @@ const fetchQuery = () => {
         </div>
       </div>
       <div style="margin: 15px 10px">
-        <a-button type="primary" shape="round" block @click="fetchQuery">{{
+        <a-button type="primary" shape="round" block @click="onQueryConfirm">{{
           $t("Visitor_query")
         }}</a-button>
       </div>
@@ -551,8 +657,14 @@ const fetchQuery = () => {
           margin-bottom: 10px;
         }
         .query_result_info_item_text {
-          color: rgba(97, 97, 97, 1);
           font-size: 13px;
+          color: rgba(97, 97, 97, 1);
+          .status-success {
+            color: #52c41a;
+          }
+          .text-default {
+            color: #242424;
+          }
         }
 
         .span_gray {
@@ -593,7 +705,11 @@ const fetchQuery = () => {
             margin-bottom: 0;
           }
           .width_half {
-            width: 42% !important;
+            width: 49% !important;
+            span {
+              display: inline-block;
+              width: 100%;
+            }
           }
         }
       }

@@ -78,7 +78,10 @@ watch(
 const initQuickDateList = () => {
   const formattedDate = moment().format("MM-DD");
   state.quickDateList = [
-    { label: `${formattedDate} ${$t("today")}`, value: moment().format("YYYY-MM-DD") },
+    {
+      label: `${formattedDate} ${$t("today")}`,
+      value: moment().format("YYYY-MM-DD"),
+    },
   ];
 };
 
@@ -99,7 +102,8 @@ const fetchGetSpaceSelectList = async () => {
         // return date === today ? `${formattedDate} 今天` : formattedDate;
         return {
           value: date,
-          label: date === today ? `${formattedDate} ${$t("today")}` : formattedDate,
+          label:
+            date === today ? `${formattedDate} ${$t("today")}` : formattedDate,
         };
       }) || [];
 
@@ -306,9 +310,9 @@ const handleDateChange = (v) => {
             <template #separator
               ><img src="@/assets/seat/titRightIcon.svg" alt=""
             /></template>
-            <a-breadcrumb-item @click="goToLink('/space')"
-              >{{ $t("visitor_Select_Library") }}</a-breadcrumb-item
-            >
+            <a-breadcrumb-item @click="goToLink('/space')">{{
+              $t("visitor_Select_Library")
+            }}</a-breadcrumb-item>
             <a-breadcrumb-item>{{ $t("V4_select_a_space") }}</a-breadcrumb-item>
           </a-breadcrumb>
         </div>
@@ -344,13 +348,14 @@ const handleDateChange = (v) => {
     </a-affix>
 
     <div class="content">
-      <a-row v-if="state.spaceInfoList?.length" :gutter="[40, 80]">
+      <a-row v-if="state.spaceInfoList?.length" :gutter="[40, 50]">
         <template v-for="item in state.spaceInfoList" :key="item?.id">
           <a-col :xs="12" :sm="12" :md="8" :lg="8" :xl="6" :xxl="4">
             <div
               class="libraryItem cardItem"
               :class="{ activeItem: item?.id == state.activeIndex }"
               @mousemove="onChangeAct(item)"
+              @click="handleAppt(item)"
             >
               <div class="cardItemImgCon">
                 <a-image
@@ -404,14 +409,22 @@ const handleDateChange = (v) => {
                 <!-- 示例 -->
                 <div class="timeStatus">
                   <span class="allCir"></span>
-                  <span class="timeStatusText">{{ $t("V4_already_occupied") }}</span>
+                  <span class="timeStatusText">{{
+                    $t("V4_already_occupied")
+                  }}</span>
                   <span class="unAllCir" style="margin-left: 30px"></span>
-                  <span class="timeStatusText">{{ $t("V4_available_reservation_slots") }}</span>
+                  <span class="timeStatusText">{{
+                    $t("V4_available_reservation_slots")
+                  }}</span>
                 </div>
 
-                <a-flex wrap="wrap" gap="10px" style="margin-top: 10px">
+                <a-flex
+                  gap="10px"
+                  class="vertical_scroll"
+
+                >
                   <template v-for="item in state.itemTime" :key="item">
-                    <div style="padding-right: 4px;">
+                    <div style="padding-right: 4px">
                       <a-flex vertical align="center">
                         <!-- 此处还要根据后端返回每条数据里的 data 在判断上午还是下午 -->
                         <span
@@ -566,7 +579,7 @@ const handleDateChange = (v) => {
 
   .content {
     width: 100%;
-    margin: 38px 0 50px 0;
+    margin: 0 0 50px 0;
     padding: 0 82px;
     .libraryItem {
       position: relative;
@@ -684,6 +697,12 @@ const handleDateChange = (v) => {
         font-size: 10px;
         color: rgba(97, 97, 97, 1);
       }
+    }
+    .vertical_scroll {
+      margin-top: 10px;
+      overflow-x: auto;
+      white-space: nowrap;
+
     }
     .itemAll {
       display: inline-block;

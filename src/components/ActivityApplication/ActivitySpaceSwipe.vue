@@ -210,7 +210,7 @@ const onTouchMove = (e) => {};
   display: flex;
   max-height: calc(28px * 3 + 20px);
   flex-wrap: wrap;
-  overflow: hidden;
+  overflow-y: scroll;
 
 
   &::-webkit-scrollbar {

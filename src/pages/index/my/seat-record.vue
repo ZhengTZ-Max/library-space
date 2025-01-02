@@ -8,6 +8,7 @@ import PageSizeCom from "@/components/PageSizeCom.vue";
 import { getUserInfo, exchangeDateTime } from "@/utils";
 import { showToast, showConfirmDialog } from "vant";
 import { fetchCancelSeat, fetchCancelStudyCancel } from "@/request/home";
+import { getQueryTree, getQuerySeat } from "@/request/seat";
 
 const lang = computed(() => store.state.lang);
 const store = useStore();
@@ -28,16 +29,25 @@ const state = reactive({
   selectLocationName: "",
   selectedRecord: {},
   queryResult: {
-    location: "基础馆-1F-自修A区(研习)",
+    isShow: false,
+    location: "",
     currentPeriod: {
-      period: "2024-01-22至2024-01-28",
-      status: "已获得",
+      period: "",
+      status: "",
     },
     nextPeriod: {
-      period: "2024-01-29至2024-02-04",
-      status: "未获得",
+      period: "",
+      status: "",
     },
   },
+
+  roomValue: "",
+  floorValue: "",
+  areaValue: "",
+
+  queryTree: [],
+  floorList: [],
+  areaList: [],
 });
 
 const columns = [
@@ -82,7 +92,6 @@ const onShowModal = (record) => {
 };
 const onHideModal = () => {
   state.isModalVisible = false;
-  state.isModalVisibleForQuery = false;
   state.selectedRecord = "";
 };
 
@@ -126,6 +135,49 @@ const onCancel = async (record) => {
 const onQuery = () => {
   state.isModalVisibleForQuery = true;
 };
+const onQueryConfirm = async () => {
+  try {
+    const roomStr = state.queryTree.find(
+      (item) => item.id === state.roomValue
+    )?.name;
+    const floorStr = state.floorList.find(
+      (item) => item.id === state.floorValue
+    )?.name;
+    const areaStr = state.areaList.find(
+      (item) => item.id === state.areaValue
+    )?.name;
+    const location = `${roomStr}-${floorStr}-${areaStr}`;
+
+    state.queryResult.location = location;
+
+    let params = {
+      area: state.areaValue,
+    };
+    const res = await getQuerySeat(params);
+    if (res?.code === 0) {
+      state.queryResult.isShow = true;
+      let data = res?.data || [];
+      for (const [index, item] of data.entries()) {
+        if (index == 0) {
+          state.queryResult.currentPeriod.period = `${item.startDay}至${item.endDay}`;
+          state.queryResult.currentPeriod.status = item.isvalid;
+        } else if (index == 1) {
+          state.queryResult.nextPeriod.period = `${item.startDay}至${item.endDay}`;
+          state.queryResult.nextPeriod.status = item.isvalid;
+        }
+      }
+      state.isModalVisibleForQuery = false;
+    } else {
+      state.queryResult.isShow = false;
+      showToast({
+        message: res?.message || res?.msg,
+      });
+    }
+  } catch (e) {
+    state.queryResult.isShow = false;
+    console.log(e);
+  }
+};
 
 const onChangeQMode = (row) => {
   if (state.activeKey == "1") {
@@ -148,6 +200,7 @@ const filteredQuickModeList = computed(() => {
 
 onMounted(() => {
   fetch();
+  fetchQueryTree();
 });
 watch(
   () => state.selectedRecord.clickCancelReservation,
@@ -168,6 +221,25 @@ const fetch = () => {
     fetchSeatRenegeList();
   } else if (state.quickMode === 3) {
     // 权限查询
+  }
+};
+
+const fetchQueryTree = async () => {
+  try {
+    const res = await getQueryTree();
+    if (res?.code === 0) {
+      state.queryTree = res?.data || [];
+
+      state.roomValue = res?.data?.[0]?.id;
+
+      state.floorList = state.queryTree[0]?.children || [];
+      state.floorValue = state.floorList[0]?.id;
+
+      state.areaList = state.floorList[0]?.children || [];
+      state.areaValue = state.areaList[0]?.id;
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -221,6 +293,20 @@ const onChangePage = (page, pageSize) => {
   // pagination : {current: 2, pageSize: 10, total: 132, showSizeChanger: false}
   state.currentPage = page;
   fetch();
+};
+
+const onChangeRoom = (value) => {
+  state.floorList =
+    state.queryTree.find((item) => item.id === value)?.children || [];
+  state.floorValue = state.floorList[0]?.id;
+
+  state.areaList = state.floorList[0]?.children || [];
+  state.areaValue = state.areaList[0]?.id;
+};
+const onChangeFloor = (value) => {
+  state.areaList =
+    state.floorList.find((item) => item.id === value)?.children || [];
+  state.areaValue = state.areaList[0]?.id;
 };
 </script>
 <template>
@@ -410,7 +496,7 @@ const onChangePage = (page, pageSize) => {
         {{ $t("Query_Results") }}
         <span class="query-result-subtitle">(请点击立即查询)</span>
       </div>
-      <div class="query-result-content">
+      <div class="query-result-content" v-if="state.queryResult.isShow">
         <p>
           查询位置：<span class="text-default">{{
             state.queryResult.location
@@ -418,15 +504,33 @@ const onChangePage = (page, pageSize) => {
         </p>
         <p>
           {{ $t("Current") }}（{{ state.queryResult.currentPeriod.period }}）
-          {{ $t("Reservation_permission") }}：<span class="status-success">{{
-            state.queryResult.currentPeriod.status
-          }}</span>
+          {{ $t("Reservation_permission") }}：<span
+            :class="
+              state.queryResult.currentPeriod.status == 1
+                ? 'status-success'
+                : 'text-default'
+            "
+            >{{
+              state.queryResult.currentPeriod.status == 1
+                ? $t("Authorized_by")
+                : $t("Unauthorized")
+            }}</span
+          >
         </p>
         <p>
           {{ $t("Next_time") }}（{{ state.queryResult.nextPeriod.period }}）
-          {{ $t("Reservation_permission") }}：<span class="text-default">{{
-            state.queryResult.nextPeriod.status
-          }}</span>
+          {{ $t("Reservation_permission") }}：<span
+            :class="
+              state.queryResult.nextPeriod.status == 1
+                ? 'status-success'
+                : 'text-default'
+            "
+            >{{
+              state.queryResult.nextPeriod.status == 1
+                ? $t("Authorized_by")
+                : $t("Unauthorized")
+            }}</span
+          >
         </p>
       </div>
       <div class="query-result-footer">
@@ -437,19 +541,21 @@ const onChangePage = (page, pageSize) => {
     </a-card>
 
     <a-modal
+      width="40%"
       class="query-modal"
       v-model:open="state.isModalVisibleForQuery"
       :title="$t('Authority_check')"
       :footer="null"
       @ok="onHideModal"
+      destroyOnClose
     >
       <a-divider />
       <div>
         <div class="dialog-title">{{ $t("Library") }}</div>
         <div class="checkboxItem">
-          <a-radio-group v-model:value="state.roomValue">
-            <template v-for="item in state.room" :key="state.room.value">
-              <a-radio :value="item.value">{{ item.label }}</a-radio>
+          <a-radio-group v-model:value="state.roomValue" @change="onChangeRoom">
+            <template v-for="item in state.queryTree" :key="item.id">
+              <a-radio :value="item.id">{{ item.name }}</a-radio>
             </template>
           </a-radio-group>
         </div>
@@ -458,9 +564,12 @@ const onChangePage = (page, pageSize) => {
         <div class="dialog-title">{{ $t("Floor") }}</div>
         <div class="checkboxItem">
           <!-- <a-checkbox-group v-model:value="state.dateValue" :options="state.dates" /> -->
-          <a-radio-group v-model:value="state.floorValue">
-            <template v-for="item in state.floor" :key="state.floor.value">
-              <a-radio :value="item.value">{{ item.label }}</a-radio>
+          <a-radio-group
+            v-model:value="state.floorValue"
+            @change="onChangeFloor"
+          >
+            <template v-for="item in state.floorList" :key="item.id">
+              <a-radio :value="item.id">{{ item.name }}</a-radio>
             </template>
           </a-radio-group>
         </div>
@@ -470,16 +579,21 @@ const onChangePage = (page, pageSize) => {
         <div class="checkboxItem">
           <!-- <a-checkbox-group v-model:value="state.dateValue" :options="state.dates" /> -->
           <a-radio-group v-model:value="state.areaValue">
-            <template v-for="item in state.area" :key="state.area.value">
-              <a-radio :value="item.value">{{ item.label }}</a-radio>
+            <template v-for="item in state.areaList" :key="item.id">
+              <a-radio :value="item.id">{{ item.name }}</a-radio>
             </template>
           </a-radio-group>
         </div>
 
         <a-divider />
         <div class="modal-footer">
-          <a-button class="cancel-button" @click="onHideModal">{{ $t("cancel") }}</a-button>
-          <a-button type="primary" class="confirm-button" @click="onHideModal"
+          <a-button class="cancel-button" @click="onHideModal">{{
+            $t("cancel")
+          }}</a-button>
+          <a-button
+            type="primary"
+            class="confirm-button"
+            @click="onQueryConfirm"
             >{{ $t("visitor_Confirm") }}</a-button
           >
         </div>

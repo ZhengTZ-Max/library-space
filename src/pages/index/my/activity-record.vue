@@ -234,6 +234,10 @@ const onDealWithDate = () => {
   // console.log(state.appointmentTime);
   // console.log(state.selectedDetails.time);
 };
+
+const onShowModal = (record) => {
+  console.log(record);
+};
 </script>
 
 <template>
@@ -317,10 +321,17 @@ const onDealWithDate = () => {
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'image'">
               <a-image
-                :src="record.image || 'default-poster-url.jpg'"
+                v-if="record.poster?.length > 0"
+                :src="record.poster[0].file_path"
                 :width="100"
                 :preview="false"
               />
+            </template>
+            <template v-if="column.key === 'name'">
+              <span>{{ record.title }}</span>
+            </template>
+            <template v-if="column.key === 'time_last'">
+              <span>{{ record.update_time }}</span>
             </template>
             <template v-if="column.key === 'action'">
               <span>
