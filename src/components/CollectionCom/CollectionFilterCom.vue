@@ -65,8 +65,8 @@ const filterFloor = () => {
   );
   if (findLibrary?.child?.length) {
     floorList = findLibrary?.child || [];
-    state.filterRows.floor = "";
-    state.filterRows.areaId = "";
+    state.filterRows.floor = state.filterRows?.floor || "";
+    state.filterRows.areaId = state.filterRows?.areaId || "";
   } else {
     floorList = [];
   }
@@ -83,7 +83,7 @@ const filterTypes = () => {
 
   if (floorInfo?.child?.length) {
     types = floorInfo?.child || [];
-    state.filterRows.areaId = "";
+    state.filterRows.areaId = state.filterRows?.areaId || "";
   } else {
     types = [];
   }

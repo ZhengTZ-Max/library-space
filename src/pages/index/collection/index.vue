@@ -4,75 +4,31 @@ import { useRouter, useRoute } from "vue-router";
 import { useStore } from "vuex";
 import moment from "moment";
 import { DownOutlined } from "@ant-design/icons-vue";
+import { showToast } from "vant";
+
 import { exchangeDateTime } from "@/utils";
+
 import {
   // getLockerList,
   // getLockerFilter,
+  getLostStorage,
   getAllArea,
   getLostlocker,
   getLostInfo,
+  sumbitLostStorage,
 } from "@/request/collection";
 import CollectionFilterCom from "@/components/CollectionCom/CollectionFilterCom.vue";
 import Uploader from "@/components/Uploader.vue";
+import ClearList from "@/components/CollectionCom/ClearList.vue";
 
 const store = useStore();
 const router = useRouter();
 const route = useRoute();
 const containerRef = ref();
-
-const form = reactive({
-  name: "",
-  url: "",
-  owner: "",
-  type: "",
-  approver: "",
-  dateTime: null,
-  description: "",
-});
-
-const clearColumns = [
-  {
-    title: "Name",
-    dataIndex: "name",
-  },
-  {
-    title: "Age",
-    dataIndex: "age",
-  },
-  {
-    title: "Address",
-    dataIndex: "address",
-  },
-];
-const data = [
-  {
-    key: "1",
-    name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-  },
-  {
-    key: "2",
-    name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    age: 32,
-    address: "Sidney No. 1 Lake Park",
-  },
-  {
-    key: "4",
-    name: "Disabled User",
-    age: 99,
-    address: "Sidney No. 1 Lake Park",
-  },
-];
+const clearListRef = ref();
 
 const state = reactive({
-  activeIndex: "",
+  activeRow: {},
 
   initQuery: {
     bookcaseId: route?.query?.id || "",
@@ -96,21 +52,24 @@ const state = reactive({
   collectionInfoShow: false,
 
   showRightCon: false,
+
   showAreaSelect: false,
+  filterClearOptions: [],
   areaSelectRow: {
+    showType: "",
     library: "",
     floor: "",
     areaId: "",
   },
-  areaUploadImg: [],
+  areaForm: {
+    deposit: {},
+    collect: {},
+  },
+  depositFreeList: [],
 
   showClearRightCon: false,
 
-  clearSearch: {
-    library: "",
-    type: "",
-    hour: "",
-  },
+  clearSelected: [],
 });
 
 onMounted(() => {
@@ -118,9 +77,10 @@ onMounted(() => {
 });
 
 const onChangeAct = (i) => {
-  state.activeIndex = i.id;
-  fetchInfo(i);
+  state.activeRow = i;
+  // fetchInfo(i);
   // state.collectionInfoShow = true;
+  state.collectionInfoShow = true;
 };
 
 const fetchInfo = async (row) => {
@@ -137,8 +97,11 @@ const fetchInfo = async (row) => {
 
 const fetchFilter = async () => {
   try {
-    let res = await getAllArea();
-    state.filterOptions = res?.data;
+    // let res = await getAllArea();
+    let res = await getLostStorage();
+    state.filterOptions = res?.data?.storageList || [];
+    state.filterClearOptions = res?.data?.storeList || [];
+    state.depositFreeList = res?.data?.freeNum || [];
     // initQueryFn();
     fetchLibrary();
   } catch (e) {
@@ -188,22 +151,111 @@ const handleFilter = () => {
   fetchLibrary();
   state.collectionFilterShow = false;
 };
-const handleAreaSelect = () => {};
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(
-      `selectedRowKeys: ${selectedRowKeys}`,
-      "selectedRows: ",
-      selectedRows
-    );
-  },
-  getCheckboxProps: (record) => ({
-    disabled: record.name === "Disabled User",
-    // Column configuration not to be checked
-    name: record.name,
-  }),
+const handleAreaSelect = () => {
+  console.log(state.areaSelectRow);
+  let { library, floor, areaId, showType } = state.areaSelectRow;
+
+  let areaRows = findDataRows(
+    showType == "deposit" ? state.filterClearOptions : state.filterOptions,
+    { library, floor, areaId }
+  );
+  let { library: libraryRow, floor: floorRow, areaId: areaRow } = areaRows;
+
+  state.areaForm[showType] = {
+    library,
+    floor,
+    areaId,
+    name: `${libraryRow?.name}-${floorRow?.name}-${areaRow?.name}`,
+  };
+  console.log(state.areaForm);
+  state.showAreaSelect = false;
 };
+
 const onReviewImg = (v) => {};
+
+const onShowArea = (t) => {
+  let { library, floor, areaId } = state.areaForm[t];
+  console.log(state.areaForm[t]);
+  state.areaSelectRow = {
+    showType: t,
+    library: library || "",
+    floor: floor || "",
+    areaId: areaId || "",
+  };
+  state.showAreaSelect = true;
+};
+
+const findDataRows = (data, ids) => {
+  const result = {};
+  let currentLevel = data;
+
+  // 遍历每一层的 ID
+  for (const [key, id] of Object.entries(ids)) {
+    const found = currentLevel.find((item) => item.id === id);
+    if (found) {
+      result[key] = { id: found.id, name: found.name, enname: found.enname };
+      currentLevel = found.child || []; // 进入下一层
+    } else {
+      break; // 如果某层未找到，停止查找
+    }
+  }
+
+  return result;
+};
+
+const areaBoxFreeNum = () => {
+  let { areaId } = state.areaForm?.deposit;
+  let findRow = state.depositFreeList?.find((e) => e?.id == areaId);
+  return findRow?.num || "";
+};
+
+const onSubmit = async () => {
+  try {
+    let params = {
+      filePath: state.areaUploadImg,
+      storageArea: state.areaForm?.deposit?.areaId,
+      storeArea: state.areaForm?.collect?.areaId,
+    };
+
+    const res = await sumbitLostStorage(params);
+    if (res.code != 0) {
+      showToast({
+        duration: 3000,
+        message: res?.message || res?.msg,
+      });
+      return false;
+    }
+    showToast({
+      message: res?.message || res?.msg,
+    });
+    state.showRightCon = false;
+    state.areaSelectRow = {
+      showType: "",
+      library: "",
+      floor: "",
+      areaId: "",
+    };
+    state.areaForm = {
+      deposit: {},
+      collect: {},
+    };
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const fileUpload = (v) => {
+  let fileList = v;
+  if (fileList?.length) {
+    state.areaUploadImg = fileList[0]?.response?.data?.file_path;
+  } else {
+    state.areaUploadImg = "";
+  }
+};
+
+const onClearList = () => {
+  clearListRef?.value?.onClearList();
+};
 </script>
 <template>
   <div class="bookcase" ref="containerRef">
@@ -250,7 +302,7 @@ const onReviewImg = (v) => {};
                 <a-image
                   @click.stop=""
                   class="cardItemImg"
-                  src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+                  :src="item?.thumb_imageUrl"
                 >
                 </a-image>
                 <div class="leftBadge basicsBadge">
@@ -263,11 +315,12 @@ const onReviewImg = (v) => {};
                   <span>{{ item?.lockerFloor }}</span>
                 </div>
                 <div class="details">
-                  <span>{{ $t("V4_collection_date") }}</span> 2024-01-29
+                  <span>{{ $t("V4_collection_date") }}</span>
+                  {{ item?.insertDate }}
                 </div>
                 <div class="details">
                   <span>{{ $t("V4_collection_location") }}</span>
-                  基础馆-1F-自修B区
+                  {{ item?.storageName }}
                 </div>
               </div>
               <!-- <div
@@ -313,7 +366,9 @@ const onReviewImg = (v) => {};
     <a-modal
       width="50%"
       v-model:open="state.showAreaSelect"
-      title="物品筛选"
+      :title="
+        state.areaSelectRow?.showType == 'deposit' ? '存放区域' : '收物地点'
+      "
       @ok="handleAreaSelect"
       :okText="$t('visitor_Confirm')"
       :cancelText="$t('cancel')"
@@ -325,15 +380,35 @@ const onReviewImg = (v) => {};
           borderColor: '#CECFD5',
         },
       }"
-      :okButtonProps="{ size: 'middle' }"
+      :okButtonProps="{
+        size: 'middle',
+        style: {
+          background: !state.areaSelectRow?.areaId ? 'rgba(26,73,192,0.3)' : '',
+          pointerEvents: !state.areaSelectRow?.areaId ? 'none' : '',
+        },
+      }"
       centered
     >
-      <CollectionFilterCom
-        v-if="state.filterOptions?.length"
-        :data="state.filterOptions"
-        :initSearch="state.areaSelectRow"
-        type="area"
-      />
+      <template v-if="state.showAreaSelect">
+        <CollectionFilterCom
+          v-if="
+            state.areaSelectRow?.showType == 'collect' &&
+            state.filterOptions?.length
+          "
+          :data="state.filterOptions"
+          :initSearch="state.areaSelectRow"
+          type="area"
+        />
+        <CollectionFilterCom
+          v-else-if="
+            state.areaSelectRow?.showType == 'deposit' &&
+            state.filterClearOptions?.length
+          "
+          :data="state.filterClearOptions"
+          :initSearch="state.areaSelectRow"
+          type="area"
+        />
+      </template>
     </a-modal>
 
     <a-modal
@@ -360,22 +435,25 @@ const onReviewImg = (v) => {};
     >
       <div class="qrInfo libraryItem">
         <div class="cardItemImgCon">
-          <a-image
-            class="cardItemImg"
-            src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-          >
+          <a-image class="cardItemImg" :src="state.activeRow?.imageUrl">
           </a-image>
           <!-- <div class="leftBadge basicsBadge">14213</div> -->
         </div>
         <div class="bottomItem">
           <div class="title">
-            <span>基础馆-1F-1号柜：08格</span>
+            <span
+              >{{ state.activeRow?.lockerName }}：{{
+                state.activeRow?.boxId
+              }}格</span
+            >
           </div>
           <div class="details">
-            <span>{{ $t("V4_collection_date") }}</span> 2024-01-29
+            <span>{{ $t("V4_collection_date") }}</span>
+            {{ state.activeRow?.insertDate }}
           </div>
           <div class="details">
-            <span>{{ $t("V4_collection_location") }}</span> 基础馆-1F-自修B区
+            <span>{{ $t("V4_collection_location") }}</span>
+            {{ state.activeRow?.storageName }}
           </div>
         </div>
       </div>
@@ -390,32 +468,42 @@ const onReviewImg = (v) => {};
       @close="state.showRightCon = false"
       class="collectionDrawer"
     >
-      <a-form size="m" :model="form">
-        <a-row style="margin-top: 24px; padding-right: 12px" :gutter="0">
+      <a-form size="m">
+        <a-row :gutter="0">
+          <a-col :span="24">
+            <a-form-item label="收取地点：" name="name" :labelCol="{ span: 3 }">
+              <div class="selector" @click="onShowArea('collect')">
+                <span
+                  v-if="state.areaForm?.collect?.name"
+                  style="color: #202020"
+                  >{{ state.areaForm?.collect?.name }}</span
+                >
+                <span v-else>请选择</span>
+                <DownOutlined />
+              </div>
+            </a-form-item>
+          </a-col>
           <a-col :span="24">
             <a-form-item
               label="存放区域："
               name="owner"
               :labelCol="{ span: 3 }"
             >
-              <div class="selector" @click="state.showAreaSelect = true">
-                请选择
+              <div class="selector" @click="onShowArea('deposit')">
+                <span
+                  v-if="state.areaForm?.deposit?.name"
+                  style="color: #202020"
+                  >{{ state.areaForm?.deposit?.name }}</span
+                >
+                <span v-else>请选择</span>
+
                 <DownOutlined />
               </div>
-              <!-- <a-select placeholder="Please a-s an owner">
-              </a-select> -->
             </a-form-item>
           </a-col>
-          <a-col :span="24">
-            <a-form-item label="收取地点：" name="name" :labelCol="{ span: 3 }">
-              <div class="selector" @click="state.showAreaSelect = true">
-                请选择
-                <DownOutlined />
-              </div>
-              <!-- <a-input
-                v-model:value="form.name"
-                placeholder="Please enter user name"
-              /> -->
+          <a-col v-if="areaBoxFreeNum()" :span="24">
+            <a-form-item label="剩余格口：" name="box" :labelCol="{ span: 3 }">
+              <a-input :value="areaBoxFreeNum()" disabled />
             </a-form-item>
           </a-col>
           <a-col :span="24">
@@ -425,7 +513,7 @@ const onReviewImg = (v) => {};
               :labelCol="{ span: 3 }"
             >
               <Uploader
-                :initFileList="state.areaUploadImg"
+                @onFileUpload="fileUpload"
                 filePath="activity"
                 :showUploadList="true"
                 :maxCount="1"
@@ -436,20 +524,24 @@ const onReviewImg = (v) => {};
               </Uploader>
             </a-form-item>
           </a-col>
-          <!-- <a-col :span="24">
-            <a-form-item label="Owner" name="owner" :labelCol="{ span: 3 }">
-              <div class="selector">
-                请选择
-                <DownOutlined />
-              </div>
-            </a-form-item>
-          </a-col> -->
         </a-row>
       </a-form>
       <template #extra>
         <a-space>
-          <a-button size="m">Cancel</a-button>
-          <a-button size="m" type="primary">Submit</a-button>
+          <a-button size="m" @click="state.showRightCon = false"
+            >Cancel</a-button
+          >
+          <a-button
+            size="m"
+            type="primary"
+            :disabled="
+              !(
+                state.areaForm?.deposit?.name && state.areaForm?.collect?.name
+              ) || !state.areaUploadImg
+            "
+            @click="onSubmit"
+            >Submit</a-button
+          >
         </a-space>
       </template>
     </a-drawer>
@@ -463,64 +555,23 @@ const onReviewImg = (v) => {};
       @close="state.showClearRightCon = false"
       class="collectionClearDrawer"
     >
-      <div class="clearCon">
-        <div class="clearHead">
-          <a-select
-            size="m"
-            v-model:value="state.clearSearch.library"
-            style="width: 200px"
-            placeholder="请选择馆舍"
-            allowClear
-          >
-            <a-select-option value="jack">Jack</a-select-option>
-            <a-select-option value="lucy">Lucy</a-select-option>
-            <a-select-option value="Yiminghe">yiminghe</a-select-option>
-          </a-select>
-          <a-select
-            size="m"
-            v-model:value="state.clearSearch.type"
-            style="width: 200px; margin: 0 20px"
-            placeholder="类型"
-            allowClear
-          >
-            <a-select-option value="jack">Jack</a-select-option>
-            <a-select-option value="lucy">Lucy</a-select-option>
-            <a-select-option value="Yiminghe">yiminghe</a-select-option>
-          </a-select>
-
-          <a-input
-            style="width: 200px"
-            size="m"
-            v-model:value="state.clearSearch.hour"
-            suffix="小时"
-          />
-
-          <a-button shape="round" size="m" class="clearBtn">
-            <template #icon>
-              <img src="@/assets/collection/clearSearch.svg" alt="" />
-            </template>
-            搜索</a-button
-          >
-        </div>
-
-        <div class="clearTable">
-          <a-table
-            :row-selection="rowSelection"
-            :columns="clearColumns"
-            :data-source="data"
-          >
-            <template #bodyCell="{ column, text }">
-              <template v-if="column.dataIndex === 'name'">
-                <a>{{ text }}</a>
-              </template>
-            </template>
-          </a-table>
-        </div>
-      </div>
+      <ClearList
+        v-if="state.showClearRightCon"
+        ref="clearListRef"
+        v-model:clearSelected="state.clearSelected"
+      />
       <template #extra>
         <a-space>
-          <a-button size="m">Cancel</a-button>
-          <a-button size="m" type="primary">立即清柜</a-button>
+          <a-button size="m" @click="state.showClearRightCon = false"
+            >Cancel</a-button
+          >
+          <a-button
+            size="m"
+            type="primary"
+            :disabled="!state.clearSelected?.length"
+            @click="onClearList"
+            >立即清柜</a-button
+          >
         </a-space>
       </template>
     </a-drawer>
@@ -797,34 +848,6 @@ const onReviewImg = (v) => {};
     }
     &:hover {
       border-color: var(--primary-color);
-    }
-  }
-}
-
-.collectionClearDrawer {
-  .clearCon {
-    padding: 30px 40px;
-    .clearHead {
-      display: flex;
-      align-items: center;
-      .clearBtn {
-        width: 82px;
-        margin-left: 20px;
-        background: rgba(26, 73, 192, 0.07);
-        border: 1px solid rgba(26, 73, 192, 0.14);
-        font-size: 14px;
-        color: #1a49c0;
-        img {
-          width: 12px;
-          height: 12px;
-          margin-right: 4px;
-          transform: translateY(-2px);
-        }
-      }
-
-      :deep(.ant-select-selector) {
-        border-radius: 20px;
-      }
     }
   }
 }
