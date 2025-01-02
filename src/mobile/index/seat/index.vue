@@ -151,7 +151,7 @@ const goToLink = (row) => {
       <a-row v-if="state.libraryList?.length" :gutter="[12, 20]">
         <template v-for="item in state.libraryList" :key="item?.id">
           <a-col :xs="24" :sm="24" :md="24" :lg="24">
-            <div class="libraryItem cardItem">
+            <div class="libraryItem cardItem" @click="goToLink(item)">
               <div class="cardItemImgCon">
                 <div
                   v-if="item?.show_detail == 1"
