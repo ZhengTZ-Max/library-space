@@ -117,7 +117,7 @@ const onItemClick = (item) => {
       destroy-on-close
     >
       <div class="libraryPop">
-        <div style="height: calc(100%-60px); overflow-y: scroll;"  v-html="state.itemDetails"></div>
+        <div class="htmlCon" v-html="state.itemDetails"></div>
         <div class="bottomAction">
           <van-button
             round
@@ -154,13 +154,15 @@ const onItemClick = (item) => {
   }
 }
 
-
 .libraryPop {
   height: 100%;
   display: flex;
   flex-direction: column;
   background: #fafafa;
-
+  .htmlCon {
+    height: 100%;
+    overflow: auto;
+  }
   .bottomAction {
     flex: 1;
     padding: 12px;

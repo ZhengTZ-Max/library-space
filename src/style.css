@@ -304,3 +304,8 @@ img {
   /* 或者 */
   image-rendering: pixelated; /* 适用于像素化的图像 */
 }
+
+
+.htmlCon img {
+  width: 100%;
+}

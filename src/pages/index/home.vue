@@ -1,23 +1,64 @@
 <script setup>
 import { reactive, onMounted, computed } from "vue";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+
 import AppointmentsCards from "@/components/h-appointments-cards.vue";
 import Tabs from "@/components/h-tabs.vue";
 const store = useStore();
-
+const router = useRouter();
 const state = reactive({});
 
 const bannerList = computed(() => store.state.bannerList);
 const apiConfig = computed(() => store.state.apiConfig);
 const lang = computed(() => store.state.lang);
+const noticeList = computed(() => store.state.noticeList);
 
 onMounted(() => {});
+
+const handleMsg = (row) => {
+  console.log(row);
+  router.push({
+    path: "/notice",
+    query: {
+      id: row?.id,
+    },
+  });
+};
 </script>
 <template>
   <div class="home">
     <div class="content">
       <div class="homel">
-        <p class="title">{{ $t("V4_welcome_to_use") }}</p>
+        <div class="title">
+          <span>{{ $t("V4_welcome_to_use") }}</span>
+
+          <!-- <div class="moreBoc" >
+            <span class="more">{{ $t("See_More") }}</span>
+            <img src="@/assets/home/rightIconPrimary.svg" alt="" />
+          </div> -->
+
+          <div v-if="noticeList?.length" class="notice">
+            <img class="volume" src="@/assets/home/volume.svg" alt="" />
+
+            <van-swipe
+              class="notice-swipe"
+              :autoplay="3000"
+              vertical
+              :show-indicators="false"
+            >
+              <van-swipe-item v-for="item in noticeList" :key="item.id">
+                <span class="title_item" @click="handleMsg(item)">{{
+                  item?.title
+                }}</span>
+              </van-swipe-item>
+            </van-swipe>
+            <div class="moreBoc" @click="router.push('/notice')">
+              <span class="more">{{ $t("See_More") }}</span>
+              <img src="@/assets/home/rightIconPrimary.svg" alt="" />
+            </div>
+          </div>
+        </div>
         <div class="library">
           {{ lang == "zh" ? apiConfig?.web?.title : apiConfig?.web?.entitle }}
           <!-- {{ $t("V4_library") }}<br /> -->
@@ -125,5 +166,33 @@ onMounted(() => {});
 }
 :deep(.slick-dots-bottom) {
   bottom: 22px !important;
+}
+
+.notice {
+  width: 100%;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  box-sizing: border-box;
+  margin: 18px auto;
+  border-radius: 10px;
+  position: relative;
+  .moreBoc {
+    display: flex;
+    align-items: center;
+    color: var(--primary-color);
+    cursor: pointer;
+    img {
+      transform: translateY(-1px);
+    }
+  }
+  .notice-swipe {
+    padding-left: 8px;
+
+    flex: 1;
+    height: 24px !important;
+  }
 }
 </style>

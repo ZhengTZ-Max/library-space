@@ -62,3 +62,13 @@ export function getBookingRules(data) {
     data,
   });
 }
+
+export function getNoticeInfo(data) {
+  return service({
+    url: "/v4/index/noticeDetail",
+    method: "POST",
+    // loadingMsg:"正在登录",
+    isLoading: true,
+    data,
+  });
+}

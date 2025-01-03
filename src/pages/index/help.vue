@@ -1,4 +1,3 @@
-
 <script setup>
 import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
@@ -12,9 +11,8 @@ const state = reactive({
   page: 1,
   pageSize: 10,
   total: 0,
-  selectedItem: "",
+  selectedItem: {},
 });
-
 
 onMounted(() => {
   fetchHelpList();
@@ -75,7 +73,9 @@ const goBack = () => {
             </div>
 
             <a-menu-divider
-              v-if="(index + 1) % 2 === 0 && index !== state.menuItems.length - 1"
+              v-if="
+                (index + 1) % 2 === 0 && index !== state.menuItems.length - 1
+              "
             />
           </template>
         </a-menu>
@@ -83,7 +83,7 @@ const goBack = () => {
 
       <div class="display-area">
         <template v-if="selectedKey">
-          <div style="overflow-y: scroll; height: calc(100vh - 200px);" v-html="state.selectedItem"></div>
+          <div class="htmlCon" v-html="state.selectedItem"></div>
         </template>
         <template v-else>
           <div class="empty-state">
@@ -99,10 +99,13 @@ const goBack = () => {
   </div>
 </template>
 
-
-<style scoped>
+<style lang="less" scoped>
 .help-page {
   padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 .back {
   display: flex;
@@ -116,8 +119,10 @@ const goBack = () => {
 }
 
 .content {
+  flex: 1;
   display: flex;
   background-color: #fff;
+  overflow: hidden;
 }
 
 .menu {
@@ -144,10 +149,15 @@ const goBack = () => {
   width: 100%;
 }
 .display-area {
+  padding: 0 0 0 24px;
   flex: 1;
   display: flex;
   justify-content: center;
-  height: 100%;
+  align-items: center;
+  .htmlCon {
+    height: 100%;
+    overflow: auto;
+  }
 }
 
 .empty-state {
@@ -198,12 +208,14 @@ const goBack = () => {
 
   margin-bottom: 20px;
 }
-.rules, .additional-rules {
+.rules,
+.additional-rules {
   margin-bottom: 20px;
 }
 
-.rules p, .additional-rules p {
-    color:#818181;
+.rules p,
+.additional-rules p {
+  color: #818181;
   margin: 12px;
 }
 

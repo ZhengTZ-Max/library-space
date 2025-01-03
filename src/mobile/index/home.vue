@@ -26,6 +26,12 @@ const state = reactive({
 
 const handleMsg = (row) => {
   console.log(row);
+  router.push({
+    path: "/mo/notice",
+    query: {
+      id: row?.id,
+    },
+  });
 };
 </script>
 
@@ -63,7 +69,7 @@ const handleMsg = (row) => {
             }}</span>
           </van-swipe-item>
         </van-swipe>
-        <div class="moreBoc" @click="router.push(`/announ`)">
+        <div class="moreBoc" @click="router.push(`/mo/notice`)">
           <span class="more">{{ $t("See_More") }}</span>
           <img src="@/assets/home/rightIconPrimary.svg" alt="" />
         </div>
