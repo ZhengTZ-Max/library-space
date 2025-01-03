@@ -53,33 +53,33 @@ const checkInfo = async () => {
   } else if (token) {
     state.qrInfo = qrInfo;
     StorageQr && sessionStorage.removeItem("StorageQr");
-    // handleAction();
+    handleAction();
   }
 
-  let qrTime = state.qrInfo?.t;
-  let qrType = state.qrInfo?.type;
-  if (qrTime) {
-    // 定义过期时间
-    qrTime = Number(qrTime) + 60000;
-    if (new Date(decryptTime(qrTime)) <= currentTime) {
-      showDialog({
-        title: "提示",
-        message: "二维码已失效，请到座位系统中预约.",
-      }).then(() => {
-        toVerify();
-      });
-      return false;
-    } else if (!["1", "2", "3"].includes(qrType)) {
-      showDialog({
-        title: "提示",
-        message: "扫码预约失败~",
-      }).then(() => {
-        toVerify();
-      });
-    }
-  }
+  // let qrTime = state.qrInfo?.t;
+  // let qrType = state.qrInfo?.type;
+  // if (qrTime) {
+  //   // 定义过期时间
+  //   qrTime = Number(qrTime) + 60000;
+  //   if (new Date(decryptTime(qrTime)) <= currentTime) {
+  //     showDialog({
+  //       title: "提示",
+  //       message: "二维码已失效，请到座位系统中预约.",
+  //     }).then(() => {
+  //       toVerify();
+  //     });
+  //     return false;
+  //   } else if (!["1", "2", "3"].includes(qrType)) {
+  //     showDialog({
+  //       title: "提示",
+  //       message: "扫码预约失败~",
+  //     }).then(() => {
+  //       toVerify();
+  //     });
+  //   }
+  // }
 
-  handleAction();
+  // handleAction();
   // let qrType = route.query.type;
   // let qrTime = route.query.t;
   // let token = sessionStorage.getItem("token") || "";
@@ -128,17 +128,18 @@ const checkInfo = async () => {
 const handleAction = async () => {
   try {
     let params = {
-      method: state.method,
+      // method: state.method,
+      ...state.qrInfo,
     };
-    let qrType = state.qrInfo?.type;
+    // let qrType = state.qrInfo?.type;
 
-    if (qrType == 1) {
-      params.method = "checkin";
-    } else if (qrType == 2) {
-      params.method = "leave";
-    } else if (qrType == 3) {
-      params.method = "checkout";
-    }
+    // if (qrType == 1) {
+    //   params.method = "checkin";
+    // } else if (qrType == 2) {
+    //   params.method = "leave";
+    // } else if (qrType == 3) {
+    //   params.method = "checkout";
+    // }
 
     const res = await touch_qr_books(params);
 

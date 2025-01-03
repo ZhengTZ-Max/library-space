@@ -128,25 +128,25 @@ const checkInfo = async () => {
   let qrInfo = route.query;
   let StorageQr = sessionStorage.getItem("StorageQr") || "";
   let token = sessionStorage.getItem("token") || "";
-  console.log(route);
+  // console.log(route);
   // let time = await verifyTime();
   // console.log(time);
 
-  let qrTime = state.qrInfo?.t;
-  let qrType = state.qrInfo?.type;
-  if (qrTime) {
-    // 定义过期时间
-    qrTime = Number(qrTime) + 60000;
-    if (new Date(decryptTime(qrTime)) <= currentTime) {
-      showDialog({
-        title: "提示",
-        message: "二维码已失效，请到座位系统中预约.",
-      }).then(() => {
-        toVerify();
-      });
-      return false;
-    }
-  }
+  // let qrTime = state.qrInfo?.t;
+  // let qrType = state.qrInfo?.type;
+  // if (qrTime) {
+  //   // 定义过期时间
+  //   qrTime = Number(qrTime) + 60000;
+  //   if (new Date(decryptTime(qrTime)) <= currentTime) {
+  //     showDialog({
+  //       title: "提示",
+  //       message: "二维码已失效，请到座位系统中预约.",
+  //     }).then(() => {
+  //       toVerify();
+  //     });
+  //     return false;
+  //   }
+  // }
 
   if (!token && qrInfo?.area_id) {
     sessionStorage.setItem("StorageQr", route?.fullPath);
@@ -163,8 +163,9 @@ const checkInfo = async () => {
 const checkSeat = async () => {
   try {
     let params = {
-      seat_id: state.qrInfo.seat_id,
+      ...state.qrInfo,
     };
+    console.log(params)
     const res = await checkSeatAsk(params);
 
     let resultShow = {

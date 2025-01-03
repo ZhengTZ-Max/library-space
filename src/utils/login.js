@@ -17,19 +17,19 @@ export async function WX_LOGIN(data) {
   try {
     const res = await wx_login(data);
     console.log("登录成功？", JSON.stringify(res));
-    if (res.code !== 1) {
-      if (res.open_id) {
+
+    if (res.code != 0) {
+      if (res?.data?.open_id) {
         // sessionStorage.setItem("openId", res.open_id);
-        localStorage.setItem("openId", res.open_id);
+        localStorage.setItem("openId", res?.data.open_id);
       }
       toLogin();
       return false;
     }
-
     if (res) {
-      localStorage.setItem("openId", res.open_id);
-      sessionStorage.setItem("token", res.member.token);
-      store.dispatch("updateLoginInfo", res.member);
+      localStorage.setItem("openId", res?.data.open_id);
+      sessionStorage.setItem("token", res?.data?.member?.token);
+      store.dispatch("updateLoginInfo", res?.data?.member);
     }
     loginSuccess();
   } catch (e) {
@@ -42,12 +42,12 @@ export async function QYWX_LOGIN(data) {
   try {
     const res = await qywx_login(data);
     console.log("登录成功？", JSON.stringify(res));
-    if (res.code !== 1) {
+    if (res.code != 0) {
       toLogin();
       return false;
     }
-    sessionStorage.setItem("token", res.member.token);
-    store.dispatch("updateLoginInfo", res.member);
+    sessionStorage.setItem("token", res?.data?.member?.token);
+    store.dispatch("updateLoginInfo", res?.data?.member);
 
     loginSuccess();
   } catch (e) {
@@ -59,12 +59,12 @@ export async function QYWX_LOGIN(data) {
 export async function DingTalk_LOGIN(data) {
   try {
     const res = await dingTalk_login(data);
-    if (res.code !== 1) {
+    if (res.code != 0) {
       toLogin();
       return false;
     }
-    sessionStorage.setItem("token", res.member.token);
-    store.dispatch("updateLoginInfo", res.member);
+    sessionStorage.setItem("token", res?.data?.member?.token);
+    store.dispatch("updateLoginInfo", res?.data.member);
 
     loginSuccess();
   } catch (e) {
@@ -94,8 +94,8 @@ export async function CasLogin(cas) {
       }, 1000);
       return false;
     }
-    sessionStorage.setItem("token", res.member.token);
-    store.dispatch("updateLoginInfo", res.member);
+    sessionStorage.setItem("token", res?.data.member.token);
+    store.dispatch("updateLoginInfo", res?.data?.member);
     sessionStorage.setItem("isCas", true);
     loginSuccess();
   } catch (e) {

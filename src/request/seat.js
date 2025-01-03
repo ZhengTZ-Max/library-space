@@ -189,6 +189,7 @@ export function checkSeatAsk(data) {
     url: "/v4/space/qr_scan",
     method: "post",
     isLoading: true,
+    isCrypto: true,
     // loadingMsg:"正在预约",
     // customLoading:true, //是否自定义loading
     data,
@@ -213,6 +214,7 @@ export function touch_qr_books(data) {
     url: "/v4/space/qr_touch",
     method: "post",
     isLoading: true,
+    isCrypto: true,
     // loadingMsg:"正在预约",
     // customLoading:true, //是否自定义loading
     data,

@@ -87,7 +87,7 @@ window.$computedWidth  = computedWidth;
 app.config.globalProperties.$t = t;
 window.$t = t;
 app.config.globalProperties.PlaceImg = PlaceImg;
-
+// var vConsole = new window.VConsole();
 router.isReady().then(() => {
   app.mount("#app");
 });

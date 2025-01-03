@@ -474,7 +474,9 @@ export const areArraysDifferent = (arr1, arr2) => {
 };
 
 export const OutLogin = () => {
-  sessionStorage.removeItem("token");
+  // sessionStorage.removeItem("token");
+  sessionStorage.clear()
+  localStorage.clear()
   store.dispatch("updateLoginInfo", {});
   console.log(store);
   location.reload();

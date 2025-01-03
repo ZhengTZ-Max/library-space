@@ -38,8 +38,12 @@ service.interceptors.request.use(
       config.headers["authorization"] = `bearer${token}`;
 
       if (config?.isCrypto) {
-        let encryptStr = encrypt("encrypt", config.data);
-        config.data = { aesjson: encryptStr };
+        if (Object.keys(config.data)?.length) {
+          let encryptStr = encrypt("encrypt", config.data);
+          config.data = { aesjson: encryptStr };
+        } else {
+          config.data = { aesjson: "" };
+        }
       }
 
       config.data = {
@@ -92,12 +96,12 @@ service.interceptors.response.use(
     if (code === 10001) {
       message.error(messg);
       setTimeout(() => {
-        // localStorage.clear();
-        // sessionStorage.clear();
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("UserInfo");
-        sessionStorage.removeItem("authError");
-        sessionStorage.removeItem("verifyLogin");
+        localStorage.clear();
+        sessionStorage.clear();
+        // sessionStorage.removeItem("token");
+        // sessionStorage.removeItem("UserInfo");
+        // sessionStorage.removeItem("authError");
+        // sessionStorage.removeItem("verifyLogin");
         location.hash = "/login";
       }, 1000);
     }
