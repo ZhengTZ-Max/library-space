@@ -53,10 +53,10 @@ const getVerify = async () => {
     const res = await verify();
     state.isCodeLoading = false;
 
-    if (res.code != 1) {
+    if (res.code != 0) {
       return false;
     }
-    state.verifyInfo = res.info;
+    state.verifyInfo = res.data;
 
     if (localStorage.getItem("isTest")) {
       formState.username = "2022010"; // 用户名
@@ -84,7 +84,7 @@ const onLogin = async () => {
     };
     console.log("params", params);
     let res = await login(params);
-    if (res?.code != 1) {
+    if (res?.code != 0) {
       message.warning(res?.msg || "登录失败~");
       formState.code = "";
       getVerify();

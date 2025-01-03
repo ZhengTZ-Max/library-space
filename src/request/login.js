@@ -2,7 +2,7 @@ import service from "@/utils/request";
 
 export function verify(data) {
   return service({
-    url: "/api/Captcha/verify",
+    url: "/v4/login/verify",
     method: "post",
     // isLoading: true,
     // loadingMsg: "",
@@ -13,7 +13,7 @@ export function verify(data) {
 
 export function login(data) {
   return service({
-    url: "/api/login/login",
+    url: "/v4/login/login",
     method: "post",
     isLoading: true,
     data,
@@ -28,7 +28,7 @@ export function login(data) {
 // 微信code授权
 export function wx_login(data) {
   return service({
-    url: "/api/login/wxlogin",
+    url: "/v4/login/wxlogin",
     method: "post",
     isLoading: true,
     loadingMsg: "正在授权登录",
@@ -40,7 +40,7 @@ export function wx_login(data) {
 // 企业微信code授权
 export function qywx_login(data) {
   return service({
-    url: "/api/login/wxwork",
+    url: "/v4/login/wxwork",
     method: "post",
     isLoading: true,
     loadingMsg: "正在授权登录",
@@ -52,7 +52,7 @@ export function qywx_login(data) {
 // 钉钉code授权
 export function dingTalk_login(data) {
   return service({
-    url: "/api/login/dingtalksns",
+    url: "/v4/login/dingtalksns",
     method: "post",
     isLoading: true,
     loadingMsg: "正在授权登录",
@@ -76,7 +76,7 @@ export function wx_removeOpenid(data) {
 // CAS登录配置
 export function getCasLogin(data) {
   return service({
-    url: "/api/cas/user",
+    url: "/v4/login/user",
     method: "post",
     isLoading: true,
     // loadingMsg:"正在授权登录",

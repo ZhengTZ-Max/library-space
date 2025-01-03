@@ -83,7 +83,7 @@ export async function CasLogin(cas) {
       params.open_id = openId;
     }
     const res = await getCasLogin(params);
-    if (res.code != 1) {
+    if (res.code != 0) {
       showToast({
         message: res.msg || "认证失败~",
         duration: 2000,

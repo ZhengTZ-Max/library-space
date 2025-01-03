@@ -9,10 +9,7 @@ import { showToast } from "vant";
 import { exchangeDateTime } from "@/utils";
 
 import {
-  // getLockerList,
-  // getLockerFilter,
   getLostStorage,
-  getAllArea,
   getLostlocker,
   getLostInfo,
   sumbitLostStorage,
@@ -29,14 +26,6 @@ const clearListRef = ref();
 
 const state = reactive({
   activeRow: {},
-
-  initQuery: {
-    bookcaseId: route?.query?.id || "",
-    quickDate: route?.query?.date || "",
-    floorId: route?.query?.floor || "",
-    seatType: route?.query?.seatType || "",
-  },
-
   lostlockerList: [],
 
   filterOptions: [],
