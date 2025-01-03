@@ -63,15 +63,7 @@ watch(
     }
   }
 );
-watch(
-  () => state.applyInfo.isClose,
-  (v) => {
-    if (v) {
-      state.isApply = false;
-      fetchApplyActivity();
-    }
-  }
-);
+
 watch(
   () => state.applyResultInfo.isClose,
   (v) => {
@@ -154,6 +146,13 @@ const fetchApplyActivity = async () => {
     console.log(e);
   }
 };
+
+const onApplyClose = () => {
+  state.isApply = false;
+  fetchApplyActivity();
+};
+
+
 </script>
 <template>
   <div class="eventDetail">
@@ -318,7 +317,7 @@ const fetchApplyActivity = async () => {
       @cancel="state.isApply = false"
       centered
     >
-      <EventApplyCom :data="state.applyInfo" />
+      <EventApplyCom :data="state.applyInfo" @close="onApplyClose" />
     </a-modal>
     <a-modal
       width="22%"

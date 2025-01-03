@@ -627,7 +627,7 @@ const onSubmit = (type) => {
       // }
       if (earlierPeriods == 3) {
         if (!state.chooseRadioTime) {
-          message.warning(`请选择预约时间3`);
+          message.warning(`请选择预约时间`);
           return false;
         }
         params.cate_id = state.chooseRadioTime;
@@ -1304,8 +1304,29 @@ const getDateStatus = () => {
       @handleShow="handleShow"
     >
       <template v-slot:content>
-        <div class="toastItem">
-          <span>{{ $t("V4_applicant") + ":" }}</span>
+        <a-flex>
+          <a-flex vertical>
+            <span>{{ $t("V4_applicant") + ":" }}</span>
+            <span>{{ $t("yuyue_time") + ":" }}</span>
+            <span>{{ $t("Reservation_location") + ":" }}</span>
+            <span>参与人员：</span>
+            <span v-if="state.apptResult?.msg">{{
+              $t("visitor_Reservation_Remind") + ":"
+            }}</span>
+          </a-flex>
+          <a-flex vertical flex="1">
+            <span>{{ state?.UserInfo?.name || "" }}</span>
+            <span>{{ showApplyDate() || "" }}</span>
+            <span>{{ showAreaName() || "" }}</span>
+            <span>{{ showPeopleName() || "" }}</span>
+            <span v-if="state.apptResult?.msg">{{
+              state.apptResult?.msg
+            }}</span>
+          </a-flex>
+        </a-flex>
+
+        <!-- <div class="toastItem">
+          
           <span>{{ state?.UserInfo?.name || "" }}</span>
         </div>
         <div class="toastItem">
@@ -1315,7 +1336,7 @@ const getDateStatus = () => {
           </span>
         </div>
         <div class="toastItem">
-          <span>{{ $t("Reservation_location") + ":" }}</span>
+          
           <span>{{ showAreaName() || "" }}</span>
         </div>
         <div v-if="showPeopleName()" class="toastItem">
@@ -1325,7 +1346,7 @@ const getDateStatus = () => {
         <div v-if="state.apptResult?.msg" class="toastItem">
           <span>{{ $t("visitor_Reservation_Remind") + ":" }}</span>
           <span>{{ state.apptResult?.msg }}</span>
-        </div>
+        </div> -->
       </template>
     </ShowInfoToast>
   </div>

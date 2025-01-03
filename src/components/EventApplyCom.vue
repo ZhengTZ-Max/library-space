@@ -2,6 +2,9 @@
 import { reactive, onMounted, watch, ref } from "vue";
 import { getUserInfo } from "@/utils";
 
+
+const emit = defineEmits(["close"]);
+
 const props = defineProps({
   data: {
     type: Object,
@@ -26,9 +29,7 @@ onMounted(() => {
   }
 });
 
-const onApply = () => {
-  state.inputInfo.isClose = true;
-};
+
 </script>
 <template>
   <div>
@@ -50,7 +51,7 @@ const onApply = () => {
       />
     </div>
     <a-divider />
-    <a-button type="link" class="bottom_button"  @click="onApply"
+    <a-button type="link" class="bottom_button"  @click="emit('close')"
       >{{$t("visitor_Confirm")}}</a-button
     >
   </div>
