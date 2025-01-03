@@ -67,12 +67,12 @@ const state = reactive({
       link: "lostAndFound",
       icon: LostAndFoundIcon,
     },
-    {
-      id: "15",
-      label: "help_feedback",
-      link: "feedback",
-      icon: FeedBackIcon,
-    },
+    // {
+    //   id: "15",
+    //   label: "help_feedback",
+    //   link: "feedback",
+    //   icon: FeedBackIcon,
+    // },
   ],
 
   userInfo: {},
@@ -110,6 +110,13 @@ const filterCategoryList = () => {
       }
     })
     .filter((item) => item.existsInB);
+
+  state.filterRightNavs.push({
+    id: "10000",
+    label: "user_assistance",
+    link: "help",
+    icon: FeedBackIcon,
+  });
 };
 
 onMounted(() => {
@@ -157,7 +164,7 @@ const goToLink = (link) => {
 const unbindWx = () => {
   try {
     showConfirmDialog({
-      title: $t('V4_prompt'),
+      title: $t("V4_prompt"),
       message: `是否确认解绑微信登录？`,
     })
       .then(async () => {
@@ -243,7 +250,11 @@ const unbindWx = () => {
           <div class="divider"></div>
         </template>
 
-        <button class="footer-button" :class="{ 'w-100': !state.userInfo?.open_id }" @click="handleOut">
+        <button
+          class="footer-button"
+          :class="{ 'w-100': !state.userInfo?.open_id }"
+          @click="handleOut"
+        >
           {{ $t("menu_out") }}
         </button>
       </div>

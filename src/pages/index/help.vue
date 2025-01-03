@@ -4,11 +4,14 @@ import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 import { getHelpList } from "@/request/my";
-
+import PageSizeCom from "@/components/PageSizeCom.vue";
 const router = useRouter();
 const selectedKey = ref("");
 const state = reactive({
   menuItems: [],
+  page: 1,
+  pageSize: 10,
+  total: 0,
   selectedItem: "",
 });
 
@@ -20,20 +23,23 @@ onMounted(() => {
 const fetchHelpList = async () => {
   try {
     let params = {
-      "limit" : 10,
+      limit: state.pageSize,
+      page: state.page,
     };
     const res = await getHelpList(params);
     if (res.code === 0) {
       state.menuItems = res.data?.data || [];
+      state.total = res.data?.total || 0;
     }
   } catch (e) {
     console.log(e);
   }
 };
 
-const onSelect = ({ item,key }) => {
-  selectedKey.value = key
-  state.selectedItem = item?.content;
+const onSelect = ({ item, key }) => {
+  selectedKey.value = key;
+  state.selectedItem = state.menuItems.find((item) => item.id === key)?.content;
+  console.log(state.selectedItem);
 };
 
 const goBack = () => {
@@ -77,7 +83,7 @@ const goBack = () => {
 
       <div class="display-area">
         <template v-if="selectedKey">
-          <div v-html="state.selectedItem"></div>
+          <div style="overflow-y: scroll; height: calc(100vh - 200px);" v-html="state.selectedItem"></div>
         </template>
         <template v-else>
           <div class="empty-state">
@@ -139,10 +145,9 @@ const goBack = () => {
 }
 .display-area {
   flex: 1;
-  padding: 20px;
   display: flex;
   justify-content: center;
-  align-items: center;
+  height: 100%;
 }
 
 .empty-state {
