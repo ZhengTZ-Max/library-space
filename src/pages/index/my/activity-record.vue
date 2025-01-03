@@ -365,7 +365,7 @@ const onShowModal = (record) => {
           <div class="indicator_title"></div>
           <span class="text">{{ $t("V4_event_details") }}</span>
         </div>
-        <img src="@/assets/close.svg" alt="" />
+        <img src="@/assets/close.svg" alt="" @click="onHideDrawer" style="cursor: pointer;" />
       </div>
       <a-divider />
       <MyActivityRecordDetailDrawer :data="state.drawerDetailsInfo" />

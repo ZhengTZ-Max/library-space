@@ -598,11 +598,18 @@ const onSubmit = (type) => {
     } else {
       params.end_date = exchangeDateTime(endDate, 2);
       state.chooseTimeList.forEach((e) => {
-        params.time.push({
-          start_time: e.begin_time,
-          end_time: e.end_time,
-        });
+        if (e?.begin_time && e?.end_time) {
+          params.time.push({
+            start_time: e.begin_time,
+            end_time: e.end_time,
+          });
+        }
       });
+
+      if (!params?.time?.length) {
+        showToast({ message: "请选择时间段" });
+        return false;
+      }
     }
 
     if (!params?.title) {
